@@ -1,4 +1,4 @@
 # FactorySimPy
-This is a prototype of the package
+This is a prototype(version 0, alpha) of the package.
 
-This is an open source, minimal component-library modeling and simulation of Discrete-event models in Manufacturing systems. For details refer documentation.
+FactorySimPy is an open-source Python library for modeling and discrete-event simulation of manufacturing systems.
