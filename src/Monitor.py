@@ -14,8 +14,7 @@ class ProcessorMonitor:
         start_time = self.process_start_times.pop()
         self.items_processed += 1
         self.total_processing_time += (current_time - start_time)
-        self.process_start_times.append(current_time)
-        self.items_processed += 1
+       
 
     def record_waiting_time(self, wait_time):
         self.total_waiting_time += wait_time
