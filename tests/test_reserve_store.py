@@ -2,7 +2,7 @@
 
 import unittest
 import simpy
-from src.reserve_store import ReserveStore
+
 
 class Item:
     """A class representing an item with a 'ready' flag."""

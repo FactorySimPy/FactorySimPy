@@ -1,0 +1,36 @@
+site_name: Extended Resources for FactorySimPy
+site_url: https://factorysimpy.github.io/FactorySimPydocs/
+
+theme:
+  name: material  # optional: for Material Design theme
+  #name: readthedocs
+  features:
+    - navigation.tabs
+    - navigation.sections
+
+use_directory_urls: true
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          #paths: ['ReservablePriorityReqStore', 'PriorityReqStore']  # Specify the paths to your modules here
+          paths: 
+          - src/factorysimpy/base
+          
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences  # (important for code blocks inside lists/admonitions)
+
+nav:
+  - Home: FactorySimPy.md  
+  - Extended resources: index.md 
+  - Getting Started: getting_started.md
+  - API Reference:  
+      - ReservablePriorityReqStore: reservablepriorityreqstore.md
+      - PriorityReqStore: priorityreqstore.md

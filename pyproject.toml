@@ -1,0 +1,24 @@
+[project]
+name = "factorysimpy"
+version = "0.1.0"
+description = "A light-weight component library for simulating manufacturing systems, based on SimPy"
+authors = [
+    { name="Lekshmi P", email="lekshmi20231101@iitgoa.ac.in" },
+    { name="Neha Karanjkar", email="nehak@iitgoa.ac.in" }
+]
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+dependencies = [
+    "simpy>=4.0.1"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio",
+    
+]
+
+[build-system]
+requires = ["setuptools>=42", "wheel"]
