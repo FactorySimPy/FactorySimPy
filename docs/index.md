@@ -1,417 +1,218 @@
 
+# Discrete event Simulation for Manufacturing
+## Overview
+FactorySimPy is a opensource, python library for modeling and Discrete-event simulation of systems seen in manufacturing systems. This library has a canonical set of components that are seen in a typical manufacuting setting like Machines with processing delay or Joints that pack incoming items from different other components, etc. These components' behaviour is pre-built and configurable. User has to provide the model structure and the component parameters to run the simulation model. User can include new features by deriving from the existing classes. This library is built on SimPy 4 and supports as fast as possible and rela time simulation.    
+Currently, the library supports discrete flows only and is ideal for systems where the structure remains unchanged. We also plan to add support for material flow.
+
+System consists of two types of components namely Nodes and Edges and is defined as a graph with nodes which are the active components in the system like machine with a processing delay (or machines that pack or unpack items, etc). and edges that represent objects corresponding to conveyor or fleet of human operators or ware-house robots or transport vehicles that are used for item transfer in the system from one node to another.
 
 
-# Extended resources for FactorySimPy
 
-Welcome to the extended resources documentation for FactorySimPy!
+## Model Description
+User defines the system as a graph with nodes and edges. Nodes are the components that represents machines with processing delays and edges are the components that used to join two nodes together.
+
+A node has a set of in_edges and out_edges. An edge connects exactly two nodes and serves as an in_edge for the dest_node and out_edge for the src_node. Graph can have loops(and self loops).
+
+
+
+### Example Representation
+An example model with 2 nodes and an edge
+
+![Graph Representation](jupyternb/images/gr_2nodes.jpg)
 
 ---
 
-### ReservablePriorityReqStore   
+## Component Design:Important Classes
+
+`Node` and `Edge` serves as the base classes. There is another class to represent the items that flow in the system and is named as `Item` class. `Nodes` are the active elements in the system and are static and `Edge` represents the passive elements in the systems and are used to interconnect two nodes.
+
+Node has in_edges and out_edges which contains reference to edge objects. Other parameters of Node are id and name. `Machine` is a class derived from node class to represent all the nodes that have a processing capability. `Processor`, `Split`, and `Joint` are classes that are derived from `Machine` class. `Processor` has parameters capacity(int) which is the maximum number of items that can be processed simultaneously in the machine and delay which is the time taken for processing an item. Delay can be a number(integer or real-valued) or a generator function that can be used to generate random variates from a distribution. Other components that are derived from node are `Source` and `Sink`.
+Edge has parameters dest_node, source_node and capacity and has methods can_put, put, can_get and get. `Conveyor`, `Fleet` and `Buffer` are classes that are derived from Edge base class.  In `Conveyors`, items are moved in sequence from one node to another and the order of the items are preseved. It has parameters capacity(int, maximum number of items it can hold), occupancy(int, number of items currently present on it) and state. State represents the state of the conveyor and takes values stalled, moving or empty.
+
+`Conveyor` can support discrete(slotted belt) movement of items and continuous flow of discrete items. 
+
+In a discrete motion conveyor, the items are moved in fixed steps or stages and will be halted for sometime defined as delayperslot. where as in conitnuous motion conveyor, items move continuously at a defined speed.
+
+If an item is present at the other end of the conveyor, then an accumulating conveyor allows other incoming items to be placed in the conveyor and it will get lined up behind the the last item, until the capacity of the conveyor is reached. But, a non-accumulating conveyor will only allow one incoming item at the starting end of the conveyor if an item is already present at the other end of the conveyor.
 
 
 
-The ReservablePriorityReqStore is a class derived from SimPy's Store class that addresses a missing capability in the library by allowing both priority-based retrieval and reservation of items(or space) before they are actually retrieved (or put), respecting the capacity of the store. This is particularly useful in manufacturing systems where materials or products must be allocated in advance, ensuring that specific parts are reserved for machines before processing begins. It also allows priority-based retrieval, ensuring that urgent requests are handled first. Additionally, decoupling reservation from yielding a "get" request ensures that items remain in storage until they are actually needed, improving coordination in assembly lines and buffer management. Unlike SimPy’s existing resource reservation methods, which manage process-related elements like machines or operators, ReservablePriorityReqStore focuses on item-level management, making it a valuable addition for handling inventory, buffer stocks, and material flows in discrete-event simulations.
-However, when implementhing SimPy interrupts, the events should be manually cancelled incase of an interruption.
+ `Fleets` represents the objects that can transport items from a node to another by a fleet of carriers, warehouse robots, human operators, etc. The order of the items is not preserved here. It is characterised by the parameters size of fleet, delay, and state. The size of fleet(int) that the number of carriers, delay represents the time it take to transport the items. Delay can be a number(integer or real-valued) or a generator function that can be used to generate random variates from a distribution. State variable represents the state of every agent. The values it takes are `occupied` or `not-occupied`. If the state is occupied, then the fleet will be moving.
 
+
+Here, is an example of a model with 3 nodes that are connected using 2 edges. Nodes are of type source, machine and sink and edges are of type conveyor. 
+
+## System Description
+
+### Rules for interconnection
+1. Nodes are static entities like processor, source, sink, split, joints, etc.
+2. Edges are directed and connects one node to another. Conveyor, buffer and fleet are the entities that are of type Edge.
+3. Items are discrete parts that flow in the system through the directed edges from one node to another. 
+3. Each Node has two lists `in_edges` and `out_edges` that points to the references of the edges that comes in and go out of the node
+4. Each Edge stores pointers to a `src_node` and a `dest_node`. An Edge can be used only to connect a single node(`src_node`) to another (or same) node(`dest_node`).
+5. An Edge can have the same node in both `src_node` and `dest_node`. (ie, a node can be connected to itself)
+6. Nodes are the active elements whose activites initiates state changes in the system.
+7. Edges are the passive elements and state change occurs due to actions initiated by nodes
+8. To split the output from a `processor` node into two streams, a `Split` must be connected to the `processor` using an Edge.
+9. To join two streams and to feed as input to a `processor` node, a `Joint` must be connected to the `processor` using an Edge
+
+![Example Image](jupyternb/images/split.jpg)
+
+```<img src="jupyternb/images/split.jpg" alt="Example Image" style="width:400px;">```
+```<img src="jupyternb/images/split.jpg" class="resized-img">```
+
+
+
+
+![Graph Representation](jupyternb/images/joint.jpg)
+
+### Steps for Connecting Components
+1. Instantiate nodes and edges:
+   ```python
+   n1 = Node()
+   n2 = Node()
+   n3 = Sink()
+   e1 = Edge()
+   ```
+2. Establish connections:
+   ```python
+   e1.connect(n1, n2)
+   e2.connect(n2,n3)
+   ```
+
+---
+
+## **Class Hierarchy**
+```
+├── Node(Base Class for components that processes items)
+    ├── Machine     # Base class for nodes that Processes items 
+      ├── Processor     # Processes items 
+      ├── Joint      # Merges multiple flows into one
+      ├── Split       # Splits a flow into multiple branches.
+    ├── Sink        # Consumes items
+    ├── Source       # generates items
+  
+
+├── Edge(Base Class for components that transfer items from one node to another)
+    ├── Conveyor   # transfers items in a sequence from a node to another and order is preserved
+    ├── Fleet      # Fleet of human operstor, warehouse robots or transport vehicles
+    ├── Buffer     # Queue of items waiting to be accepted by the next node in a model
+
+```
+
+
+
+
+
+## Behavior of Components
+
+
+
+---
+
+### **Edge** \( E \):
+- **Purpose**: Connects two nodes.  
+- **Parameters**
+     - `edge_id`: unique id of an edge
+
+### Derived Classes from Edge 
+
+  1. **Conveyor** \( E_c \):
+     - **FIFO Behavior**: Maintains the order of items.
+     - **Parameters**:
+       - `num_slots`: Capacity of the conveyor.
+       - `delay_per_slot`: Time for an item to move from one slot to the next.
+       - `accumulating`: Boolean indicating if items can accumulate at the conveyor's end.
+       - **Blocking Conveyor**: Blocks further additions if the last slot is occupied.
+     - **Methods**:
+       - `can_put()`, `put()`: Add items.
+       - `can_get()`, `get()`: Retrieve items.
+
+  2. **Transporter** \( E_t \):
+     - **Purpose**: Handles bursty traffic by operating in parallel.
+     - **Behavior**: Spawns additional instances as required to manage flow surges.
+
+  3. **Buffer** \( E_b \):
+     - **Purpose**: Handles bursty traffic by operating in parallel.
+     - **Behavior**: Spawns additional instances as required to manage flow surges.
+
+---
+
+### **Node** \( N \):
+- **Purpose**: Active elements in the system.  
+- **Parameters**
+     - `node_id`: unique id of a node
+### Derived Classes from Node 
+  1. **Source** \( N_src \):
+     - **Purpose**: to mark the start of the model
+      - **Behavior**: Calls `can_put` on the connected edge. If `True`, the item is added using `put`. Otherwise, the item is dropped (non-blocking behavior).
+      - **Parameters**
+          - `delay`: Time between item generations.
+          - `can_put()`: Checks edge availability.
+          - `put()`: Adds item to the edge.
+
+  2. **Sink** \( N_snk \):
+     - **Purpose**: To mark the end of the model
+     - **Behavior**: Entity to consume items 
+  3. **Machine** \( N_m \):
+     
+     - **Parameters**:
+          - `work_capacity`: Capacity of the machine.
+          - `store_capacity`: Capacity of the store.
+          - `delay`: Time for processing.
+          - `name`: string name of the machine.
+       
+     - **Methods**:
+          - `can_put()`, `put()`: Add items.
+          - `can_get()`, `get()`: Retrieve items.
+    
+     - **Derived Classes from Machines**:
+          1. **Processor** \( N_p \):
+            
+            - **Parameters**:
+                - `work_capacity`: Capacity of the machine.
+                - `store_capacity`: Capacity of the store.
+                - `delay`: Time for processing.
+                - `name`: string name of the machine.
+              
+            - **Methods**:
+                - `can_put()`, `put()`: Add items.
+                - `can_get()`, `get()`: Retrieve items.
+
+          2. **Split** \( N_sp \):
+            
+            - **Parameters**:
+                - `work_capacity`: Capacity of the machine.
+                - `store_capacity`: Capacity of the store.
+                - `delay`: Time for processing.
+                - `name`: string name of the machine.
+              
+            - **Methods**:
+                - `can_put()`, `put()`: Add items.
+                - `can_get()`, `get()`: Retrieve items
+              
+          3. **Joint** \( N_jt \):
+            
+            - **Parameters**:
+                - `work_capacity`: Capacity of the machine.
+                - `store_capacity`: Capacity of the store.
+                - `delay`: Time for processing.
+                - `name`: string name of the machine.
+            - **Methods**:
+                - `can_put()`, `put()`: Add items.
+                - `can_get()`, `get()`: Retrieve items
 
  
 
-The `ReservablePriorityReqStore` extends SimPy's `Store` by allowing users to:  
-
-- **Reserve Capacity**: Processes can reserve space (or item) in the store before actual put (or get) in it.  
-
-- **Enforce Reservation Rules**: Prohibits any process from adding (or getting) items to the store without a prior reservation.  
-
-- **Priority for requests**: Users can pass a priority along with the reservation requests. The requests with the highest priority(lowest first) will be yielded first. Two requests with same priority will be yielded in a FIFO manner.
-
-- **Cancel a reservation**: Allows users to cancel a placed/yielded reserve_put (or reserve_get) request.
-
-
-
-
-##### Parameters
-- **`env`**: The SimPy environment managing the simulation.  
-- **`capacity`**: Maximum number of items the store can hold (default: infinite).  
-
-##### Example Usage 
-```python
-import simpy
-import random
-from ReservablePriorityReqStore import ReservablePriorityReqStore
-
-class Item:
-    """Represents an item to be stored."""
-    def __init__(self, name):
-        self.name = name
-
-# Simulation Setup
-env = simpy.Environment()
-itemstore = ReservablePriorityReqStore(env, capacity=3)
-
-def producer(env, itemstore, name, priority):
-    """Producer process produces items and puts it in the store."""
-    yield env.timeout(random.uniform(1, 3))  # Simulate time before producing
-
-    put_reservation = itemstore.reserve_put(priority=priority)
-    yield put_reservation  # Wait for reservation to succeed
-
-    item = Item(f"{name}")
-    itemstore.put(put_reservation, item)
-    print(f"T={env.now:.2f} : {name} added to store with priority {priority}")
-
-def consumer(env, itemstore, name, priority, cancel=False):
-    """Consumer process picks up items from the store."""
-   
-    get_reservation = itemstore.reserve_get(priority=priority)
-    print(f"T={env.now:.2f} : {name} placed a reserve_get request 
-             to store with priority {priority}")
-
-    if cancel and random.choice([True, False]):
-        itemstore.reserve_get_cancel(get_reservation)
-        print(f"T={env.now:.2f} : {name} CANCELED reservation")
-        return
-
-    yield get_reservation  # Wait for reservation to succeed
-    print(f"T={env.now:.2f} : {name} yielded from store with priority {priority}")
-    yield env.timeout(random.uniform(2, 5))
-    item = itemstore.get(get_reservation)
-    print(f"T={env.now:.2f} : {name} retrieved {item.name} from store with 
-                priority {priority}")
-
-# Creating producers and consumers
-env.process(consumer(env, itemstore, "Consumer1", priority=3, cancel=True))
-env.process(consumer(env, itemstore, "Consumer2", priority=1))
-env.process(consumer(env, itemstore, "Consumer3", priority=2))
-
-
-env.process(producer(env, itemstore, "ItemA", priority=2))
-env.process(producer(env, itemstore, "ItemB", priority=1))
-env.process(producer(env, itemstore, "ItemC", priority=3))
-
-
-env.run(until=10)
-```
-
-**Simulation output**  
-```
-T=0.00 : Consumer1 placed a reserve_get request to store with priority 3
-T=0.00 : Consumer1 CANCELED reservation
-T=0.00 : Consumer2 placed a reserve_get request to store with priority 1
-T=0.00 : Consumer3 placed a reserve_get request to store with priority 2
-T=2.14 : ItemB added to store with priority 1
-T=2.14 : Consumer2 yielded from store with priority 1
-T=2.23 : ItemA added to store with priority 2
-T=2.23 : Consumer3 yielded from store with priority 2
-T=2.54 : ItemC added to store with priority 3
-T=5.40 : Consumer2 retrieved ItemB from store with priority 1
-T=6.02 : Consumer3 retrieved ItemA from store with priority 2 
-
-```
-
-
-##### Usecase
-```python
-# @title Usecase
-import simpy
-from ReservablePriorityReqStore import ReservablePriorityReqStore
-
-'''
-In this simulation, two machines (MachineGreen and MachineOrange) produce
-new items by consuming specific part. MachineGreen,which produces green balls, 
-requests parts (like yellow and blue balls) with a higher priority, while 
-MachineOrange, which produces orange balls, requests parts
-(like yellow and red balls) with lower priority. Producers generate red, yellow, 
-and blue balls at defined intervals, and consumers retrieve the assembled green 
-and orange balls from their respective stores.'''
-
-
-
-# ----- Producer -----
-def producer(env, interarrival, store, item_prefix):
-    """Produces items with a given prefix into a store."""
-    i = 0
-    while True:
-        yield env.timeout(interarrival)
-        put_req = store.reserve_put()
-        yield put_req
-        item_name = f"{item_prefix}{i+1}"
-        store.put(put_req, item_name)
-        print(f"T={env.now:.2f}: Producer {item_prefix}: added {item_name})")
-        
-        i += 1
-
-# ----- Consumer -----
-def consumer(env, interarrival, store, consumer_name):
-    """Consumes items from a store."""
-    while True:
-        yield env.timeout(interarrival)
-        get_req = store.reserve_get()
-        yield get_req
-        item = store.get(get_req)
-        print(f"T={env.now:.2f}: Consumer {consumer_name}: got item {item}")
-       
-
-# ----- Machine -----
-def machine(env, delay, input_stores, input_priorities, 
-               output_store, output_prefix):
-    """
-    A machine that requests multiple items from input stores 
-    (with optional priorities),waits processing time, and outputs a new item.
-    
-    Args:
-        input_stores (list): list of stores to get inputs from
-        input_priorities (list): list of priorities (None if no priority)
-        output_store: where to put output
-        output_prefix: name prefix for output items
-    """
-    i = 0
-    while True:
-        put_req = output_store.reserve_put()
-        yield put_req
-
-        # Request input items
-        input_requests = []
-        for store, priority in zip(input_stores, input_priorities):
-            if priority is not None:
-                req = store.reserve_get(priority=priority)
-            else:
-                req = store.reserve_get()
-            input_requests.append(req)
-
-        print(f"T={env.now:.2f}: Machine {output_prefix}: waiting to yield 
-                           reserve_get requests")
-        yield env.all_of(input_requests)
-
-        # Get input items
-        for store, req in zip(input_stores, input_requests):
-            store.get(req)
-
-        print(f"T={env.now:.2f}: Machine {output_prefix}: got both inputs")
-        yield env.timeout(delay)
-
-        output_store.put(put_req, f"{output_prefix}{i}")
-        print(f"T={env.now:.2f}: Machine {output_prefix}: finished product is 
-                        available in its store")
-        i += 1
-
-# ----- Simulation Setup -----
-def run_simulation():
-    env = simpy.Environment()
-
-    # Create Stores
-    redstore = ReservablePriorityReqStore(env, capacity=5)
-    yellowstore = ReservablePriorityReqStore(env, capacity=1)
-    bluestore = ReservablePriorityReqStore(env, capacity=5)
-    orangestore = ReservablePriorityReqStore(env, capacity=1)
-    greenstore = ReservablePriorityReqStore(env, capacity=1)
-
-    # Producer setups
-    producer_params = [
-        (1, redstore, "red"),
-        (2, yellowstore, "yellow"),
-        (1, bluestore, "blue")
-    ]
-
-    # Consumer setups
-    consumer_params = [
-        (1, orangestore, "orange"),
-        (1, greenstore, "green")
-    ]
-
-    # Machine setups
-    machine_params = [
-       (1, [yellowstore, redstore], [None, None], orangestore, "orange"),#Machine1
-       (1, [yellowstore, bluestore], [-2, None], greenstore, "green") # Machine2
-    ]
-
-    # Start Producers
-    for interarrival, store, prefix in producer_params:
-        env.process(producer(env, interarrival, store, prefix))
-
-    # Start Consumers
-    for interarrival, store, name in consumer_params:
-        env.process(consumer(env, interarrival, store, name))
-
-    # Start Machines
-    for delay, inputs, priorities, output, prefix in machine_params:
-        env.process(machine(env, delay, inputs, priorities, output, prefix))
-
-    # Run Simulation
-    env.run(until=5)
-
-
-
-# Run it
-run_simulation()
-
-
-```
-
-**Simulation output** 
-
-```
-T=0.00: Machine orange: waiting to yield reserve_get requests
-T=0.00: Machine green: waiting to yield reserve_get requests
-T=1.00: Producer red: added red1 
-T=1.00: Producer blue: added blue1 
-T=2.00: Producer yellow: added yellow1
-T=2.00: Producer red: added red2 
-T=2.00: Producer blue: added blue2
-T=2.00: Machine green: got both inputs
-T=3.00: Machine green: finished product is available in its store
-T=3.00: Producer red: added red3 
-T=3.00: Producer blue: added blue3
-T=3.00: Consumer green: got item green0
-T=3.00: Machine green: waiting to yield reserve_get requests
-T=4.00: Producer yellow: added yellow2 
-T=4.00: Producer red: added red4 
-T=4.00: Producer blue: added blue4 
-T=4.00: Machine green: got both inputs
-```
-
-
-[Go to API Reference](reservablepriorityreqstore.md)
+### **Item** \( I \):
+- **Purpose**: Items that flow in the system  
+- **Parameters**
+     - `item_id`: unique id of an item
+     - `delay`: inter-arrival time
+     
 
 ---
 
-## PriorityReqStore
 
-PriorityReqStore is a resource store with priority handling capabilities. Users can add a priority for each of the get(or put) requests. Request with lower values of priority yields first among all get(or put) requests. If two requests with same priority are placed from two processes then FIFO order is followed to yield the requests.
-
-**Main Features:**
-
-- **Priority for requests**: Manages concurrent requests with different priority values.
-
-
-##### Parameters  
-- **`env`**: The SimPy environment managing the simulation.  
-- **`capacity`**: Maximum number of items the store can hold (default: infinite).  
-
-
-
-### Example Usage
-```python
-import simpy
-from PriorityReqStore import PriorityReqStore
-
-class item:
-  def __init__(self,name):
-    self.name=name
-
-def source(name,env,delay,priority=0):
-    i=1
-
-    yield env.timeout(delay)
-    item1 = item(name='item'+str(name)+str(i))
-    print(f'T={env.now:.2f}: Source {name} Going to put an item in 
-                    store {item1.name} with priority {priority}')
-
-    yield store.put(item1,priority)
-    i+=2
-def sink(name,env,delay,priority):
-
-    yield env.timeout(delay)
-    print(f'T={env.now:.2f}: Sink {name} placed a get request with 
-                     priority {priority} in the store')
-    item = yield store.get(priority)
-    print(f'T={env.now:.2f}: Sink {name} Got an item from store {item.name}')
-
-
-
-env= simpy.Environment()
-store= PriorityReqStore(env,2)
-
-p1= env.process(sink('OUT-1',env,0,2))
-p2= env.process(sink('OUT-2',env,0,1))
-p3= env.process(source('IN-A',env,1,2))
-p4= env.process(source('IN-B',env,1,1))
-
-env.run(until=5)
-```
-
-**Simulation output** 
-```
-T=0.00: Sink OUT-1 placed a get request with priority 2 in the store
-T=0.00: Sink OUT-2 placed a get request with priority 1 in the store
-T=1.00: Source IN-A Going to put an item in store itemIN-A1 with priority 2
-T=1.00: Source IN-B Going to put an item in store itemIN-B1 with priority 1
-T=1.00: Sink OUT-2 Got an item from store itemIN-A1
-T=1.00: Sink OUT-1 Got an item from store itemIN-B1
-```
-
-### Usecase
-```python
-
-'''
-A university’s Central IT Department supports Admin, Library, Student Labs,
-and Research Labs. Departments request IT systems (computers). Systems are
-allocated based on request priority — higher-priority departments get
-systems first.'''
-
-
-import simpy
-from PriorityReqStore import PriorityReqStore  # Importing your PriorityReqStore
-
-class CentralITDepartment:
-    def __init__(self, env, initial_stock=0):
-        self.env = env
-        self.store = PriorityReqStore(env)
-        self.results = []
-
-        # Pre-load some stock if needed
-        for i in range(initial_stock):
-            self.store.items.append(f"Preloaded_System_{i+1}")
-
-    def department_request(self, department_name, priority):
-        """Department places a request for a system."""
-        print(f"T={self.env.now:.2f}: {department_name} places a request with 
-                                 priority {priority}")
-        system = yield self.store.get(priority=priority)
-        self.results.append((self.env.now, department_name, system))
-        print(f"T={self.env.now:.2f}: {department_name} received {system}")
-
-    def add_systems(self, count, delay=0):
-        """IT department adds systems after a delay."""
-        yield self.env.timeout(delay)
-        for i in range(count):
-            system_name = f"System_{i+1}_after_delay"
-            yield self.store.put(system_name)
-            print(f"T={self.env.now:.2f}: IT Department added {system_name}")
-
-def run_central_it_simulation():
-    env = simpy.Environment()
-    it_department = CentralITDepartment(env)
-
-    # Start departments making requests
-    env.process(it_department.department_request('Admin', priority=3))
-    env.process(it_department.department_request('Library', priority=3))
-    env.process(it_department.department_request('Student Lab', priority=1))
-    env.process(it_department.department_request('Research Lab', priority=2))
-
-    # IT Department will add new systems after 2 time units
-    env.process(it_department.add_systems(count=3, delay=2))
-
-    env.run(until=10)
-
-
-if __name__ == "__main__":
-    run_central_it_simulation()
-
-```
-
-**Simulation output** 
-```
-T=0.00: Admin places a request with priority 3
-T=0.00: Library places a request with priority 3
-T=0.00: Student Lab places a request with priority 1
-T=0.00: Research Lab places a request with priority 2
-T=2.00: IT Department added System_1_after_delay
-T=2.00: Student Lab received System_1_after_delay
-T=2.00: IT Department added System_2_after_delay
-T=2.00: Research Lab received System_2_after_delay
-T=2.00: IT Department added System_3_after_delay
-T=2.00: Admin received System_3_after_delay
-```
-
-[Go to API Reference](priorityreqstore.md)
+## Summary
+By adhering to this framework, FactorySimPy ensures a structured, intuitive simulation environment for modeling discrete item flows in manufacturing systems. The notations and rules defined here aim to provide clarity and minimize ambiguity during model creation.

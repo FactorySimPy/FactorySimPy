@@ -28,8 +28,8 @@ markdown_extensions:
   - pymdownx.superfences  # (important for code blocks inside lists/admonitions)
 
 nav:
-  - Home: FactorySimPy.md  
-  - Extended resources: index.md 
+  - Home: index.md  
+  - Extended resources: extendedresources.md 
   - Getting Started: getting_started.md
   - API Reference:  
       - ReservablePriorityReqStore: reservablepriorityreqstore.md
