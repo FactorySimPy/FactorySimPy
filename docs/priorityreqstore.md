@@ -1,6 +1,6 @@
 # API Reference
 
-::: PriorityReqStore.PriorityReqStore
+::: priority_req_store
     options:
       show_root_heading: true
       show_source: false
