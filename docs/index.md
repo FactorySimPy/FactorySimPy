@@ -18,7 +18,7 @@ A node has a set of in_edges and out_edges. An edge connects exactly two nodes a
 ### Example Representation
 An example model with 2 nodes and an edge
 
-![Graph Representation](jupyternb/images/gr_2nodes.jpg)
+<!-- ![Graph Representation](jupyternb/images/gr_2nodes.jpg) -->
 
 ---
 
@@ -56,7 +56,7 @@ Here, is an example of a model with 3 nodes that are connected using 2 edges. No
 8. To split the output from a `processor` node into two streams, a `Split` must be connected to the `processor` using an Edge.
 9. To join two streams and to feed as input to a `processor` node, a `Joint` must be connected to the `processor` using an Edge
 
-![Example Image](jupyternb/images/split.jpg)
+<!-- ![Example Image](jupyternb/images/split.jpg)
 
 ```<img src="jupyternb/images/split.jpg" alt="Example Image" style="width:400px;">```
 ```<img src="jupyternb/images/split.jpg" class="resized-img">```
@@ -64,7 +64,7 @@ Here, is an example of a model with 3 nodes that are connected using 2 edges. No
 
 
 
-![Graph Representation](jupyternb/images/joint.jpg)
+![Graph Representation](jupyternb/images/joint.jpg) -->
 
 ### Steps for Connecting Components
 1. Instantiate nodes and edges:
