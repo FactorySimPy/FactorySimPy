@@ -27,3 +27,11 @@ jobs:
             mkdocs-material-
       - run: pip install mkdocs-material mkdocstrings[python]
       - run: mkdocs gh-deploy --force
+
+       # NEW: Clean any previous site artifacts
+      - name: Clean build
+        run: mkdocs build --clean
+
+      # FINAL STEP: Force deploy with clean build
+      - name: Deploy to GitHub Pages
+        run: mkdocs gh-deploy --clean --force
