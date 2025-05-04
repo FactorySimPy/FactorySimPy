@@ -73,8 +73,11 @@ FactorySimPy/
 ##  Documentation
 
 Visit the [full documentation site](https://factorysimpy.github.io/FactorySimPy/) for:
+
 - API Reference
+
 - Example
+
 - Usecase
 
 
