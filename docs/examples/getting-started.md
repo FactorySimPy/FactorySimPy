@@ -44,7 +44,7 @@ All components can be customized, and extended easily.
 
 ## 🛠️ A Minimal Working Example
 
-[An example that shows how to simulate a simple system with two machines and a conveyor](examples/quick_start.py)
+[An example that shows how to simulate a simple system with two machines and a conveyor](../examples/quick_start.py)
 
 
 
