@@ -6,7 +6,7 @@ This guide will help you get up and running in just a few minutes.
 
 ---
 
-## 🚀 Installation
+##  Installation
 
 Install FactorySimPy using `pip`. Make sure you have Python ≥ 3.8.
 
@@ -29,7 +29,7 @@ pip install git+https://github.com/FactorySimPy/FactorySimPy.git
 
 ---
 
-## ✨ What You Can Model
+##  What You Can Model
 
 FactorySimPy lets you simulate typical manufacturing scenarios using ready-made building blocks like:
 - **Machine** is a node with configurable processing delay
@@ -42,7 +42,7 @@ All components can be customized, and extended easily.
 
 ---
 
-## 🛠️ A Minimal Working Example
+##  A Minimal Working Example
 
 [An example that shows how to simulate a simple system with two machines and a conveyor](../examples/quick_start.py)
 
@@ -51,7 +51,7 @@ All components can be customized, and extended easily.
 
 ---
 
-## 📦 Directory Structure
+##  Directory Structure
 
 ```
 FactorySimPy/
@@ -70,12 +70,12 @@ FactorySimPy/
 
 ---
 
-## 📚 Learn More
+##  Documentation
 
 Visit the [full documentation site](https://factorysimpy.github.io/FactorySimPy/) for:
-- 📖 API Reference
-- 🧪 Example notebooks
-- 📘 Tutorials
+- API Reference
+- Example
+- Usecase
 
 
 ---
