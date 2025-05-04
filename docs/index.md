@@ -110,33 +110,7 @@ Here, is an example of a model with 3 nodes that are connected using 2 edges. No
 
 ---
 
-### **Edge** \( E \):
-- **Purpose**: Connects two nodes.  
-- **Parameters**
-     - `edge_id`: unique id of an edge
 
-### Derived Classes from Edge 
-
-  1. **Conveyor** \( E_c \):
-     - **FIFO Behavior**: Maintains the order of items.
-     - **Parameters**:
-       - `num_slots`: Capacity of the conveyor.
-       - `delay_per_slot`: Time for an item to move from one slot to the next.
-       - `accumulating`: Boolean indicating if items can accumulate at the conveyor's end.
-       - **Blocking Conveyor**: Blocks further additions if the last slot is occupied.
-     - **Methods**:
-       - `can_put()`, `put()`: Add items.
-       - `can_get()`, `get()`: Retrieve items.
-
-  2. **Transporter** \( E_t \):
-     - **Purpose**: Handles bursty traffic by operating in parallel.
-     - **Behavior**: Spawns additional instances as required to manage flow surges.
-
-  3. **Buffer** \( E_b \):
-     - **Purpose**: Handles bursty traffic by operating in parallel.
-     - **Behavior**: Spawns additional instances as required to manage flow surges.
-
----
 
 ### **Node** \( N \):
 - **Purpose**: Active elements in the system.  
@@ -202,6 +176,34 @@ Here, is an example of a model with 3 nodes that are connected using 2 edges. No
                 - `can_put()`, `put()`: Add items.
                 - `can_get()`, `get()`: Retrieve items
 
+                
+### **Edge** \( E \):
+- **Purpose**: Connects two nodes.  
+- **Parameters**
+     - `edge_id`: unique id of an edge
+
+### Derived Classes from Edge 
+
+  1. **Conveyor** \( E_c \):
+     - **FIFO Behavior**: Maintains the order of items.
+     - **Parameters**:
+       - `num_slots`: Capacity of the conveyor.
+       - `delay_per_slot`: Time for an item to move from one slot to the next.
+       - `accumulating`: Boolean indicating if items can accumulate at the conveyor's end.
+       - **Blocking Conveyor**: Blocks further additions if the last slot is occupied.
+     - **Methods**:
+       - `can_put()`, `put()`: Add items.
+       - `can_get()`, `get()`: Retrieve items.
+
+  2. **Transporter** \( E_t \):
+     - **Purpose**: Handles bursty traffic by operating in parallel.
+     - **Behavior**: Spawns additional instances as required to manage flow surges.
+
+  3. **Buffer** \( E_b \):
+     - **Purpose**: Handles bursty traffic by operating in parallel.
+     - **Behavior**: Spawns additional instances as required to manage flow surges.
+
+---
  
 
 ### **Item** \( I \):
