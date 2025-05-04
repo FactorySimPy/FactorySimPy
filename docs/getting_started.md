@@ -80,10 +80,8 @@ Visit the [full documentation site](https://factorysimpy.github.io/FactorySimPy/
 
 ---
 
-## ⚖️ License
+##  License
 
 FactorySimPy is licensed under the **MIT License**.
 
 ---
-
-Built with ❤️ on top of [SimPy 4.1.1](https://simpy.readthedocs.io/en/4.1.1/) — the trusted engine for process-based DES in Python.
