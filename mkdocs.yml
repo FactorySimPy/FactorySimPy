@@ -29,8 +29,8 @@ markdown_extensions:
 
 nav:
   - Home: index.md  
-  - Extended resources: extendedresources.md 
   - Getting Started: getting_started.md
+  - Extended resources: extendedresources.md 
   - API Reference:  
       - ReservablePriorityReqStore: reservablepriorityreqstore.md
       - PriorityReqStore: priorityreqstore.md
