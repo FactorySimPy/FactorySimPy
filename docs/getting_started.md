@@ -2,7 +2,7 @@
 
 Welcome to **FactorySimPy** – a lightweight, open-source component library for **discrete-event simulation (DES)** of manufacturing systems, built on top of [SimPy 4.1.1](https://simpy.readthedocs.io/en/4.1.1/).
 
-This guide will help you get up and running in just a few minutes.
+This guide will help you to get started with the packages in a few minutes.
 
 ---
 
