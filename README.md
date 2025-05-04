@@ -116,4 +116,4 @@ FactorySimPy is released under the **MIT License**.
 
 ---
 
-*Built on top of SimPy 4.1.1 – a battle‑tested engine for process‑based discrete‑event simulation.*
+
