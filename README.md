@@ -22,11 +22,11 @@ Currently, the library supports discrete flows only and is ideal for systems whe
 ---
 
 ## Installation
- 1. **Install SimPy** (if not already installed)
+ 1. **Install SimPy** (if not already installed, See the [SimPy documentation](https://simpy.readthedocs.io/en/4.1.1/) for details. )
 ```bash
 pip install simpy
 ```
-(See the [SimPy documentation](https://simpy.readthedocs.io/en/4.1.1/) for details.)  
+ 
 
 2. **Install FactorySimPy**
 
@@ -93,7 +93,7 @@ FactorySimPy/
 
 ## Documentation
 
-The full API reference, tutorials and example notebooks live at **GitHub Pages**:
+The full API reference, tutorials and example is available at:
 
 ```
 https://factorysimpy.github.io/FactorySimPy/
@@ -102,12 +102,6 @@ https://factorysimpy.github.io/FactorySimPy/
 
 ---
 
-## Getting Help
-
-For now, please open a GitHub Issue and tag the authors (`@your-handle`).  
-
-
----
 
 ## License
 
