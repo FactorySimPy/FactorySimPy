@@ -22,12 +22,11 @@ Currently, the library supports discrete flows only and is ideal for systems whe
 ---
 
 ## Installation
-
-1. **Install the simulation engine first**  
-   ```bash
-   pip install simpy        # brings in SimPy >= 4.1.1
-   ```
-   (See the [SimPy documentation](https://simpy.readthedocs.io/en/4.1.1/) for details.)  
+ 1. **Install SimPy** (if not already installed)
+```bash
+pip install simpy
+```
+(See the [SimPy documentation](https://simpy.readthedocs.io/en/4.1.1/) for details.)  
 
 2. **Install FactorySimPy**
 
