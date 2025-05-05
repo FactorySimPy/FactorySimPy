@@ -6,11 +6,11 @@ import factorysimpy
 env = simpy.Environment()
 
 #Initializing nodes
-m1 = Processor(env, name="Drill-1", delay=3)   # 3 time‑unit cycle
-m2 = Processor(env, name="Grind-1", delay=0.3)
+m1 = Processor(env, name="Drill-1",work_capacity=1,store_capacity=3, delay=3)   
+m2 = Processor(env, name="Grind-1",work_capacity=1,store_capacity=3, delay=0.3)
 
 #Initializing edges
-belt = Conveyor(env, belt_capacity=10, delay_per_slot=1.2)            # units per time‑step
+belt = Conveyor(env, belt_capacity=10, delay_per_slot=1.2)            
 buffer1 = Buffer(env, name="buffer-1", store_capacity=5, delay=0.5)
 buffer2 = Buffer(env, name="buffer-2", store_capacity=5, delay=0.5)
 
