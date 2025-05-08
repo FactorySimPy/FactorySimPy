@@ -60,7 +60,7 @@ Currently, the library supports discrete item flows only and is ideal for system
 | `Node`   | base class | `name` ,`work_capacity=1`, `store_capacity=1`, `delay=0`, `in_edges=None`,`out_edges=None`  |
 | `Machine` | Processes one item at a time. 
 | `Source`  | Generates new items. 
-| `Sink`    | Collects / destroys items, gathers stats. 
+| `Sink`    | Collects / destroys items.
 | `Split`   | Routes items to multiple outputs (probability or rule). | `rule` |
 | `Joint`    | Merges input streams into one. 
 
