@@ -17,10 +17,10 @@ pip install simpy
 
 ### 2. Install FactorySimPy
 
-**From PyPI:**
+<!---**From PyPI:**
 ```bash
 pip install factorysimpy
-```
+``` --->
 
 **From GitHub (latest version):**
 ```bash
@@ -32,9 +32,13 @@ pip install git+https://github.com/FactorySimPy/FactorySimPy.git
 ##  What You Can Model
 
 FactorySimPy lets you simulate typical manufacturing scenarios using ready-made building blocks like:
+
 - **Machine** is a node with configurable processing delay
+
 - **Split** and **Join** are nodes for splitting a flow into two or joining two flows
+
 - **Buffers**,**Conveyors** and **Fleets** are entities of type edge for transfering items from one node to another
+
 - **Sources** and **Sinks** for generating and collecting items
 
 
@@ -72,16 +76,7 @@ FactorySimPy/
 
 ##  Documentation
 
-Visit the [full documentation site](https://factorysimpy.github.io/FactorySimPy/) for:
-
-- API Reference
-
-- Example
-
-- Usecase
-
-
----
+Visit the [full documentation site](https://factorysimpy.github.io/FactorySimPy/)
 
 ##  License
 
