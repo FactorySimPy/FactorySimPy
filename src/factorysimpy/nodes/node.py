@@ -1,53 +1,48 @@
-# @title Node
+from typing import Generator, Optional, Union, Any
 import simpy
 import random
-import logging
-
-# Setup logger (optional, based on your environment)
-
 
 
 class Node:
     """
-    A class to represent a node in a production line or process flow.
+    Base class to represent an active entity in a manufacturing system,
+    such as processors, splits, or joints.
 
     Attributes
     ----------
-    env : simpy.Environment
-        The simulation environment.
+    
     name : str
-        The name of the node (station).
-    id : any
-        An identifier for the node.
+        Identifier for the node.
     work_capacity : int
-        The capacity of the resource at this node for active processing.
+        Number of simultaneous operations the node can perform.
     store_capacity : int
-        The capacity for storing items in the node's internal storage.
-    delay : generator function or int
-        A generator for random delays or processing times.
+        Capacity of internal storage.
+    delay : int | float | Generator
+        Processing delay as a constant, a generator, or a range (tuple).
+    in_edges : list, optional
+        List of input edges connected to the node.
+    out_edges : list, optional
+        List of output edges connected to the node.
 
-    Methods
-    -------
-    __init__(self, env, name, id, work_capacity=1, store_capacity=1, delay=0):
-        Constructs a Node with the provided parameters.
-
-    random_delay_generator(self, delay_range):
-        A generator function that yields random delays within the provided range.
-
-         Raises
-        ------
-        TypeError
-            If 'env' is not a simpy.Environment instance, or 'name' is not a string.
-        ValueError
-            If 'working_capacity' or 'storage_capacity' are not positive integers.
-
+    Raises
+    ------
+    TypeError
+        If types of `env` or `name` are incorrect.
+    ValueError
+        If capacities or delay inputs are invalid.
     """
 
-    def __init__(self, env, name,  work_capacity=1, store_capacity=1, delay=0):
-
-        #obj_dict[comp_id] = Processor(env, item['id'], 121, 3,2,2)
-
-        # Type checking
+    def __init__(
+        self,
+        env: simpy.Environment,
+        name: str,
+        in_edges: Optional[list] = None,
+        out_edges: Optional[list] = None,
+        work_capacity: int = 1,
+        store_capacity: int = 1,
+        delay: Union[int, float, tuple, Generator] = 0,
+    ):
+        # Type checks
         if not isinstance(env, simpy.Environment):
             raise TypeError("env must be a simpy.Environment instance")
         if not isinstance(name, str):
@@ -56,78 +51,82 @@ class Node:
             raise ValueError("work_capacity must be a non-negative integer")
         if not isinstance(store_capacity, int) or store_capacity <= 0:
             raise ValueError("store_capacity must be a positive integer")
-        #if not isinstance(delay, tuple) or len(delay) != 2:
-         #   raise ValueError("delay must be a tuple with two numeric values")
 
         self.env = env
         self.name = name
-
         self.work_capacity = work_capacity
         self.store_capacity = store_capacity
-        self.in_edges=None
-        self.out_edges=None
+        self.in_edges = in_edges
+        self.out_edges = out_edges
 
-
-        # Delay generator
-
-        # Check if delay is a generator function or a tuple
-        if callable(delay):
-            self.delay = delay  # Use the provided generator function
+        # Configure delay
+        if isinstance(delay, Generator):
+            self.delay = delay
+        elif isinstance(delay, tuple) and len(delay) == 2:
+            self.delay = self.random_delay_generator(delay)
+        elif isinstance(delay, (int, float)):
+            self.delay = delay
         else:
-            self.delay = self.random_delay_generator(delay)  # Default to random delay generator
+            raise ValueError(
+                "Invalid delay value. Provide a constant, generator, or a (min, max) tuple."
+            )
 
-        # Logging node creation details
-        #logger.info(f"{self.env.now}: Node created: {self.name} with Work Capacity: {self.work_capacity} and Storage Capacity: {self.store_capacity}")
-
-    def random_delay_generator(self, delay_range):
+    def random_delay_generator(self, delay_range: tuple) -> Generator:
         """
-        Generator function to yield random delays within a specified range.
+        Yields random delays within a specified range.
 
         Parameters
         ----------
         delay_range : tuple
-            A tuple (min, max) specifying the range for random delay times.
+            A (min, max) tuple for random delay values.
 
         Yields
         ------
         int
-            A random delay time within the given range.
+            A random delay time in the given range.
         """
         while True:
-            #yield random.randint(delay_range[0], delay_range[1])
-            #yield random.random()
-            yield random.randint(1,3)
+            yield random.randint(*delay_range)
 
-    def add_in_edges(self,edge):
-      if self.in_edges is None:
-        self.in_edges=[]
-    #   if isinstance(self,Joint):
-    #     assert len(self.in_edges)<2  , (f"edges are already added")
-    #     if edge not in self.in_edges:
-    #       self.in_edges.append(edge)
-    #   elif isinstance(self,Processor):
-    #     print("MinputProcessor can have moe than 1 in_edges")
-    #     if edge not in self.in_edges:
-    #       self.in_edges.append(edge)
-      
-      if len(self.in_edges)>1:
-            print(f"More than 1 in edge added")
-      if edge not in self.in_edges:
-            self.in_edges.append(edge)
+    def add_in_edges(self, edge: Any):
+        """
+        Add an input edge to the node.
 
-    def add_out_edges(self,edge):
-      if self.out_edges is None:
-        self.out_edges=[]
-    #   if isinstance(self,Split):
-    #     assert len(self.out_edges)<2  , (f"edges are already added")
-    #     if edge not in self.out_edges:
-    #       self.out_edges.append(edge)
-    #   else:
-      if len(self.out_edges)>1:
-            print(f"More than 1 out edge added")
-      if edge not in self.out_edges:
-           self.out_edges.append(edge)
+        Parameters
+        ----------
+        edge : any
+            The edge to add as an input edge.
 
+        Raises
+        ------
+        NotImplementedError
+            This base method should be overridden in derived classes.
+        """
+        raise NotImplementedError("add_in_edges must be implemented in a subclass.")
 
+    def add_out_edges(self, edge: Any):
+        """
+        Add an output edge to the node.
 
+        Parameters
+        ----------
+        edge : any
+            The edge to add as an output edge.
 
+        Raises
+        ------
+        NotImplementedError
+            This base method should be overridden in derived classes.
+        """
+        raise NotImplementedError("add_out_edges must be implemented in a subclass.")
+
+    def behaviour(self):
+        """
+        Define the main behavior of the node.
+
+        Raises
+        ------
+        NotImplementedError
+            This base method should be overridden in derived classes.
+        """
+        raise NotImplementedError("behaviour must be implemented in a subclass.")

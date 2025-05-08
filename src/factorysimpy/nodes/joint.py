@@ -1,29 +1,57 @@
 # @title Joint
 import simpy ,os, sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../extended_resources')))
 
-from reservable_priority_req_store import ReservablePriorityReqStore  # Import your class
-from node import Node
-from item import Item
+
+from factorysimpy.base.reservable_priority_req_store import ReservablePriorityReqStore  # Import your class
+from factorysimpy.nodes.node import Node
+
+from factorysimpy.helper.item import Item
+
 class Joint(Node):
-    def __init__(self, env, name,in_edges , out_edges, k=1, c=1, delay=1):
-        super().__init__(env, name,  work_capacity=1, store_capacity=1, delay=0)
+    """
+    Joint class representing a processing node in a factory simulation.
+    Inherits from the Node class.
+    This joint can have multiple input edges and a single output edge.
+    It processes items from the input edges and puts them into the output edge.
+    
+    Methods
+    -------
+    
+    add_in_edges(self, edge):
+        Adds an input edge to the joint.
+    add_out_edges(self, edge):
+        Adds an output edge to the joint.
+    worker(self, i):
+        Worker process that processes items by combining two items.
+    behaviour(self):
+        Combiner behavior that creates workers based on the effective capacity.
+
+    Raises
+    -------
+    ValueError
+        If the joint already has the maximum number of input or output edges.
+    AssertionError
+        If the joint does not have exactly 2 input edges or 1 output edge in the behaviour function.
+    """ 
+    def __init__(self, env, name,in_edges=None , out_edges=None, work_capacity=1, store_capacity=1, delay=1):
+        super().__init__(env, name,in_edges , out_edges,  work_capacity=1, store_capacity=1, delay=0)
         self.env = env
         self.name = name
-        self.c = c
-        self.k = k
+        self.work_capacity = work_capacity
+        self.store_capacity = store_capacity
+      
 
         self.in_edge_events={}
 
         
         self.in_edges = in_edges
         self.out_edges = out_edges
-        self.inbuiltstore = ReservablePriorityReqStore(env, capacity=c)  # Custom store with reserve capacity
-        self.resource = simpy.Resource(env, capacity=min(k, c))  # Work capacity
+        self.inbuiltstore = ReservablePriorityReqStore(env, capacity=store_capacity)  # Custom store with reserve capacity
+        self.resource = simpy.Resource(env, capacity=min(work_capacity,store_capacity))  # Work capacity
         self.delay = delay  # Processing delay
 
-        if k > c:
-            print("Warning: Effective capacity is limited by the minimum of k and c.")
+        if work_capacity > store_capacity:
+            print("Warning: Effective capacity is limited by the minimum of work_capacity and store_capacity.")
 
         # Start the behaviour process
         self.env.process(self.behaviour())
@@ -38,7 +66,7 @@ class Joint(Node):
         if edge not in self.in_edges:
             self.in_edges.append(edge)
         else:
-            print(f"Edge already exists in Joint '{self.name}' in_edges.")
+            raise ValueError(f"Edge already exists in Joint '{self.name}' in_edges.")
 
     def add_out_edges(self, edge):
         if self.out_edges is None:
@@ -50,7 +78,7 @@ class Joint(Node):
         if edge not in self.out_edges:
             self.out_edges.append(edge)
         else:
-            print(f"Edge already exists in Joint '{self.name}' out_edges.")
+            raise ValueError(f"Edge already exists in Joint '{self.name}' out_edges.")
 
     def worker(self, i):
         """Worker process that processes items by combining two items."""
@@ -102,7 +130,7 @@ class Joint(Node):
 
         assert self.in_edges is not None and len(self.in_edges) == 2, f"Joint '{self.name}' must have exactly 2 in_edges."
         assert self.out_edges is not None and len(self.out_edges) == 1, f"Joint '{self.name}' must have exactly 1 out_edge."
-        cap = min(self.c, self.k)
+        cap = min(self.work_capacity, self.store_capacity)
         for i in range(cap):
             self.env.process(self.worker(i+1))
         yield self.env.timeout(0)  # Initialize the behavior without delay

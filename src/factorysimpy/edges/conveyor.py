@@ -1,193 +1,526 @@
-# @title trial continuous
+#%%writefile BeltStore.py
+# @title beltstore_inter_reserve_get
+
 
 
 import simpy
-import random
-from simpy import FilterStore
 
-class BeltStore(simpy.FilterStore):
-    def __init__(self, env, capacity, delay, acc=0):
-        super().__init__(env, capacity)
+from factorysimpy.edges.edge import Edge
+from factorysimpy.base.reservable_priority_req_filter_store import ReservablePriorityReqFilterStore
+#from ReservablePriorityReqFilterStore import ReservablePriorityReqFilterStore
+class BeltStore(ReservablePriorityReqFilterStore):
+    """
+        This is a class that is derived from SimPy's Store class and has extra capabilities
+        that makes it a priority-based reservable store for processes to reserve space
+        for storing and retrieving items with priority-based access.
+
+        Processes can use reserve_put() and reserve_get() methods to get notified when a space becomes
+        available in the store or when an item gets available in the ReservablePriorityReqStore.
+        These methods returns a unique event (SimPy.Event) to the process for every reserve requests it makes.
+        Processes can also pass a priority as argument in the request. Lower values indicate higher priority.
+
+        get and put are two methods that can be used for item storing and retrieval from ReservablePriorityReqStore.
+        Process has to make a prior reservation and pass the associated reservation event as argument in the get and
+        put requests. ReservablePriorityReqStore maintains separate queues for `reserve_put` and `reserve_get` operations
+        to ensures that only processes with valid reservations can store or retrieve items.
+
+        ReservablePriorityReqStore preserves item order by associating an unreserved item in the store with a reservation event
+        by index when a reserve_get() request is made. As a result, it maintains a list of reserved events to preserve item order.
+
+        It also allows users to cancel an already placed reserve_get or reserve_put request even if it is yielded.
+        It also handles the dissociation of the event and item done at the time of reservation when an already yielded
+        event is canceled.
+
+        Attributes:
+           reserved_events (list):  Maintains events corresponding to reserved items to preserve item order by index
+        """
+
+    def __init__(self, env, capacity=float('inf'),time_per_slot=0,accumulating=0):
+        """
+        Initializes a reservable store with priority-based reservations.
+
+        Args:
+            
+            capacity (int, optional): The maximum number of items the store can hold.
+                                      Defaults to infinity.
+            time_per_slot(float,optional): time between consecutive movements in a belt(time taken to process an item in a slot)
+            accumulating(bool,optional): 1 for non-blocking type and 0 for blocking type
+        """
+
+        self.trigger_delay = time_per_slot*capacity
+        super().__init__(env, capacity,trigger_delay=self.trigger_delay)
         self.env = env
-        self.ret_item = None
-        self.accumulating = acc
-        self.delay = delay
-        self.release_queue = []
-        self.request_queue = []
-        self.active_events = []
+        self.time_per_slot = time_per_slot
+        self.item_put_event=self.env.event()
 
-    def is_empty(self):
-        """Check if the belt is completely empty."""
-        return (
-            len(self.items) == 0 and
-            len(self.put_queue) == 0 and
-            len(self.request_queue) == 0 and
-            len(self.release_queue) == 0
-        )
 
-    def is_full(self):
+
+
+    def _do_put(self, event, item): #it returns a true in the other, will it work?
+      #only one do_put during a  delay  |---1do_put---|---1do_put---|---1do_put---|---1do_put---|
+      """Override to handle the put operation."""
+      #print(f"At {self.env.now} do_putting an item. Put queue length: {len(self.put_queue)}")
+      returnval = super()._do_put(event, item)
+      print(f"T={self.env.now:.2f}: Beltstore:_do_put: putting item on belt {item.name} and belt items are {[(i.name,i.put_time) for i in self.items]}")
+      # if self.item_put_event.triggered:
+      #   self.item_put_event=self.env.event()
+
+
+      return returnval
+
+
+
+
+
+
+
+
+
+
+
+# @title conveyor
+#from BeltStore import BeltStore
+
+class ConveyorBelt(Edge):
+
+  """
+    A conveyor belt system with optional accumulation.
+
+    Attributes:
+        
+        state (str): state of the machine
+        capacity (int): Maximum capacity of the belt.
+        delay (float): Time delay for items on the belt.
+        accumulation (int): Whether the belt supports accumulation (1 for yes, 0 for no).
+        belt (BeltStore): The belt store object.
+
+    Methods:
+        
+        is_empty(self):
+            Checks if the belt is empty.
+        show_occupancy(self):
+            Returns the number of items on the belt.
+        is_full(self):
+            Checks if the belt is full.
+        can_get(self):
+            Checks if an item can be retrieved from the belt.
+        is_stalled(self):
+            Checks if the belt is stalled due to time constraints.
+        can_put(self):
+            Checks if an item can be added to the belt.
+        
+        
+        get(self, get_event):
+            Retrieves an item from the belt if there is already a matching get_event in the belt.
+        put(self, put_event, item):
+            Places an item on the belt if there is already a matching put_event in the belt.
+        reserve_get(self):
+            Queues a reservation for get request.
+        reserve_put(self):
+            Queues a reservation for a put request 
+
+        behaviour(self):
+            Main behavior of the conveyor belt.
+    
+    Raises:
+        AssertionError: If the belt does not have at least one source node or one destination node.
+        ValueError: If the belt already has 1 out_edge or tries to add an in_edge.
+
+    """
+  def __init__(self,env,name,belt_capacity,delay_per_slot,accumulating=0):
+    super().__init__(env,name)
+    self.env=env
+    self.name = name
+    self.state=None
+    self.belt=BeltStore(env,belt_capacity,delay_per_slot,accumulating)
+    self.accumulating=accumulating
+    self.time_per_slot=delay_per_slot
+    self.item_put_event = self.env.event()
+    self.item_put_after_a_break_event=self.env.event()
+    self.item_put_inslot=None # indicate if an item is put into a slot in a per slot delay
+    self.item_get_fromslot=None # indicate if an item is got from a slot in a per slot delay
+    self.last_move_time = None # last time at which conveyor moved
+    self.noaccumulation_mode_on=False
+    self.get_request_queue = []
+    self.get_dict = {}
+    self.put_dict = {}
+    self.put_request_queue=[]
+    self.env.process(self.behaviour())
+
+  def is_empty(self):
+      """Check if the belt is completely empty."""
+      return (
+          len(self.belt.items) == 0 and
+
+          (len(self.put_request_queue) == 0 or
+          len(self.get_request_queue) == 0)
+      )
+
+  def show_occupancy(self):
+        return len(self.belt.items)
+
+  def is_full(self):
         """Check if the belt is full."""
-        return len(self.items) == self.capacity
+        return len(self.belt.items) == self.belt.capacity
 
-    def is_stalled(self):
+  def can_get(self):
+      """Check if an item can be retrieved from the belt."""
+      #first_item_to_go_out = self.items[0] if self.items else None
+      if not self.item_get_fromslot:
+        return len(self.belt.items)>0 and self.env.now >= self.belt.items[0].put_time+(self.time_per_slot*self.belt.capacity)
+      return False
+
+  def is_stalled(self):
         """Check if the belt is stalled due to time constraints."""
-        return self.env.now > self.items[0][1] + (self.delay)
+        if self.belt.items and len(self.get_request_queue)==0 :
+          return self.env.now >= self.belt.items[0].put_time + (self.time_per_slot*self.belt.capacity)
+        else:
+          return False
 
-    def can_get(self):
-        """Check if an item is available for retrieval."""
-        return len(self.items) > 0 and self.env.now >= self.items[0][1] + (self.delay)
+  def can_put(self):
+      """Check if an item can be added to the belt."""
+      if len(self.belt.items)==0:
+          return True
+      if self.is_stalled() and not self.accumulating and len(self.belt.items)<=self.belt.capacity:
+          return False
+      if len(self.belt.items) < self.belt.capacity:
+          # Check if enough time has passed since the last item
+          #print(self.env.now,self.items[-1][1] + self.time_per_slot)
+          if not self.item_put_inslot:
+            return self.env.now >= self.belt.items[-1].put_time + self.time_per_slot or self.env.now<=self.last_move_time+self.time_per_slot
+      return False
 
-    def can_put(self):
-        """Check if a new item can be added to the belt."""
-        return len(self.items) < self.capacity
+  def move(self):
+        """Move items along the belt."""
 
-    def _do_put(self, event):
-        """Override to handle the put operation."""
-        print(f"At {self.env.now} do_putting an item. Put queue length: {len(self.put_queue)}")
-        super()._do_put(event)
+        if self.put_request_queue and self.can_put():
+            print(f"T={self.env.now:.2f}: Conveyor '{self.name}':Move: starting put inside move")
 
-    def move(self):
-        """Move items along the belt for accumulation or retrieval."""
-        if len(self.request_queue) > 0 and self.can_put():
-            put_event = self.put(self.request_queue[0][1])  # Add timestamp to item here.
-            print(f"At {self.env.now} putting item {self.request_queue[0][1]}. Put queue length: {len(self.put_queue)}")
-            put_out_event = self.request_queue.pop(0)[0]
-            put_out_event.succeed()
+            yield from self._handle_put_request()
 
-        if len(self.release_queue) > 0 and self.can_get():
-            print(f"At {self.env.now} getting item {self.items}. Put queue length: {len(self.put_queue)}")
-            self.ret_item = yield self.get()
-            if self.ret_item is not None:
-                get_out_event = self.release_queue.pop(0)
-                get_out_event.succeed(value=self.ret_item)
+        if self.get_request_queue and self.can_get:
+          if  len(self.belt.reservations_get)+len(self.belt.reserve_get_queue)<len(self.get_request_queue):
+            print(f"T={self.env.now:.2f}: Conveyor '{self.name}':Move:starting get inside move")
+            #yield from self._handle_get_request()
+            self.item_get_fromslot =  True
+            print(f"T={self.env.now:.2f}: Conveyor '{self.name}':Move:Changing item_get_fromslot to {self.item_get_fromslot}")
+            self.env.process(self._handle_get_request())
+
+
+
+
+
+
+
+
+  def accumulate(self):
+            """Handle item accumulation on the belt."""
+            if self.is_stalled():
+
+              if self.put_request_queue and self.can_put():
+                 yield from self._handle_put_request()
+
+                # if self.get_request_queue:
+                #     self.ret_item = yield self.get()
+                #     if self.ret_item:
+                #         self.get_request_queue.pop(0).succeed(value=self.ret_item)
+
+
+
+
+  def noaccumulate(self):
+
+        """Handle non-accumulating belt behavior."""
+        if self.is_stalled() and self.put_request_queue :
+            if len(self.belt.items)<self.belt.capacity and not self.noaccumulation_mode_on :
+               self.noaccumulation_mode_on=True # to ensure that only one item will be put into the nonaccum store at the initial position
+               yield from self._handle_put_request()
             else:
-                print(f"At {self.env.now} returned None")
+              print("'{self.name}' is in non-accumulating")
+        else:
+          if self.get_request_queue:
+            self.env.process(self._handle_get_request())
 
-    def accumulate(self):
-        """Handle accumulating behavior of the belt."""
-        while self.is_stalled():
-            if self.can_put():
-                if len(self.put_queue) > 0:
-                    self.trigger_put()
-                elif len(self.request_queue) > 0:
-                    put_event = self.put(self.request_queue[0][1])
-                    put_out_event = self.request_queue.pop(0)[0]
-                    put_out_event.succeed()
 
-            if self.can_get():
-                if len(self.get_queue) > 0:
-                    self.trigger_get()
-                elif len(self.release_queue) > 0:
-                    print(f"At {self.env.now} getting item {self.items} and put queue={len(self.put_queue)}")
-                    self.ret_item = yield self.get()
+  def _handle_put_request(self):
+      """Handles logic common to processing a put request."""
+      print(f"T={self.env.now:.2f}: Conveyor '{self.name}':_handle_put_request: placed put")
+      put_event = self.belt.reserve_put()
+      yield put_event
+      print(f"T={self.env.now:.2f}: Conveyor '{self.name}':_handle_put_request: placed put yielded")
+      self.item_put_inslot = True
+      print(f"T={self.env.now:.2f}: Conveyor '{self.name}':_handle_put_request: Changing item_put_inslot to {self.item_put_inslot}")
 
-                    if self.ret_item is not None:
-                        get_out_event = self.release_queue.pop(0)
-                        get_out_event.succeed(value=self.ret_item)
-                    else:
-                        print(f"At {self.env.now} returned None")
+      if put_event not in self.put_dict:
+          trigger_put_to = self.env.event()
+          self.put_dict[put_event] = trigger_put_to
+      else:
+          trigger_put_to = self.put_dict[put_event]
 
+      print(f"T={self.env.now:.2f}: Conveyor '{self.name}':_handle_put_request: put_request {self.put_request_queue[0]}")
+      requester_event = self.put_request_queue.pop(0)
+      requester_event.succeed(value=put_event)
+
+      # if self.item_put_after_a_break_event.triggered:
+      #   self.item_put_after_a_break_event=self.env.event()
+      #   print(f"T={self.env.now:.2f}: Resetting item_put_after_a_break_even inside put while moving")
+
+      print(f"T={self.env.now:.2f}: Conveyor '{self.name}':_handle_put_request: succeeded a req from put_request_queue")
+
+      item = yield trigger_put_to
+
+      trigger_put_from = self.put_dict[put_event]
+      self.put_dict[put_event] = self.belt.put(put_event, item)
+
+      trigger_put_from.succeed()
+
+  def _handle_get_request(self):
+      if self.get_request_queue:
+        get_event = self.belt.reserve_get()
+        yield get_event
+        #print(f"T={env.now:.2f}: conveyor yielded get request {get_event}")
+        if get_event not in self.get_dict:
+          trigger_get_to= self.env.event()
+          self.get_dict[get_event] = trigger_get_to
+
+        print(f"T={self.env.now:.2f}: Conveyor '{self.name}':_handle_get_request:yielded get request {get_event}")
+        self.get_request_queue.pop(0).succeed(value=get_event)
+        yield trigger_get_to
+
+        trigger_get_from= self.get_dict[get_event]
+        if get_event in self.get_dict:
+          self.get_dict[get_event] = self.belt.get(get_event)
+        trigger_get_from.succeed()
+
+
+
+
+
+
+
+  def get(self, get_event):
+
+
+    def process():
+        if get_event in self.get_dict and self.get_dict[get_event] != 0:
+            trigger_get_from = self.env.event()
+            trigger_get_to = self.get_dict[get_event]
+            self.get_dict[get_event] = trigger_get_from
+
+            trigger_get_to.succeed()
+            yield trigger_get_from  # wait for item to be placed
+
+            # At this point, the item should be in get_dict
+            item = self.get_dict.get(get_event, None)
+
+            if item is not None:
+                del self.get_dict[get_event]
+            return item  # returning inside process is fine
+
+    return self.env.process(process())  # return a SimPy Process
+
+
+
+
+
+  def put(self,put_event,item):
+    print(f"T={self.env.now:.2f}: Conveyor '{self.name}':put: placing a put request to belt")
+    def process():
+      ##print(f"T={self.env.now:.2f}, placing a put request to belt")
+      #print(self.put_dict, put_event)
+      if put_event in self.put_dict  :
+
+        trigger_put_from = self.env.event()
+        trigger_put_to = self.put_dict[put_event]
+        self.put_dict[put_event] =  trigger_put_from
+        trigger_put_to.succeed(value = item)
+        yield trigger_put_from
+        if self.put_dict[put_event]==True:
+          del self.put_dict[put_event]
+
+
+    return self.env.process(process())  # return a SimPy Event
+
+
+
+
+
+
+  def reserve_get(self):
+        """Queue a get request."""
+        # get calls will be queued and will be triggered when the belt starts to move
+
+        get_event = self.env.event()
+        get_event.resourcename = self
+        self.get_request_queue.append(get_event)
+        print(f"T={self.env.now:.2f}: Conveyor '{self.name}':reserve_get: placing a get request in release queue")
+        return get_event
+
+
+  def reserve_put(self):
+        """Queue a put request or add item to the belt if possible."""
+
+        # if self.can_put():
+        #     put_event = self.belt.reserve_put()
+        #     print("yes coming here")
+        #     return put_event
+        put_event = self.env.event()
+        put_event.resourcename = self
+        self.put_request_queue.append(put_event)
+        # if self.belt.item_put_event.triggered:
+        #   self.belt.item_put_event=self.env.event()
+        print(f"T={self.env.now:.2f}: Conveyor '{self.name}':reserve_put: placing a put request in release queue")
+        #if len(self.belt.items)==0:
+        if len(self.put_request_queue)==1 and len(self.belt.items)==0 and self.can_put():
+          if self.item_put_event.triggered:   # Check if the event has already been triggered
+                self.item_put_event = self.env.event()  # Reset the event
+
+          self.item_put_event.succeed()
+        else:
+          print(f"T={self.env.now:.2f}: Conveyor '{self.name}':_reserve_put: item_put_inslot to {self.item_put_inslot}")
+          if len(self.put_request_queue)==1 and len(self.belt.items)!=0 and self.can_put():
+             print(f"T={self.env.now:.2f}: Conveyor '{self.name}':reserve_put: put request queue=={len(self.put_request_queue) }and check nect event 11111111 ")
+             if not self.item_put_after_a_break_event.triggered: # Check if the event has already been triggered
+               print(f"T={self.env.now:.2f}: Conveyor '{self.name}':reserve_put: put request queue=={len(self.put_request_queue) }and self.item_put_after_a_break_event and check for previous event 11111111 ")
+               #self.item_put_after_a_break_event = self.env.event()   # Reset the event if triggered before
+               self.item_put_after_a_break_event.succeed()
+               print(f"T={self.env.now:.2f}: Conveyor '{self.name}':reserve_put: put request queue=={len(self.put_request_queue) }")
+
+        return put_event
+
+
+
+
+  def behaviour(self):
+    """Main behavior of the conveyor belt."""
+    while True:
+      #print(f"At {self.env.now}, check checkhe belt is empty")
+
+
+      if self.is_empty():
+        self.state="empty"
+        print(f"T={self.env.now:.2f}: Conveyor '{self.name}' is empty")
+
+        result=yield self.env.any_of([self.env.timeout(self.time_per_slot), self.item_put_event])# to start as soon as the first item is placed
+
+        if self.item_put_event.triggered:
+          print(f"T={self.env.now:.2f}: Conveyor '{self.name}' yielded item_put_event")
+          self.item_put_event=self.env.event()
+          print(f"T={self.env.now:.2f}: Conveyor '{self.name}' starting to move")
+          yield self.env.process(self.move())
+          self.last_move_time=self.env.now
+          yield self.env.timeout(self.time_per_slot)
+          self.item_put_inslot = False
+          self.item_get_fromslot =  False
+          print(f"T={self.env.now:.2f}: Conveyor '{self.name}' Changing item_get_fromslot to {self.item_get_fromslot}")
+          #print(f"T={self.env.now:.2f}: Changing item_put_inslot to {self.item_put_inslot}")
+
+
+
+      elif self.is_stalled():#belt need not be full; it can have an item with time>delay to travel and has reached other end and it is not taken out
+          self.state = "stalled"
+          print(f"T={self.env.now:.2f}: Conveyor '{self.name}' is stalled")
+
+          if self.accumulating:
+              print(f"T={self.env.now:.2f}: Conveyor '{self.name}' is accumulating")
+              yield self.env.process(self.accumulate())
+
+          else:
+              print(f"T={self.env.now:.2f}: Conveyor '{self.name}' is a non-accumulating belt")
+              yield self.env.process(self.noaccumulate())
+
+          yield self.env.timeout(self.time_per_slot)
+          self.last_move_time=self.env.now
+          self.item_put_inslot = False
+          self.item_get_fromslot =  False
+          print(f"T={self.env.now:.2f}: Conveyor '{self.name}' Changing item_get_fromslot to {self.item_get_fromslot}")
+          #print(f"T={self.env.now:.2f}: Changing item_put_inslot to {self.item_put_inslot}")
+
+      else:
+          self.state = "moving"
+          print(f"T={self.env.now:.2f}: Conveyor '{self.name}' is moving")
+          # check if conveyor is stalled and in the last position an item got added before
+          if self.noaccumulation_mode_on:
+            #there is a get request on the stalled conveyor
+            
+            if self.get_request_queue:
+              print(f"T={self.env.now:.2f}: Conveyor '{self.name}' is in noaccumulation mode and has get requests lastmov{self.last_move_time}")
+
+              yield self.env.process(self.noaccumulate())
+              self.noaccumulation_mode_on=False
+              self.last_move_time=self.env.now
+              yield self.env.timeout(self.time_per_slot)
+            else:
+              #wait until a get comes because the last place in conveyor is filled and the conveor is stalled.
+              print(f"T={self.env.now:.2f}: Conveyor '{self.name}' is in noaccumulation mode and has no get requests lastmov{self.last_move_time}")
+              self.last_move_time=self.env.now
+              yield self.env.timeout(self.time_per_slot)
+
+          # if there is put and get or only put request
+          elif (self.put_request_queue and self.get_request_queue) or self.put_request_queue:
+            print(f"T={self.env.now:.2f}: Conveyor '{self.name}' is moving with requests lastmov{self.last_move_time}")
+            yield self.env.process(self.move())
+            self.last_move_time=self.env.now
             yield self.env.timeout(self.time_per_slot)
 
-    def no_accumulate(self):
-        """Handle non-accumulating behavior of the belt."""
-        if self.is_stalled() and len(self.release_queue) > 0 and self.can_get():
-            print(f"At {self.env.now} is stalled. Checking items {self.items}. Put queue length: {len(self.put_queue)}")
-            self.ret_item = yield self.get()
-            if self.ret_item is not None:
-                get_out_event = self.release_queue.pop(0)
-                get_out_event.succeed(value=self.ret_item)
-            else:
-                print(f"At {self.env.now} returned None")
+            print(f"T={self.env.now:.2f}: Conveyor '{self.name}' lastmove changed inside move last moved time is {self.last_move_time}")
+            self.item_put_inslot = False
+            self.item_get_fromslot =  False
+            print(f"T={self.env.now:.2f}: Conveyor '{self.name}' Changing item_get_fromslot to {self.item_get_fromslot}")
+            #print(f"T={self.env.now:.2f}: Changing item_put_inslot to {self.item_put_inslot}")
 
-    def show_occupancy(self):
-        """Return the current occupancy of the belt."""
-        return len(self.items)
+          # if there is only get request- no flags to be changed
+          elif self.get_request_queue and self.can_get():
+            print(f"T={self.env.now:.2f}: Conveyor '{self.name}' is moving with get requests lastmov{self.last_move_time}")
+            yield self.env.process(self.move())
+            yield self.env.timeout(self.time_per_slot)
 
-    def get(self, filter=None):
-        """Retrieve an item from the belt with a time filter."""
-        filter = lambda x: self.env.now >= x[1] + (self.delay)
-        print(f"At {self.env.now} attempting to get item. Time threshold: {self.delay}")
-        self.ret_event = super().get(filter)
-        return self.ret_event
+          #if there is currently no events but it can come in the interval
+          else:
+             starttime=self.env.now
+             print(f"T={self.env.now:.2f}: Conveyor '{self.name}' move starting counter to see if any events are coming in put_request queue {len(self.put_request_queue)}")
+             self.last_move_time=self.env.now
+             self.item_put_inslot = False
+             time_out_event = self.env.timeout(self.time_per_slot)
 
-    def item_get(self):
-        """Request an item retrieval from the belt."""
-        get_in_event = self.env.event()
-        self.release_queue.append(get_in_event)
-        return get_in_event
+             result=yield self.env.any_of([time_out_event, self.item_put_after_a_break_event])# to start as soon as the first item is placed
+             # if no events came
+             if time_out_event in result:
+              print(f"T={self.env.now:.2f}: Conveyor '{self.name}' no put or get events")
+             # if one put event came
+             else:
+              if self.item_put_after_a_break_event.triggered:
+                print(f"T={self.env.now:.2f}: Conveyor '{self.name}' yielded item_put_after_a_break_even while moving in put_request queue {len(self.put_request_queue)}")
+                self.item_put_after_a_break_event=self.env.event()
 
-    def item_put(self, item):
-        """Request to place an item on the belt."""
-        put_in_event = self.env.event()
-        self.request_queue.append((put_in_event, (item, self.env.now)))  # Add timestamp to item
-        return put_in_event
+                yield self.env.process(self.move())
 
-class ConveyorBelt:
-    def __init__(self, env, capacity,delay,accumulation):
-        self.env = env
-        self.state = "stopped"
-        self.delay = delay
-        self.accumulation = accumulation
-        self.belt = BeltStore(env, capacity, delay, self.accumulation)
-        self.env.process(self.behaviour())
+                # self.item_put_after_a_break_event=self.env.event()
+                # if self.item_put_after_a_break_event.triggered:
+                print(f"T={self.env.now:.2f}: Conveyor '{self.name}' finished move after item_put_after_a_break_even while moving  and start time is {starttime}")
 
-    def behaviour(self):
-        """Monitor and adjust the belt's state dynamically based on events."""
-        while True:
-            if self.belt.is_empty():
-                self.state = "empty"
-                print(f"At {self.env.now}, the belt is empty")
-                yield self.env.event().succeed()  # Wait for an event to trigger the next action
-            elif self.belt.is_full():
-                if self.belt.is_stalled():
-                    self.state = "stalled"
-                    print(f"At {self.env.now}, the belt is stalled")
-                    if self.accumulation:
-                        print("accumulation")
-                        yield self.env.process(self.belt.accumulate())
-                    else:
-                        print("noaccumulation")
-                        yield self.env.process(self.belt.no_accumulate())
-            else:
-                self.state = "moving"
-                print(f"At {self.env.now}, the belt is moving")
-                yield self.env.process(self.belt.move())
+                time_elapsed=self.env.now-starttime
+                #print(f"!!!!{self.env.now},{starttime},{time_elapsed}")
+                yield self.env.timeout(self.time_per_slot-time_elapsed)
+                print(f"T={self.env.now:.2f}: Conveyor '{self.name}' time elapsed after yielding item_put_after-a_break event {self.time_per_slot-time_elapsed}")
+                self.item_put_inslot = False
+                self.item_get_fromslot =  False
+                print(f"T={self.env.now:.2f}: Conveyor '{self.name}' Changing item_get_fromslot to {self.item_get_fromslot}")
 
-            if not self.belt.active_events:
-                yield self.env.timeout(0)  # Wait for any activity to occur
-            else:
-                result = yield self.env.any_of(self.belt.active_events)
-                self.belt.active_events = [e for e in self.belt.active_events if not e.triggered]
 
-# Simulation setup
-def item_generator(env, belt):
-    """Generate items and place them on the conveyor belt."""
-    yield env.timeout(0.6)
-    for i in range(10):  # Generate 10 items
-        print(f"{env.now}: Waiting to add item {i + 1} to the conveyor belt.")
-        yield belt.item_put(f"item{i + 1}")  # Add item to the belt
-        print(f"At {env.now} Belt items: {belt.items}")
-        yield env.timeout(random.choice([0.1, 0.3, 0.4, 1.2]))  # Random delay
 
-def reader(env, belt):
-    """Process to read items from the conveyor belt."""
-    while True:
-        yield env.timeout(2)  # Time interval to check for items
-        print(f"{env.now}: Waiting to retrieve an item...")
-        item = yield belt.item_get()
-        print(f"{env.now}: Retrieved item: {item}")
 
-# Environment setup
-env = simpy.Environment()
-capacity = 5
-delay=5
-accumulation=0
-belt = ConveyorBelt(env, capacity,delay,accumulation)
 
-# Start processes
-env.process(item_generator(env, belt.belt))
-env.process(reader(env, belt.belt))
+      print(f"T={self.env.now:.2f}: Conveyor '{self.name}' Changing item_put_inslot to {self.item_put_inslot}")
+      print(f"T={self.env.now:.2f}: Conveyor '{self.name}' last moved time is {self.last_move_time}")
 
-# Run simulation
-env.run(until=20)
+
+
+
+
+
+
+
+
+
+
