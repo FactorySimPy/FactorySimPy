@@ -17,10 +17,6 @@ pip install simpy
 
 ### 2. Install FactorySimPy
 
-<!---**From PyPI:**
-```bash
-pip install factorysimpy
-``` --->
 
 **From GitHub (latest version):**
 ```bash
