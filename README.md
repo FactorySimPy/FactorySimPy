@@ -39,7 +39,7 @@ Currently, the library supports discrete item flows only and is ideal for system
 
    **Latest Git main**
    ```bash
-   pip install git+https://github.com/<org>/FactorySimPy.git
+   pip install git+https://github.com/FactorySimPy/FactorySimPy.git
    ```
 
 ---
