@@ -7,7 +7,7 @@
 [![Python >= 3.8](https://img.shields.io/pypi/pyversions/factorysimpy)](https://pypi.org/project/factorysimpy/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
 
-FactorySimPy is a opensource, lightweight python library for modeling and discrete-event simulation of systems seen in manufacturing systems. This library has a canonical set of components that are seen in a typical manufacuting setting like Machines with processing delay or Joints that pack incoming items from different other components, etc. These components' behaviour is pre-built and configurable. User has to provide the model structure and the component parameters to run the simulation model. User can include new features by deriving from the existing classes. This library is built on SimPy 4 and supports as fast as possible and real time simulation.
+FactorySimPy is an opensource, lightweight python library for modeling and discrete-event simulation of systems seen in manufacturing systems. This library has a canonical set of components that are seen in a typical manufacuting setting like Machines with processing delay or Joints that pack incoming items from different other components, etc. These components' behaviour is pre-built and configurable. User has to provide the model structure and the component parameters to run the simulation model. User can include new features by deriving from the existing classes. This library is built on SimPy 4 and supports as fast as possible and real time simulation.
 Currently, the library supports discrete item flows only and is ideal for systems where the structure remains unchanged. We also plan to add support for material flow.
 
 ---
@@ -70,7 +70,7 @@ Currently, the library supports discrete item flows only and is ideal for system
 |-------|---------|----------------|
 | `Edge`   | base class | `name` ,`delay=0`, `src_node=None`,`dest_edges=None`  |
 | `Buffer`  | Finite‑capacity FIFO queue. | `store_capacity`|
-| `Conveyor` | slotted conveyor belt; optional blocking slots. | `name`,`belt_capacity`, `time_per_slot`, `blocking=False` |
+| `Conveyor` | slotted conveyor belt; optional blocking slots. | `name`,`belt_capacity`, `time_per_slot`, `accumulating=False` |
 | `Fleet` | Pool of AGVs/robots moving items. | 
 
 

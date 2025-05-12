@@ -64,11 +64,11 @@ An example model with 2 nodes and an edge
 ### Steps for Connecting Components
 1. Instantiate nodes and edges:
    ```python
-   n1 = Node()
-   n2 = Node()
+   n1 = Source()
+   n2 = Processor()
    n3 = Sink()
-   e1 = Edge()
-   e2 = Edge()
+   e1 = Buffer()
+   e2 = Buffer()
    ```
 2. Establish connections:
    ```python
@@ -147,7 +147,8 @@ An example model with 2 nodes and an edge
      - **Behavior**: yields `reserve_get` on the incoming connected edges. If yielded, the items are  retrieved using `get`. The retrieved items are combined and put into inbuiltstore. Then these processed items  is pushed to the respective outgoing edge by using `reserve_put` and `put` methods            
     - **Parameters**:
       - `node_type`: Joint
-              
+
+---            
                 
 ### **Edge** \( E \):
 - **Purpose**: Connects two nodes.  
