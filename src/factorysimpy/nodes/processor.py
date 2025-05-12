@@ -82,6 +82,7 @@ class Processor(Node):
         
         # Start the behaviour process
         self.env.process(self.behaviour())
+        self.env.process(self.pushingput())
 
 
     def add_in_edges(self, edge):
@@ -117,6 +118,29 @@ class Processor(Node):
         attr_name = next((v for k, v in attr_map.items() if isinstance(edge, k)), "inbuiltstore")
         #print(f"Processor: {self.name} - Edge: {edge.name} - Attribute: {attr_name}  {getattr(edge, attr_name)}")
         return getattr(edge, attr_name)
+    
+    def pushingput(self):
+        while True:
+            get_token = self.inbuiltstore.reserve_get()
+            if isinstance(self.out_edges[0], ConveyorBelt):
+
+                    outstore = self.out_edges[0]
+                    put_token = outstore.reserve_put()
+
+                    pe = yield put_token
+                    yield get_token
+                    item = self.inbuiltstore.get(get_token)
+                    outstore.put(pe, item)
+                    
+            else:
+                    outstore = self.out_edges[0].inbuiltstore
+                    put_token = outstore.reserve_put()
+                    yield self.env.all_of([put_token,get_token])
+                    item = self.inbuiltstore.get(get_token)
+                    outstore.put(put_token, item)
+
+            print(f"T={self.env.now:.2f}: {self.name} puts item into {self.out_edges[0].name}  ")
+
 
 
 
@@ -177,28 +201,8 @@ class Processor(Node):
                 yield self.env.timeout(self.delay_time)
                 self.inbuiltstore.put(P1, self.itemprocessed[i])
                 #self.monitor.record_end(self.env.now)
-                get_token = self.inbuiltstore.reserve_get()
-             
+                print(f"T={self.env.now:.2f}: {self.name} worker{i} puts item into its store ")
                 
-
-                if isinstance(self.out_edges[0], ConveyorBelt):
-
-                    outstore = self.out_edges[0]
-                    put_token = outstore.reserve_put()
-
-                    pe = yield put_token
-                    yield get_token
-                    item = self.inbuiltstore.get(get_token)
-                    outstore.put(pe, item)
-                    
-                else:
-                    outstore = self.out_edges[0].inbuiltstore
-                    put_token = outstore.reserve_put()
-                    yield self.env.all_of([put_token,get_token])
-                    item = self.inbuiltstore.get(get_token)
-                    outstore.put(put_token, item)
-
-                print(f"T={self.env.now:.2f}: {self.name} worker{i} puts item into processor store and items {[i.name for i in self.inbuiltstore.items]} ")
                 
 
     def behaviour(self):
