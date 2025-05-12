@@ -113,7 +113,7 @@ An example model with 2 nodes and an edge
      - `name`: unique name of a node
      - `in_edges`: list of input edges to the node
      - `out_edges`: list of output edges of the node
-     - `work_capacity`: Capacity of the machine.
+     - `work_capacity`: no. of simultaneous operations that the node can perform
      - `store_capacity`: Capacity of the store.
      - `delay`: Time for processing.
 
@@ -129,24 +129,24 @@ An example model with 2 nodes and an edge
 
   3. **Processor** \( N_p \):
     - **Purpose**: To modify/process items
-     - **Behavior**: yields `reserve_get` on the incoming connected edge. If yielded, the item is retrieved using `get`. The retrieved item is modified and put into its inbuiltstore until its store_capacity is reached. Then these processed items from the inbuiltstore is pushed to the outgoing edge by using `reserve_put` and `put` methods            
-       - **Parameters**:
-              - `node_type`: Processor.
+    - **Behavior**: yields `reserve_get` on the incoming connected edge. If yielded, the item is retrieved using `get`. The retrieved item is modified and put into its inbuiltstore until its store_capacity is reached. Then these processed items from the inbuiltstore is pushed to the outgoing edge by using `reserve_put` and `put` methods            
+    - **Parameters**:
+        - `node_type`: Processor.
 
 
 4. **Split** \( N_sp \):
     - **Purpose**: To multiplex incoming items into two outgoing flows
-     - **Behavior**: yields `reserve_get` on the incoming connected edge. If yielded, the item is retrieved using `get`. The retrieved item is either put into out_edge 1 or out_edge 2 based on the rule specified by the user. Then these processed items  is pushed to the respective outgoing edge by using `reserve_put` and `put` methods            
-       - **Parameters**:
-              - `node_type`: Split
-              -  `rule` : percentage of split
+    - **Behavior**: yields `reserve_get` on the incoming connected edge. If yielded, the item is retrieved using `get`. The retrieved item is either put into out_edge 1 or out_edge 2 based on the rule specified by the user. Then these processed items  is pushed to the respective outgoing edge by using `reserve_put` and `put` methods            
+    - **Parameters**:
+        - `node_type`: Split
+        -  `rule` : percentage of split
               
 5. **Joint** \( N_jt \):
            
      - **Purpose**: To combine items from two incoming edges
      - **Behavior**: yields `reserve_get` on the incoming connected edges. If yielded, the items are  retrieved using `get`. The retrieved items are combined and put into inbuiltstore. Then these processed items  is pushed to the respective outgoing edge by using `reserve_put` and `put` methods            
-       - **Parameters**:
-              - `node_type`: Joint
+    - **Parameters**:
+      - `node_type`: Joint
               
                 
 ### **Edge** \( E \):
@@ -161,26 +161,26 @@ An example model with 2 nodes and an edge
   1. **Conveyor** \( E_c \):
      - **Behavior**: Waits for reserve_put and put to add items to the conveyor belt. Moves the items from one end to the other and waits for the item to be picked up from the belt using `reserve_get` and `get` method. It maintains the order of items. 
      - **Parameters**:
-       - `belt_capacity`: Capacity of the conveyor.
-       - `delay_per_slot`: Time for an item to move from one slot to the next.
-       - `accumulating`: Boolean indicating if items can accumulate at the conveyor's end.
-       
+        - `belt_capacity`: Capacity of the conveyor.
+        - `delay_per_slot`: Time for an item to move from one slot to the next.
+        - `accumulating`: Boolean indicating if items can accumulate at the conveyor's end.
+        
      - **Methods**:
-       - `can_put()`, `reserve_put`, `put()`: Add items.
-       - `can_get()`, `reserve_get`, `get()`: Retrieve items.
+        - `can_put()`, `reserve_put`, `put()`: Add items.
+        - `can_get()`, `reserve_get`, `get()`: Retrieve items.
 
   2. **Buffer** \( E_b \):
      - **Purpose**: It acts like a FIFO queue with a specified delay.
      - **Behavior**: waits for reserve_put and put of items. Once an item is put inside buffer, it becomes available for the destination node after `delay` amount of time. Destination node can retrieve the items from buffer's store using `reserve_get` and `get` methods.
 
      - **Parameters**:
-       - `store_capacity`: Capacity of the buffer.
-       - `delay`: Time after which the item becomes available at the output
+        - `store_capacity`: Capacity of the buffer.
+        - `delay`: Time after which the item becomes available at the output
 
        
      - **Methods**:
-       - `can_put()`, `reserve_put`, `put()`: Add items.
-       - `can_get()`, `reserve_get`, `get()`: Retrieve items.
+        - `can_put()`, `reserve_put`, `put()`: Add items.
+        - `can_get()`, `reserve_get`, `get()`: Retrieve items.
 
   3. **Transporter** \( E_t \):
      - **Purpose**: Handles bursty traffic by operating in parallel.
