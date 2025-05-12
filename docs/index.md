@@ -201,5 +201,3 @@ An example model with 2 nodes and an edge
 ---
 
 
-## Summary
-By adhering to this framework, FactorySimPy ensures a structured, intuitive simulation environment for modeling discrete item flows in manufacturing systems. The notations and rules defined here aim to provide clarity and minimize ambiguity during model creation.
