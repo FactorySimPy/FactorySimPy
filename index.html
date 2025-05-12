@@ -1,0 +1,1075 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://factorysimpy.github.io/FactorySimPy/">
+      
+      
+      
+        <link rel="next" href="getting_started/">
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.13">
+    
+    
+      
+        <title>FactorySimPy</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.342714a4.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#discrete-event-simulation-for-manufacturing" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="FactorySimPy" class="md-header__button md-logo" aria-label="FactorySimPy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FactorySimPy
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Home
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="getting_started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="extendedresources/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Extended resources
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="reservablepriorityreqstore/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="FactorySimPy" class="md-nav__button md-logo" aria-label="FactorySimPy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FactorySimPy
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#model-description" class="md-nav__link">
+    <span class="md-ellipsis">
+      Model Description
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Model Description">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-representation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Representation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#component-designimportant-classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Component Design:Important Classes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#system-description" class="md-nav__link">
+    <span class="md-ellipsis">
+      System Description
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="System Description">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rules-for-interconnection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rules for interconnection
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#steps-for-connecting-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Steps for Connecting Components
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#class-hierarchy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Class Hierarchy
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#behavior-of-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Behavior of Components
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Behavior of Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#node-n" class="md-nav__link">
+    <span class="md-ellipsis">
+      Node ( N ):
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#derived-classes-from-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      Derived Classes from Node
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-e" class="md-nav__link">
+    <span class="md-ellipsis">
+      Edge ( E ):
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#derived-classes-from-edge" class="md-nav__link">
+    <span class="md-ellipsis">
+      Derived Classes from Edge
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#item-i" class="md-nav__link">
+    <span class="md-ellipsis">
+      Item ( I ):
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="extendedresources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Extended resources
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="reservablepriorityreqstore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ReservablePriorityReqStore
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="priorityreqstore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PriorityReqStore
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#model-description" class="md-nav__link">
+    <span class="md-ellipsis">
+      Model Description
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Model Description">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-representation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Representation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#component-designimportant-classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Component Design:Important Classes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#system-description" class="md-nav__link">
+    <span class="md-ellipsis">
+      System Description
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="System Description">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rules-for-interconnection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rules for interconnection
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#steps-for-connecting-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Steps for Connecting Components
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#class-hierarchy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Class Hierarchy
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#behavior-of-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Behavior of Components
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Behavior of Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#node-n" class="md-nav__link">
+    <span class="md-ellipsis">
+      Node ( N ):
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#derived-classes-from-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      Derived Classes from Node
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-e" class="md-nav__link">
+    <span class="md-ellipsis">
+      Edge ( E ):
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#derived-classes-from-edge" class="md-nav__link">
+    <span class="md-ellipsis">
+      Derived Classes from Edge
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#item-i" class="md-nav__link">
+    <span class="md-ellipsis">
+      Item ( I ):
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="discrete-event-simulation-for-manufacturing">Discrete event Simulation for Manufacturing<a class="headerlink" href="#discrete-event-simulation-for-manufacturing" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>FactorySimPy is an opensource, python library for modeling and Discrete-event simulation of systems seen in manufacturing systems. This library has a canonical set of components that are seen in a typical manufacturing setting like processors with processing delay, Joints that pack together  incoming items from different other components, etc. These components' behaviour is pre-built and configurable. User has to provide the model structure and the component parameters to run the simulation model. User can include new features by deriving from the existing classes. This library is built on SimPy 4 and supports as fast as possible and real-time simulation.  <br />
+Currently, the library supports discrete flows only and is ideal for systems where the structure remains unchanged. We also plan to add support for material flow.</p>
+<h2 id="model-description">Model Description<a class="headerlink" href="#model-description" title="Permanent link">&para;</a></h2>
+<p>The system is modeled as a graph composed of two types of components: Nodes and Edges. <code>Nodes</code> represent active components, such as processors that introduce delays—for example, machines that pack, unpack, or modify items. <code>Edges</code> represent passive entities like conveyor belts, human operators, warehouse robots, or transport vehicles that facilitate the movement of items between nodes. In the simulation model, state changes are driven only by the actions performed by the nodes.</p>
+<p>A node maintains two list- <code>in_edges</code> and <code>out_edges</code>. An edge connects exactly two nodes and serves as an in_edge for the <code>dest_node</code> and out_edge for the <code>src_node</code>. Graph can have loops(and self loops).
+Each Node maintains two lists: in_edges and out_edges. An Edge connects exactly two nodes — it acts as an out_edge for the src_node (source node) and as an in_edge for the dest_node (destination node). Each Edge stores direct references to its source and destination nodes. The graph structure supports both loops and self-loops, and each Edge is exclusively associated with a single connection between a source node and a destination node (which may be the same node in case of a self-loop).</p>
+<h3 id="example-representation">Example Representation<a class="headerlink" href="#example-representation" title="Permanent link">&para;</a></h3>
+<p>An example model with 2 nodes and an edge</p>
+<!--- ![Alt text](images/gr_2nodes.jpg) --->
+<p><img src="images/gr_2nodes.jpg" alt="System Architecture Diagram showing Nodes and Edges" width="400" height="10"/></p>
+<hr />
+<h2 id="component-designimportant-classes">Component Design:Important Classes<a class="headerlink" href="#component-designimportant-classes" title="Permanent link">&para;</a></h2>
+<p><code>Node</code> and <code>Edge</code> serves as the base classes. Inaddition ther is <code>Item</code> class that represents the items that flow in the system. <code>Nodes</code> are the active elements in the system and are static and <code>Edge</code> represents the passive elements in the systems and are used to interconnect two nodes.</p>
+<p><code>Nodes</code> are the active, static elements in the system and are responsible for operations such as processing, splitting, or combining items. Each node maintains a list of in_edges and out_edges, which are references to edge objects that connect it to other nodes. Nodes also have parameters such as a unique <code>name</code>, <code>work_capacity</code> (the maximum number of items that can be processed simultaneously),<code>delay</code> (the processing time per item, which can be a constant or a random generator), and <code>store_capacity</code> (the number of items that can be held internally). Common node types include Processor, Split, Joint, Source, and Sink.
+<code>Edges</code> are passive components that connect exactly two nodes: a source_node and a dest_node. Each edge also has a <code>capacity</code> and methods like <code>can_put</code>, <code>reserve_put</code>, <code>put</code>, <code>can_get</code>, <code>reserve_get</code>, and <code>get</code> to control item flow. Specific types of edges include Buffer, Conveyor, and Fleet. <code>Buffers</code> act as FIFO queues with a defined <code>delay</code>. <code>Conveyors</code> move items between nodes while preserving order and support both discrete (slotted belts) and continuous motion. Discrete conveyors operate in fixed stages defined by delay_per_slot, while continuous conveyors move items at a fixed speed. Conveyors can be <code>accumulating</code>(non-blocking)—allowing multiple items to queue if the output is blocked—or <code>non-accumulating</code>(blocking), which only accepts an item at the entry if the exit is free. Conveyors are characterized by parameters such as capacity, occupancy, and state, which can be moving, stalled, or empty.</p>
+<p><code>Fleets</code> represent systems like warehouse robots or human operators that transport items between nodes without preserving order. A fleet is characterized by its <code>size</code> (number of carriers), <code>delay</code> (fixed or variable), and <code>state</code> for each carrier, which can be either <code>moving</code> or <code>idle</code>. These components together define a flexible and modular system for modeling material flow in discrete-event simulation.</p>
+<!-- Here, is an example of a model with 3 nodes that are connected using 2 edges. Nodes are of type source, machine and sink and edges are of type conveyor.  -->
+
+<h2 id="system-description">System Description<a class="headerlink" href="#system-description" title="Permanent link">&para;</a></h2>
+<h3 id="rules-for-interconnection">Rules for interconnection<a class="headerlink" href="#rules-for-interconnection" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Nodes are static entities like processor, source, sink, split, joints, etc.</li>
+<li>Edges are directed and connects one node to another. Conveyor, buffer and fleet are the entities that are of type Edge.</li>
+<li>Items are discrete parts that flow in the system through the directed edges from one node to another. </li>
+<li>Each Node has two lists <code>in_edges</code> and <code>out_edges</code> that points to the references of the edges that comes in and go out of the node</li>
+<li>Each Edge stores pointers to a <code>src_node</code> and a <code>dest_node</code>. An Edge can be used only to connect a single node(<code>src_node</code>) to another (or same) node(<code>dest_node</code>).</li>
+<li>An Edge can have the same node in both <code>src_node</code> and <code>dest_node</code>. (ie, a node can be connected to itself)</li>
+<li>Nodes are the active elements whose activites initiates state changes in the system.</li>
+<li>Edges are the passive elements and state change occurs due to actions initiated by nodes</li>
+<li>To split the output from a <code>processor</code> node into two streams, a <code>Split</code> must be connected to the <code>processor</code> using an Edge.</li>
+<li>To join two streams and to feed as input to a <code>processor</code> node, a <code>Joint</code> must be connected to the <code>processor</code> using an Edge</li>
+</ol>
+<!-- <img src="images/split.jpg" alt="System Architecture Diagram showing Nodes and Edges" width="400" height="10"/>
+
+<img src="images/joint.jpg" alt="System Architecture Diagram showing Nodes and Edges" width="400" height="10"/> -->
+
+<h3 id="steps-for-connecting-components">Steps for Connecting Components<a class="headerlink" href="#steps-for-connecting-components" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Instantiate nodes and edges:
+   <div class="highlight"><pre><span></span><code><span class="n">n1</span> <span class="o">=</span> <span class="n">Source</span><span class="p">()</span>
+<span class="n">n2</span> <span class="o">=</span> <span class="n">Processor</span><span class="p">()</span>
+<span class="n">n3</span> <span class="o">=</span> <span class="n">Sink</span><span class="p">()</span>
+<span class="n">e1</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">()</span>
+<span class="n">e2</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">()</span>
+</code></pre></div></li>
+<li>Establish connections:
+   <div class="highlight"><pre><span></span><code><span class="n">e1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">)</span>
+<span class="n">e2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n2</span><span class="p">,</span><span class="n">n3</span><span class="p">)</span>
+</code></pre></div></li>
+</ol>
+<hr />
+<h2 id="class-hierarchy"><strong>Class Hierarchy</strong><a class="headerlink" href="#class-hierarchy" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>├── Node(Base Class for components that processes items)
+    ├── Processor     # Processes items 
+    ├── Joint      # Merges multiple flows into one
+    ├── Split       # Splits a flow into multiple branches.
+    ├── Sink        # Consumes items
+    ├── Source       # generates items
+
+
+├── Edge(Base Class for components that transfer items from one node to another)
+    ├── Conveyor   # transfers items in a sequence from a node to another and order is preserved
+    ├── Fleet      # Fleet of human operstor, warehouse robots or transport vehicles
+    ├── Buffer     # Queue of items waiting to be accepted by the next node in a model
+</code></pre></div>
+<h2 id="behavior-of-components">Behavior of Components<a class="headerlink" href="#behavior-of-components" title="Permanent link">&para;</a></h2>
+<hr />
+<h3 id="node-n"><strong>Node</strong> ( N ):<a class="headerlink" href="#node-n" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Purpose</strong>: Active elements in the system.  </li>
+<li><strong>Parameters</strong><ul>
+<li><code>name</code>: unique name of a node</li>
+<li><code>in_edges</code>: list of input edges to the node</li>
+<li><code>out_edges</code>: list of output edges of the node</li>
+<li><code>work_capacity</code>: no. of simultaneous operations that the node can perform</li>
+<li><code>store_capacity</code>: Capacity of the store.</li>
+<li><code>delay</code>: Time for processing.</li>
+</ul>
+</li>
+</ul>
+<h3 id="derived-classes-from-node">Derived Classes from Node<a class="headerlink" href="#derived-classes-from-node" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Source</strong> ( N_src ):</p>
+<ul>
+<li><strong>Purpose</strong>: to mark the start of the model</li>
+<li><strong>Behavior</strong>: yields <code>reserve_put</code> on the connected edge. If yielded, the item is added using <code>put</code>. It fills the inbuiltstore with items until the capacity is reached. </li>
+</ul>
+</li>
+<li>
+<p><strong>Sink</strong> ( N_snk ):</p>
+<ul>
+<li><strong>Purpose</strong>: To mark the end of the model</li>
+<li><strong>Behavior</strong>: yields <code>reserve_get</code> on the incoming connected edge. If yielded, the item is retrieved using <code>get</code>. The retrieved item is put into its inbuiltstore until its store_capacity is reached.</li>
+</ul>
+</li>
+<li>
+<p><strong>Processor</strong> ( N_p ):</p>
+<ul>
+<li><strong>Purpose</strong>: To modify/process items</li>
+<li><strong>Behavior</strong>: yields <code>reserve_get</code> on the incoming connected edge. If yielded, the item is retrieved using <code>get</code>. The retrieved item is modified and put into its inbuiltstore until its store_capacity is reached. Then these processed items from the inbuiltstore is pushed to the outgoing edge by using <code>reserve_put</code> and <code>put</code> methods            </li>
+<li><strong>Parameters</strong>:<ul>
+<li><code>node_type</code>: Processor.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Split</strong> ( N_sp ):</p>
+<ul>
+<li><strong>Purpose</strong>: To multiplex incoming items into two outgoing flows</li>
+<li><strong>Behavior</strong>: yields <code>reserve_get</code> on the incoming connected edge. If yielded, the item is retrieved using <code>get</code>. The retrieved item is either put into out_edge 1 or out_edge 2 based on the rule specified by the user. Then these processed items  is pushed to the respective outgoing edge by using <code>reserve_put</code> and <code>put</code> methods            </li>
+<li><strong>Parameters</strong>:<ul>
+<li><code>node_type</code>: Split</li>
+<li><code>rule</code> : percentage of split</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Joint</strong> ( N_jt ):</p>
+<ul>
+<li><strong>Purpose</strong>: To combine items from two incoming edges</li>
+<li><strong>Behavior</strong>: yields <code>reserve_get</code> on the incoming connected edges. If yielded, the items are  retrieved using <code>get</code>. The retrieved items are combined and put into inbuiltstore. Then these processed items  is pushed to the respective outgoing edge by using <code>reserve_put</code> and <code>put</code> methods            </li>
+<li><strong>Parameters</strong>:</li>
+<li><code>node_type</code>: Joint</li>
+</ul>
+</li>
+</ol>
+<hr />
+<h3 id="edge-e"><strong>Edge</strong> ( E ):<a class="headerlink" href="#edge-e" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Purpose</strong>: Connects two nodes.  </li>
+<li><strong>Parameters</strong><ul>
+<li><code>name</code>: unique name of a edge</li>
+<li><code>src_node</code>: reference to the source node</li>
+<li><code>dest_node</code>: reference to the destination node</li>
+</ul>
+</li>
+</ul>
+<h3 id="derived-classes-from-edge">Derived Classes from Edge<a class="headerlink" href="#derived-classes-from-edge" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Conveyor</strong> ( E_c ):</p>
+<ul>
+<li><strong>Behavior</strong>: Waits for reserve_put and put to add items to the conveyor belt. Moves the items from one end to the other and waits for the item to be picked up from the belt using <code>reserve_get</code> and <code>get</code> method. It maintains the order of items. </li>
+<li>
+<p><strong>Parameters</strong>:</p>
+<ul>
+<li><code>belt_capacity</code>: Capacity of the conveyor.</li>
+<li><code>delay_per_slot</code>: Time for an item to move from one slot to the next.</li>
+<li><code>accumulating</code>: Boolean indicating if items can accumulate at the conveyor's end.</li>
+</ul>
+</li>
+<li>
+<p><strong>Methods</strong>:</p>
+<ul>
+<li><code>can_put()</code>, <code>reserve_put</code>, <code>put()</code>: Add items.</li>
+<li><code>can_get()</code>, <code>reserve_get</code>, <code>get()</code>: Retrieve items.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Buffer</strong> ( E_b ):</p>
+<ul>
+<li><strong>Purpose</strong>: It acts like a FIFO queue with a specified delay.</li>
+<li>
+<p><strong>Behavior</strong>: waits for reserve_put and put of items. Once an item is put inside buffer, it becomes available for the destination node after <code>delay</code> amount of time. Destination node can retrieve the items from buffer's store using <code>reserve_get</code> and <code>get</code> methods.</p>
+</li>
+<li>
+<p><strong>Parameters</strong>:</p>
+<ul>
+<li><code>store_capacity</code>: Capacity of the buffer.</li>
+<li><code>delay</code>: Time after which the item becomes available at the output</li>
+</ul>
+</li>
+<li>
+<p><strong>Methods</strong>:</p>
+<ul>
+<li><code>can_put()</code>, <code>reserve_put</code>, <code>put()</code>: Add items.</li>
+<li><code>can_get()</code>, <code>reserve_get</code>, <code>get()</code>: Retrieve items.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Transporter</strong> ( E_t ):</p>
+<ul>
+<li><strong>Purpose</strong>: Handles bursty traffic by operating in parallel.</li>
+<li><strong>Behavior</strong>: Spawns additional instances as required to manage flow surges.</li>
+</ul>
+</li>
+</ol>
+<hr />
+<h3 id="item-i"><strong>Item</strong> ( I ):<a class="headerlink" href="#item-i" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Purpose</strong>: Items that flow in the system  </li>
+<li><strong>Parameters</strong><ul>
+<li><code>item_id</code>: unique id of an item</li>
+</ul>
+</li>
+</ul>
+<hr />
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": ".", "features": ["navigation.tabs", "navigation.sections"], "search": "assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+    
+  </body>
+</html>
