@@ -3,9 +3,9 @@
 
 > **Light-weight component library for discrete-event simulation of manufacturing systems, built on top of SimPy 4.1.1**
 
-[![PyPI](https://img.shields.io/pypi/v/factorysimpy?color=informational)](https://pypi.org/project/factorysimpy/)
+<!-- [![PyPI](https://img.shields.io/pypi/v/factorysimpy?color=informational)](https://pypi.org/project/factorysimpy/)
 [![Python >= 3.8](https://img.shields.io/pypi/pyversions/factorysimpy)](https://pypi.org/project/factorysimpy/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE) -->
 
 FactorySimPy is an opensource, lightweight python library for modeling and discrete-event simulation of manufacturing systems. This library has a canonical set of components that are seen in a typical manufacuting setting like Processors with processing delay or Joints that pack incoming items from different other components or buffers that behave like a FIFO queue, etc. These components' behaviour is pre-built and configurable. User has to provide the model structure and the component parameters to run the simulation model. User can include new features by deriving from the existing classes. This library is built on SimPy 4 and supports as fast as possible and real time simulation.
 Currently, the library supports discrete item flows only and is ideal for systems where the structure remains unchanged. We also plan to add support for material flow.
