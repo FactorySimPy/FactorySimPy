@@ -22,6 +22,7 @@ plugins:
 markdown_extensions:
   - admonition
   - codehilite
+  - md_in_html
   - toc:
       permalink: true
   - pymdownx.highlight
