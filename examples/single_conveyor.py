@@ -14,18 +14,12 @@ env = simpy.Environment()
 
 # Initializing nodes
 src= Source(env, name="Source-1", delay=(1,2))
-
-sink= Sink(env, name="Sink-1", )
+sink= Sink(env, name="Sink-1", store_capacity=20 )
 
 # Initializing edges
-conveyor = ConveyorBelt(env, name="Conveyor-1", belt_capacity=10, delay_per_slot=1)
+conveyor = ConveyorBelt(env, name="Conveyor-1", belt_capacity=2, delay_per_slot=1)
 
 
 # Adding connections
-
-
 conveyor.connect(src, sink)
-
-
-
 env.run(until=30)

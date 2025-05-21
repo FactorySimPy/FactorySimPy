@@ -458,6 +458,7 @@ class ReservablePriorityReqStore(Store):
             RuntimeError: If proceed is False after put operation
         """
         proceed = False
+
         if self.reservations_put:
           proceed = self._trigger_put(put_event,item)
         else:
@@ -467,6 +468,8 @@ class ReservablePriorityReqStore(Store):
           #print(f"{self.env.now} proceed")
           #self._trigger_get(None)
           self._trigger_reserve_get(None)
+          
+        #if the put operation is not successful, then raise an erro
 
         if not proceed:
 

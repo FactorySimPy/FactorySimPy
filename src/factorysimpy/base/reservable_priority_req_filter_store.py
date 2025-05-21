@@ -452,7 +452,7 @@ class ReservablePriorityReqFilterStore(FilterStore):
 
 
 
-    def put(self,put_event,item):
+    def put(self,put_event,item,):
         """
         Perform a `put` operation on the store and trigger any pending `reserve_get` requests.
 
@@ -470,6 +470,7 @@ class ReservablePriorityReqFilterStore(FilterStore):
             RuntimeError: If no reservations are available in the reservations_put
             RuntimeError: If proceed is False after put operation
         """
+       
         proceed = False
         if self.reservations_put:
           proceed = self._trigger_put(put_event,item)

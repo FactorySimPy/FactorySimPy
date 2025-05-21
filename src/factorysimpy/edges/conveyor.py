@@ -7,6 +7,7 @@ import simpy
 
 from factorysimpy.edges.edge import Edge
 from factorysimpy.base.reservable_priority_req_filter_store import ReservablePriorityReqFilterStore
+
 #from ReservablePriorityReqFilterStore import ReservablePriorityReqFilterStore
 class BeltStore(ReservablePriorityReqFilterStore):
     """
@@ -145,7 +146,10 @@ class ConveyorBelt(Edge):
     self.get_dict = {}
     self.put_dict = {}
     self.put_request_queue=[]
+    self.edge_type = "Conveyor"
     self.env.process(self.behaviour())
+
+  
 
   def is_empty(self):
       """Check if the belt is completely empty."""
@@ -236,7 +240,7 @@ class ConveyorBelt(Edge):
                self.noaccumulation_mode_on=True # to ensure that only one item will be put into the nonaccum store at the initial position
                yield from self._handle_put_request()
             else:
-              print("'{self.name}' is in non-accumulating")
+              print(f"T={self.env.now:.2f}: Conveyor '{self.name} is in non-accumulating")
         else:
           if self.get_request_queue:
             self.env.process(self._handle_get_request())
@@ -273,6 +277,25 @@ class ConveyorBelt(Edge):
       self.put_dict[put_event] = self.belt.put(put_event, item)
 
       trigger_put_from.succeed()
+
+  def _handle_get_request1(self):
+      if self.get_request_queue:
+        get_event = self.belt.reserve_get()
+        ge = yield get_event
+        #print(f"T={env.now:.2f}: conveyor yielded get request {get_event}")
+        if ge not in self.get_dict:
+          trigger_get_to= self.env.event()
+          self.get_dict[ge] = trigger_get_to
+
+        print(f"T={self.env.now:.2f}: Conveyor '{self.name}':_handle_get_request:yielded get request {get_event}")
+        self.get_request_queue.pop(0).succeed(value=ge)
+        yield trigger_get_to
+
+        trigger_get_from= self.get_dict[ge]
+        if get_event in self.get_dict:
+          self.get_dict[ge] = self.belt.get(ge)
+        trigger_get_from.succeed()
+
 
   def _handle_get_request(self):
       if self.get_request_queue:
@@ -316,8 +339,13 @@ class ConveyorBelt(Edge):
             if item is not None:
                 del self.get_dict[get_event]
             return item  # returning inside process is fine
+  
 
-    return self.env.process(process())  # return a SimPy Process
+    return self.env.process(process())
+        
+    
+
+    #return self.env.process(process())  # return a SimPy Process
 
 
 
@@ -438,7 +466,7 @@ class ConveyorBelt(Edge):
 
       else:
           self.state = "moving"
-          print(f"T={self.env.now:.2f}: Conveyor '{self.name}' is moving")
+          print(f"T={self.env.now:.2f}: Conveyor '{self.name}' is {self.state}")
           # check if conveyor is stalled and in the last position an item got added before
           if self.noaccumulation_mode_on:
             #there is a get request on the stalled conveyor

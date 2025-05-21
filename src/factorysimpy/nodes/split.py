@@ -1,8 +1,10 @@
 # @title Split
 import random
+from typing import Generator
 import simpy
 
 from factorysimpy.base.reservable_priority_req_filter_store import ReservablePriorityReqFilterStore  # Import your class
+from factorysimpy.base.reservable_priority_req_store import ReservablePriorityReqStore  # Import your class
 from factorysimpy.nodes.node import Node
 from factorysimpy.edges.conveyor import ConveyorBelt
 from factorysimpy.edges.buffer import Buffer
@@ -42,8 +44,8 @@ class Split(Node):
         If the splitter does not have exactly 1 input edge or 2 output edges in the behaviour function.
 
     """
-    def __init__(self, env, name,in_edges=None , out_edges=None,work_capacity=1, store_capacity=1, delay=1,rule=0.5):
-        super().__init__(env, name, in_edges , out_edges, work_capacity=1, store_capacity=1, delay=0)
+    def __init__(self, env, name,in_edges=None , out_edges=None,work_capacity=1, store_capacity=1, delay=1,rule=0.1):
+        super().__init__(env, name, in_edges , out_edges, work_capacity=1, store_capacity=1, delay=delay)
         self.env = env
         self.name = name
         self.work_capacity = work_capacity
@@ -51,7 +53,10 @@ class Split(Node):
         self.in_edges = in_edges
         self.out_edges = out_edges
         self.rule=rule
+        self.node_type = "Split"
         self.inbuiltstore = ReservablePriorityReqFilterStore(env, capacity=store_capacity)  # Custom store with reserve capacity
+        self.inbuiltstoreA = ReservablePriorityReqStore(env, capacity=int(store_capacity/2))  # Custom store with reserve capacity
+        self.inbuiltstoreB = ReservablePriorityReqStore(env, capacity=store_capacity-int(store_capacity/2))  # Custom store with reserve capacity
         self.resource = simpy.Resource(env, capacity=min(work_capacity,store_capacity))  # Work capacity
         self.delay = delay  # Processing delay
 
@@ -90,7 +95,9 @@ class Split(Node):
     def pushing_puta(self):
         """Pushes items to the first output edge."""
         while True:
-            get_token = self.inbuiltstore.reserve_get(filter=lambda item: item.name.endswith('_a'))  # Wait for a reserved slot if needed 
+           
+            #get_token = self.inbuiltstore.reserve_get(filter=lambda item: item.name.endswith('_a'))  # Wait for a reserved slot if needed 
+            get_token = self.inbuiltstoreA.reserve_get()
             if isinstance(self.out_edges[0], ConveyorBelt):
 
                     outstore = self.out_edges[0]
@@ -98,14 +105,15 @@ class Split(Node):
 
                     pe = yield put_token
                     yield get_token
-                    item = self.inbuiltstore.get(get_token)
+                    item = self.inbuiltstoreA.get(get_token)
                     outstore.put(pe, item)
                     
             else:
                     outstore = self.out_edges[0].inbuiltstore
                     put_token = outstore.reserve_put()
-                    yield self.env.all_of([put_token,get_token])
-                    item = self.inbuiltstore.get(get_token)
+                    yield self.env.all_of([get_token,put_token])
+                    #yield self.env.all_of([put_token,get_token])
+                    item = self.inbuiltstoreA.get(get_token)
                     outstore.put(put_token, item)
 
             print(f"T={self.env.now:.2f}: {self.name} puts item into {self.out_edges[0].name}  ")
@@ -113,8 +121,10 @@ class Split(Node):
 
     def pushing_putb(self):
         """Pushes items to the first output edge."""
+    
         while True:
-            get_token = self.inbuiltstore.reserve_get(filter=lambda item: item.name.endswith('_b'))  # Wait for a reserved slot if needed 
+            #get_token = self.inbuiltstore.reserve_get(filter=lambda item: item.name.endswith('_b'))  # Wait for a reserved slot if needed 
+            get_token = self.inbuiltstoreB.reserve_get()
             if isinstance(self.out_edges[1], ConveyorBelt):
 
                     outstore = self.out_edges[1]
@@ -122,14 +132,14 @@ class Split(Node):
 
                     pe = yield put_token
                     yield get_token
-                    item = self.inbuiltstore.get(get_token)
+                    item = self.inbuiltstoreB.get(get_token)
                     outstore.put(pe, item)
                     
             else:
                     outstore = self.out_edges[1].inbuiltstore
                     put_token = outstore.reserve_put()
-                    yield self.env.all_of([put_token,get_token])
-                    item = self.inbuiltstore.get(get_token)
+                    yield self.env.all_of([get_token,put_token])
+                    item = self.inbuiltstoreB.get(get_token)
                     outstore.put(put_token, item)
 
             print(f"T={self.env.now:.2f}: {self.name} puts item into {self.out_edges[0].name}  ")
@@ -139,28 +149,72 @@ class Split(Node):
             with self.resource.request() as req:
                 yield req  # Wait for work capacity
                 
-                storetoget = self.in_edges[0] if isinstance(self.in_edges[0], ConveyorBelt) else self.in_edges[0].out_store
-                get_token =  storetoget.reserve_get()
-                put_token = self.inbuiltstore.reserve_put()
+                #storetoget = self.in_edges[0] if isinstance(self.in_edges[0], ConveyorBelt) else self.in_edges[0].out_store
+                if isinstance(self.in_edges[0], ConveyorBelt):
+                    storetoget = self.in_edges[0]
+                    get_token =  storetoget.reserve_get()
+                    ge = yield get_token
+                    item = yield storetoget.get(ge)
             
-                print(f"T={self.env.now:.2f}: {self.name } worker{i} is going to yield an item from {self.in_edges[0].name}")
-                yield self.env.all_of([ put_token , get_token])
-                item = storetoget.get(get_token)
-                print(f"T={self.env.now:.2f}: {self.name } worker {i} received item {item.name}  for splitting")
-                
-                # Simulate processing delay for combining items
-                self.delaytime = next(self.delay)
-                yield self.env.timeout(self.delaytime)
-
+                else :
+                    storetoget = self.in_edges[0].out_store
+                    get_token =  storetoget.reserve_get()
+                    yield get_token
+                    item = storetoget.get(get_token)
+        
                 # Create a combined output item and put it in the combiner's store
                 if random.random()<self.rule:
-                   split_item = Item(name=f"{item.name}_a")
+                    put_token = self.inbuiltstoreA.reserve_put()
+                    print(f"T={self.env.now:.2f}: {self.name } worker{i} is reserving an space in its store")
+                    yield put_token
+                    print(f"T={self.env.now:.2f}: {self.name } worker{i} is reserved an space in its store")
+                    if isinstance(self.in_edges[0], ConveyorBelt):
+                        storetoget = self.in_edges[0]
+                        get_token =  storetoget.reserve_get()
+                        ge = yield get_token
+                        item = yield storetoget.get(ge)
+                
+                    else :
+                        storetoget = self.in_edges[0].out_store
+                        get_token =  storetoget.reserve_get()
+                        yield get_token
+                        item = storetoget.get(get_token)
+                    print(f"T={self.env.now:.2f}: {self.name }worker {i} received item {item.name}  for splitting")
+                    
+                    # Simulate processing delay for combining items
+                    self.delay_time = next(self.delay) if isinstance(self.delay, Generator) else self.delay
+                    yield self.env.timeout(self.delay_time)
+
+                    split_item = Item(name=f"{item.name}_a")
+                    self.inbuiltstoreA.put(put_token, split_item)
                 else:
-                   split_item = Item(name=f"{item.name}_b")
-                self.inbuiltstore.put(put_token, split_item)
+                    put_token = self.inbuiltstoreB.reserve_put()
+                    print(f"T={self.env.now:.2f}: {self.name } worker{i} is reserving an space in its store")
+                    yield put_token
+                    print(f"T={self.env.now:.2f}: {self.name } worker{i} is reserved an space in its store")
+                    if isinstance(self.in_edges[0], ConveyorBelt):
+                        storetoget = self.in_edges[0]
+                        get_token =  storetoget.reserve_get()
+                        ge = yield get_token
+                        item = yield storetoget.get(ge)
+                
+                    else :
+                        storetoget = self.in_edges[0].out_store
+                        get_token =  storetoget.reserve_get()
+                        yield get_token
+                        item = storetoget.get(get_token)
+                    print(f"T={self.env.now:.2f}: {self.name } worker {i} received item {item.name}  for splitting")
+                    
+                    # Simulate processing delay for combining items
+                    self.delaytime = next(self.delay)
+                    yield self.env.timeout(self.delaytime)
+
+                    split_item = Item(name=f"{item.name}_b")
+                    self.inbuiltstoreB.put(put_token, split_item)
+                #self.inbuiltstore.put(put_token, split_item)
 
 
-                print(f"At time {self.env.now:.2f}: worker {i} placed split item {split_item.name} into store")
+                print(f"T={self.env.now:.2f}: {self.name} worker {i} placed split item {split_item.name} into store")
 
     def behaviour(self):
         """Splitter behavior that creates workers based on the effective capacity."""

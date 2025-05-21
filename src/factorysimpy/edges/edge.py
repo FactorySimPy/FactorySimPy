@@ -4,8 +4,8 @@ from typing import Optional, Union, Generator
 import random
 import simpy
 from factorysimpy.nodes.node import Node
-from factorysimpy.nodes.split import Split
-from factorysimpy.nodes.joint import Joint
+
+
 
 
 
@@ -86,7 +86,7 @@ class Edge:
             yield random.randint(*delay_range)
 
         
-       
+    
 
     def connect(self, src: Node, dest: Node, reconnect: bool = False):
         if not reconnect:
@@ -101,7 +101,8 @@ class Edge:
         self.dest_node = dest
 
         # Check source constraints
-        if not isinstance(self.src_node, Split):
+        print(f"Connecting edge '{self.name}' from '{src.name}' to '{dest.name}'")
+        if  self.src_node.node_type not in ["Split"]:
             # Check if out_edges is None or already configured
             
             assert self.src_node.out_edges is None or self in self.src_node.out_edges, (
@@ -109,15 +110,15 @@ class Edge:
             )
         else:
             # Allow up to 2 connections for Split, accounting for self already being present
-            assert self.src_node.out_edges is not None and len(self.src_node.out_edges) < 2 or self in self.src_node.out_edges, (
+            assert self.src_node.out_edges is None or self.src_node.out_edges is not None and len(self.src_node.out_edges) < 2 or self in self.src_node.out_edges, (
                 f"{self.src_node} already has more than 2 edges connected"
             )
 
-        if not isinstance(self.dest_node, Joint):
-          
-          assert self.dest_node.in_edges is None or self in self.dest_node.in_edges, (f"{self.dest_node} is already connected")
+        if self.dest_node.node_type not in ["Joint","Processor"]:
+          #print(self.src_node.node_type)
+          assert self.dest_node.in_edges is None or self in self.dest_node.in_edges, (f"{self.dest_node.name, self.name} is already connected to {[i.name for i in self.dest_node.in_edges]}")
         else:
-          assert self.dest_node.in_edges is not None and len(self.dest_node.in_edges) <2 or self in self.dest_node.in_edges,  (f"{self.dest_node} already has more than 2 edges connected")
+          assert self.dest_node.in_edges is None or self.dest_node.in_edges is not None and len(self.dest_node.in_edges) <2 or self in self.dest_node.in_edges,  (f"{self.dest_node} already has more than 2 edges connected")
 
         # Register edge to nodes
         if src.out_edges is None:

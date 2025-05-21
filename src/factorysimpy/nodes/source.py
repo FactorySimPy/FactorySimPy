@@ -50,11 +50,13 @@ class Source(Node):
         self.inbuiltstore=ReservablePriorityReqStore(env)
         self.store_level_low = self.env.event()  # Event triggered when store is empty
         self.itemaddedinstore=self.env.event()
+        self.node_type = "Source"
 
         # Start behavior process
         self.env.process(self.behaviour())
         # Start store level check process
         self.storecheck = self.env.process(self.store_level_check())
+        self.pushput = self.env.process(self.pushingput())
         #self.trigger_store_level_low()
 
         # Logging the creation and initial state of the source
@@ -79,6 +81,30 @@ class Source(Node):
             self.out_edges.append(edge)
         else:
             raise ValueError(f"Edge already exists in Source '{self.name}' out_edges.")
+    
+    def pushingput(self):
+        while True:
+            get_token = self.inbuiltstore.reserve_get()
+            if isinstance(self.out_edges[0], ConveyorBelt):
+
+                    outstore = self.out_edges[0]
+                    put_token = outstore.reserve_put()
+
+                    pe = yield put_token
+                    yield get_token
+                    item = self.inbuiltstore.get(get_token)
+                    y=outstore.put(pe, item)
+                    if y:
+                        print(f"T={self.env.now:.2f}: {self.name} puts {item.name} item into {self.out_edges[0].name}  ")
+                    
+            else:
+                    outstore = self.out_edges[0].inbuiltstore
+                    put_token = outstore.reserve_put()
+                    yield self.env.all_of([put_token,get_token])
+                    item = self.inbuiltstore.get(get_token)
+                    y=outstore.put(put_token, item)
+                    if y:
+                        print(f"T={self.env.now:.2f}: {self.name} puts item into {self.out_edges[0].name} inbuiltstore {y} ")
 
 
     def store_level_check(self):
@@ -128,29 +154,29 @@ class Source(Node):
                 #print(f"T={self.env.now:.2f}: items in source {self.name}-{len(self.inbuiltstore.items)}")
                 # Generate a new item
                 i+=1
-                item = Item(f'item{i}')
+                item = Item(f'item{self.name+str(i)}')
                 puttoken =  self.inbuiltstore.reserve_put()
                 yield puttoken
                 self.inbuiltstore.put(puttoken,item)  # Put the item in the store
-                print(f"T={self.env.now:.2f}: {self.name} Number of items remaining in source {self.name} is {len(self.inbuiltstore.items)}")
-                get_token = self.inbuiltstore.reserve_get()
+                #print(f"T={self.env.now:.2f}: {self.name}  Putting {item.name} and number of items remaining is {len(self.inbuiltstore.items)}")
+                # get_token = self.inbuiltstore.reserve_get()
                 
-                if isinstance(self.out_edges[0], ConveyorBelt):
+                # if isinstance(self.out_edges[0], ConveyorBelt):
 
-                    outstore = self.out_edges[0]
-                    put_token = outstore.reserve_put()
+                #     outstore = self.out_edges[0]
+                #     put_token = outstore.reserve_put()
 
-                    pe = yield put_token
-                    yield get_token
-                    item = self.inbuiltstore.get(get_token)
-                    outstore.put(pe, item)
+                #     pe = yield put_token
+                #     yield get_token
+                #     item = self.inbuiltstore.get(get_token)
+                #     outstore.put(pe, item)
                     
-                else:
-                    outstore = self.out_edges[0].inbuiltstore
-                    put_token = outstore.reserve_put()
-                    yield self.env.all_of([put_token,get_token])
-                    item = self.inbuiltstore.get(get_token)
-                    outstore.put(put_token, item)
+                # else:
+                #     outstore = self.out_edges[0].inbuiltstore
+                #     put_token = outstore.reserve_put()
+                #     yield self.env.all_of([put_token,get_token])
+                #     item = self.inbuiltstore.get(get_token)
+                #     outstore.put(put_token, item)
                 #print(f"T={self.env.now:.2f}: {self.name} {item.name} is put in the store of {outstore.name}")
                
                 

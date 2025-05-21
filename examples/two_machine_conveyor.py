@@ -20,7 +20,7 @@ m2 = Processor(env, name="M2",work_capacity=1,store_capacity=3, delay=0.3)
 sink= Sink(env, name="Sink-1",store_capacity=100 )
 
 # Initializing edges
-conveyor = ConveyorBelt(env, name="Conveyor-1", belt_capacity=10, delay_per_slot=1)
+conveyor = ConveyorBelt(env, name="Conveyor-1", belt_capacity=2, delay_per_slot=1)
 buffer1 = Buffer(env, name="Buffer-1", store_capacity=5, delay=0.5)
 buffer2 = Buffer(env, name="Buffer-2", store_capacity=5, delay=0.5)
 

@@ -1,9 +1,11 @@
 # @title Joint
+from typing import Generator
 import simpy ,os, sys
 
 
 from factorysimpy.base.reservable_priority_req_store import ReservablePriorityReqStore  # Import your class
 from factorysimpy.nodes.node import Node
+from factorysimpy.edges.conveyor import ConveyorBelt
 
 from factorysimpy.helper.item import Item
 
@@ -34,7 +36,7 @@ class Joint(Node):
         If the joint does not have exactly 2 input edges or 1 output edge in the behaviour function.
     """ 
     def __init__(self, env, name,in_edges=None , out_edges=None, work_capacity=1, store_capacity=1, delay=1):
-        super().__init__(env, name,in_edges , out_edges,  work_capacity=1, store_capacity=1, delay=0)
+        super().__init__(env, name,in_edges=in_edges , out_edges=out_edges,  work_capacity=work_capacity, store_capacity=store_capacity, delay=delay)
         self.env = env
         self.name = name
         self.work_capacity = work_capacity
@@ -43,18 +45,21 @@ class Joint(Node):
 
         self.in_edge_events={}
 
+        self.node_type = "Joint"
+
         
         self.in_edges = in_edges
         self.out_edges = out_edges
         self.inbuiltstore = ReservablePriorityReqStore(env, capacity=store_capacity)  # Custom store with reserve capacity
         self.resource = simpy.Resource(env, capacity=min(work_capacity,store_capacity))  # Work capacity
-        self.delay = delay  # Processing delay
+        
 
         if work_capacity > store_capacity:
             print("Warning: Effective capacity is limited by the minimum of work_capacity and store_capacity.")
 
-        # Start the behaviour process
+        # Start the processes
         self.env.process(self.behaviour())
+        self.env.process(self.pushingput())
 
     def add_in_edges(self, edge):
         if self.in_edges is None:
@@ -79,6 +84,28 @@ class Joint(Node):
             self.out_edges.append(edge)
         else:
             raise ValueError(f"Edge already exists in Joint '{self.name}' out_edges.")
+        
+    def pushingput(self):
+        while True:
+            get_token = self.inbuiltstore.reserve_get()
+            if isinstance(self.out_edges[0], ConveyorBelt):
+
+                    outstore = self.out_edges[0]
+                    put_token = outstore.reserve_put()
+
+                    pe = yield put_token
+                    yield get_token
+                    item = self.inbuiltstore.get(get_token)
+                    outstore.put(pe, item)
+                    
+            else:
+                    outstore = self.out_edges[0].inbuiltstore
+                    put_token = outstore.reserve_put()
+                    yield self.env.all_of([put_token,get_token])
+                    item = self.inbuiltstore.get(get_token)
+                    outstore.put(put_token, item)
+
+            print(f"T={self.env.now:.2f}: {self.name} puts item into {self.out_edges[0].name}  ")
 
     def worker(self, i):
         """Worker process that processes items by combining two items."""
@@ -87,43 +114,52 @@ class Joint(Node):
                 yield req  # Wait for work capacity
                 put_event  = self.inbuiltstore.reserve_put()  # Wait for a reserved slot if needed
                 yield put_event
-                print(f"At time {self.env.now:.2f}: worker {i} reserving space for combined item")
+                print(f"T={self.env.now:.2f}: {self.name} worker {i} reserving space for combined item")
 
                 # Retrieve two items from input_store for combining
                
                    
-                self.in_edge_events[i] = [edge.inbuiltstore.reserve_get() for edge in self.in_edges]
+                # Reserve from all input edges
+                self.in_edge_events[i] = [
+                    (edge, edge.reserve_get() if isinstance(edge, ConveyorBelt) else edge.out_store.reserve_get())
+                    for edge in self.in_edges
+                ]
 
-                #waiting for one of the events to trigger
-                edgeevents= self.env.all_of(self.in_edge_events[i])  # Wait for a reserved slot if needed# """A :class:`~simpy.events.Condition` event that is triggered if any of
-                print(f"Time {self.env.now:.2f}:{self.name} worker{i} waiting to yield reserve_get from {[edge for edge in self.in_edges]}")
-                yield edgeevents
-                
+                print(f"T={self.env.now:.2f}: {self.name} worker{i} waiting to reserve from {[edge.name for edge, _ in self.in_edge_events[i]]}")
 
-                
-                
+                # Wait for all reservations
+                reserve_events = [event for _, event in self.in_edge_events[i]]
+                yield self.env.all_of(reserve_events)
 
+                # Perform get() on each edge
+                items = []
+                for edge, event in self.in_edge_events[i]:
+                    if isinstance(edge, ConveyorBelt):
+                        item = yield edge.get(reserve_events[event])
+                    else:
+                        item = edge.out_store.get(event)
+                    items.append(item)
 
-                # get the triggered item
-                
-                item1 = self.in_edge_events[i][0].resourcename.get(self.in_edge_events[i][0]) # event corresponding to reserve_get is in self.triggered_item[i]
-                item2 = self.in_edge_events[i][1].resourcename.get(self.in_edge_events[i][1]) # event corresponding to reserve_get is in self.triggered_item[i]
+                # Now `items` contains all the input items from each edge
+                print(f"T={self.env.now:.2f}: {self.name} worker{i} got items: {[item.name for item in items]}")
+
 
 
 
 
               
 
-                print(f"At time {self.env.now:.2f}: worker {i} retrieved items {item1.name} and {item2.name} for combining")
+                print(f"T={self.env.now:.2f}: {self.name} worker {i} retrieved items {items[0].name} and {items[1].name} for combining")
 
                 # Simulate processing delay for combining items
-                yield self.env.timeout(self.delay)
+                self.delay_time = next(self.delay) if isinstance(self.delay, Generator) else self.delay
+                yield self.env.timeout(self.delay_time)
 
                 # Create a combined output item and put it in the combiner's store
-                combined_item = Item(name=f"Combined_{item1.name}_{item2.name}")
+                combined_item = Item(name=f"Combined_{items[0].name}_{items[1].name}")
                 self.inbuiltstore.put(put_event, combined_item)
 
-                print(f"At time {self.env.now:.2f}: worker {i} placed combined item {combined_item.name} into combiner store")
+                print(f"T={self.env.now:.2f}: {self.name} worker {i} placed combined item {combined_item.name} into its store")
 
     def behaviour(self):
         """Combiner behavior that creates workers based on the effective capacity."""

@@ -36,6 +36,7 @@ class Sink(Node):
           self.inbuiltstore=ReservablePriorityReqStore(env, capacity=store_capacity)
           self.out_edges = None
           self.in_edges = in_edges
+          self.node_type = "Sink"
 
           # Start behavior process
           self.env.process(self.behaviour())
@@ -76,16 +77,28 @@ class Sink(Node):
       while True:
         #yield self.env.timeout(1)
         #print("sink")
-        storetoget = self.in_edges[0] if isinstance(self.in_edges[0], ConveyorBelt) else self.in_edges[0].out_store
-        get_token =  storetoget.reserve_get()
         put_token = self.inbuiltstore.reserve_put()
-     
-        print(f"T={self.env.now:.2f}: {self.name } is going to yield an item from {self.in_edges[0].name}")
-        yield self.env.all_of([ put_token , get_token])
-        item = storetoget.get(get_token)
+        yield put_token 
+        if isinstance(self.in_edges[0], ConveyorBelt):
+            storetoget = self.in_edges[0]
+            get_token =  storetoget.reserve_get()
+            ge = yield get_token
+            item = yield storetoget.get(ge)
+    
+        else :
+            storetoget = self.in_edges[0].out_store
+            get_token =  storetoget.reserve_get()
+            yield get_token
+            item = storetoget.get(get_token)
+        
+       
+        
+        
         print(f"T={self.env.now:.2f}: {self.name } is getting an {item} from {self.in_edges[0].name}")
         #logger.info(f"At time:{self.env.now : .2f}: {self.name} received item: {item.name}")
         i+=1
         self.inbuiltstore.put(put_token, item)
-        print(f"T={self.env.now:.2f}: {self.name } is putting an {item} in its store and is now {len(self.inbuiltstore.items)} full")
-
+        print(f"T={self.env.now:.2f}: {self.name } is putting an {item} in its store and is now {len(self.inbuiltstore.items)} ")
+        if len(self.inbuiltstore.items) == self.store_capacity:
+            raise RuntimeError(f"T={self.env.now:.2f}: {self.name } is full ")
+        

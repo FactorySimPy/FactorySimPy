@@ -1,9 +1,9 @@
 
 # Discrete event Simulation for Manufacturing
 ## Overview
-FactorySimPy is an opensource, python library for modeling and Discrete-event simulation of systems seen in manufacturing systems. This library has a canonical set of components that are seen in a typical manufacturing setting like processors with processing delay, Joints that pack together  incoming items from different other components, etc. These components' behaviour is pre-built and configurable. User has to provide the model structure and the component parameters to run the simulation model. User can include new features by deriving from the existing classes. This library is built on SimPy 4 and supports as fast as possible and real-time simulation.    
-Currently, the library supports discrete flows only and is ideal for systems where the structure remains unchanged. We also plan to add support for material flow.
 
+FactorySimPy is an open-source Python library for modeling and discrete-event simulation (DES) of manufacturing systems. It provides a well-defined set of canonical components commonly found in a manufacturing setting—such as processors with configurable processing delays, joints that packs/joins items from multiple inputs, buffers that operate as FIFO queues, etc. These components come with pre-built behavior that is easily configurable, enabling users to rapidly construct simulation models.
+To use the library, users define the structure of the system and specify the parameters for each component. The modular design allows users to extend functionality by subclassing existing components, making the library extensible and reusable. Built on top of SimPy 4, FactorySimPy supports both "as fast as possible" and real-time simulation modes. It is currently designed for discrete-item flow systems where the model structure remains fixed during the simulation. Future development plans include extending support to material flows.
 
 
 
@@ -11,7 +11,7 @@ Currently, the library supports discrete flows only and is ideal for systems whe
 
 
 ## Model Description
-The system is modeled as a graph composed of two types of components: Nodes and Edges. `Nodes` represent active components, such as processors that introduce delays—for example, machines that pack, unpack, or modify items. `Edges` represent passive entities like conveyor belts, human operators, warehouse robots, or transport vehicles that facilitate the movement of items between nodes. In the simulation model, state changes are driven only by the actions performed by the nodes.
+The system is modeled as a graph composed of two types of components: Nodes and Edges. `Nodes` represent active components, such as processors that introduce delays—for example, machines that pack, unpack, or modify items. `Edges` represent passive entities like conveyorbelts, human operators, warehouse robots, or transport vehicles that facilitate the movement of items between nodes. In the simulation model, state changes are driven only by the actions performed by the nodes.
 
 A node maintains two list- `in_edges` and `out_edges`. An edge connects exactly two nodes and serves as an in_edge for the `dest_node` and out_edge for the `src_node`. Graph can have loops(and self loops).
 Each Node maintains two lists: in_edges and out_edges. An Edge connects exactly two nodes — it acts as an out_edge for the src_node (source node) and as an in_edge for the dest_node (destination node). Each Edge stores direct references to its source and destination nodes. The graph structure supports both loops and self-loops, and each Edge is exclusively associated with a single connection between a source node and a destination node (which may be the same node in case of a self-loop).

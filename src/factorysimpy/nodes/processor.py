@@ -72,6 +72,7 @@ class Processor(Node):
         self.triggered_item={}
         self.in_edges = in_edges
         self.out_edges = out_edges
+        self.node_type = "Processor"
         self.inbuiltstore = ReservablePriorityReqStore(env, capacity=store_capacity)  # Custom store with reserve capacity
         self.resource = simpy.Resource(env, capacity=min(work_capacity,store_capacity))  # Work capacity
         if work_capacity > store_capacity:
@@ -130,7 +131,7 @@ class Processor(Node):
                     pe = yield put_token
                     yield get_token
                     item = self.inbuiltstore.get(get_token)
-                    outstore.put(pe, item)
+                    yield outstore.put(pe, item)
                     
             else:
                     outstore = self.out_edges[0].inbuiltstore
@@ -143,65 +144,65 @@ class Processor(Node):
 
 
 
-
-    def worker(self,i):
+    def worker(self, i):
         """Worker process that processes items with resource and reserve handling."""
         while True:
-
             with self.resource.request() as req:
-                assert len(self.inbuiltstore.items)+len(self.inbuiltstore.reservations_put)<=self.store_capacity, (f'Resource util exceeded{self.inbuiltstore.items[1],{len(self.inbuiltstore.items)},len(self.inbuiltstore.reservations_put)}')
+                assert len(self.inbuiltstore.items) + len(self.inbuiltstore.reservations_put) <= self.store_capacity, (
+                    f'Resource util exceeded: {len(self.inbuiltstore.items)}, {len(self.inbuiltstore.reservations_put)}'
+                )
                 yield req  # Wait for work capacity
 
-                P1 = self.inbuiltstore.reserve_put()  # Wait for a reserved slot if needed
+                P1 = self.inbuiltstore.reserve_put()
                 yield P1
-                print(f"T={self.env.now:.2f}: {self.name} worker{i} yielded reserve_put from {self.name}")
+                print(f"T={self.env.now:.2f}: {self.name} worker{i} reserved put slot")
 
                 start_wait = self.env.now
-                #checks if worker i is not added in the dictionary. or if there are no triggered events inside the  in_edge_events for the worker
-                #Else it will use previously triggered events
+
+                # Only initialize if not already set or all previous events consumed
                 if i not in self.in_edge_events or not self.in_edge_events[i]:
-            
-                    self.in_edge_events[i] = [edge.reserve_get() if isinstance(edge, ConveyorBelt) else edge.out_store.reserve_get() for edge in self.in_edges]
+                    self.in_edge_events[i] = [
+                        (edge, edge.reserve_get() if isinstance(edge, ConveyorBelt) else edge.out_store.reserve_get())
+                        for edge in self.in_edges
+                    ]
 
-                print(f"T={self.env.now:.2f}: {self.name} worker{i} waiting on input edges")
-                  
+                event_list = [e for _, e in self.in_edge_events[i]]
+                print(f"T={self.env.now:.2f}: {self.name} worker{i} waiting on input events from {[edge.name for edge, _ in self.in_edge_events[i]]}")
 
-                #waiting for one of the events to trigger
-                k= self.env.any_of(self.in_edge_events[i])  # Wait for a reserved slot if needed# """A :class:`~simpy.events.Condition` event that is triggered if any of
-                print(f"T={self.env.now:.2f}: {self.name} worker{i} waiting to yield reserve_get from {[edge.name for edge in self.in_edges]}")
-                yield k
-                
+                result = yield self.env.any_of(event_list)
 
-                # Find the first triggered item and remove it from the list
-                self.triggered_item[i] = next((event for event in self.in_edge_events[i] if event.triggered), None)
-                if self.triggered_item[i]:
-                   self.in_edge_events[i].remove(self.triggered_item[i])
+                # Identify triggered event and corresponding edge
+                triggered = next(((edge, e) for edge, e in self.in_edge_events[i] if e.triggered), (None, None))
+                edge_used, triggered_event = triggered
 
+                if edge_used is None:
+                    raise RuntimeError(f"{self.name} worker{i} - No triggered event found!")
 
-                # Yield the triggered item
-                if self.triggered_item[i]:
-                    #print(f"T={self.env.now:.2f}: {self.name} worker{i} triggered item is {self.triggered_item[i]}")
-                    self.itemprocessed[i] = self.triggered_item[i].resourcename.get(self.triggered_item[i]) # event corresponding to reserve_get is in self.triggered_item[i]
+                # Remove the triggered pair from the event list
+                #print(result, triggered_event)
+                self.in_edge_events[i].remove((edge_used, triggered_event))
+
+                # Get the item from the appropriate store
+                if isinstance(edge_used, ConveyorBelt):
+                    self.itemprocessed[i] =  yield edge_used.get(result[triggered_event])
+
+                    #print(self.itemprocessed[i])
+
+                else:
+                    self.itemprocessed[i] = edge_used.out_store.get(triggered_event)
 
                 wait_time = self.env.now - start_wait
-                print(f"T={self.env.now:.2f}: {self.name} worker{i} waiting time to get an item from source is {wait_time}")
-                #self.monitor.record_waiting_time(wait_time)
-                #assert self.store.itemcount[1]+len(self.store.reservations_put)<=self.c, (f'Resource util exceeded {self.store.itemcount[1]}+{len(self.store.reservation.users)}<={self.c}')
-                print(f"T={self.env.now:.2f}: {self.name} worker{i} yielded items {self.itemprocessed}")
-                print(f"T={self.env.now:.2f}: {self.name} worker{i} Worker got an item and is processing -{ self.itemprocessed[i].name}")
+                print(f"T={self.env.now:.2f}: {self.name} worker{i} waited {wait_time:.2f} time units for item from {edge_used.name}")
+                print(f"T={self.env.now:.2f}: {self.name} worker{i} processing item: {self.itemprocessed[i].name}")
 
-                #self.monitor.record_start(self.env.now)
-
-
-                # Simulate processing delay
-
+                # Simulate processing time
                 self.delay_time = next(self.delay) if isinstance(self.delay, Generator) else self.delay
-                
-                #print("hahaha",self.delay_time)
                 yield self.env.timeout(self.delay_time)
+
+                # Put item into internal store
                 self.inbuiltstore.put(P1, self.itemprocessed[i])
-                #self.monitor.record_end(self.env.now)
-                print(f"T={self.env.now:.2f}: {self.name} worker{i} puts item into its store ")
+                print(f"T={self.env.now:.2f}: {self.name} worker{i} placed item into internal store")
+
                 
                 
 

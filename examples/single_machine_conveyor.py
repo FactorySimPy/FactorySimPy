@@ -23,8 +23,8 @@ sink= Sink(env, name="M2",store_capacity=20 )
 
 # Initializing edges
 
-conveyor1 = ConveyorBelt(env, name="Conveyor-1", belt_capacity=10, delay_per_slot=1)
-conveyor2 = ConveyorBelt(env, name="Conveyor-1", belt_capacity=10, delay_per_slot=1)
+conveyor1 = ConveyorBelt(env, name="Conveyor-1", belt_capacity=2, delay_per_slot=1)
+conveyor2 = ConveyorBelt(env, name="Conveyor-1", belt_capacity=2, delay_per_slot=1)
 
 # Adding connections
 conveyor1.connect(src,m1)
