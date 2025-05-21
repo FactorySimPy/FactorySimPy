@@ -1,10 +1,10 @@
 
 # Discrete event Simulation for Manufacturing
 ## Overview
+<p style="text-align: justify;">
+FactorySimPy is an open-source, light-weight Python library for modeling and discrete-event simulation (DES) of manufacturing systems. It provides a well-defined set of canonical components commonly found in a manufacturing setting—such as processors with configurable processing delays, joints that packs/joins items from multiple inputs, buffers that operate as FIFO queues, etc. These components come with pre-built behavior that is easily configurable, enabling users to rapidly construct simulation models. To use the library, users define the structure of the system and specify the parameters for each component. The modular design allows users to extend functionality by subclassing existing components, making the library extensible and reusable. Built on top of SimPy 4, FactorySimPy supports both "as fast as possible" and real-time simulation modes. It is currently designed for discrete-item flow systems where the model structure remains fixed during the simulation. Future development plans include extending support to material flows.
 
-FactorySimPy is an open-source, light-weight Python library for modeling and discrete-event simulation (DES) of manufacturing systems. It provides a well-defined set of canonical components commonly found in a manufacturing setting—such as processors with configurable processing delays, joints that packs/joins items from multiple inputs, buffers that operate as FIFO queues, etc. These components come with pre-built behavior that is easily configurable, enabling users to rapidly construct simulation models.
-To use the library, users define the structure of the system and specify the parameters for each component. The modular design allows users to extend functionality by subclassing existing components, making the library extensible and reusable. Built on top of SimPy 4, FactorySimPy supports both "as fast as possible" and real-time simulation modes. It is currently designed for discrete-item flow systems where the model structure remains fixed during the simulation. Future development plans include extending support to material flows.
-
+</p>
 
 
 
@@ -30,7 +30,7 @@ An example model with 2 nodes and a directed edge
 
 ## Component Design:Important Classes
 
-`Node` and `Edge` serves as the base classes. Inaddition ther is `Item` class that represents the items that flow in the system. `Nodes` are the active elements in the system and are static and `Edge` represents the passive elements in the systems and are used to interconnect two nodes.
+`Node` and `Edge` serves as the base classes. Inaddition there is `Item` class that represents the items that flow in the system. `Nodes` are the active elements in the system and are static and `Edge` represents the passive elements in the systems and are used to interconnect two nodes.
 
 `Nodes` are the active, static elements in the system and are responsible for operations such as processing, splitting, or combining items. Each node maintains a list of in_edges and out_edges, which are references to edge objects that connect it to other nodes. Nodes also have parameters such as a unique `name`, `work_capacity` (the maximum number of items that can be processed simultaneously),`delay` (the processing time per item, which can be a constant or a random generator), and `store_capacity` (the number of items that can be held internally). Common node types include Processor, Split, Joint, Source, and Sink.
 `Edges` are passive components that connect exactly two nodes: a source_node and a dest_node. Each edge also has a `capacity` and methods like `can_put`, `reserve_put`, `put`, `can_get`, `reserve_get`, and `get` to control item flow. Specific types of edges include Buffer, Conveyor, and Fleet. `Buffers` act as FIFO queues with a defined `delay`. `Conveyors` move items between nodes while preserving order and support both discrete (slotted belts) and continuous motion. Discrete conveyors operate in fixed stages defined by delay_per_slot, while continuous conveyors move items at a fixed speed. Conveyors can be `accumulating`(non-blocking)—allowing multiple items to queue if the output is blocked—or `non-accumulating`(blocking), which only accepts an item at the entry if the exit is free. Conveyors are characterized by parameters such as capacity, occupancy, and state, which can be moving, stalled, or empty.
