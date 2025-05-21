@@ -11,12 +11,16 @@ FactorySimPy is an open-source, light-weight Python library for modeling and dis
 
 
 ## Model Description
+<p style="text-align: justify;">
 The system is modeled as a graph consisting of two types of components: Nodes and Edges. Nodes represent active components that drive state changes—such as processors that introduce delays by performing operations like packing, unpacking, or modifying items. Edges, in contrast, represent passive components such as conveyor belts, human operators, warehouse robots, or transport vehicles that facilitate the movement of items between nodes.
+</p>
 
+<p style="text-align: justify;">
 Each Node maintains two lists: in_edges and out_edges, representing incoming and outgoing connections, respectively. An Edge connects exactly two Nodes and holds direct references to its src_node (source node) and dest_node (destination node). It acts as an out_edge for the source node and an in_edge for the destination node. The graph supports both loops and self-loops, with each Edge uniquely associated with one source and one destination node—even if both refer to the same Node in the case of a self-loop.
-
+</p>
+<p style="text-align: justify;">
 State transitions in the simulation are triggered solely by the actions of the Nodes, ensuring a clear separation between control (Nodes) and transport (Edges) within the model.
-
+</p>
 
 
 ### Example Representation
@@ -30,14 +34,20 @@ An example model with 2 nodes and a directed edge
 
 ## Component Design:Important Classes
 
+<p style="text-align: justify;">
 `Node` and `Edge` serves as the base classes. Inaddition there is `Item` class that represents the items that flow in the system. `Nodes` are the active elements in the system and are static and `Edge` represents the passive elements in the systems and are used to interconnect two nodes.
-
+</p>
+<p style="text-align: justify;">
 `Nodes` are the active, static elements in the system and are responsible for operations such as processing, splitting, or combining items. Each node maintains a list of in_edges and out_edges, which are references to edge objects that connect it to other nodes. Nodes also have parameters such as a unique `name`, `work_capacity` (the maximum number of items that can be processed simultaneously),`delay` (the processing time per item, which can be a constant or a random generator), and `store_capacity` (the number of items that can be held internally). Common node types include Processor, Split, Joint, Source, and Sink.
+</p>
+
+<p style="text-align: justify;">
 `Edges` are passive components that connect exactly two nodes: a source_node and a dest_node. Each edge also has a `capacity` and methods like `can_put`, `reserve_put`, `put`, `can_get`, `reserve_get`, and `get` to control item flow. Specific types of edges include Buffer, Conveyor, and Fleet. `Buffers` act as FIFO queues with a defined `delay`. `Conveyors` move items between nodes while preserving order and support both discrete (slotted belts) and continuous motion. Discrete conveyors operate in fixed stages defined by delay_per_slot, while continuous conveyors move items at a fixed speed. Conveyors can be `accumulating`(non-blocking)—allowing multiple items to queue if the output is blocked—or `non-accumulating`(blocking), which only accepts an item at the entry if the exit is free. Conveyors are characterized by parameters such as capacity, occupancy, and state, which can be moving, stalled, or empty.
+</p>
 
-
+<p style="text-align: justify;">
 `Fleets` represent systems like warehouse robots or human operators that transport items between nodes without preserving order. A fleet is characterized by its `size` (number of carriers), `delay` (fixed or variable), and `state` for each carrier, which can be either `moving` or `idle`. These components together define a flexible and modular system for modeling material flow in discrete-event simulation.
-
+</p>
  
 
 <!-- Here, is an example of a model with 3 nodes that are connected using 2 edges. Nodes are of type source, machine and sink and edges are of type conveyor.  -->
