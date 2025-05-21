@@ -2,7 +2,7 @@
 # Discrete event Simulation for Manufacturing
 ## Overview
 
-FactorySimPy is an open-source Python library for modeling and discrete-event simulation (DES) of manufacturing systems. It provides a well-defined set of canonical components commonly found in a manufacturing setting—such as processors with configurable processing delays, joints that packs/joins items from multiple inputs, buffers that operate as FIFO queues, etc. These components come with pre-built behavior that is easily configurable, enabling users to rapidly construct simulation models.
+FactorySimPy is an open-source, light-weight Python library for modeling and discrete-event simulation (DES) of manufacturing systems. It provides a well-defined set of canonical components commonly found in a manufacturing setting—such as processors with configurable processing delays, joints that packs/joins items from multiple inputs, buffers that operate as FIFO queues, etc. These components come with pre-built behavior that is easily configurable, enabling users to rapidly construct simulation models.
 To use the library, users define the structure of the system and specify the parameters for each component. The modular design allows users to extend functionality by subclassing existing components, making the library extensible and reusable. Built on top of SimPy 4, FactorySimPy supports both "as fast as possible" and real-time simulation modes. It is currently designed for discrete-item flow systems where the model structure remains fixed during the simulation. Future development plans include extending support to material flows.
 
 
@@ -11,15 +11,16 @@ To use the library, users define the structure of the system and specify the par
 
 
 ## Model Description
-The system is modeled as a graph composed of two types of components: Nodes and Edges. `Nodes` represent active components, such as processors that introduce delays—for example, machines that pack, unpack, or modify items. `Edges` represent passive entities like conveyorbelts, human operators, warehouse robots, or transport vehicles that facilitate the movement of items between nodes. In the simulation model, state changes are driven only by the actions performed by the nodes.
+The system is modeled as a graph consisting of two types of components: Nodes and Edges. Nodes represent active components that drive state changes—such as processors that introduce delays by performing operations like packing, unpacking, or modifying items. Edges, in contrast, represent passive components such as conveyor belts, human operators, warehouse robots, or transport vehicles that facilitate the movement of items between nodes.
 
-A node maintains two list- `in_edges` and `out_edges`. An edge connects exactly two nodes and serves as an in_edge for the `dest_node` and out_edge for the `src_node`. Graph can have loops(and self loops).
-Each Node maintains two lists: in_edges and out_edges. An Edge connects exactly two nodes — it acts as an out_edge for the src_node (source node) and as an in_edge for the dest_node (destination node). Each Edge stores direct references to its source and destination nodes. The graph structure supports both loops and self-loops, and each Edge is exclusively associated with a single connection between a source node and a destination node (which may be the same node in case of a self-loop).
+Each Node maintains two lists: in_edges and out_edges, representing incoming and outgoing connections, respectively. An Edge connects exactly two Nodes and holds direct references to its src_node (source node) and dest_node (destination node). It acts as an out_edge for the source node and an in_edge for the destination node. The graph supports both loops and self-loops, with each Edge uniquely associated with one source and one destination node—even if both refer to the same Node in the case of a self-loop.
+
+State transitions in the simulation are triggered solely by the actions of the Nodes, ensuring a clear separation between control (Nodes) and transport (Edges) within the model.
 
 
 
 ### Example Representation
-An example model with 2 nodes and an edge
+An example model with 2 nodes and a directed edge
 
 <!--- ![Alt text](images/gr_2nodes.jpg) --->
 <img src="images/gr_2nodes.jpg" alt="System Architecture Diagram showing Nodes and Edges" width="400" height="10"/>
