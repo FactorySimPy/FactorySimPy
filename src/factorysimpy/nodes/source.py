@@ -154,7 +154,7 @@ class Source(Node):
                 #print(f"T={self.env.now:.2f}: items in source {self.name}-{len(self.inbuiltstore.items)}")
                 # Generate a new item
                 i+=1
-                item = Item(f'item{self.name+str(i)}')
+                item = Item(f'item{self.name+":"+str(i)}')
                 puttoken =  self.inbuiltstore.reserve_put()
                 yield puttoken
                 self.inbuiltstore.put(puttoken,item)  # Put the item in the store
