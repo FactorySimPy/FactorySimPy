@@ -1,14 +1,13 @@
 
 # FactorySimPy
 
-> **Light-weight component library for discrete-event simulation of manufacturing systems, built on top of SimPy 4.1.1**
+> **A light-weight component library for discrete-event simulation of manufacturing systems**
 
 <!-- [![PyPI](https://img.shields.io/pypi/v/factorysimpy?color=informational)](https://pypi.org/project/factorysimpy/)
 [![Python >= 3.8](https://img.shields.io/pypi/pyversions/factorysimpy)](https://pypi.org/project/factorysimpy/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE) -->
 
-FactorySimPy is an opensource, lightweight python library for modeling and discrete-event simulation of manufacturing systems. This library has a canonical set of components that are seen in a typical manufacuting setting like Processors with processing delay or Joints that pack incoming items from different other components or buffers that behave like a FIFO queue, etc. These components' behaviour is pre-built and configurable. User has to provide the model structure and the component parameters to run the simulation model. User can include new features by deriving from the existing classes. This library is built on SimPy 4 and supports as fast as possible and real time simulation.
-Currently, the library supports discrete item flows only and is ideal for systems where the structure remains unchanged. We also plan to add support for material flow.
+FactorySimPy is a lightweight Python library for modeling and discrete-event simulation of manufacturing systems, built using SimPy (version ≥ 4.1.1). It provides a compact set of pre-built, validated, and configurable component classes for manufacturing systems components such as machines and conveyors. Users can easily model a manufacturing system as a graph, with nodes representing processing elements (such as machines), and edges representing transportation methods (such as conveyors, human operators, or robotic fleets). FactorySimPy includes built-in support for reporting a variety of performance metrics and offers both accelerated ("as-fast-as-possible") and real-time simulation modes, making it suitable for digital twins and control applications. Currently, the library supports discrete item flows and is particularly suited for systems with fixed structures. Future updates will include support for continuous material flow.
 
 ---
 
