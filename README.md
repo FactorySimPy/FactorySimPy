@@ -1,7 +1,7 @@
 
 # FactorySimPy
 
-> **A light-weight component library for discrete-event simulation of manufacturing systems**
+**A light-weight component library for discrete-event simulation of manufacturing systems**
 
 <!-- [![PyPI](https://img.shields.io/pypi/v/factorysimpy?color=informational)](https://pypi.org/project/factorysimpy/)
 [![Python >= 3.8](https://img.shields.io/pypi/pyversions/factorysimpy)](https://pypi.org/project/factorysimpy/)
