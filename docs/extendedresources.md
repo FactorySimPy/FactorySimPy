@@ -11,15 +11,15 @@ Welcome to the extended resources documentation for FactorySimPy!
 
 
 <p style="text-align: justify;">
-The ReservablePriorityReqStore is a class derived from SimPy's Store class that addresses a missing capability in the library by allowing both priority-based retrieval and reservation of items(or space) before they are actually retrieved (or put), respecting the capacity of the store. This is particularly useful in manufacturing systems where materials or products must be allocated in advance, ensuring that specific parts are reserved for machines before processing begins. It also allows priority-based retrieval, ensuring that urgent requests are handled first. Additionally, decoupling reservation from yielding a "get" request ensures that items remain in storage until they are actually needed, improving coordination in assembly lines and buffer management. Unlike SimPy’s existing resource reservation methods, which manage process-related elements like machines or operators, ReservablePriorityReqStore focuses on item-level management, making it a valuable addition for handling inventory, buffer stocks, and material flows in discrete-event simulations.
-However, when implementhing SimPy interrupts, the events should be manually cancelled incase of an interruption.
+The ReservablePriorityReqStore is a class derived from SimPy's Store class that addresses a missing capability in the library by allowing both priority-based retrieval and reservation of items(or space) before they are actually retrieved (or put), respecting the capacity of the store. This is particularly useful in manufacturing systems where materials or products must be allocated in advance, ensuring that specific parts are reserved for machines before processing begins. It also allows priority-based retrieval, ensuring that urgent requests are handled first. Additionally, decoupling reservation from yielding a "get" request ensures that items remain in storage until they are actually needed, and can be retrieved using a simple get method, improving coordination in assembly lines and buffer management. Only the reservation request has to be yielded, and upon yielding it, the user can just call the get or put method to get or put an item. Unlike SimPy’s existing resource reservation methods, which manage process-related elements like machines or operators, ReservablePriorityReqStore focuses on item-level management, making it a valuable addition for handling inventory, buffer stocks, and material flows in discrete-event simulations. 
+However, when implementing SimPy interrupts, the events should be manually canceled in case of an interruption.
 </p>
 
  
 
 The `ReservablePriorityReqStore` extends SimPy's `Store` by allowing users to:  
 
-- **Reserve Capacity**: Processes can reserve space (or item) in the store before actual put (or get) in it.  
+- **Reserve Capacity**: Processes can reserve space (or item) in the store before actually putting (or getting) in it.  
 
 - **Enforce Reservation Rules**: Prohibits any process from adding (or getting) items to the store without a prior reservation.  
 
