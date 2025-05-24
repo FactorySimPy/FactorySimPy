@@ -1,6 +1,6 @@
 [project]
 name = "factorysimpy"
-version = "0.1.0"
+version = "0.1.0a1"
 description = "A light-weight component library for simulating manufacturing systems, based on SimPy"
 authors = [
     { name="Lekshmi P", email="lekshmi20231101@iitgoa.ac.in" },
@@ -17,8 +17,16 @@ dependencies = [
 dev = [
     "pytest>=7.0",
     "pytest-asyncio",
-    
 ]
 
 [build-system]
 requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+
