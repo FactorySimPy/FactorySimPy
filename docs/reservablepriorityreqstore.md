@@ -1,7 +1,7 @@
 # API Reference
 
 
-::: reservable_priority_req_store
+::: factorysimpy.base.reservable_priority_req_store
     options:
       show_root_heading: true
       show_source: false

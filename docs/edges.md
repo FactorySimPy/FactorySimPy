@@ -1,6 +1,6 @@
-# Extended resources API Reference
+# Factory SimPy API Reference
 
-::: factorysimpy.base.priority_req_store
+::: factorysimpy.edges.edge
     options:
       show_root_heading: true
       show_source: false

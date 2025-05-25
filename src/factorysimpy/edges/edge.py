@@ -11,8 +11,7 @@ from factorysimpy.nodes.node import Node
 
 class Edge:
     """
-      Edge class representing a connection between nodes in a simulation environment.
-      This class is used to connect a source node  to a destination node.
+      Edge class is used to connect a source node  to a destination node.
       Attributes
       ----------
 
