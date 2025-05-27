@@ -41,7 +41,7 @@ class ReservablePriorityReqStore(Store):
         Initializes a reservable store with priority-based reservations.
 
         Args:
-            env (simpy.Environment): The simulation environment.
+         
             capacity (int, optional): The maximum number of items the store can hold.
                                       Defaults to infinity.
         """

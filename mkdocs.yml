@@ -34,12 +34,13 @@ nav:
   - Home: index.md  
   - Getting Started: getting_started.md
   - FactorySimPy:
-      - Nodes: nodes.md
+      - Node: nodes.md
       - Machine: machine.md
       - Source: source.md
       - Sink: sink.md
-      - Edges: edges.md
+      - Edge: edges.md
       - Buffer: buffer.md
+      - Slotted type Conveyor: conveyor.md
       
   - Extended resources: 
       - Overview: extendedresources.md 

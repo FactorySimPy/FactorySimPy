@@ -11,31 +11,32 @@ from factorysimpy.nodes.node import Node
 
 class Edge:
     """
-      Edge class is used to connect a source node  to a destination node.
-      Attributes
-      ----------
+    Edge class is used to connect a source node  to a destination node.
+      
+    Attributes
+    ----------
 
-      state : str
-          The current state of the edge.
-      src_node : Node
-          The source node connected to this edge.
-      dest_node : Node
-          The destination node connected to this edge.
-      delay : int | float | Generator
-          Delay after which the item becomes available;
-          Delay as a constant, a generator, or a range (tuple).
+        state : str
+            The current state of the edge.
+        src_node : Node
+            The source node connected to this edge.
+        dest_node : Node
+            The destination node connected to this edge.
+        delay : int | float | Generator
+            Delay after which the item becomes available;
+            Delay as a constant, a generator, or a range (tuple).
 
-      Methods
-      -------
-      connect(self, src, dest, reconnect=False):
-          Connects the edge to a source and destination node.
-      Raises
-      ------
-      ValueError
-          If the edge is already connected to a source or destination node and reconnect is False.
-          If the source or destination nodes are not valid Node instances.
-          If the source node is not a Split or the destination node is not a Joint.
-          If the edge is already connected to the source or destination node.
+    Methods
+    -------
+        connect(self, src, dest, reconnect=False):
+            Connects the edge to a source and destination node.
+    Raises
+    ------
+        ValueError
+            If the edge is already connected to a source or destination node and reconnect is False.
+            If the source or destination nodes are not valid Node instances.
+            If the source node is not a Split or the destination node is not a Joint.
+            If the edge is already connected to the source or destination node.
       """
     
 
@@ -74,12 +75,14 @@ class Edge:
         Parameters
         ----------
         delay_range : tuple
-            A (min, max) tuple for random delay values.
+            
+        A (min, max) tuple for random delay values.
 
         Yields
         ------
-        int
-            A random delay time in the given range.
+        int | float
+            
+        A random delay time in the given range.
         """
         while True:
             yield random.randint(*delay_range)

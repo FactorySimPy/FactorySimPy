@@ -32,8 +32,6 @@ class BeltStore(ReservablePriorityReqFilterStore):
         It also handles the dissociation of the event and item done at the time of reservation when an already yielded
         event is canceled.
 
-        Attributes:
-           reserved_events (list):  Maintains events corresponding to reserved items to preserve item order by index
         """
 
     def __init__(self, env, capacity=float('inf'),time_per_slot=0,accumulating=0):

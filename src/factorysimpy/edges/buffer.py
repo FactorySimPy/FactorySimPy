@@ -13,23 +13,24 @@ class Buffer(Edge):
     Buffer class representing a FIFO queue.
     Inherits from the Edge class.
     This buffer can have multiple input edges and a single output edge.
+    
     Attributes
     ----------
    
-    store_capacity : int
-        The capacity of the buffer's internal storage.
-    delay : generator function or int
-        A generator for random delays or processing times.
+        store_capacity : int
+            The capacity of the buffer's internal storage.
+        delay : generator function or int
+            A generator for random delays or processing times.
 
     Methods
     -------
     
-    behaviour(self):
-        Simulates the buffer behavior, checking the state of the buffer and processing items.
+        behaviour(self):
+            Simulates the buffer behavior, checking the state of the buffer and processing items.
     Raises
     -------
-    AssertionError
-        If the buffer does not have at least one source node or one destination node.
+        AssertionError
+            If the buffer does not have at least one source node or one destination node.
     """
 
     def __init__(self, env, id, store_capacity=10, delay=0):
