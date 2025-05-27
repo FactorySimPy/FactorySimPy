@@ -3,7 +3,7 @@ import simpy,sys, os
 import scipy.stats
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
-from factorysimpy.nodes.processor import Processor
+from factorysimpy.nodes.machine import Machine
 from factorysimpy.edges.buffer import Buffer
 
 from factorysimpy.nodes.source import Source
@@ -18,13 +18,13 @@ def distribution_generator(loc=4.0, scale=5.0, size=1):
         yield delay[0]
 
 # Initializing nodes
-src= Source(env, name="Source-1",  work_capacity=1, store_capacity=100, delay=distribution_generator())
-m1 = Processor(env, name="M1",work_capacity=1,store_capacity=2, delay=distribution_generator())
-sink= Sink(env, name="Sink-1",store_capacity=2000 )
+src= Source(env, id="Source-1",  inter_arrival_time=distribution_generator(),criterion_to_put="first", blocking=False)
+m1 = Machine(env, id="M1",work_capacity=2,store_capacity=2, processing_delay=distribution_generator())
+sink= Sink(env, id="Sink-1" )
 
 # Initializing edges
-buffer1 = Buffer(env, name="Buffer-1", store_capacity=2, delay=0.5)
-buffer2 = Buffer(env, name="Buffer-2", store_capacity=2, delay=0.5)
+buffer1 = Buffer(env, id="Buffer-1", store_capacity=4, delay=0.5)
+buffer2 = Buffer(env, id="Buffer-2", store_capacity=4, delay=0.5)
 
 # Adding connections
 buffer1.connect(src,m1)
@@ -32,4 +32,11 @@ buffer2.connect(m1,sink)
 
 
 env.run(until=10)
+print("Simulation completed.")
+# Print statistics
+print(f"Source {src.id} generated {src.class_statistics['item_generated']} items.")
+print(f"Source {src.id} discarded {src.class_statistics['item_discarded']} items.")
+print(f"Source {src.id} state times: {src.class_statistics['state_times']}")
+
+print(f"Sink {sink.id} received {sink.class_statistics['item_received']} items.")
 

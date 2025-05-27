@@ -29,14 +29,18 @@ class ReservablePriorityReqFilterStore(FilterStore):
 
         Attributes:
            reserved_events (list):  Maintains events corresponding to reserved items to preserve item order by index
-        """
+           reserve_put_queue (list): Queue for managing reserve_put reservations
+           reservations_put (list): List of successful put reservations
+           reserve_get_queue (list): Queue for managing reserve_get reservations
+           reservations_get (list):List of successful get reservations 
+           trigger_delay (int): Delay time after which a trigger_reserve_get is called to allow waiting get calls to succeed. """
 
     def __init__(self, env, capacity=float('inf'),trigger_delay=0):
         """
         Initializes a reservable store with priority-based reservations.
 
         Args:
-            env (simpy.Environment): The simulation environment.
+           
             capacity (int, optional): The maximum number of items the store can hold.
                                       Defaults to infinity.
         """
@@ -67,7 +71,7 @@ class ReservablePriorityReqFilterStore(FilterStore):
                                       Lower values indicate higher priority. Defaults to 0.
 
         Returns:
-            simpy.Event: A reservation event that will succeed when space is available.
+            event (simpy.Event): A reservation event that will succeed when space is available.
         """
         event = self.env.event()
         event.resourcename = self  # Store reference
@@ -162,7 +166,7 @@ class ReservablePriorityReqFilterStore(FilterStore):
             put_event_to_cancel (simpy.Event): The reservation event that needs to be canceled.
 
         Returns:
-            bool: True if the reservation was successfully canceled.
+            proceed (bool): True if the reservation was successfully canceled.
 
         Raises:
             RuntimeError: If the specified event does not exist in `reserve_put_queue`
@@ -170,19 +174,20 @@ class ReservablePriorityReqFilterStore(FilterStore):
         """
 
       #checking and removing the event if it is not yielded and is present in the reserve_put_queue
+      proceed = False
       if put_event_to_cancel in self.reserve_put_queue:
         self.reserve_put_queue.remove(put_event_to_cancel)
         self._trigger_reserve_put(None)#if t is removed, then a waiting event can be succeeded, if any
-        return True
+        proceed =  True
       #checking and removing the event if it is already yielded and is present in the reservations_put
       elif put_event_to_cancel in self.reservations_put:
         self.reservations_put.remove(put_event_to_cancel)
         self._trigger_reserve_put(None)#if t is removed, then a waiting event can be succeeded, if any
-        return True
+        proceed =  True
 
       else:
         raise RuntimeError("No matching event in reserve_put_queue or reservations_put for this process")
-
+      return proceed
 
     def reserve_get_cancel(self, get_event_to_cancel):
 
@@ -201,7 +206,7 @@ class ReservablePriorityReqFilterStore(FilterStore):
             get_event_to_cancel (simpy.Event): The reservation event that needs to be canceled.
 
         Returns:
-            bool: True if the reservation was successfully canceled.
+            proceed (bool): True if the reservation was successfully canceled.
 
         Raises:
             RuntimeError: If the specified event does not exist in `reserve_get_queue`
@@ -209,6 +214,7 @@ class ReservablePriorityReqFilterStore(FilterStore):
         """
 
       #checking and removing the event if it is not yielded and is present in the reserve_get_queue
+      proceed = False
       if get_event_to_cancel in self.reserve_get_queue:
         self.reserve_get_queue.remove(get_event_to_cancel)
         self._trigger_reserve_get(None)#if t is removed, then a waiting event can be succeeded, if any
@@ -230,12 +236,13 @@ class ReservablePriorityReqFilterStore(FilterStore):
         self.reserved_events.pop(event_in_index)#if t is removed, then a waiting event can be succeeded, if any
 
         self._trigger_reserve_get(None)
-        return True
+        proceed = True
 
       else:
         raise RuntimeError("No matching event in reserve_get_queue or reservations_get for this process")
 
-
+      return proceed
+    
     def reserve_get(self,priority=0,filter= None):
         """
         Create a reservation request to retrieve an item from the store.
@@ -251,10 +258,10 @@ class ReservablePriorityReqFilterStore(FilterStore):
         Args:
             priority (int, optional): The priority level of the reservation request.
                                       Lower values indicate higher priority. Defaults to 0.
-            filter( filter=lambda item: True, optional):  Filter to be used while using "reserve_get
+            filter (filter=lambdaitem=True, optional):  Filter to be used while using "reserve_get
 
         Returns:
-            simpy.Event: A reservation event that will succeed when an item becomes available.
+            event (simpy.Event): A reservation event that will succeed when an item becomes available.
         """
         #adding attributes to the newly created event for reserve_get
 
@@ -359,7 +366,7 @@ class ReservablePriorityReqFilterStore(FilterStore):
             get_event (simpy.Event): The reservation event associated with the request.
 
         Returns:
-            object: The retrieved item if successful, otherwise raises an error
+            item (Object): The retrieved item if successful, otherwise raises an error
 
         Raises:
             RuntimeError: If no reservations are available in the reservations_get
@@ -392,7 +399,7 @@ class ReservablePriorityReqFilterStore(FilterStore):
             get_event (simpy.Event): The event corresponding to the reservation.
 
         Returns:
-            object: The retrieved item if successful, otherwise `None`.
+            item (Object): The retrieved item if successful, otherwise `None`.
         """
         item = None
         idx=0
@@ -417,7 +424,7 @@ class ReservablePriorityReqFilterStore(FilterStore):
             get_event (simpy.Event): The event associated with the reservation request.
 
         Returns:
-            object: The retrieved item if successful.
+            item (Object): The retrieved item if successful.
 
         Raises:
             RuntimeError: If the process does not have a valid reservation ie, if the get_event is not in the reservations_gett list
@@ -464,7 +471,7 @@ class ReservablePriorityReqFilterStore(FilterStore):
             item (object): The item to be added to the store.
 
         Returns:
-            bool: True if the put operation succeeded, False otherwise.
+            proceed (bool): True if the put operation succeeded, False otherwise.
 
         Raises:
             RuntimeError: If no reservations are available in the reservations_put
@@ -534,7 +541,7 @@ class ReservablePriorityReqFilterStore(FilterStore):
             item (object): The item to be stored.
 
         Returns:
-            bool: True if the item was successfully added, else raises an error
+            proceed (bool): True if the item was successfully added, else raises an error
 
         Raises:
             RuntimeError: If the process does not have a valid reservation ie, if the put_event is not in the reservations_put list

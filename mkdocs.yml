@@ -33,11 +33,18 @@ markdown_extensions:
 nav:
   - Home: index.md  
   - Getting Started: getting_started.md
-  - FactorySimPy API Reference:
+  - FactorySimPy:
       - Nodes: nodes.md
+      - Machine: machine.md
+      - Source: source.md
+      - Sink: sink.md
       - Edges: edges.md
+      - Buffer: buffer.md
       
-  - Extended resources: extendedresources.md 
-  - Extended resources API Reference:  
+  - Extended resources: 
+      - Overview: extendedresources.md 
+
+  
       - ReservablePriorityReqStore: reservablepriorityreqstore.md
       - PriorityReqStore: priorityreqstore.md
+      - ReservablePriorityReqFilterStore : reservablepriorityreqfilterstore.md

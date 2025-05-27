@@ -40,9 +40,9 @@ class Edge:
     
 
 
-    def __init__(self, env: simpy.Environment, name: str, delay: Union[int, float, tuple, Generator] = 0):
+    def __init__(self, env: simpy.Environment, id: str, delay: Union[int, float, tuple, Generator] = 0):
         self.env = env
-        self.name = name
+        self.id = id
         self.state: Optional[str] = None
         self.src_node: Optional[Node] = None
         self.dest_node: Optional[Node] = None
@@ -50,8 +50,8 @@ class Edge:
          # Type checks
         if not isinstance(env, simpy.Environment):
             raise TypeError("env must be a simpy.Environment instance")
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
+        if not isinstance(id, str):
+            raise TypeError("id must be a string")
         
 
 
@@ -90,7 +90,7 @@ class Edge:
     def connect(self, src: Node, dest: Node, reconnect: bool = False):
         if not reconnect:
             if self.src_node or self.dest_node:
-                raise ValueError(f"Edge '{self.name}' is already connected source or destination node..")
+                raise ValueError(f"Edge '{self.id}' is already connected source or destination node..")
             if not isinstance(src, Node):
                 raise ValueError(f"Source '{src}' is not a valid Node.")
             if not isinstance(dest, Node):
@@ -100,8 +100,9 @@ class Edge:
         self.dest_node = dest
 
         # Check source constraints
-        print(f"Connecting edge '{self.name}' from '{src.name}' to '{dest.name}'")
-        if  self.src_node.node_type not in ["Split"]:
+        print(f"Connecting edge '{self.id}' from '{src.id}' to '{dest.id}'")
+        #print(self.dest_node.__class__.__name__)
+        if  self.dest_node.__class__.__name__ not in ["Split"]:
             # Check if out_edges is None or already configured
             
             assert self.src_node.out_edges is None or self in self.src_node.out_edges, (
@@ -113,9 +114,9 @@ class Edge:
                 f"{self.src_node} already has more than 2 edges connected"
             )
 
-        if self.dest_node.node_type not in ["Joint","Processor"]:
+        if self.dest_node.__class__.__name__ not in ["Joint","Machine"]:
           #print(self.src_node.node_type)
-          assert self.dest_node.in_edges is None or self in self.dest_node.in_edges, (f"{self.dest_node.name, self.name} is already connected to {[i.name for i in self.dest_node.in_edges]}")
+          assert self.dest_node.in_edges is None or self in self.dest_node.in_edges, (f"{self.dest_node.id, self.id} is already connected to {[i.id for i in self.dest_node.in_edges]}")
         else:
           assert self.dest_node.in_edges is None or self.dest_node.in_edges is not None and len(self.dest_node.in_edges) <2 or self in self.dest_node.in_edges,  (f"{self.dest_node} already has more than 2 edges connected")
 
@@ -129,4 +130,7 @@ class Edge:
             dest.in_edges = []
         if self not in dest.in_edges:
             dest.in_edges.append(self)
-        print(f"T={self.env.now:.2f}Connected edge '{self.name}' from '{src.name}' to '{dest.name}'  ")
+        print(f"T={self.env.now:.2f}Connected edge '{self.id}' from '{src.id}' to '{dest.id}'  ")
+
+        print(self.id,self.src_node.id,[i.id for i in self.src_node.out_edges])
+        print(self.id,self.dest_node.id, [i.id for i in self.dest_node.in_edges])

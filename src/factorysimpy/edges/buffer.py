@@ -32,9 +32,9 @@ class Buffer(Edge):
         If the buffer does not have at least one source node or one destination node.
     """
 
-    def __init__(self, env, name, store_capacity=10, delay=0):
-          super().__init__( env, name,delay)
-          self.env = env
+    def __init__(self, env, id, store_capacity=10, delay=0):
+          super().__init__( env, id,delay)
+         
           self.store_capacity =  store_capacity
           self.instorecapacity = int(self.store_capacity/2)
           self.inbuiltstore = ReservablePriorityReqStore(env, capacity=self.instorecapacity)
@@ -48,14 +48,23 @@ class Buffer(Edge):
 
 
 
-
-
+    def can_put(self):
+        """
+        Check if the buffer can accept an item.
+        
+        Returns
+        -------
+        bool
+            True if the buffer can accept an item, False otherwise.
+        """
+        return len(self.inbuiltstore.items) < self.instorecapacity 
+    
     def behaviour(self):
       """
       Simulates the buffer behavior, checking the state of the buffer and processing items.
       """
-      assert self.src_node is not None , f"Buffer '{self.name}' must have atleast 1 src_node."
-      assert self.dest_node is not None , f"Buffer '{self.name}' must have atleast 1 dest_node."
+      assert self.src_node is not None , f"Buffer '{self.id}' must have atleast 1 src_node."
+      assert self.dest_node is not None , f"Buffer '{self.id}' must have atleast 1 dest_node."
 
       
       while True: 
@@ -64,22 +73,22 @@ class Buffer(Edge):
 
         else:
           state = "empty"
-          print(f"T={self.env.now:.2f}: {self.name } is waiting to get an item ")
+          print(f"T={self.env.now:.2f}: {self.id } is waiting to get an item ")
 
 
         get_event = self.inbuiltstore.reserve_get()      
         yield get_event
-        print(f"T={self.env.now:.2f}: {self.name } is getting an item from its in store")
+        print(f"T={self.env.now:.2f}: {self.id } is getting an item from its in store")
       
         
         put_event = self.out_store.reserve_put()
         yield put_event
-        print(f"T={self.env.now:.2f}: {self.name } is reserving an item in its out store")
+        print(f"T={self.env.now:.2f}: {self.id } is reserving an item in its out store")
        
         #yield self.env.all_of([put_event,get_event]) 
        
         
-        print(f"T={self.env.now:.2f}: {self.name } is  yielded an item ")
+        print(f"T={self.env.now:.2f}: {self.id } is  yielded an item ")
 
         self.delay_time = next(self.delay) if isinstance(self.delay, Generator) else self.delay         
         yield self.env.timeout(self.delay_time)
@@ -87,8 +96,8 @@ class Buffer(Edge):
         item = self.inbuiltstore.get(get_event)
 
         self.out_store.put(put_event, item)
-        print(f"T={self.env.now:.2f}: {self.name } is putting item {item.name} into its out store")
-        #print(f"T={self.env.now:.2f}: {self.name } is putting item {item.name} into its out store")
+        print(f"T={self.env.now:.2f}: {self.id } is putting item {item.id} into its out store")
+        #print(f"T={self.env.now:.2f}: {self.id } is putting item {item.id} into its out store")
         
 
 

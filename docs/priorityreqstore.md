@@ -1,4 +1,4 @@
-# Extended resources API Reference
+# API Reference 
 
 ::: factorysimpy.base.priority_req_store
     options:

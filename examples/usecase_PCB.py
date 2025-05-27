@@ -2,7 +2,7 @@ import simpy,sys, os,random
 import scipy.stats
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
-from factorysimpy.nodes.processor import Processor
+from factorysimpy.nodes.machine import Machine
 from factorysimpy.edges.buffer import Buffer
 from factorysimpy.edges.conveyor import ConveyorBelt
 
@@ -14,7 +14,7 @@ from factorysimpy.nodes.sink import Sink
 env = simpy.Environment()
 
 
-# Configuring the delay distributions for each processor
+# Configuring the delay distributions for each Machine
 # These distributions are used to simulate the processing times for each step in the manufacturing process.
 
 
@@ -68,14 +68,15 @@ package_delay = package_distribution_generator()
 
 
 
-board_loader=Processor(env, "board_loader",  work_capacity=1, store_capacity=1, delay=loader_delay)
-solder_printer=Processor(env, "solder_printer",  work_capacity=1, store_capacity=1, delay=solder_delay)
-component_placer=Processor(env, "component_placer",  work_capacity=1, store_capacity=1, delay=placer_delay)
-reflow_oven=Processor(env, "reflow_oven", work_capacity=1, store_capacity=1, delay=reflow_delay)
-inspection=Processor(env, "inspection",  work_capacity=1, store_capacity=1, delay=inspect_delay)
-packing=Processor(env, "packing",  work_capacity=1, store_capacity=1, delay=package_delay)
-source=Source(env, "source",  work_capacity= 1,store_capacity=10, delay=source_delay_generator())
-sink=Sink(env, "sink", work_capacity=1,store_capacity=1000, delay=0)
+
+board_loader=Machine(env, "board_loader",  work_capacity=1, store_capacity=1, processing_delay=loader_delay)
+solder_printer=Machine(env, "solder_printer",  work_capacity=1, store_capacity=1, processing_delay=solder_delay)
+component_placer=Machine(env, "component_placer",  work_capacity=1, store_capacity=1, processing_delay=placer_delay)
+reflow_oven=Machine(env, "reflow_oven", work_capacity=1, store_capacity=1, processing_delay=reflow_delay)
+inspection=Machine(env, "inspection",  work_capacity=1, store_capacity=1, processing_delay=inspect_delay)
+packing=Machine(env, "packing",  work_capacity=1, store_capacity=1, processing_delay=package_delay)
+source=Source(env, "source", inter_arrival_time=source_delay_generator(),criterion_to_put="first", blocking=False)
+sink=Sink(env, "sink",)
 
 #edges
 buffer_loader=Buffer(env, "buffer_loader")
@@ -95,3 +96,6 @@ buffer_packing.connect(inspection,packing)
 buffer_sink.connect(packing,sink)
 # Run the simulation
 env.run(until=6000)
+
+print("Simulation completed.")
+print(f"Total items received: {sink.class_statistics['item_received']}")
