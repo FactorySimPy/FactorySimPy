@@ -2,7 +2,7 @@
 # Discrete event Simulation for Manufacturing
 ## Overview
 <p style="text-align: justify;">
-FactorySimPy is an open-source, light-weight Python library for modeling and discrete-event simulation (DES) of manufacturing systems. It provides a well-defined set of canonical components commonly found in a manufacturing setting—such as processors with configurable processing delays, joints that packs/joins items from multiple inputs, buffers that operate as FIFO queues, etc. These components come with pre-built behavior that is easily configurable, enabling users to rapidly construct simulation models. To use the library, users define the structure of the system and specify the parameters for each component. The modular design allows users to extend functionality by subclassing existing components, making the library extensible and reusable. Built on top of SimPy 4, FactorySimPy supports both "as fast as possible" and real-time simulation modes. It is currently designed for discrete-item flow systems where the model structure remains fixed during the simulation. Future development plans include extending support to material flows.
+FactorySimPy is an open-source, light-weight Python library for modeling and discrete-event simulation (DES) of manufacturing systems. It provides a well-defined set of canonical components commonly found in a manufacturing setting—such as machines with configurable processing delays, joints that packs/joins items from multiple inputs, buffers that operate as FIFO queues, etc. These components come with pre-built behavior that is easily configurable, enabling users to rapidly construct simulation models. To use the library, users define the structure of the system and specify the parameters for each component. The modular design allows users to extend functionality by subclassing existing components, making the library extensible and reusable. Built on top of SimPy 4, FactorySimPy supports both "as fast as possible" and real-time simulation modes. It is currently designed for discrete-item flow systems where the model structure remains fixed during the simulation. Future development plans include extending support to material flows.
 
 </p>
 
@@ -12,7 +12,7 @@ FactorySimPy is an open-source, light-weight Python library for modeling and dis
 
 ## Model Description
 <p style="text-align: justify;">
-The system is modeled as a graph consisting of two types of components: Nodes and Edges. Nodes represent active components that drive state changes—such as processors that introduce delays by performing operations like packing, unpacking, or modifying items. Edges, in contrast, represent passive components such as conveyor belts, human operators, warehouse robots, or transport vehicles that facilitate the movement of items between nodes.
+The system is modeled as a graph consisting of two types of components: Nodes and Edges. Nodes represent active components that drive state changes—such as machines that introduce delays by performing operations like packing, unpacking, or modifying items. Edges, in contrast, represent passive components such as conveyor belts, human operators, warehouse robots, or transport vehicles that facilitate the movement of items between nodes.
 </p>
 
 <p style="text-align: justify;">
@@ -35,7 +35,7 @@ An example model with 2 nodes and a directed edge
 ## Component Design:Important Classes
 
 <p style="text-align: justify;">
-Node, Edge and Item serves as the base classes. Item class represents the entities that flow in the system and get modified or processed. Nodes are the active, static elements in the system and are responsible for operations such as processing, splitting, or combining items. Each node maintains a list of in_edges and out_edges, which are references to edge objects that connect it to other nodes. Nodes also have parameters such as a unique name, work_capacity (the maximum number of items that can be processed simultaneously), delay (the processing time per item, which can be a constant or a random generator), and store_capacity (the number of items that can be held internally). Common node types include Processor, Split, Joint, Source, and Sink.
+Node, Edge and Item serves as the base classes. Item class represents the entities that flow in the system and get modified or processed. Nodes are the active, static elements in the system and are responsible for operations such as processing, splitting, or combining items. Each node maintains a list of in_edges and out_edges, which are references to edge objects that connect it to other nodes. Nodes also have parameters such as a unique name, work_capacity (the maximum number of items that can be processed simultaneously), delay (the processing time per item, which can be a constant or a random generator), and store_capacity (the number of items that can be held internally). Common node types include machine, Split, Joint, Source, and Sink.
 </p>
 
 <p style="text-align: justify;">
@@ -52,7 +52,7 @@ Fleets represent systems like warehouse robots or human operators that transport
 ## System Description
 
 ### Rules for interconnection
-1. Nodes are static entities like processor, source, sink, split, joints, etc.
+1. Nodes are static entities like machine, source, sink, split, joints, etc.
 2. Edges are directed and connects one node to another. Conveyor, buffer and fleet are the entities that are of type Edge.
 3. Items are discrete parts that flow in the system through the directed edges from one node to another. 
 3. Each Node has two lists `in_edges` and `out_edges` that points to the references of the edges that comes in and go out of the node
@@ -60,8 +60,8 @@ Fleets represent systems like warehouse robots or human operators that transport
 5. An Edge can have the same node in both `src_node` and `dest_node`. (ie, a node can be connected to itself)
 6. Nodes are the active elements whose activites initiates state changes in the system.
 7. Edges are the passive elements and state change occurs due to actions initiated by nodes
-8. To split the output from a `processor` node into two streams, a `Split` must be connected to the `processor` using an Edge.
-9. To join two streams and to feed as input to a `processor` node, a `Joint` must be connected to the `processor` using an Edge
+8. To split the output from a `machine` node into two streams, a `Split` must be connected to the `machine` using an Edge.
+9. To join two streams and to feed as input to a `machine` node, a `Joint` must be connected to the `machine` using an Edge
 
 
 
@@ -73,7 +73,7 @@ Fleets represent systems like warehouse robots or human operators that transport
 1. Instantiate nodes and edges:
    ```python
    n1 = Source()
-   n2 = Processor()
+   n2 = machine()
    n3 = Sink()
    e1 = Buffer()
    e2 = Buffer()
@@ -89,7 +89,7 @@ Fleets represent systems like warehouse robots or human operators that transport
 ## **Class Hierarchy**
 ```
 ├── Node(Base Class for components that processes items)
-    ├── Processor     # Processes items 
+    ├── machine     # Processes items 
     ├── Joint      # Merges multiple flows into one
     ├── Split       # Splits a flow into multiple branches.
     ├── Sink        # Consumes items
@@ -118,32 +118,37 @@ Fleets represent systems like warehouse robots or human operators that transport
 ### **Node** \( N \):
 - **Purpose**: Active elements in the system.  
 - **Parameters**
-     - `name`: unique name of a node
+     - `id`: unique identifier of a node
      - `in_edges`: list of input edges to the node
      - `out_edges`: list of output edges of the node
-     - `work_capacity`: no. of simultaneous operations that the node can perform
-     - `store_capacity`: Capacity of the store.
-     - `delay`: Time for processing.
+     - `node_setup_time`: Time for intial set up.
 
 ### Derived Classes from Node 
   1. **Source** \( N_src \):
      - **Purpose**: to mark the start of the model
-      - **Behavior**: yields `reserve_put` on the connected edge. If yielded, the item is added using `put`. It fills the inbuiltstore with items until the capacity is reached. 
+     - **Behavior**: if `blocking=True` , it yields `reserve_put` on the connected edge. If yielded, the item is added to the out edge using `put`. If `blocking=False`, it checks whether edge has space to receive an item and only if space is available item is pushed into the out edge, else it is discarded.
+     - **Parameters**
+         - `criterion_to_put`: method to choose the out egde to which the item will be pushed
+         - `inter_arrival_item`: time between two successive item generation
+         - `blocking`: whether source has to wait until the item is available in the out edge or not
+
       
 
   2. **Sink** \( N_snk \):
      - **Purpose**: To mark the end of the model
      - **Behavior**: yields `reserve_get` on the incoming connected edge. If yielded, the item is retrieved using `get`. The retrieved item is put into its inbuiltstore until its store_capacity is reached.
 
-  3. **Processor** \( N_p \):
+  3. **machine** \( N_m \):
     - **Purpose**: To modify/process items
     - **Behavior**: yields `reserve_get` on the incoming connected edge. If yielded, the item is retrieved using `get`. The retrieved item is modified and put into its inbuiltstore until its store_capacity is reached. Then these processed items from the inbuiltstore is pushed to the outgoing edge by using `reserve_put` and `put` methods            
-    - **Parameters**:
-        - `node_type`: Processor.
+    - **Parameters**
+         - `work_capacity`: no. of simultaneous operations that the node can perform
+         - `store_capacity`: Capacity of the store.
+         - `processing_delay`: time taken to process/modify a flow item.
 
 
 4. **Split** \( N_sp \):
-    - **Purpose**: To multiplex incoming items into two outgoing flows
+    - **Purpose**: To multiplex incoming items into outgoing flows
     - **Behavior**: yields `reserve_get` on the incoming connected edge. If yielded, the item is retrieved using `get`. The retrieved item is either put into out_edge 1 or out_edge 2 based on the rule specified by the user. Then these processed items  is pushed to the respective outgoing edge by using `reserve_put` and `put` methods            
     - **Parameters**:
         - `node_type`: Split
@@ -151,7 +156,7 @@ Fleets represent systems like warehouse robots or human operators that transport
               
 5. **Joint** \( N_jt \):
            
-     - **Purpose**: To combine items from two incoming edges
+     - **Purpose**: To combine items from multiple incoming edges
      - **Behavior**: yields `reserve_get` on the incoming connected edges. If yielded, the items are  retrieved using `get`. The retrieved items are combined and put into inbuiltstore. Then these processed items  is pushed to the respective outgoing edge by using `reserve_put` and `put` methods            
     - **Parameters**:
       - `node_type`: Joint
@@ -181,7 +186,6 @@ Fleets represent systems like warehouse robots or human operators that transport
   2. **Buffer** \( E_b \):
      - **Purpose**: It acts like a FIFO queue with a specified delay.
      - **Behavior**: waits for reserve_put and put of items. Once an item is put inside buffer, it becomes available for the destination node after `delay` amount of time. Destination node can retrieve the items from buffer's store using `reserve_get` and `get` methods.
-
      - **Parameters**:
         - `store_capacity`: Capacity of the buffer.
         - `delay`: Time after which the item becomes available at the output

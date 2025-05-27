@@ -60,6 +60,17 @@ class Buffer(Edge):
         """
         return len(self.inbuiltstore.items) < self.instorecapacity 
     
+    def can_get(self):
+        """
+        Check if the buffer can accept an item.
+        
+        Returns
+        -------
+        bool
+            True if the buffer can give an item, False otherwise.
+        """
+        return len(self.out_store.items) < self.store_capacity-self.instorecapacity 
+    
     def behaviour(self):
       """
       Simulates the buffer behavior, checking the state of the buffer and processing items.
