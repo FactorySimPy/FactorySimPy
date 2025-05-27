@@ -12,9 +12,9 @@ FactorySimPy is a light-weight Python library for modeling and discrete-event si
 ---
 
 ## Key Features
-* **Open source, light-weight, reusable Component-based library** 
+* **Open source, light-weight, reusable component-based library** 
 * **Modular and extensible** 
-* **Documentation with Examples and usage details** 
+* **Documentation with examples and usage details** 
 
 
 
@@ -56,9 +56,9 @@ FactorySimPy is a light-weight Python library for modeling and discrete-event si
 ### Nodes 
 | Class | Purpose | Key parameters |
 |-------|---------|----------------|
-| `Node`   | base class | `name` ,`work_capacity=1`, `store_capacity=1`, `delay=0`, `in_edges=None`,`out_edges=None`  |
-| `Machine` | Processes one item at a time. 
-| `Source`  | Generates new items. 
+| `Node`   | base class | `id` , `node_set_up_time=0`, `in_edges=None`,`out_edges=None`  |
+| `Source`  | Generates new items | `inter_arrival_time=0` , `blocking=False` , `criterion_to_put=first_available`,   |
+| `Machine` | Processes one item at a time.| `work_capacity=1`, `store_capacity=1`, `processing_delay=0`|
 | `Sink`    | Collects / destroys items.
 | `Split`   | Routes items to multiple outputs (probability or rule). | `rule` |
 | `Joint`    | Merges input streams into one. 
@@ -79,7 +79,7 @@ FactorySimPy is a light-weight Python library for modeling and discrete-event si
 ```
 FactorySimPy/
 ├─ src/factorysimpy/
-│  ├─ nodes/          # Processor, Source, Sink, Split, Join
+│  ├─ nodes/          # Machine, Source, Sink, Split, Join
 │  ├─ edges/          # Buffer, Conveyor, Fleet
 │  ├─ base/          # extended resources from simPy
 │  └─ helper/          # Item
