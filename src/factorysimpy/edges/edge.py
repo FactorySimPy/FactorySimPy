@@ -105,7 +105,7 @@ class Edge:
         # Check source constraints
         print(f"Connecting edge '{self.id}' from '{src.id}' to '{dest.id}'")
         #print(self.dest_node.__class__.__name__)
-        if  self.dest_node.__class__.__name__ not in ["Split"]:
+        if  self.dest_node.__class__.__name__ not in ["Split","Source","Machine"]:
             # Check if out_edges is None or already configured
             
             assert self.src_node.out_edges is None or self in self.src_node.out_edges, (

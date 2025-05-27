@@ -70,7 +70,7 @@ class Source(Node):
         """
         Update node state and track the time spent in the previous state.
         """
-        print(self.class_statistics)
+        #print(self.class_statistics)
         if self.class_statistics["current_state"] is not None and self.class_statistics["last_state_change_time"] is not None:
             elapsed = current_time - self.class_statistics["last_state_change_time"]
 

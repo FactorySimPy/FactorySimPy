@@ -44,8 +44,6 @@ nav:
       
   - Extended resources: 
       - Overview: extendedresources.md 
-
-  
       - ReservablePriorityReqStore: reservablepriorityreqstore.md
       - PriorityReqStore: priorityreqstore.md
       - ReservablePriorityReqFilterStore : reservablepriorityreqfilterstore.md
