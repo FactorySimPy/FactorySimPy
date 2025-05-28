@@ -136,11 +136,11 @@ Fleets represent systems like warehouse robots or human operators that transport
 
   2. **Sink** \( N_snk \):
      
-  - **Purpose**: Represents a terminal or leaf node in the simulation graph, marking the end of one or more process paths. Items that enter a Sink are permanently removed from the system—they cannot be retrieved or processed further. In the graph analogy, a Sink acts as a leaf node, collecting items that have completed their journey through the model.
+     - **Purpose**: Represents a terminal or leaf node in the simulation node, marking the end of one or more process paths. Items that enter a Sink are permanently removed from the system—they cannot be retrieved or processed further. 
      - **Behavior**: yields `reserve_get` on the incoming connected edge. If yielded, the item is retrieved using `get`. 
 
-  3. **machine** \( N_m \):
-    - **Purpose**: To modify/process items
+  3. **Machine** \( N_m \):
+    - **Purpose**: class to represent entities that modify/process items
     - **Behavior**: yields `reserve_get` on the incoming connected edge. If yielded, the item is retrieved using `get`. The retrieved item is modified and put into its inbuiltstore until its store_capacity is reached. Then these processed items from the inbuiltstore is pushed to the outgoing edge by using `reserve_put` and `put` methods            
     - **Parameters**
          - `work_capacity`: no. of simultaneous operations that the node can perform
@@ -149,7 +149,7 @@ Fleets represent systems like warehouse robots or human operators that transport
 
 
 4. **Split** \( N_sp \):
-    - **Purpose**: To multiplex incoming items into outgoing flows
+    - **Purpose**: class to represent items that multiplexes incoming items into outgoing flows
     - **Behavior**: yields `reserve_get` on the incoming connected edge. If yielded, the item is retrieved using `get`. The retrieved item is either put into out_edge 1 or out_edge 2 based on the rule specified by the user. Then these processed items  is pushed to the respective outgoing edge by using `reserve_put` and `put` methods            
     - **Parameters**:
         - `node_type`: Split
@@ -157,7 +157,7 @@ Fleets represent systems like warehouse robots or human operators that transport
               
 5. **Joint** \( N_jt \):
            
-     - **Purpose**: To combine items from multiple incoming edges
+     - **Purpose**: class to represent items that combines items from multiple incoming edges
      - **Behavior**: yields `reserve_get` on the incoming connected edges. If yielded, the items are  retrieved using `get`. The retrieved items are combined and put into inbuiltstore. Then these processed items  is pushed to the respective outgoing edge by using `reserve_put` and `put` methods            
     - **Parameters**:
       - `node_type`: Joint
@@ -165,15 +165,16 @@ Fleets represent systems like warehouse robots or human operators that transport
 ---            
                 
 ### **Edge** \( E \):
-- **Purpose**: Connects two nodes.  
+- **Purpose**: Class to represent the passive entities in the system. It connects two nodes and helps the items to flow from one node to another  
 - **Parameters**
-     - `name`: unique name of a edge
+     - `id`: unique name of a edge
      - `src_node`: reference to the source node
      - `dest_node`: reference to the destination node
      
 ### Derived Classes from Edge 
 
   1. **Conveyor** \( E_c \):
+     - **Purpose**: class represents a slotted type conveyor belt in a manufacturing system.
      - **Behavior**: Waits for reserve_put and put to add items to the conveyor belt. Moves the items from one end to the other and waits for the item to be picked up from the belt using `reserve_get` and `get` method. It maintains the order of items. 
      - **Parameters**:
         - `belt_capacity`: Capacity of the conveyor.
@@ -185,7 +186,7 @@ Fleets represent systems like warehouse robots or human operators that transport
         - `can_get()`, `reserve_get`, `get()`: Retrieve items.
 
   2. **Buffer** \( E_b \):
-     - **Purpose**: It acts like a FIFO queue with a specified delay.
+     - **Purpose**: class to represent entities that acts like a FIFO queue with a pre-specified delay.
      - **Behavior**: waits for reserve_put and put of items. Once an item is put inside buffer, it becomes available for the destination node after `delay` amount of time. Destination node can retrieve the items from buffer's store using `reserve_get` and `get` methods.
      - **Parameters**:
         - `store_capacity`: Capacity of the buffer.
