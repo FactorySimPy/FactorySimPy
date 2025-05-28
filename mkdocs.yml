@@ -2,8 +2,8 @@ site_name: FactorySimPy
 site_url: https://factorysimpy.github.io/FactorySimPy/
 
 theme:
-  name: material  # optional: for Material Design theme
-  #name: readthedocs
+  #name: material  # optional: for Material Design theme
+  name: readthedocs
   features:
     - navigation.tabs
     - navigation.sections
