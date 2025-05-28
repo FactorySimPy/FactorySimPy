@@ -73,7 +73,7 @@ Fleets represent systems like warehouse robots or human operators that transport
 1. Instantiate nodes and edges:
    ```python
    n1 = Source()
-   n2 = machine()
+   n2 = Machine()
    n3 = Sink()
    e1 = Buffer()
    e2 = Buffer()
@@ -89,7 +89,7 @@ Fleets represent systems like warehouse robots or human operators that transport
 ## **Class Hierarchy**
 ```
 ├── Node(Base Class for components that processes items)
-    ├── machine     # Processes items 
+    ├── Machine     # Processes items 
     ├── Joint      # Merges multiple flows into one
     ├── Split       # Splits a flow into multiple branches.
     ├── Sink        # Consumes items
@@ -116,7 +116,7 @@ Fleets represent systems like warehouse robots or human operators that transport
 
 
 ### **Node** \( N \):
-- **Purpose**: Active elements in the system.  
+- **Purpose**: class to represent active elements in the system.  
 - **Parameters**
      - `id`: unique identifier of a node
      - `in_edges`: list of input edges to the node
@@ -125,8 +125,8 @@ Fleets represent systems like warehouse robots or human operators that transport
 
 ### Derived Classes from Node 
   1. **Source** \( N_src \):
-     - **Purpose**: to mark the start of the model
-     - **Behavior**: if `blocking=True` , it yields `reserve_put` on the connected edge. If yielded, the item is added to the out edge using `put`. If `blocking=False`, it checks whether edge has space to receive an item and only if space is available item is pushed into the out edge, else it is discarded.
+     - **Purpose**: class to generate flow items in the simulation model
+     - **Behavior**: after every inter_arrival_time(constant delay or random generator) the source generates items, if `blocking=True` , it yields `reserve_put` on the connected edge. If yielded, the item is added to the out edge using `put`. If `blocking=False`, it checks whether edge has space to receive an item and only if space is available item is pushed into the out edge, else it is discarded.
      - **Parameters**
          - `criterion_to_put`: method to choose the out egde to which the item will be pushed
          - `inter_arrival_item`: time between two successive item generation
@@ -135,8 +135,9 @@ Fleets represent systems like warehouse robots or human operators that transport
       
 
   2. **Sink** \( N_snk \):
-     - **Purpose**: To mark the end of the model
-     - **Behavior**: yields `reserve_get` on the incoming connected edge. If yielded, the item is retrieved using `get`. The retrieved item is put into its inbuiltstore until its store_capacity is reached.
+     
+  - **Purpose**: Represents a terminal or leaf node in the simulation graph, marking the end of one or more process paths. Items that enter a Sink are permanently removed from the system—they cannot be retrieved or processed further. In the graph analogy, a Sink acts as a leaf node, collecting items that have completed their journey through the model.
+     - **Behavior**: yields `reserve_get` on the incoming connected edge. If yielded, the item is retrieved using `get`. 
 
   3. **machine** \( N_m \):
     - **Purpose**: To modify/process items
