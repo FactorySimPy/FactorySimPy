@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://factorysimpy.github.io/FactorySimPy/source/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Source - FactorySimPy</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Source";
+        var mkdocs_page_input_path = "source.md";
+        var mkdocs_page_url = "/FactorySimPy/source/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> FactorySimPy
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Overview</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../getting_started/">Getting Started</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../basic_components/">Basic Components</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../examples/">Examples</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Other features</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../monitoring/">Monitoring and Measurement</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../extending_components/">Extending Components</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../interrupts/">Modeling interrupts</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../RTsimulation/">Enabling real-time simulation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supporting classes</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../extendedresources/">Extended resources for FactorySimPy</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../reservablepriorityreqstore/">Reservablepriorityreqstore</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../priorityreqstore/">Priorityreqstore</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../reservablepriorityreqfilterstore/">Reservablepriorityreqfilterstore</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../api_ref_main_page/">API Reference</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../about/">About</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">FactorySimPy</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Source</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="factorysimpy.nodes.source"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="factorysimpy.nodes.source.Source" class="doc doc-heading">
+            <code>Source</code>
+
+
+<a href="#factorysimpy.nodes.source.Source" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="Node (factorysimpy.nodes.node.Node)" href="../nodes/#factorysimpy.nodes.node.Node">Node</a></code></p>
+
+
+        <h4 id="factorysimpy.nodes.source.Source--attributes">Attributes<a class="headerlink" href="#factorysimpy.nodes.source.Source--attributes" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">state</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">str</span>
+<span class="w">    </span><span class="n">Current</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="n">node</span><span class="o">.</span><span class="w"> </span><span class="n">It</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">take</span><span class="w"> </span><span class="n">one</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="o">{</span><span class="s2">&quot;SETUP_STATE&quot;</span><span class="o">,</span><span class="w"> </span><span class="s2">&quot;GENERATING_STATE&quot;</span><span class="o">,</span><span class="w"> </span><span class="s2">&quot;BLOCKED_STATE&quot;</span><span class="o">}.</span>
+<span class="n">inter_arrival_time</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">int</span><span class="o">,</span><span class="w"> </span><span class="n">float</span><span class="o">,</span><span class="w"> </span><span class="n">generator</span><span class="o">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">callable</span>
+<span class="w">    </span><span class="n">Time</span><span class="w"> </span><span class="n">between</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="n">generations</span><span class="o">.</span><span class="w"> </span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">constant</span><span class="o">,</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">generator</span><span class="o">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="n">returning</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">delay</span><span class="o">.</span>
+<span class="n">blocking</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">bool</span>
+<span class="w">    </span><span class="n">If</span><span class="w"> </span><span class="n">True</span><span class="o">,</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="n">blocks</span><span class="w"> </span><span class="n">until</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">put</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="n">into</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="n">edge</span><span class="o">.</span>
+<span class="n">out_edge_selection</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">str</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">callable</span>
+<span class="w">    </span><span class="n">Criterion</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">selecting</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="n">edge</span><span class="o">.</span><span class="w"> </span><span class="n">Options</span><span class="w"> </span><span class="k">include</span><span class="w"> </span><span class="s2">&quot;RANDOM&quot;</span><span class="o">,</span><span class="w"> </span><span class="s2">&quot;FIRST&quot;</span><span class="o">,</span><span class="w"> </span><span class="s2">&quot;LAST&quot;</span><span class="o">,</span><span class="w"> </span><span class="s2">&quot;ROUND_ROBIN&quot;</span><span class="o">,</span><span class="w"> </span><span class="s2">&quot;FIRST_AVAILABLE&quot;</span><span class="o">.</span>
+</code></pre></div>
+
+<h4 id="factorysimpy.nodes.source.Source--methods">Methods<a class="headerlink" href="#factorysimpy.nodes.source.Source--methods" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nv">behaviour</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+<span class="w">    </span><span class="nv">Simulates</span><span class="w"> </span><span class="nv">the</span><span class="w"> </span><span class="nv">source</span><span class="w"> </span><span class="nv">behavior</span>,<span class="w"> </span><span class="nv">generating</span><span class="w"> </span><span class="nv">items</span><span class="w"> </span><span class="nv">at</span><span class="w"> </span><span class="k">random</span><span class="w"> </span><span class="nv">intervals</span><span class="w"> </span><span class="nv">and</span><span class="w"> </span><span class="nv">placing</span><span class="w"> </span><span class="nv">them</span><span class="w"> </span><span class="nv">in</span><span class="w"> </span><span class="nv">out</span><span class="w"> </span><span class="nv">edge</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.nodes.source.Source.get_edge_index" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get_edge_index</span><span class="p">()</span></code>
+
+<a href="#factorysimpy.nodes.source.Source.get_edge_index" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Returns the next edge index from out_edge_selection, whether it's a generator or a callable.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.nodes.source.Source.update_state" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">update_state</span><span class="p">(</span><span class="n">new_state</span><span class="p">,</span> <span class="n">current_time</span><span class="p">)</span></code>
+
+<a href="#factorysimpy.nodes.source.Source.update_state" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Update node state and track the time spent in the previous state.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.nodes.source.Source.behaviour" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">behaviour</span><span class="p">()</span></code>
+
+<a href="#factorysimpy.nodes.source.Source.behaviour" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Simulates the source behavior, generating items at random intervals and placing them in out_edge.
+if blocking is True, it will block until it can put an item into the out_edge.
+If blocking is False, it will discard the item if no space is available in the out_edge.</p>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
