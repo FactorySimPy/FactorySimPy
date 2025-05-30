@@ -1,8 +1,7 @@
-# API Reference 
 
 ::: factorysimpy.base.priority_req_store
     options:
-      show_root_heading: true
+      show_root_heading: false
       show_source: false
       members_order: source
       filters:

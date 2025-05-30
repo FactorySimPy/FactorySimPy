@@ -4,28 +4,23 @@
 from typing import Generator
 from factorysimpy.nodes.node import Node
 from factorysimpy.helper.item import Item
+from factorysimpy.utils.utils import get_index_selector
 
 import random
 
 class Source(Node):
     """
-    Source class that inherits from Node.
-    It generates items at random intervals and puts it into one of its out edges.
-    It can be configured to block until it can put an item into the out edge or to discard items if no space is available in the out edge.
-
-    Attributes
+     Attributes
     ----------
         state : str
-            The current state of the source
-        inter_arrival_time : Union[int, float,generator]
-            A generator function that yields random delays or processing times for item generation.
+            Current state of the source node. It can take one of {"SETUP_STATE", "GENERATING_STATE", "BLOCKED_STATE"}.
+        inter_arrival_time : int, float, generator, or callable
+            Time between item generations. Can be a constant, a generator, or a function returning the delay.
         blocking : bool
-            If True, the source will block until it can put an item into the out_edge.
-        criterion : str
-            The criterion for selecting the edge to put the item into. Options are: random, first, last, round_robin, first_available.
-        class_statistics : dict
-            A dictionary to store statistics about the source's behavior, including current state, last state change time, items generated, items discarded, and time spent in each state.
-
+            If True, the source blocks until it can put an item into the out edge.
+        out_edge_selection : str or callable
+            Criterion or function for selecting the out edge. Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
+    
     Methods
     -------
     
@@ -33,72 +28,78 @@ class Source(Node):
             Simulates the source behavior, generating items at random intervals and placing them in out edge
     """
 
-    def __init__(self, env, id, in_edges=None , out_edges=None,  inter_arrival_time=0,criterion_to_put="first", blocking=False):
-        super().__init__( env, id,in_edges , out_edges,  )
+    def __init__(self, env, id, in_edges=None , out_edges=None,  inter_arrival_time=0,blocking=False, out_edge_selection="FIRST" ):
+        super().__init__( env, id,in_edges , out_edges )
         
-        self.state = None
+        self.state = "SETUP_STATE" # Initial state of the source node
         self.blocking = blocking
-        self.criterion = criterion_to_put # Criterion to select the edge to put the item into
-        self.state = None
-        self.class_statistics = {
-            "current_state": None,
+        self.stats = {
             "last_state_change_time": None,
-            "item_generated": 0,
-            "item_discarded": 0,
-            "state_times":{}
+            "num_item_generated": 0,
+            "num_item_discarded": 0,
+            "total_time_spent_in_states":{"SETUP_STATE": 0.0, "GENERATING_STATE": 0.0, "BLOCKED_STATE": 0.0}
         }
 
-    
-        if isinstance(inter_arrival_time, Generator):
-            self.inter_arrival_time = inter_arrival_time
-        elif isinstance(inter_arrival_time, tuple) and len(inter_arrival_time) == 2:
-            self.inter_arrival_time = self.random_delay_generator(inter_arrival_time)
-        elif inter_arrival_time == 0 and not self.blocking:
-            raise ValueError("Non-blocking source must have a non-zero inter_arrival_time.")
+        if isinstance(out_edge_selection, str):
+            
+            self.out_edge_selection = get_index_selector(out_edge_selection, self, env)
 
-        elif isinstance(inter_arrival_time, (int, float)):
-            self.inter_arrival_time = inter_arrival_time
+            
+        elif callable(out_edge_selection):
+            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+            self.out_edge_selection = out_edge_selection
         else:
-            raise ValueError(
-                "Invalid inter_arrival_time value. Provide a constant, generator, or a (min, max) tuple."
-            )
+            raise ValueError("out_edge_selection must be a string or a callable (function/generator)")
         
-     # Start behavior process
+        
+        
+        if inter_arrival_time == 0 and not self.blocking:
+            raise ValueError("Non-blocking source must have a non-zero inter_arrival_time.")
+        elif callable(inter_arrival_time):
+            self.inter_arrival_time = inter_arrival_time      
+        elif isinstance(inter_arrival_time, (int, float)):      
+            self.inter_arrival_time = inter_arrival_time
+        # interarrival_time is None and will be initialized later by the user
+        else:
+            self.inter_arrival_time = inter_arrival_time
+         # Start behavior process
         self.env.process(self.behaviour())
+        
+    def reset(self):
+        if self.inter_arrival_time is None:
+            raise ValueError("inter_arrival_time must be set before resetting the source.")
 
-    def update_state_time(self, new_state: str, current_time: float):
+    def get_edge_index(self):
+        """
+        Returns the next edge index from out_edge_selection, whether it's a generator or a callable.
+        """
+        
+        if hasattr(self.out_edge_selection, '__next__'):
+            # It's a generator
+            return next(self.out_edge_selection)
+        elif callable(self.out_edge_selection):
+            # It's a function (pass self and env if needed)
+            return self.out_edge_selection(self, self.env)
+        else:
+            raise ValueError("out_edge_selection must be a generator or a callable.")    
+                
+    
+
+    def update_state(self, new_state: str, current_time: float):
         """
         Update node state and track the time spent in the previous state.
         """
-        #print(self.class_statistics)
-        if self.class_statistics["current_state"] is not None and self.class_statistics["last_state_change_time"] is not None:
-            elapsed = current_time - self.class_statistics["last_state_change_time"]
-
-            self.class_statistics["state_times"][self.class_statistics["current_state"]] = (
-                self.class_statistics["state_times"].get(self.class_statistics["current_state"], 0.0) + elapsed
-            )
-
-        self.class_statistics["current_state"] = new_state
-        self.class_statistics["last_state_change_time"] = current_time
         
-    def random_delay_generator(self, delay_range: tuple) -> Generator:
-        """
-        Yields random delays within a specified range.
+        if self.state is not None and self.stats["last_state_change_time"] is not None:
+            elapsed = current_time - self.stats["last_state_change_time"]
 
-        Parameters
-        ----------
-        delay_range : tuple
-           
-        A (min, max) tuple for random delay values.
-
-        Yields
-        ------
-        int | float
-            
-        A random delay time in the given range.
-        """
-        while True:
-            yield random.randint(*delay_range)
+            self.stats["total_time_spent_in_states"][self.state] = (
+                self.stats["total_time_spent_in_states"].get(self.state, 0.0) + elapsed
+            )
+        self.state = new_state
+        self.stats["last_state_change_time"] = current_time
+        
+ 
     def add_in_edges(self, edge):
         raise ValueError("Source does not have in_edges. Cannot add any.")
 
@@ -114,40 +115,7 @@ class Source(Node):
         else:
             raise ValueError(f"Edge already exists in Source '{self.id}' out_edges.")
         
-    def get_edge(self, edge_index: int) -> int:
-        """
-        Returns the index of the edge to put the item into.
-        If there are multiple edges, it selects one based on the creiterion chosen by the user.
-        
-        Parameters
-        ----------
-        edge_index : int
-            
-        The index of the edge to select from the out_edges list.
-
-        Returns
-        -------
-        int
-            
-        The index of the selected edge.
-        """
-        if self.criterion == "random":
-            return random.randint(0, edge_index - 1)
-        elif self.criterion == "first":
-            return 0
-        elif self.criterion == "last":
-            return edge_index - 1
-        elif self.criterion == "round_robin":
-            if not hasattr(self, 'round_robin_index'):
-                self.round_robin_index = 0
-            selected_edge = self.round_robin_index % edge_index
-            self.round_robin_index += 1
-            return selected_edge
-        elif self.criterion == "first_available":
-            for i in range(edge_index):
-                if self.out_edges[i].can_put():
-                    return i
-            raise ValueError("No available edges to put the item into.")
+   
     
     def push_item(self, item, out_edge):
         if out_edge.__class__.__name__ == "ConveyorBelt":
@@ -182,27 +150,30 @@ class Source(Node):
         """
         assert self.in_edges is  None , f"Source '{self.id}' must not have an in_edge."
         assert self.out_edges is not None and len(self.out_edges) >= 1, f"Source '{self.id}' must have atleast 1 out_edge."
-        
+        self.reset()
         i=0
-        self.state = "SETUP_STATE"
+        
         
         while True:
-            self.update_state_time(self.state, self.env.now)
+            self.update_state(self.state, self.env.now)
             if self.state == "SETUP_STATE":
                 print(f"T={self.env.now:.2f}: {self.id} is in SETUP_STATE. Waiting for setup time {self.node_setup_time} seconds")
-                yield self.env.timeout(self.node_setup_time)
+                node_setup_delay = self.get_delay(self.node_setup_time)
+                yield self.env.timeout(node_setup_delay)
                 
-                self.state = "GENERATING_STATE"
-                self.update_state_time(self.state, self.env.now)
+                self.update_state("GENERATING_STATE", self.env.now)
+     
+                
                 print(f"T={self.env.now:.2f}: {self.id} is now {self.state}")
             
             elif self.state== "GENERATING_STATE":
-                next_arrival_time = next(self.inter_arrival_time) if isinstance(self.inter_arrival_time, Generator) else self.inter_arrival_time
+                next_arrival_time = self.get_delay(self.inter_arrival_time)
                 yield self.env.timeout(next_arrival_time)
                 i+=1
                 item = Item(f'item{self.id+":"+str(i)}')
-                self.class_statistics["item_generated"] +=1
-                edgeindex_to_put = self.get_edge(len(self.out_edges))
+                self.stats["num_item_generated"] +=1
+                #edgeindex_to_put = next(self.out_edge_selection)
+                edgeindex_to_put = self.get_edge_index()
                 out_edge = self.out_edges[edgeindex_to_put]
 
                 if not self.blocking:
@@ -210,13 +181,15 @@ class Source(Node):
                         yield self.env.process(self.push_item(item, out_edge))
                     else:
                         print(f"T={self.env.now:.2f}: {self.id}: Discarding {item.id} as no space in out_edge")
-                        self.class_statistics["item_discarded"]+=1
+                        self.stats["num_item_discarded"]+=1
                 else:  
-                    self.state = "BLOCKED_STATE"
-                    self.update_state_time(self.state, self.env.now)
+                    self.update_state("BLOCKED_STATE", self.env.now)
+               
+                    
                     yield self.env.process(self.push_item(item, out_edge))
-                    self.state = "GENERATING_STATE"
-                    self.update_state_time(self.state, self.env.now)
+                    self.update_state("GENERATING_STATE", self.env.now)
+                    
+                 
 
             else:
                 raise ValueError(f"Unknown state: {self.state} in Source {self.id}")

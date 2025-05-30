@@ -1,8 +1,7 @@
-# Factory SimPy API Reference
 
 ::: factorysimpy.nodes.sink
     options:
-      show_root_heading: true
+      show_root_heading: false
       show_source: false
       members_order: source
       filters:

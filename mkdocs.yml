@@ -5,8 +5,8 @@ theme:
   #name: material  # optional: for Material Design theme
   name: readthedocs
   features:
-    - navigation.tabs
-    - navigation.sections
+    #- navigation.tabs
+    - navigation.expand
 
 use_directory_urls: true
 
@@ -31,19 +31,26 @@ markdown_extensions:
   - pymdownx.superfences  # (important for code blocks inside lists/admonitions)
 
 nav:
-  - Home: index.md  
+  - Overview: index.md  
   - Getting Started: getting_started.md
-  - FactorySimPy:
-      - Node: nodes.md
-      - Machine: machine.md
-      - Source: source.md
-      - Sink: sink.md
-      - Edge: edges.md
-      - Buffer: buffer.md
-      - Slotted type Conveyor: conveyor.md
-      
-  - Extended resources: 
-      - Overview: extendedresources.md 
-      - ReservablePriorityReqStore: reservablepriorityreqstore.md
-      - PriorityReqStore: priorityreqstore.md
-      - ReservablePriorityReqFilterStore : reservablepriorityreqfilterstore.md
+  - Basic Components: basic_components.md 
+
+
+  - Examples: examples.md
+  - Other features:
+    - Monitoring and Measurement: monitoring.md
+    - Extending Components: extending_components.md
+    - Modeling interrupts: interrupts.md
+    - Enabling real-time simulation: RTsimulation.md     
+  - Supporting classes: 
+      - extendedresources.md  
+      -  reservablepriorityreqstore.md
+      -  priorityreqstore.md
+      -  reservablepriorityreqfilterstore.md
+
+  
+  - API Reference: api_ref_main_page.md
+
+  
+          
+  - About: about.md

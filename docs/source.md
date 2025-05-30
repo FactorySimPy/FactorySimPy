@@ -1,8 +1,6 @@
-# Factory SimPy API Reference
-
 ::: factorysimpy.nodes.source
     options:
-      show_root_heading: true
+      show_root_heading: false
       show_source: false
       members_order: source
       filters:

@@ -3,7 +3,7 @@
 
 # Extended resources for FactorySimPy
 
-Welcome to the extended resources documentation for FactorySimPy!
+
 
 ---
 

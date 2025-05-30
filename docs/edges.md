@@ -1,8 +1,8 @@
-# Factory SimPy API Reference
+
 
 ::: factorysimpy.edges.edge
     options:
-      show_root_heading: true
+      show_root_heading: false
       show_source: false
       members_order: source
       filters:

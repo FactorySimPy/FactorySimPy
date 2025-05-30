@@ -4,31 +4,27 @@ import random
 
 
 class Node:
+    """     
+    Base class to represent an active entity in a manufacturing system,
+    such as machines, splits, or joints.
+
+    Attributes:
+        id (str): Identifier for the node.
+        node_setup_time (None, int, float, Callable, or Generator, optional): 
+            Initial setup time for the node. Can be:
+                - None: Used when the setup time depends on parameters like the current state or time.
+                - int or float: Used as a constant delay.
+                - Callable: A function that returns a delay (int or float).
+                - Generator: A generator function yielding delay values over time.
+            Default is 0.
+        in_edges (list, optional): List of input edges connected to the node. Default is None.
+        out_edges (list, optional): List of output edges connected to the node. Default is None.
+
+    Raises:
+        TypeError: If the type of `env` or `id` is incorrect.
+        ValueError: If `node_setup_time` input is invalid.
     """
-            Base class to represent an active entity in a manufacturing system,
-            such as machines, splits, or joints.
-        
-
-            Attributes
-            ----------
-            
-                id: str 
-                    Identifier for the node.
-                node_setup_time : int | float | Generator
-                    initial setup time for node as a constant, a generator, or a range (tuple).
-                in_edges : list, optional
-                    List of input edges connected to the node.
-                out_edges : list, optional
-                    List of output edges connected to the node.
-
-            Raises
-            -------
-
-                TypeError
-                    If type of `env` or `id` are incorrect.
-                ValueError
-                    If node_setup_time inputs are invalid.
-    """
+    
     def __init__(self,env,id, in_edges: Optional[list] = None, out_edges: Optional[list] = None, node_setup_time: Union[int, float,] = 0,):
    
         # Type checks
@@ -46,34 +42,36 @@ class Node:
 
         if isinstance(node_setup_time, Generator):
             self.node_setup_time = node_setup_time
-        elif isinstance(node_setup_time, tuple) and len(node_setup_time) == 2:
-            self.node_setup_time = self.random_delay_generator(node_setup_time)
         elif isinstance(node_setup_time, (int, float)):
             self.node_setup_time = node_setup_time
         else:
             raise ValueError(
-                "Invalid node_setup_time value. Provide a constant, generator, or a (min, max) tuple."
+                "Invalid node_setup_time value. Provide a constant, generator, or a callable."
             )
     
-
-    def random_delay_generator(self, delay_range: tuple) -> Generator:
+    def get_delay(self,delay):
         """
-        Yields random delays within a specified range.
+        Returns value based on the type of parameter `delay` provided.
 
-        Parameters
-        ----------
-        delay_range : tuple
-            
-        A (min, max) tuple for random delay values.
+        Args:
+             delay (int, float, generator, or callable): The delay time, which can be:
+                - int or float: Used as a constant delay.
+                - generator: A generator instance yielding delay values.
+                - callable: A function that returns a delay values.
 
-        Yields
-        ------
-        int | float
-            
-        A random delay time in the given range.
+        Returns:
+               Returns a constant delay if `delay` is an int or float, a value yielded  if `delay` is a generator, or the value returned from a Callable function if `delay` is callable.
         """
-        while True:
-            yield random.randint(*delay_range)
+        if hasattr(delay, '__next__'):
+            # Generator instance
+            return next(delay)
+        elif callable(delay):
+            # Function
+            return delay()
+        else:
+            # int or float
+            return delay
+    
 
     def add_in_edges(self, edge: Any):
         #Override this method in subclasses.

@@ -1,6 +1,8 @@
 # Getting Started with FactorySimPy
 <p style="text-align: justify;">
-Welcome to FactorySimPy – a lightweight, open-source component library for discrete-event simulation (DES) of manufacturing systems, built on top of [SimPy 4.1.1](https://simpy.readthedocs.io/en/4.1.1/). This guide will help you to get started with the packages in a few minutes.
+Welcome to FactorySimPy – a lightweight, open-source component library for discrete-event simulation (DES) of manufacturing systems, built on top of [SimPy 4.1.1](https://simpy.readthedocs.io/en/4.1.1/). 
+
+This guide will help you to get started with the packages in a few minutes.
 </p>
 ---
 
@@ -8,15 +10,15 @@ Welcome to FactorySimPy – a lightweight, open-source component library for dis
 
 Install FactorySimPy. Make sure you have Python ≥ 3.8.
 
-### 1. Install SimPy (if not already installed)
+From Github
+
+1. Install SimPy (if not already installed)
 ```bash
 pip install simpy
 ```
 
-### 2. Install FactorySimPy
+2. Install FactorySimPy
 
-
-**From GitHub (latest version):**
 ```bash
 pip install git+https://github.com/FactorySimPy/FactorySimPy.git
 ```
@@ -27,7 +29,7 @@ pip install git+https://github.com/FactorySimPy/FactorySimPy.git
 
 FactorySimPy lets you simulate typical manufacturing scenarios using ready-made building blocks like:
 
-- **Processor** is a node with configurable processing delay
+- **Machine** is a node with configurable processing delay
 
 - **Split** and **Join** are nodes for splitting a flow into two or joining two flows
 

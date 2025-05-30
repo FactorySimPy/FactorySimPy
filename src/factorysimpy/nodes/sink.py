@@ -41,7 +41,7 @@ class Sink(Node):
           self.out_edges = None
           self.in_edges = in_edges
           
-          self.class_statistics={"item_received": 0
+          self.stats={"num_item_received": 0
                                  }
 
           # Start behavior process
@@ -98,7 +98,7 @@ class Sink(Node):
             yield get_token
             item = storetoget.get(get_token)
                 
-        self.class_statistics["item_received"] += 1
+        self.stats["num_item_received"] += 1
         print(f"T={self.env.now:.2f}: {self.id } is got an {item} ")
        
         
