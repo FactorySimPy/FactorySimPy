@@ -24,44 +24,26 @@ class Machine(Node):
         Inherits from the Node class.
         This Machine can have multiple input edges and  output edges.
 
-        Attributes
-        ----------
-            in_edge_events : dict
-                Dictionary to track input events for each worker.
-            triggered_item : dict
-                Tracks which input event triggered for each worker.
-            itemprocessed : dict
-                Tracks item currently being processed by each worker.
-            inbuiltstore : ReservablePriorityReqStore
-                Internal storage used for item buffering.
-            resource : simpy.Resource
-                SimPy resource modeling concurrent work capacity.
-
-        Methods     
-        -------
-
-            worker(self, i):
-                Worker process that processes items with resource and reserve handling.
-            behaviour(self):
-                Machine behavior that creates workers based on the effective capacity.
-
-            add_in_edges(self, edge):
-                Adds an input edge to the Machine.
-            add_out_edges(self, edge):
-                Adds an output edge to the Machine.
+        Parameters:
+            inbuiltstore (ReservablePriorityReqStore): Internal storage used for buffering items after processing.
+            store_capacity (int): Maximum capacity of the internal storage.
+            work_capacity (int): Maximum number of items that can be processed simultaneously.
+            processing_delay (None, int, float, Generator, Callable): Delay for processing items. Can be:
+                
+                - None: Used when the processing time depends on parameters like the current state or time.
+                - int or float: Used as a constant delay.
+                - Generator: A generator function yielding delay values over time.
+                - Callable: A function that returns a delay (int or float).
             
-        Raises     
-        -------
 
-            ValueError
-                If the Machine already has the maximum number of input or output edges.
-            AssertionError
-                If the Machine does not have at least 1 input edge or 1 output edge in the behaviour function.
-            AssertionError
-                If the Machine's work_capacity > store_capacity.
+        
+
+        Raises:
+            AssertionError: If the Machine has no input or output edges.
+            AssertionError: If the work capacity exceeds the store capacity.
     """
 
-    def __init__(self, env, id, in_edges=None, out_edges=None, work_capacity=1, store_capacity=1, node_setup_time=0,processing_delay=0):
+    def __init__(self, env, id, in_edges=None, out_edges=None,node_setup_time=0, work_capacity=1, store_capacity=1 ,processing_delay=0):
         super().__init__(env, id,in_edges, out_edges, node_setup_time=node_setup_time)
     
         self.store_capacity = store_capacity
@@ -71,12 +53,12 @@ class Machine(Node):
         self.triggered_item={}
         self.in_edges = in_edges
         self.out_edges = out_edges
-        self.class_statistics = {
+        self.stats= {
             "current_state": None,
             "last_state_change_time": None,
-            "item_processed": 0,
-            "item_discarded": 0,
-            "state_times":{}
+            "num_item_processed": 0,
+            "num_item_discarded": 0,
+            "total_time_spent_in_state":{}
         }
         self.inbuiltstore = ReservablePriorityReqStore(env, capacity=store_capacity)  # Custom store with reserve capacity
         self.resource = simpy.Resource(env, capacity=min(work_capacity,store_capacity))  # Work capacity
@@ -101,38 +83,26 @@ class Machine(Node):
         self.env.process(self.behaviour())
         self.env.process(self.pushingput())
 
-    def update_state_time(self, new_state: str, current_time: float):
+    def update_state(self, new_state: str, current_time: float):
         """
         Update node state and track the time spent in the previous state.
-        """
-        print(self.class_statistics)
-        if self.class_statistics["current_state"] is not None and self.class_statistics["last_state_change_time"] is not None:
-            elapsed = current_time - self.class_statistics["last_state_change_time"]
-
-            self.class_statistics["state_times"][self.class_statistics["current_state"]] = (
-                self.class_statistics["state_times"].get(self.class_statistics["current_state"], 0.0) + elapsed
-            )
-
-        self.class_statistics["current_state"] = new_state
-        self.class_statistics["last_state_change_time"] = current_time
         
-    def random_delay_generator(self, delay_range: tuple) -> Generator:
-        """
-        Yields random delays within a specified range.
+        Args:
+            new_state (str): The new state to transition to. Must be one of "SETUP_STATE", "GENERATING_STATE", "BLOCKED_STATE".
+            current_time (float): The current simulation time.
 
-        Parameters
-        ----------
-        delay_range : tuple
-            A (min, max) tuple for random delay values.
-
-        Yields
-        ------
-        int
-            A random delay time in the given range.
         """
-        while True:
-            yield random.randint(*delay_range)
-  
+        
+        if self.state is not None and self.stats["last_state_change_time"] is not None:
+            elapsed = current_time - self.stats["last_state_change_time"]
+
+            self.stats["total_time_spent_in_states"][self.state] = (
+                self.stats["total_time_spent_in_states"].get(self.state, 0.0) + elapsed
+            )
+        self.state = new_state
+        self.stats["last_state_change_time"] = current_time
+        
+ 
 
        
         
@@ -140,6 +110,11 @@ class Machine(Node):
 
 
     def add_in_edges(self, edge):
+        """
+        Adds an in_edge to the source node. Raises an error if the edge already exists in the in_edges list.
+        Args:
+            edge : The edge to be added as an in_edge.
+            """
         if self.in_edges is None:
             self.in_edges = []
         
@@ -152,6 +127,11 @@ class Machine(Node):
             raise ValueError(f"Edge already exists in Machine '{self.id}' in_edges.")
 
     def add_out_edges(self, edge):
+        """
+        Adds an out_edge to the source node. raises an error if the edge already exists in the out_edges list.
+        Args:
+            edge : The edge to be added as an out_edge.
+        """
         if self.out_edges is None:
             self.out_edges = []
 
@@ -190,7 +170,7 @@ class Machine(Node):
 
 
     def worker(self, i):
-        """Worker process that processes items with resource and reserve handling."""
+        #Worker process that processes items with resource and reserve handling."""
         while True:
             print(f"T={self.env.now:.2f}: {self.id} worker{i} started processing")
             # with self.resource.request() as req:
@@ -253,7 +233,7 @@ class Machine(Node):
                 
 
     def behaviour(self):
-        """Machine behavior that creates workers based on the effective capacity."""
+        #Machine behavior that creates workers based on the effective capacity."""
         
         
         assert self.in_edges is not None and len(self.in_edges) >= 1, f"Machine '{self.id}' must have atleast 1 in_edge."

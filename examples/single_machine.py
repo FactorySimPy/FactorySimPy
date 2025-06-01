@@ -18,7 +18,7 @@ def distribution_generator(loc=4.0, scale=5.0, size=1):
         yield delay[0]
 
 # Initializing nodes
-src= Source(env, id="Source-1",  inter_arrival_time=distribution_generator(),blocking=False,out_edge_selection="FIRST_AVAILABLE" )
+src= Source(env, id="Source-1",  inter_arrival_time=distribution_generator(),blocking=False,out_edge_selection=None )
 m1 = Machine(env, id="M1",work_capacity=2,store_capacity=2, processing_delay=distribution_generator())
 sink= Sink(env, id="Sink-1" )
 

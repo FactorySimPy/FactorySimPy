@@ -8,15 +8,14 @@ class Node:
     Base class to represent an active entity in a manufacturing system,
     such as machines, splits, or joints.
 
-    Attributes:
+    Parameters:
         id (str): Identifier for the node.
-        node_setup_time (None, int, float, Callable, or Generator, optional): 
-            Initial setup time for the node. Can be:
-                - None: Used when the setup time depends on parameters like the current state or time.
-                - int or float: Used as a constant delay.
-                - Callable: A function that returns a delay (int or float).
-                - Generator: A generator function yielding delay values over time.
-            Default is 0.
+        node_setup_time (None, int, float, Callable, or Generator, optional): Initial setup time for the node. Can be:
+                
+            - None: Used when the setup time depends on parameters like current state or time.
+            - int or float: Used as a constant delay.
+            - Callable: A function that returns a delay (int or float).
+            - Generator: A generator function yielding delay values over time.  
         in_edges (list, optional): List of input edges connected to the node. Default is None.
         out_edges (list, optional): List of output edges connected to the node. Default is None.
 
@@ -55,6 +54,7 @@ class Node:
 
         Args:
              delay (int, float, generator, or callable): The delay time, which can be:
+             
                 - int or float: Used as a constant delay.
                 - generator: A generator instance yielding delay values.
                 - callable: A function that returns a delay values.
