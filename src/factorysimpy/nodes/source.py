@@ -78,7 +78,7 @@ class Source(Node):
 
     """
 
-    def __init__(self, env, id, in_edges=None , out_edges=None,  inter_arrival_time=0,blocking=False, out_edge_selection="FIRST" ):
+    def __init__(self, env, id, in_edges=None, out_edges=None, inter_arrival_time=0, blocking=False, out_edge_selection="FIRST" ):
         super().__init__( env, id,in_edges , out_edges )
         
         self.state = "SETUP_STATE" # Initial state of the source node
@@ -91,7 +91,7 @@ class Source(Node):
         }
 
         if isinstance(out_edge_selection, str):  
-            self.out_edge_selection = get_index_selector(out_edge_selection, self, env)
+            self.out_edge_selection = get_index_selector(out_edge_selection, self, env, edge_type="OUT")
         elif callable(out_edge_selection):
             # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
             self.out_edge_selection = out_edge_selection
@@ -126,7 +126,7 @@ class Source(Node):
         if self.out_edge_selection is None:
             raise ValueError("out_edge_selection should not be None.")
 
-    def _get_edge_index(self):
+    def _get_out_edge_index(self):
         
         #Returns the next edge index from out_edge_selection, whether it's a generator or a callable.
         
@@ -228,7 +228,7 @@ class Source(Node):
             if self.state == "SETUP_STATE":
                 print(f"T={self.env.now:.2f}: {self.id} is in SETUP_STATE. Waiting for setup time {self.node_setup_time} seconds")
                 node_setup_delay = self.get_delay(self.node_setup_time)
-                if isinstance(node_setup_delay, (int, float)):
+                if not isinstance(node_setup_delay, (int, float)):
                     raise AssertionError("node_setup_time returns an valid value. It should be int or float")
                 yield self.env.timeout(node_setup_delay)
                 
@@ -239,14 +239,14 @@ class Source(Node):
             
             elif self.state== "GENERATING_STATE":
                 next_arrival_time = self.get_delay(self.inter_arrival_time)
-                if isinstance(next_arrival_time, (int, float)):
+                if not isinstance(next_arrival_time, (int, float)):
                     raise AssertionError("inter_arrival_time returns an invalid value. It should be int or float")
                 yield self.env.timeout(next_arrival_time)
                 i+=1
                 item = Item(f'item{self.id+":"+str(i)}')
                 self.stats["num_item_generated"] +=1
                 #edgeindex_to_put = next(self.out_edge_selection)
-                edgeindex_to_put = self._get_edge_index()
+                edgeindex_to_put = self._get_out_edge_index()
                 out_edge = self.out_edges[edgeindex_to_put]
 
                 if not self.blocking:

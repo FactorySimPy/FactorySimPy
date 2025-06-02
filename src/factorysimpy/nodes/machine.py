@@ -70,7 +70,7 @@ class Machine(Node):
         self.store_capacity = store_capacity
         self.work_capacity = work_capacity
         self.in_edge_events={}
-        self.itemprocessed={}
+        self.item_to_process={}
         self.triggered_item={}
      
         self.stats = {
@@ -97,8 +97,9 @@ class Machine(Node):
                 "processing_delay must be a None, int, float, generator, or callable."
             )
         
+        # Initialize in_edge_selection and out_edge_selection
         if isinstance(in_edge_selection, str):  
-            self.out_edge_selection = get_index_selector(in_edge_selection, self, env)
+            self.out_edge_selection = get_index_selector(in_edge_selection, self, env, "OUT")
         elif callable(in_edge_selection):
             # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
             self.in_edge_selection = in_edge_selection
@@ -110,7 +111,7 @@ class Machine(Node):
         
         
         if isinstance(out_edge_selection, str):  
-            self.out_edge_selection = get_index_selector(out_edge_selection, self, env)
+            self.out_edge_selection = get_index_selector(out_edge_selection, self, env, "IN")
         elif callable(out_edge_selection):
             # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
             self.out_edge_selection = out_edge_selection
@@ -118,12 +119,10 @@ class Machine(Node):
             # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
             self.out_edge_selection = out_edge_selection
         else:
-            raise ValueError("out_edge_selection must be a None, string or a callable (function/generator)")
-        
-       
+            raise ValueError("out_edge_selection must be a None, string or a callable (function/generator)")  
         
         self.env.process(self.behaviour())
-        self.env.process(self.pushingput())
+      
     def reset(self):
             if self.processing_delay is None:
                 raise ValueError("Processing delay cannot be None.")
@@ -194,7 +193,33 @@ class Machine(Node):
         else:
             raise ValueError(f"Edge already exists in Machine '{self.id}' out_edges.")
         
-   
+    def _get_out_edge_index(self):
+        
+        #Returns the next edge index from out_edge_selection, whether it's a generator or a callable.
+        
+        
+        if hasattr(self.out_edge_selection, '__next__'):
+            # It's a generator
+            return next(self.out_edge_selection)
+        elif callable(self.out_edge_selection):
+            # It's a function (pass self and env if needed)
+            return self.out_edge_selection(self, self.env)
+        else:
+            raise ValueError("out_edge_selection must be a generator or a callable.") 
+        
+    def _get_in_edge_index(self):
+        
+        #Returns the next edge index from in_edge_selection, whether it's a generator or a callable.
+        
+        
+        if hasattr(self.in_edge_selection, '__next__'):
+            # It's a generator
+            return next(self.in_edge_selection)
+        elif callable(self.in_edge_selection):
+            # It's a function (pass self and env if needed)
+            return self.in_edge_selection(self, self.env)
+        else:
+            raise ValueError("in_edge_selection must be a generator or a callable.") 
     
     def pushingput(self):
         while True:
@@ -218,6 +243,41 @@ class Machine(Node):
 
             print(f"T={self.env.now:.2f}: {self.id} puts item into {self.out_edges[0].id}  ")
 
+    def _push_item(self, item, out_edge):
+        if out_edge.__class__.__name__ == "ConveyorBelt":                 
+                put_token = out_edge.reserve_put()
+                pe = yield put_token
+                y=out_edge.put(pe, item)
+                if y:
+                    print(f"T={self.env.now:.2f}: {self.id} puts {item.id} item into {out_edge.id}  ")
+        elif out_edge.__class__.__name__ == "Buffer":
+                outstore = out_edge.inbuiltstore
+                put_token = outstore.reserve_put()
+                yield put_token
+                y=outstore.put(put_token, item)
+                if y:
+                    print(f"T={self.env.now:.2f}: {self.id} puts item into {self.out_edges[0].id} inbuiltstore {y} ")
+        else:
+                raise ValueError(f"Unsupported edge type: {out_edge.__class__.__name__}")
+        
+    def _pull_item(self,i, in_edge):
+        if in_edge.__class__.__name__ == "ConveyorBelt":
+                get_token = in_edge.reserve_get()
+                gtoken = yield get_token
+                self.item_to_process[i]=yield in_edge.get(gtoken)
+                if self.item_to_process[i]:
+                    print(f"T={self.env.now:.2f}: {self.id} gets item {self.item_to_process[i].id} from {in_edge.id}  ")
+                
+        elif in_edge.__class__.__name__ == "Buffer":
+                outstore = in_edge.out_store
+                get_token = outstore.reserve_get()
+                yield get_token
+                self.item_to_process[i] =outstore.get(get_token)
+                if self.item_to_process[i]:
+                    print(f"T={self.env.now:.2f}: {self.id} gets item {self.item_to_process[i].id} from {in_edge.id} ")
+        else:
+                raise ValueError(f"Unsupported edge type: {in_edge.__class__.__name__}")
+
 
 
     def worker(self, i):
@@ -225,62 +285,44 @@ class Machine(Node):
         self.reset()
         while True:
             print(f"T={self.env.now:.2f}: {self.id} worker{i} started processing")
-            # with self.resource.request() as req:
-            #     assert len(self.inbuiltstore.items) + len(self.inbuiltstore.reservations_put) <= self.store_capacity, (
-            #         f'Resource util exceeded: {len(self.inbuiltstore.items)}, {len(self.inbuiltstore.reservations_put)}'
-            #     )
-            #     yield req  # Wait for work capacity
-            print(f"T={self.env.now:.2f}: {self.id} worker{i} acquired resource")
-            P1 = self.inbuiltstore.reserve_put()
-            yield P1
-            print(f"T={self.env.now:.2f}: {self.id} worker{i} reserved put slot")
+            if self.state == "SETUP_STATE":
+                print(f"T={self.env.now:.2f}: {self.id} worker{i} is in SETUP_STATE")
+                node_setup_delay = self.get_delay(self.node_setup_time)
+                if not isinstance(node_setup_delay, (int, float)):
+                    raise AssertionError("node_setup_time returns an valid value. It should be int or float")
+                yield self.env.timeout(node_setup_delay)
+                self.update_state("IDLE_STATE", self.env.now)
+            
+            elif self.state == "IDLE_STATE":
+                print(f"T={self.env.now:.2f}: {self.id} worker{i} is in IDLE_STATE")
+                P1 = self.inbuiltstore.reserve_put()
+                yield P1
+                print(f"T={self.env.now:.2f}: {self.id} worker{i} reserved put slot")
 
-            start_wait = self.env.now
+                # Wait for the next item to process
+                edgeindex_to_get = self._get_in_edge_index()
+                in_edge = self.in_edges[edgeindex_to_get]
+                yield self.env.process(self._pull_item(i,in_edge))
+                self.update_state("PROCESSING_STATE", self.env.now)
 
-            # Only initialize if not already set or all previous events consumed
-            if i not in self.in_edge_events or not self.in_edge_events[i]:
-                self.in_edge_events[i] = [
-                    (edge, edge.reserve_get() if isinstance(edge, ConveyorBelt) else edge.out_store.reserve_get())
-                    for edge in self.in_edges
-                ]
-
-            event_list = [e for _, e in self.in_edge_events[i]]
-            print(f"T={self.env.now:.2f}: {self.id} worker{i} waiting on input events from {[edge.id for edge, _ in self.in_edge_events[i]]}")
-
-            result = yield self.env.any_of(event_list)
-
-            # Identify triggered event and corresponding edge
-            triggered = next(((edge, e) for edge, e in self.in_edge_events[i] if e.triggered), (None, None))
-            edge_used, triggered_event = triggered
-
-            if edge_used is None:
-                raise RuntimeError(f"{self.id} worker{i} - No triggered event found!")
-
-            # Remove the triggered pair from the event list
-            #print(result, triggered_event)
-            self.in_edge_events[i].remove((edge_used, triggered_event))
-
-            # Get the item from the appropriate store
-            if isinstance(edge_used, ConveyorBelt):
-                self.itemprocessed[i] =  yield edge_used.get(result[triggered_event])
-
-                #print(self.itemprocessed[i])
-
+            elif self.state == "PROCESSING_STATE":
+                 if self.item_to_process[i] is None:
+                   raise RuntimeError(f"{self.id} worker{i} - No item to process!")
+                 next_processing_time = self.get_delay(self.processing_delay)
+                 if not isinstance(next_processing_time, (int, float)):
+                        raise AssertionError("processing_delay returns an valid value. It should be int or float")
+                 yield self.env.timeout(next_processing_time)
+                 self.stats["num_item_processed"] += 1
+                 print(f"T={self.env.now:.2f}: {self.id} worker{i} processed item: {self.item_to_process[i].id}")
+                 out_edge_index_to_put = self._get_out_edge_index()
+                 outedge_to_put = self.out_edges[out_edge_index_to_put]
+                 self.update_state("BLOCKED_STATE", self.env.now)
+                 yield self.env.process(self._push_item(self.item_to_process[i], outedge_to_put))
+                 self.update_state("IDLE_STATE", self.env.now)
             else:
-                self.itemprocessed[i] = edge_used.out_store.get(triggered_event)
-
-            wait_time = self.env.now - start_wait
-            print(f"T={self.env.now:.2f}: {self.id} worker{i} waited {wait_time:.2f} time units for item from {edge_used.id}")
-            print(f"T={self.env.now:.2f}: {self.id} worker{i} processing item: {self.itemprocessed[i].id}")
-
-            # Simulate processing time
-            self.processing_time = next(self.processing_delay) if isinstance(self.processing_delay, Generator) else self.processing_delay
-            yield self.env.timeout(self.processing_time)
-
-            # Put item into internal store
-            self.inbuiltstore.put(P1, self.itemprocessed[i])
-            print(f"T={self.env.now:.2f}: {self.id} worker{i} placed item into internal store")
-
+                raise ValueError(f"Invalid state: {self.state} for worker {i} in Machine {self.id}")    
+            
+          
                 
                 
 

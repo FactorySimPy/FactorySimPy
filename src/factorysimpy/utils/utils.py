@@ -1,121 +1,65 @@
 import random
 
-def get_index_selector(sel_type,obj, env):
+def get_index_selector(sel_type, node, env, edge_type="OUT"):
     """
-    Returns a function that selects the index from a given object.
+    Returns a generator that yields selected indices from the node's edge list.
 
-    Parameters
-    ----------
-    index : int or str
-        The index to select.
-
-    Returns
-    -------
-    function
-        A function that takes an object and returns the value at the specified index.
-    """
-    if sel_type == "RANDOM":
-        sel = Random(obj,env) 
-        return sel
-    elif sel_type == "FIRST":
-        sel = First(obj,env)
-        return sel
-    elif sel_type == "LAST":
-        sel = Last(obj,env)
-        return sel
-    elif sel_type == "ROUND_ROBIN":
-        sel = RoundRobin(obj,env)
-        return sel
-    elif sel_type == "FIRST_AVAILABLE":
-        sel = FirstAvailable(obj,env)
-        return sel
-    else:
-        raise ValueError(f"Invalid selection type: {sel_type}. Must be one of: RANDOM, FIRST, LAST, ROUND_ROBIN, FIRST_AVAILABLE.")
+    Args:
     
-    
+        sel_type (str): The selection strategy. One of: 'RANDOM', 'FIRST', 'LAST', 'ROUND_ROBIN', 'FIRST_AVAILABLE'.
+        node (object): The node object containing in_edges or out_edges.
+        env (simpy.Environment): The simulation environment.
+        edge_type (str, optional): Whether to select from 'out_edges' or 'in_edges'. Default is 'OUT'.
 
-def Random(node,env):
+    Returns:
+
+        generator: A generator yielding selected indices from the specified edge list.
+
+    Raises:
+
+        ValueError: If sel_type is not a valid selection strategy.
+  
     """
-    Generator function that yields a random index from the given object.
-    Parameters
-    ----------      
-    node : node object
-        The object from which out_edges list is to be taken
-    env : simpy.Environment
-        The simulation environment.
-    Yields
-    -------
-    int
-        A random index from the object.
-    """
-    num_edges = len(node.out_edges)
+    edge_type = edge_type.lower()
+    strategies = {
+        "RANDOM": Random,
+        "FIRST": First,
+        "LAST": Last,
+        "ROUND_ROBIN": RoundRobin,
+        "FIRST_AVAILABLE": FirstAvailable
+    }
+
+    if sel_type not in strategies:
+        raise ValueError(
+            f"Invalid selection type: {sel_type}. Must be one of: {', '.join(strategies.keys())}."
+        )
+
+    return strategies[sel_type](node, env, edge_type)
+
+def Random(node, env, edge_type):
     while True:
-        yield random.randint(0,num_edges-1)
+        edges = getattr(node, f"{edge_type}_edges")
+        yield random.randint(0, len(edges) - 1)
 
-def RoundRobin(node, env):
-    num_edges=len(node.out_edges)
-    edge=0
+def RoundRobin(node, env, edge_type):
+    i = 0
     while True:
-        yield edge
-        
-        edge=(edge+1)%num_edges
+        edges = getattr(node, f"{edge_type}_edges")
+        yield i
+        i = (i + 1) % len(edges)
 
-def First(node, env):
-    """
-    Generator function that yields the first index from the given object.
-    
-    Parameters
-    ----------
-    node : node object
-        The object from which out_edges list is to be taken
-    env : simpy.Environment
-        The simulation environment.
-        
-    Yields
-    -------
-    int
-        The first index (0) from the object.
-    """
+def First(node, env, edge_type):
     while True:
         yield 0
-def Last(node, env):
-    """ 
-    Generator function that yields the last index from the given object.
-    Parameters
-    ----------
-    node : node object
-        The object from which out_edges list is to be taken
-    env : simpy.Environment
-        The simulation environment.
-    Yields
-    -------
-    int
-        The last index from the object.
-    """
-    num_edges = len(node.out_edges)
-    while True:
-        yield num_edges - 1
-def FirstAvailable(node, env):
-    """
-    Generator function that yields the first available index from the given object.
-    Parameters
-    ----------
-    node : node object
-        The object from which out_edges list is to be taken     
-    env : simpy.Environment
-        The simulation environment.
-    Yields
 
-    -------
-    int
-        The first available index from the object.
-    """
-    num_edges = len(node.out_edges)
+def Last(node, env, edge_type):
     while True:
-        for i in range(num_edges):
-            print(f"{env.now:.2f}Checking edge {i} for availability")
-            if node.out_edges[i].can_put():
-                print(i)
+        edges = getattr(node, f"{edge_type}_edges")
+        yield len(edges) - 1
+
+def FirstAvailable(node, env, edge_type):
+    while True:
+        edges = getattr(node, f"{edge_type}_edges")
+        for i, edge in enumerate(edges):
+            if edge.can_put():
                 yield i
-    
-        
