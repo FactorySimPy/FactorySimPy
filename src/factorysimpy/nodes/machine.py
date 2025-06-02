@@ -8,11 +8,11 @@ import  random, simpy
 
 from factorysimpy.nodes.node import Node
 from factorysimpy.edges.conveyor import ConveyorBelt
-from factorysimpy.edges.buffer import Buffer
+from factorysimpy.utils.utils import get_index_selector
 from factorysimpy.base.reservable_priority_req_store import ReservablePriorityReqStore  # Import your class
 
 
-from typing import Generator
+
 
 
 
@@ -21,7 +21,6 @@ from typing import Generator
 class Machine(Node):
     """
         Machine represents a processing node in a factory simulation.
-        Inherits from the Node class.
         This Machine can have multiple input edges and  output edges.
 
         Parameters:
@@ -34,14 +33,25 @@ class Machine(Node):
                 - int or float: Used as a constant delay.
                 - Generator: A generator function yielding delay values over time.
                 - Callable: A function that returns a delay (int or float).
+            in_edge_selection (None or str or callable): Criterion or function for selecting the edge.
+                                              Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
+
+                - None: None: Used when edge selction depends on parameters like current state of the object or time.   
+                - str: A string that specifies the selection method.
+                    - "RANDOM": Selects a random edge.
+                    - "FIRST": Selects the first edge in the in_edges list.
+                    - "LAST": Selects the last edge in the in_edges list .
+                    - "ROUND_ROBIN": Selects edges in a round-robin manner.
+                    - "FIRST_AVAILABLE": Selects the first out edge that can give an item.
+                - callable: A function that returns an edge index.
             out_edge_selection (None or str or callable): Criterion or function for selecting the out edge.
                                               Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
 
                 - None: None: Used when out edge selction depends on parameters like current state of the object or time.   
                 - str: A string that specifies the selection method.
-                    - "RANDOM": Selects a random out edge.
-                    - "FIRST": Selects the first out edge.
-                    - "LAST": Selects the last out edge.
+                    - "RANDOM": Selects a random out edge in the out_edges list.
+                    - "FIRST": Selects the first out edge in the out_edges list.
+                    - "LAST": Selects the last out edge in the out_edges list.
                     - "ROUND_ROBIN": Selects out edges in a round-robin manner.
                     - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
                 - callable: A function that returns an edge index.
@@ -54,35 +64,31 @@ class Machine(Node):
             
     """
 
-    def __init__(self, env, id, in_edges=None, out_edges=None,node_setup_time=0, work_capacity=1, store_capacity=1 ,processing_delay=0):
-        super().__init__(env, id,in_edges, out_edges, node_setup_time=node_setup_time)
+    def __init__(self, env, id, in_edges=None, out_edges=None,node_setup_time=0, work_capacity=1, store_capacity=1 ,processing_delay=0,in_edge_selection="FIRST",out_edge_selection="FIRST"):
+        super().__init__(env, id,in_edges, out_edges, node_setup_time)
     
         self.store_capacity = store_capacity
         self.work_capacity = work_capacity
         self.in_edge_events={}
         self.itemprocessed={}
         self.triggered_item={}
-        self.in_edges = in_edges
-        self.out_edges = out_edges
-        self.stats= {
-            "current_state": None,
+     
+        self.stats = {
             "last_state_change_time": None,
             "num_item_processed": 0,
-            "num_item_discarded": 0,
-            "total_time_spent_in_state":{}
+            "total_time_spent_in_states":{"SETUP_STATE": 0.0,"IDLE_STATE": 0.0, "PROCESSING_STATE": 0.0, "BLOCKED_STATE": 0.0}
         }
+
         self.inbuiltstore = ReservablePriorityReqStore(env, capacity=store_capacity)  # Custom store with reserve capacity
         self.resource = simpy.Resource(env, capacity=min(work_capacity,store_capacity))  # Work capacity
         if work_capacity > store_capacity:
             print("Warning: Effective capacity is limited by the minimum of work_capacity and store_capacity.")
 
 
-        # Initialize delay as a generator or a constant
-        if isinstance(processing_delay, Generator):
+        # Initialize processing delay 
+        if callable(processing_delay):
             self.processing_delay = processing_delay 
         elif isinstance(processing_delay, (int, float)):
-            self.processing_delay = processing_delay
-        elif callable(processing_delay):
             self.processing_delay = processing_delay
         elif processing_delay is None:
             self.processing_delay = None
@@ -91,14 +97,41 @@ class Machine(Node):
                 "processing_delay must be a None, int, float, generator, or callable."
             )
         
-        def reset(self):
-            if self.processing_delay is None:
-                raise ValueError("Processing delay cannot be None.")
-            if self.out_edge_selection is None:
-                raise ValueError("out_edge_selection should not be None.")
-        # Start the behaviour process
+        if isinstance(in_edge_selection, str):  
+            self.out_edge_selection = get_index_selector(in_edge_selection, self, env)
+        elif callable(in_edge_selection):
+            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+            self.in_edge_selection = in_edge_selection
+        elif out_edge_selection is None:
+            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+            self.in_edge_selection = in_edge_selection
+        else:
+            raise ValueError("in_edge_selection must be a None, string or a callable (function/generator)")
+        
+        
+        if isinstance(out_edge_selection, str):  
+            self.out_edge_selection = get_index_selector(out_edge_selection, self, env)
+        elif callable(out_edge_selection):
+            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+            self.out_edge_selection = out_edge_selection
+        elif out_edge_selection is None:
+            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+            self.out_edge_selection = out_edge_selection
+        else:
+            raise ValueError("out_edge_selection must be a None, string or a callable (function/generator)")
+        
+       
+        
         self.env.process(self.behaviour())
         self.env.process(self.pushingput())
+    def reset(self):
+            if self.processing_delay is None:
+                raise ValueError("Processing delay cannot be None.")
+            if self.in_edge_selection is None:
+                raise ValueError("in_edge_selection should not be None")
+            if self.out_edge_selection is None:
+                raise ValueError("out_edge_selection should not be None.")
+        
 
     def update_state(self, new_state: str, current_time: float):
         """
@@ -120,8 +153,7 @@ class Machine(Node):
         self.stats["last_state_change_time"] = current_time
         
  
-
-       
+   
         
     
 
@@ -136,8 +168,8 @@ class Machine(Node):
         if self.in_edges is None:
             self.in_edges = []
         
-        if len(self.in_edges) >= self.num_in_edges:
-            raise ValueError(f"Machine'{self.id}' already has {self.num_in_edges} in_edges. Cannot add more.")
+        # if len(self.in_edges) >= self.num_in_edges:
+        #     raise ValueError(f"Machine'{self.id}' already has {self.num_in_edges} in_edges. Cannot add more.")
         
         if edge not in self.in_edges:
             self.in_edges.append(edge)
@@ -154,8 +186,8 @@ class Machine(Node):
         if self.out_edges is None:
             self.out_edges = []
 
-        if len(self.out_edges) >= 1:
-            raise ValueError(f"Machine '{self.id}' already has 1 out_edge. Cannot add more.")
+        # if len(self.out_edges) >= 1:
+        #     raise ValueError(f"Machine '{self.id}' already has 1 out_edge. Cannot add more.")
 
         if edge not in self.out_edges:
             self.out_edges.append(edge)

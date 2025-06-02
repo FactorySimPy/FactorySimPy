@@ -1,12 +1,12 @@
 # @title Source
 
 
-from typing import Generator
+
 from factorysimpy.nodes.node import Node
 from factorysimpy.helper.item import Item
 from factorysimpy.utils.utils import get_index_selector
 
-import random
+
 
 class Source(Node):
     """
@@ -90,11 +90,8 @@ class Source(Node):
             "total_time_spent_in_states":{"SETUP_STATE": 0.0, "GENERATING_STATE": 0.0, "BLOCKED_STATE": 0.0}
         }
 
-        if isinstance(out_edge_selection, str):
-            
+        if isinstance(out_edge_selection, str):  
             self.out_edge_selection = get_index_selector(out_edge_selection, self, env)
-
-            
         elif callable(out_edge_selection):
             # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
             self.out_edge_selection = out_edge_selection
@@ -231,6 +228,8 @@ class Source(Node):
             if self.state == "SETUP_STATE":
                 print(f"T={self.env.now:.2f}: {self.id} is in SETUP_STATE. Waiting for setup time {self.node_setup_time} seconds")
                 node_setup_delay = self.get_delay(self.node_setup_time)
+                if isinstance(node_setup_delay, (int, float)):
+                    raise AssertionError("node_setup_time returns an valid value. It should be int or float")
                 yield self.env.timeout(node_setup_delay)
                 
                 self.update_state("GENERATING_STATE", self.env.now)
@@ -240,6 +239,8 @@ class Source(Node):
             
             elif self.state== "GENERATING_STATE":
                 next_arrival_time = self.get_delay(self.inter_arrival_time)
+                if isinstance(next_arrival_time, (int, float)):
+                    raise AssertionError("inter_arrival_time returns an invalid value. It should be int or float")
                 yield self.env.timeout(next_arrival_time)
                 i+=1
                 item = Item(f'item{self.id+":"+str(i)}')

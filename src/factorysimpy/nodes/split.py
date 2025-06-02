@@ -8,21 +8,19 @@ from factorysimpy.base.reservable_priority_req_store import ReservablePriorityRe
 from factorysimpy.nodes.node import Node
 from factorysimpy.edges.conveyor import ConveyorBelt
 from factorysimpy.edges.buffer import Buffer
+from factorysimpy.utils.utils import get_index_selector
 
 from factorysimpy.helper.item import Item
 
 
 class Split(Node):
     """
-    Split class representing a processing node in a factory simulation.
-    Inherits from the Node class.
-    This splitter can have a single input edge and two output edges.
-    It processes items from the input edge and splits them into two output edges based on a split ratio.
+    Split class representing a processing node that can split an incoming item in a factory simulation.
+    
     Attributes
     ----------
    
-    split_ratio : float
-        The ratio at which items are split into two output groups.
+    
    
     Methods
     -------
@@ -44,54 +42,116 @@ class Split(Node):
         If the splitter does not have exactly 1 input edge or 2 output edges in the behaviour function.
 
     """
-    def __init__(self, env, name,in_edges=None , out_edges=None,work_capacity=1, store_capacity=1, delay=1,rule=0.1):
-        super().__init__(env, name, in_edges , out_edges, work_capacity=1, store_capacity=1, delay=delay)
-        self.env = env
-        self.name = name
+    def __init__(self, env, id,in_edges=None, out_edges=None, node_setup_time=0, work_capacity=1, store_capacity=1 ,processing_delay=0,in_edge_selection="FIRST",out_edge_selection="FIRST"):
+        super().__init__(env, id, in_edges , out_edges, node_setup_time)
+    
         self.work_capacity = work_capacity
         self.store_capacity = store_capacity
-        self.in_edges = in_edges
-        self.out_edges = out_edges
-        self.rule=rule
-        self.node_type = "Split"
+   
+       
+       
         self.inbuiltstore = ReservablePriorityReqFilterStore(env, capacity=store_capacity)  # Custom store with reserve capacity
         self.inbuiltstoreA = ReservablePriorityReqStore(env, capacity=int(store_capacity/2))  # Custom store with reserve capacity
         self.inbuiltstoreB = ReservablePriorityReqStore(env, capacity=store_capacity-int(store_capacity/2))  # Custom store with reserve capacity
         self.resource = simpy.Resource(env, capacity=min(work_capacity,store_capacity))  # Work capacity
-        self.delay = delay  # Processing delay
+        self.stats = {
+            "last_state_change_time": None,
+            "num_item_processed": 0,
+            "total_time_spent_in_states":{"SETUP_STATE": 0.0,"IDLE_STATE": 0.0, "PROCESSING_STATE": 0.0, "BLOCKED_STATE": 0.0}
+        }
 
         if work_capacity>store_capacity :
             print("Warning: Effective capacity is limited by the minimum of work_capacity and store_capacity.")
+        
+        
+        # Initialize processing delay 
+        if callable(processing_delay):
+            self.processing_delay = processing_delay 
+        elif isinstance(processing_delay, (int, float)):
+            self.processing_delay = processing_delay
+        elif processing_delay is None:
+            self.processing_delay = None
+        else:
+            raise ValueError("processing_delay must be a None, int, float, generator, or callable.")
+        
+        if isinstance(in_edge_selection, str):  
+            self.out_edge_selection = get_index_selector(in_edge_selection, self, env)
+        elif callable(in_edge_selection):
+            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+            self.in_edge_selection = in_edge_selection
+        elif out_edge_selection is None:
+            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+            self.in_edge_selection = in_edge_selection
+        else:
+            raise ValueError("in_edge_selection must be a None, string or a callable (function/generator)")
+        
 
+        if isinstance(out_edge_selection, str):  
+            self.out_edge_selection = get_index_selector(out_edge_selection, self, env)
+        elif callable(out_edge_selection):
+            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+            self.out_edge_selection = out_edge_selection
+        elif out_edge_selection is None:
+            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+            self.out_edge_selection = out_edge_selection
+        else:
+            raise ValueError("out_edge_selection must be a string or a callable (function/generator)")
+
+         
         # Start the behaviour process
         self.env.process(self.behaviour())
         self.env.process(self.pushing_puta())
         self.env.process(self.pushing_putb())
+    
+    def reset(self):
+            if self.processing_delay is None:
+                raise ValueError("Processing delay cannot be None.")
+            if self.in_edge_selection is None:
+                raise ValueError("in_edge_selection should not be None")
+            if self.out_edge_selection is None:
+                raise ValueError("out_edge_selection should not be None.")
 
+    def update_state(self, new_state: str, current_time: float):
+        """
+        Update state and track the time spent in the previous state.
+        
+        Args:
+            new_state (str): The new state to transition to. Must be one of "SETUP_STATE", "GENERATING_STATE", "BLOCKED_STATE".
+            current_time (float): The current simulation time.
 
+        """
+        
+        if self.state is not None and self.stats["last_state_change_time"] is not None:
+            elapsed = current_time - self.stats["last_state_change_time"]
+
+            self.stats["total_time_spent_in_states"][self.state] = (
+                self.stats["total_time_spent_in_states"].get(self.state, 0.0) + elapsed
+            )
+        self.state = new_state
+        self.stats["last_state_change_time"] = current_time
     def add_in_edges(self, edge):
         if self.in_edges is None:
             self.in_edges = []
 
-        if len(self.in_edges) >= 1:
-            raise ValueError(f"Split '{self.name}' already has 1 in_edge. Cannot add more.")
+        # if len(self.in_edges) >= 1:
+        #     raise ValueError(f"Split '{self.name}' already has 1 in_edge. Cannot add more.")
 
         if edge not in self.in_edges:
             self.in_edges.append(edge)
         else:
-            raise ValueError(f"Edge already exists in Split '{self.name}' in_edges.")
+            raise ValueError(f"Edge already exists in Split '{self.id}' in_edges.")
 
     def add_out_edges(self, edge):
         if self.out_edges is None:
             self.out_edges = []
 
         if len(self.out_edges) >= 2:
-            raise ValueError(f"Split '{self.name}' already has 2 out_edges. Cannot add more.")
+            raise ValueError(f"Split '{self.id}' already has 2 out_edges. Cannot add more.")
 
         if edge not in self.out_edges:
             self.out_edges.append(edge)
         else:
-            raise ValueError(f"Edge already exists in Split '{self.name}' out_edges.")
+            raise ValueError(f"Edge already exists in Split '{self.id}' out_edges.")
     def pushing_puta(self):
         """Pushes items to the first output edge."""
         while True:
