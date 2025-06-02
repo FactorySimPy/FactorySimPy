@@ -19,22 +19,23 @@ class Source(Node):
 
         inter_arrival_time (None, int, float, generator, or callable): Time between item generations. Can be:
                 
-            - None: Used when the setup time depends on parameters like the current state or time.
+            - None: Used when the setup time depends on parameters like the current state of the object or time.
             - int or float: Used as a constant delay.
             - Callable: A function that returns a delay (int or float).
             - Generator: A generator function yielding delay values over time.  
     
         blocking (bool): If True, the source waits until it can put an item into the out edge.
-        out_edge_selection (str or callable): Criterion or function for selecting the out edge.
+        out_edge_selection (None or str or callable): Criterion or function for selecting the out edge.
                                               Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
-                
+
+            - None: Used when out edge selction depends on parameters like current state of the object or time.   
             - str: A string that specifies the selection method.
                 - "RANDOM": Selects a random out edge.
                 - "FIRST": Selects the first out edge.
                 - "LAST": Selects the last out edge.
                 - "ROUND_ROBIN": Selects out edges in a round-robin manner.
                 - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
-            - callable: A function that takes the source object and simpy environment as arguments and returns an edge index.
+            - callable: A function that returns an edge index.
 
     
     Behavior:
@@ -97,6 +98,9 @@ class Source(Node):
         elif callable(out_edge_selection):
             # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
             self.out_edge_selection = out_edge_selection
+        elif out_edge_selection is None:
+            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+            self.out_edge_selection = out_edge_selection
         else:
             raise ValueError("out_edge_selection must be a string or a callable (function/generator)")
         
@@ -109,14 +113,21 @@ class Source(Node):
         elif isinstance(inter_arrival_time, (int, float)):      
             self.inter_arrival_time = inter_arrival_time
         # interarrival_time is None and will be initialized later by the user
-        else:
+        elif inter_arrival_time is None:
             self.inter_arrival_time = inter_arrival_time
+        else:
+            raise ValueError("inter_arrival_time must be a None, int, float, generator, or callable.")
          # Start behavior process
         self.env.process(self.behaviour())
         
     def reset(self):
+        # if self.inter_arrival_time or self.out_edge_selection was initialized to None at the time of object creation 
+        # user is expected to set it to valid form before starting the simulation
+        
         if self.inter_arrival_time is None:
-            raise ValueError("inter_arrival_time must be set before resetting the source.")
+            raise ValueError("inter_arrival_time should not be None.")
+        if self.out_edge_selection is None:
+            raise ValueError("out_edge_selection should not be None.")
 
     def _get_edge_index(self):
         

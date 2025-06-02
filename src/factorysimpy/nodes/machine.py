@@ -34,13 +34,24 @@ class Machine(Node):
                 - int or float: Used as a constant delay.
                 - Generator: A generator function yielding delay values over time.
                 - Callable: A function that returns a delay (int or float).
-            
+            out_edge_selection (None or str or callable): Criterion or function for selecting the out edge.
+                                              Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
+
+                - None: None: Used when out edge selction depends on parameters like current state of the object or time.   
+                - str: A string that specifies the selection method.
+                    - "RANDOM": Selects a random out edge.
+                    - "FIRST": Selects the first out edge.
+                    - "LAST": Selects the last out edge.
+                    - "ROUND_ROBIN": Selects out edges in a round-robin manner.
+                    - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
+                - callable: A function that returns an edge index.
+                
 
         
 
         Raises:
             AssertionError: If the Machine has no input or output edges.
-            AssertionError: If the work capacity exceeds the store capacity.
+            
     """
 
     def __init__(self, env, id, in_edges=None, out_edges=None,node_setup_time=0, work_capacity=1, store_capacity=1 ,processing_delay=0):
@@ -68,17 +79,23 @@ class Machine(Node):
 
         # Initialize delay as a generator or a constant
         if isinstance(processing_delay, Generator):
-            self.processing_delay = processing_delay
-        elif isinstance(processing_delay, tuple) and len(processing_delay) == 2:
-            self.processing_delay = self.random_delay_generator(processing_delay)
-      
-
+            self.processing_delay = processing_delay 
         elif isinstance(processing_delay, (int, float)):
             self.processing_delay = processing_delay
+        elif callable(processing_delay):
+            self.processing_delay = processing_delay
+        elif processing_delay is None:
+            self.processing_delay = None
         else:
             raise ValueError(
-                "Invalid delay value. Provide a constant, generator, or a (min, max) tuple."
+                "Invalid delay value. Provide a constant(int or float) or generator or python function or None."
             )
+        
+        def reset(self):
+            if self.processing_delay is None:
+                raise ValueError("Processing delay cannot be None.")
+            if self.out_edge_selection is None:
+                raise ValueError("out_edge_selection should not be None.")
         # Start the behaviour process
         self.env.process(self.behaviour())
         self.env.process(self.pushingput())
@@ -173,6 +190,7 @@ class Machine(Node):
 
     def worker(self, i):
         #Worker process that processes items with resource and reserve handling."""
+        self.reset()
         while True:
             print(f"T={self.env.now:.2f}: {self.id} worker{i} started processing")
             # with self.resource.request() as req:
