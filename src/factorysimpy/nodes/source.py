@@ -204,7 +204,7 @@ class Source(Node):
                 yield put_token
                 y=outstore.put(put_token, item)
                 if y:
-                    print(f"T={self.env.now:.2f}: {self.id} puts item into {self.out_edges[0].id} inbuiltstore {y} ")
+                    print(f"T={self.env.now:.2f}: {self.id} puts item into {out_edge.id}  ")
         else:
                 raise ValueError(f"Unsupported edge type: {out_edge.__class__.__name__}")
 

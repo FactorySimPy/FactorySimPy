@@ -1,13 +1,10 @@
 # Machine m input and 1 output without using cancel
 
-from typing import Generator  # Import Generator for type checking
 
 
-import  random, simpy
-
+import simpy
 
 from factorysimpy.nodes.node import Node
-from factorysimpy.edges.conveyor import ConveyorBelt
 from factorysimpy.utils.utils import get_index_selector
 from factorysimpy.base.reservable_priority_req_store import ReservablePriorityReqStore  # Import your class
 
@@ -24,7 +21,14 @@ class Machine(Node):
         This Machine can have multiple input edges and  output edges.
 
         Parameters:
-            inbuiltstore (ReservablePriorityReqStore): Internal storage used for buffering items after processing.
+            state (str): Current state of the source node. One of :
+                   
+                - SETUP_STATE: Initial setup phase before machine starts to operate.
+                - IDLE_STATE: Waiting to receive an item and there is space avilable in the inbuiltstore
+                - PROCESSING_STATE: Actively processing items.
+                - BLOCKED_STATE: Waiting to transfer item when edge is full (in blocking mode) or when the inbuiltstore
+                  is full.
+           
             store_capacity (int): Maximum capacity of the internal storage.
             work_capacity (int): Maximum number of items that can be processed simultaneously.
             processing_delay (None, int, float, Generator, Callable): Delay for processing items. Can be:
@@ -69,9 +73,8 @@ class Machine(Node):
     
         self.store_capacity = store_capacity
         self.work_capacity = work_capacity
-        self.in_edge_events={}
         self.item_to_process={}
-        self.triggered_item={}
+       
      
         self.stats = {
             "last_state_change_time": None,
@@ -80,7 +83,6 @@ class Machine(Node):
         }
 
         self.inbuiltstore = ReservablePriorityReqStore(env, capacity=store_capacity)  # Custom store with reserve capacity
-        self.resource = simpy.Resource(env, capacity=min(work_capacity,store_capacity))  # Work capacity
         if work_capacity > store_capacity:
             print("Warning: Effective capacity is limited by the minimum of work_capacity and store_capacity.")
 
@@ -221,27 +223,7 @@ class Machine(Node):
         else:
             raise ValueError("in_edge_selection must be a generator or a callable.") 
     
-    def pushingput(self):
-        while True:
-            get_token = self.inbuiltstore.reserve_get()
-            if isinstance(self.out_edges[0], ConveyorBelt):
-
-                    outstore = self.out_edges[0]
-                    put_token = outstore.reserve_put()
-
-                    pe = yield put_token
-                    yield get_token
-                    item = self.inbuiltstore.get(get_token)
-                    yield outstore.put(pe, item)
-                    
-            else:
-                    outstore = self.out_edges[0].inbuiltstore
-                    put_token = outstore.reserve_put()
-                    yield self.env.all_of([put_token,get_token])
-                    item = self.inbuiltstore.get(get_token)
-                    outstore.put(put_token, item)
-
-            print(f"T={self.env.now:.2f}: {self.id} puts item into {self.out_edges[0].id}  ")
+   
 
     def _push_item(self, item, out_edge):
         if out_edge.__class__.__name__ == "ConveyorBelt":                 
@@ -256,7 +238,7 @@ class Machine(Node):
                 yield put_token
                 y=outstore.put(put_token, item)
                 if y:
-                    print(f"T={self.env.now:.2f}: {self.id} puts item into {self.out_edges[0].id} inbuiltstore {y} ")
+                    print(f"T={self.env.now:.2f}: {self.id} puts item into {out_edge.id}")
         else:
                 raise ValueError(f"Unsupported edge type: {out_edge.__class__.__name__}")
         
@@ -295,8 +277,10 @@ class Machine(Node):
             
             elif self.state == "IDLE_STATE":
                 print(f"T={self.env.now:.2f}: {self.id} worker{i} is in IDLE_STATE")
+                self.update_state("BLOCKED_STATE")
                 P1 = self.inbuiltstore.reserve_put()
                 yield P1
+                self.update_state("IDLE_STATE")
                 print(f"T={self.env.now:.2f}: {self.id} worker{i} reserved put slot")
 
                 # Wait for the next item to process
