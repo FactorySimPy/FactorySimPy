@@ -44,7 +44,7 @@ Edges are passive components that connect exactly two nodes(src_node and dest_no
 2. Establish connections:
    ```python
    e1.connect(n1, n2)
-   e2.connect(n2,n3)
+   e2.connect(n2, n3)
    ```
 
 ---
@@ -84,8 +84,8 @@ The source then waits for the next inter_arrival_time before attempting to gener
 
 
 
-**Metrics and Monitoring**
-The source component tracks and reports several key metrics:
+**Monitoring and Reporting**
+The source component reports the following key metrics:
 
 1. Total number of items generated
 2. Number of items discarded (non-blocking mode)
@@ -94,9 +94,17 @@ The source component tracks and reports several key metrics:
 These metrics help in analyzing the performance and efficiency of the item generation process within the simulation model.
 
 ### Machine
-Machine is a component that has a processing delay and processes/modifies items that flow in the system. It can have multiple in edges and out edges. It gets an item from one of its in edges and processes the item in a `processing_delay` amount of time and pushes the item to one of its out edges.
+Machine is a component that has a processing delay and processes/modifies items that flow in the system. It can have multiple incoming edges and outgoing edges. It gets an item from one of its in edges and processes the item in a `processing_delay` amount of time and pushes the item to one of its out edges. 
+
 
 **Behavior**
+During a simulation run, Machine gets object from one of the in_edges. To choose an incoming edge, to pull the item from, the Machine utilises the strategy specified in the parameter `in_edge_selection`. Various options available are  `RANDOM`, `FIRST`, `LAST`,`ROUND_ROBIN`, `FIRST_AVAILABLE`, etc. Similarly, to select and outgoing edge, to push the item to, MAchine uses the method specified in `out_edge_selection` parameter. Machine picks an item and takes `processing_delay` amount of time to process the item and puts it inside the inbuiltstore. The capacity of this store can be specified in the parameter `store_capacity`. Machine can parallely process `work_capacity` number of items. But, if `work_capacity` > `store_capacity`, then `work_capacity` is set to `store_capacity`. During its operation, Machine transitions through the following states: `SETUP_STATE`, `PROCESSING_STATE`, `BLOCKED_STATE`, and `IDLE_STATE`.
+
+**Monitoring and Reporting**
+The Machine component reports the following key metrics:
+
+1. Total number of items processed
+2. Time spent in each state 
 
 
 ### Split

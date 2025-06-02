@@ -43,9 +43,11 @@ class Node:
             self.node_setup_time = node_setup_time
         elif isinstance(node_setup_time, (int, float)):
             self.node_setup_time = node_setup_time
+        elif node_setup_time is None:
+            self.node_setup_time = None
         else:
             raise ValueError(
-                "Invalid node_setup_time value. Provide a constant, generator, or a callable."
+                "Invalid node_setup_time value. Provide a None constant ( int or float), generator, or a callable."
             )
     
     def get_delay(self,delay):

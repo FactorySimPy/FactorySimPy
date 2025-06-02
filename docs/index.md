@@ -56,7 +56,7 @@ An example model with 2 nodes and a directed edge
 
 
 ## **Simple Example**
-**A simple example simulating a machine that is obtaining items from a source and processing it and putting it in a sink**
+**A simple example simulating a machine that gets an items and pushes it to one of its out going edges after processing it**
 
 ```python 
 

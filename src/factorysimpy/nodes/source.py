@@ -11,7 +11,7 @@ import random
 class Source(Node):
     """
     Parameters:
-        state (str): Current state of the source node. One of "SETUP_STATE", "GENERATING_STATE", "BLOCKED_STATE".
+        state (str): Current state of the source node. One of :
                    
             - SETUP_STATE: Initial setup phase before item generation starts.
             - GENERATING_STATE: Actively generating and dispatching items.

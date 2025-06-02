@@ -20,7 +20,7 @@ from typing import Generator
 
 class Machine(Node):
     """
-        Machine class representing a processing node in a factory simulation.
+        Machine represents a processing node in a factory simulation.
         Inherits from the Node class.
         This Machine can have multiple input edges and  output edges.
 
@@ -88,7 +88,7 @@ class Machine(Node):
             self.processing_delay = None
         else:
             raise ValueError(
-                "Invalid delay value. Provide a constant(int or float) or generator or python function or None."
+                "processing_delay must be a None, int, float, generator, or callable."
             )
         
         def reset(self):
