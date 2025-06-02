@@ -111,9 +111,10 @@ class Machine(Node):
 
     def add_in_edges(self, edge):
         """
-        Adds an in_edge to the source node. Raises an error if the edge already exists in the in_edges list.
+        Adds an in_edge to the node. Raises an error if the edge already exists in the in_edges list.
+        
         Args:
-            edge : The edge to be added as an in_edge.
+            edge (Edge Object) : The edge to be added as an in_edge.
             """
         if self.in_edges is None:
             self.in_edges = []
@@ -128,9 +129,10 @@ class Machine(Node):
 
     def add_out_edges(self, edge):
         """
-        Adds an out_edge to the source node. raises an error if the edge already exists in the out_edges list.
+        Adds an out_edge to the node. Raises an error if the edge already exists in the out_edges list.
+        
         Args:
-            edge : The edge to be added as an out_edge.
+            edge (Edge Object) : The edge to be added as an out_edge.
         """
         if self.out_edges is None:
             self.out_edges = []

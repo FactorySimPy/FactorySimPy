@@ -163,7 +163,7 @@ class Source(Node):
         out_edge or if the edge already exists in the out_edges list.
         
         Args:
-            edge (Edge): The edge to be added as an out_edge.
+            edge (Edge Object): The edge to be added as an out_edge.
         """
         if self.out_edges is None:
             self.out_edges = []
