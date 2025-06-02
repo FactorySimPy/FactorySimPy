@@ -70,7 +70,8 @@ class Machine(Node):
 
     def __init__(self, env, id, in_edges=None, out_edges=None,node_setup_time=0, work_capacity=1, store_capacity=1 ,processing_delay=0,in_edge_selection="FIRST",out_edge_selection="FIRST"):
         super().__init__(env, id,in_edges, out_edges, node_setup_time)
-    
+        
+        self.state = "SETUP_STATE"
         self.store_capacity = store_capacity
         self.work_capacity = work_capacity
         self.item_to_process={}
@@ -90,6 +91,9 @@ class Machine(Node):
         # Initialize processing delay 
         if callable(processing_delay):
             self.processing_delay = processing_delay 
+        elif hasattr(processing_delay, '__next__'):
+            # It's a generator
+            self.processing_delay = processing_delay    
         elif isinstance(processing_delay, (int, float)):
             self.processing_delay = processing_delay
         elif processing_delay is None:
@@ -101,11 +105,11 @@ class Machine(Node):
         
         # Initialize in_edge_selection and out_edge_selection
         if isinstance(in_edge_selection, str):  
-            self.out_edge_selection = get_index_selector(in_edge_selection, self, env, "OUT")
+            self.in_edge_selection = get_index_selector(in_edge_selection, self, env, "IN")
         elif callable(in_edge_selection):
             # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
             self.in_edge_selection = in_edge_selection
-        elif out_edge_selection is None:
+        elif in_edge_selection is None:
             # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
             self.in_edge_selection = in_edge_selection
         else:
@@ -113,7 +117,7 @@ class Machine(Node):
         
         
         if isinstance(out_edge_selection, str):  
-            self.out_edge_selection = get_index_selector(out_edge_selection, self, env, "IN")
+            self.out_edge_selection = get_index_selector(out_edge_selection, self, env, "OUT")
         elif callable(out_edge_selection):
             # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
             self.out_edge_selection = out_edge_selection
@@ -277,10 +281,10 @@ class Machine(Node):
             
             elif self.state == "IDLE_STATE":
                 print(f"T={self.env.now:.2f}: {self.id} worker{i} is in IDLE_STATE")
-                self.update_state("BLOCKED_STATE")
+                self.update_state("BLOCKED_STATE", self.env.now)
                 P1 = self.inbuiltstore.reserve_put()
                 yield P1
-                self.update_state("IDLE_STATE")
+                self.update_state("IDLE_STATE", self.env.now)
                 print(f"T={self.env.now:.2f}: {self.id} worker{i} reserved put slot")
 
                 # Wait for the next item to process

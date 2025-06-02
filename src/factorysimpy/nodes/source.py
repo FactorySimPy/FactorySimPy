@@ -106,13 +106,16 @@ class Source(Node):
         if inter_arrival_time == 0 and not self.blocking:
             raise ValueError("Non-blocking source must have a non-zero inter_arrival_time.")
         elif callable(inter_arrival_time):
-            self.inter_arrival_time = inter_arrival_time      
+            self.inter_arrival_time = inter_arrival_time  
+        elif hasattr(inter_arrival_time, '__next__'):
+            self.inter_arrival_time = inter_arrival_time    
         elif isinstance(inter_arrival_time, (int, float)):      
             self.inter_arrival_time = inter_arrival_time
         # interarrival_time is None and will be initialized later by the user
         elif inter_arrival_time is None:
             self.inter_arrival_time = inter_arrival_time
         else:
+            print("GGG",inter_arrival_time)
             raise ValueError("inter_arrival_time must be a None, int, float, generator, or callable.")
          # Start behavior process
         self.env.process(self.behaviour())
@@ -204,7 +207,7 @@ class Source(Node):
                 yield put_token
                 y=outstore.put(put_token, item)
                 if y:
-                    print(f"T={self.env.now:.2f}: {self.id} puts item into {out_edge.id}  ")
+                    print(f"T={self.env.now:.2f}: {self.id} puts item into {out_edge.id} ")
         else:
                 raise ValueError(f"Unsupported edge type: {out_edge.__class__.__name__}")
 
