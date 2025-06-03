@@ -1,18 +1,8 @@
 # Machine m input and 1 output without using cancel
 
-
-
-import simpy
-
 from factorysimpy.nodes.node import Node
 from factorysimpy.utils.utils import get_index_selector
 from factorysimpy.base.reservable_priority_req_store import ReservablePriorityReqStore  # Import your class
-
-
-
-
-
-
 
 
 class Machine(Node):
@@ -26,8 +16,7 @@ class Machine(Node):
                 - SETUP_STATE: Initial setup phase before machine starts to operate.
                 - IDLE_STATE: Waiting to receive an item and there is space avilable in the inbuiltstore
                 - PROCESSING_STATE: Actively processing items.
-                - BLOCKED_STATE: Waiting to transfer item when edge is full (in blocking mode) or when the inbuiltstore
-                  is full.
+                - BLOCKED_STATE: when the inbuiltstore is full and it is unable to get objects for processing.
            
             store_capacity (int): Maximum capacity of the internal storage.
             work_capacity (int): Maximum number of items that can be processed simultaneously.
@@ -75,6 +64,7 @@ class Machine(Node):
         self.store_capacity = store_capacity
         self.work_capacity = work_capacity
         self.item_to_process={}
+        self.item_token_put={}
        
      
         self.stats = {
@@ -229,7 +219,18 @@ class Machine(Node):
     
    
 
-    def _push_item(self, item, out_edge):
+    def _push_item(self, out_edge):
+        """
+        It picks a processed item from the store and pushes it to the specified out_edge.
+        The out_edge can be a ConveyorBelt or Buffer.
+        Args:
+            out_edge (Edge Object): The edge to which the item will be pushed.
+
+
+        """
+        get_token= self.inbuiltstore.reserve_get()
+        yield get_token
+        item = self.inbuiltstore.get(get_token)
         if out_edge.__class__.__name__ == "ConveyorBelt":                 
                 put_token = out_edge.reserve_put()
                 pe = yield put_token
@@ -282,11 +283,9 @@ class Machine(Node):
             elif self.state == "IDLE_STATE":
                 print(f"T={self.env.now:.2f}: {self.id} worker{i} is in IDLE_STATE")
                 self.update_state("BLOCKED_STATE", self.env.now)
-                P1 = self.inbuiltstore.reserve_put()
-                yield P1
+                self.item_token_put[i] =  self.inbuiltstore.reserve_put()
+                yield self.item_token_put[i] 
                 self.update_state("IDLE_STATE", self.env.now)
-                print(f"T={self.env.now:.2f}: {self.id} worker{i} reserved put slot")
-
                 # Wait for the next item to process
                 edgeindex_to_get = self._get_in_edge_index()
                 in_edge = self.in_edges[edgeindex_to_get]
@@ -304,9 +303,14 @@ class Machine(Node):
                  print(f"T={self.env.now:.2f}: {self.id} worker{i} processed item: {self.item_to_process[i].id}")
                  out_edge_index_to_put = self._get_out_edge_index()
                  outedge_to_put = self.out_edges[out_edge_index_to_put]
-                 self.update_state("BLOCKED_STATE", self.env.now)
-                 yield self.env.process(self._push_item(self.item_to_process[i], outedge_to_put))
+                
+                 self.inbuiltstore.put(self.item_token_put[i], self.item_to_process[i])
                  self.update_state("IDLE_STATE", self.env.now)
+                 self.item_to_process[i] = None  # Clear the processed item
+                 # process items and put in inbuiltstore. 
+                 # Pull_items will take the items and push it to next component.
+                 self.env.process(self._push_item(outedge_to_put))
+                 
             else:
                 raise ValueError(f"Invalid state: {self.state} for worker {i} in Machine {self.id}")    
             

@@ -1,6 +1,5 @@
-from typing import Generator, Optional, Union, Any
 import simpy
-import random
+
 
 
 class Node:
@@ -24,7 +23,7 @@ class Node:
         ValueError: If `node_setup_time` input is invalid.
     """
     
-    def __init__(self,env,id, in_edges: Optional[list] = None, out_edges: Optional[list] = None, node_setup_time: Union[int, float,] = 0,):
+    def __init__(self,env,id, in_edges = None, out_edges = None, node_setup_time= 0,):
    
         # Type checks
         if not isinstance(env, simpy.Environment):
@@ -39,7 +38,10 @@ class Node:
         self.in_edges = in_edges # List of input edges connected to the node.
         self.out_edges = out_edges #List of output edges connected to the node.
 
-        if isinstance(node_setup_time, Generator):
+        if callable(node_setup_time):
+            self.node_setup_time = node_setup_time
+        elif hasattr(node_setup_time, '__next__'):
+            # It's a generator
             self.node_setup_time = node_setup_time
         elif isinstance(node_setup_time, (int, float)):
             self.node_setup_time = node_setup_time
@@ -49,7 +51,8 @@ class Node:
             raise ValueError(
                 "Invalid node_setup_time value. Provide a None constant ( int or float), generator, or a callable."
             )
-    
+        
+       
     def get_delay(self,delay):
         """
         Returns value based on the type of parameter `delay` provided.
