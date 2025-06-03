@@ -67,9 +67,26 @@ class Edge:
     
 
     def connect(self, src: Node, dest: Node, reconnect: bool = False):
+        """
+        Connects this edge to a source node and a destination node.
+
+        This method checks that both `src` and `dest` are valid Node objects and that the edge is not already connected,
+        unless `reconnect` is set to True. It also registers this edge in the `out_edges` of the source node and the
+        `in_edges` of the destination node.
+
+        Args:
+            src (Node): The source node to connect.
+            dest (Node): The destination node to connect.
+            reconnect (bool, optional): If True, allows reconnection even if the edge is already connected. Defaults to False.
+
+        Raises:
+            ValueError: If the edge is already connected and `reconnect` is False.
+            ValueError: If `src` or `dest` is not a valid Node instance.
+        """
+        
         if not reconnect:
             if self.src_node or self.dest_node:
-                raise ValueError(f"Edge '{self.id}' is already connected source or destination node..")
+                raise ValueError(f"Edge '{self.id}' is already connected source or destination node.")
             if not isinstance(src, Node):
                 raise ValueError(f"Source '{src}' is not a valid Node.")
             if not isinstance(dest, Node):
@@ -77,27 +94,6 @@ class Edge:
 
         self.src_node = src
         self.dest_node = dest
-
-        # Check source constraints
-        print(f"Connecting edge '{self.id}' from '{src.id}' to '{dest.id}'")
-        #print(self.dest_node.__class__.__name__)
-        if  self.dest_node.__class__.__name__ not in ["Split","Source","Machine"]:
-            # Check if out_edges is None or already configured
-            
-            assert self.src_node.out_edges is None or self in self.src_node.out_edges, (
-                f"{self.src_node} is already connected to another edge"
-            )
-        else:
-            # Allow up to 2 connections for Split, accounting for self already being present
-            assert self.src_node.out_edges is None or self.src_node.out_edges is not None and len(self.src_node.out_edges) < 2 or self in self.src_node.out_edges, (
-                f"{self.src_node} already has more than 2 edges connected"
-            )
-
-        if self.dest_node.__class__.__name__ not in ["Joint","Machine"]:
-          #print(self.src_node.node_type)
-          assert self.dest_node.in_edges is None or self in self.dest_node.in_edges, (f"{self.dest_node.id, self.id} is already connected to {[i.id for i in self.dest_node.in_edges]}")
-        else:
-          assert self.dest_node.in_edges is None or self.dest_node.in_edges is not None and len(self.dest_node.in_edges) <2 or self in self.dest_node.in_edges,  (f"{self.dest_node} already has more than 2 edges connected")
 
         # Register edge to nodes
         if src.out_edges is None:

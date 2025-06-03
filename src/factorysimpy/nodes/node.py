@@ -78,7 +78,7 @@ class Node:
             return delay
     
 
-    def add_in_edges(self, edge: Any):
+    def add_in_edges(self, edge):
         #Override this method in subclasses.
         raise NotImplementedError("add_in_edges must be implemented in a subclass.")
 
