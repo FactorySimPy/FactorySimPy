@@ -1,52 +1,44 @@
 # @title Edge
 
-from typing import Optional, Union, Generator
-import random
+
 import simpy
 from factorysimpy.nodes.node import Node
 
 
-
-
-
 class Edge:
     """
-    Edge class is used to connect a source node  to a destination node.
-      
-    Attributes
-    ----------
+    Edge represents the passive components. It used to connect two nodes and helps to move items between them.
+    It is the base class used to model buffers, conveyors, fleets, etc in manufacturing system.
 
-        state : str
-            The current state of the edge.
-        src_node : Node
-            The source node connected to this edge.
-        dest_node : Node
-            The destination node connected to this edge.
-        delay : int | float | Generator
-            Delay after which the item becomes available;
-            Delay as a constant, a generator, or a range (tuple).
+    Parameters:
+        state (str): The current state of the edge.
+        src_node (Node): The source node connected to this edge.
+        dest_node (Node): The destination node connected to this edge.
+        delay (int, float, Generator, or callable): Delay after which the item becomes available. It Can be
+        
+            - int or float: Used as a constant delay.
+            - Generator: A generator function yielding delay values.
+            - Callable: A function that returns a delay (int or float).
 
-    Methods
-    -------
-        connect(self, src, dest, reconnect=False):
-            Connects the edge to a source and destination node.
-    Raises
-    ------
-        ValueError
-            If the edge is already connected to a source or destination node and reconnect is False.
-            If the source or destination nodes are not valid Node instances.
-            If the source node is not a Split or the destination node is not a Joint.
-            If the edge is already connected to the source or destination node.
-      """
+    Raises:
+        TypeError: If the type of `env` or `id` is incorrect.
+        ValueError: If the `delay` parameter is not a valid type (int, float, generator, or callable).
+        ValueError: If the edge is already connected to a source or destination node and reconnect is False.
+        ValueError: If the source or destination nodes are not valid Node instances.
+       
+        
+
+    
+    """
     
 
 
-    def __init__(self, env: simpy.Environment, id: str, delay: Union[int, float, tuple, Generator] = 0):
+    def __init__(self, env, id, delay = 0):
         self.env = env
         self.id = id
-        self.state: Optional[str] = None
-        self.src_node: Optional[Node] = None
-        self.dest_node: Optional[Node] = None
+        self.state = None
+        self.src_node = None
+        self.dest_node = None
         
          # Type checks
         if not isinstance(env, simpy.Environment):
@@ -57,35 +49,19 @@ class Edge:
 
 
         # Configure delay
-        if isinstance(delay, Generator):
+        if callable(delay):
             self.delay = delay
-        elif isinstance(delay, tuple) and len(delay) == 2:
-            self.delay = self.random_delay_generator(delay)
+        elif hasattr(delay, '__next__'):
+            self.delay = delay
         elif isinstance(delay, (int, float)):
             self.delay = delay
+    
         else:
             raise ValueError(
-                "Invalid delay value. Provide a constant, generator, or a (min, max) tuple."
+                "Invalid delay value. Provide a constant, generator, or a python callable."
             )
 
-    def random_delay_generator(self, delay_range: tuple) -> Generator:
-        """
-        Yields random delays within a specified range.
-
-        Parameters
-        ----------
-        delay_range : tuple
-            
-        A (min, max) tuple for random delay values.
-
-        Yields
-        ------
-        int | float
-            
-        A random delay time in the given range.
-        """
-        while True:
-            yield random.randint(*delay_range)
+   
 
         
     
