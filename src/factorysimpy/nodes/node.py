@@ -77,6 +77,24 @@ class Node:
             # int or float
             return delay
     
+    def update_state(self, new_state: str, current_time: float):
+        """
+        Update node state and track the time spent in the previous state.
+        
+        Args:
+            new_state (str): The new state to transition to. Must be one of "SETUP_STATE", "GENERATING_STATE", "BLOCKED_STATE".
+            current_time (float): The current simulation time.
+
+        """
+        
+        if self.state is not None and self.stats["last_state_change_time"] is not None:
+            elapsed = current_time - self.stats["last_state_change_time"]
+
+            self.stats["total_time_spent_in_states"][self.state] = (
+                self.stats["total_time_spent_in_states"].get(self.state, 0.0) + elapsed
+            )
+        self.state = new_state
+        self.stats["last_state_change_time"] = current_time
 
     def add_in_edges(self, edge):
         #Override this method in subclasses.

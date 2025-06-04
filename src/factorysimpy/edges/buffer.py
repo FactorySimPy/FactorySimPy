@@ -1,7 +1,8 @@
 # @title buffer
-from typing import Generator
-import simpy
+
+
 from factorysimpy.edges.edge import Edge
+from factorysimpy.base.gen_reservable_priority_req_store import GenReservablePriorityReqStore  # Import your class
 from factorysimpy.base.reservable_priority_req_store import ReservablePriorityReqStore  # Import your class
 
 
@@ -11,43 +12,67 @@ from factorysimpy.base.reservable_priority_req_store import ReservablePriorityRe
 class Buffer(Edge):
     """
     Buffer class representing a FIFO queue.
-    Inherits from the Edge class.
-    This buffer can have multiple input edges and a single output edge.
-    
-    Attributes
-    ----------
-   
-        store_capacity : int
-            The capacity of the buffer's internal storage.
-        delay : generator function or int
-            A generator for random delays or processing times.
+    Inherits from the Edge class. This buffer can have a single input edge and a single output edge.
 
-    Methods
-    -------
+    Attributes:
+        state (str): The current state of the buffer.
+        store_capacity (int): The capacity of the buffer's internal storage.
+        mode (str): Mode of operation for the buffer, It can be
+            - "FIFO" (First In First Out) 
+            - "LIFO" (Last In First Out).
+        delay (int, float, Generator, or callable): Delay after which the item becomes available. It Can be
+        
+            - int or float: Used as a constant delay.
+            - Generator: A generator function yielding delay values.
+            - Callable: A function that returns a delay (int or float).
+
     
-        behaviour(self):
-            Simulates the buffer behavior, checking the state of the buffer and processing items.
-    Raises
-    -------
-        AssertionError
-            If the buffer does not have at least one source node or one destination node.
+
+    Raises:
+        AssertionError: If the buffer does not have at least one source node or one destination node.
     """
 
-    def __init__(self, env, id, store_capacity=10, delay=0):
-          super().__init__( env, id,delay)
-         
+    def __init__(self, env, id,  store_capacity=10, delay=0,  mode="FIFO"):
+          super().__init__( env, id,)
+          self.state = "IDLE_STATE"
+          self.mode=mode
           self.store_capacity =  store_capacity
           self.instorecapacity = int(self.store_capacity/2)
+          self.stats = {
+            "last_state_change_time": None,
+            "total_item_queued": 0,
+            "total_time_spent_in_states":{"IDLE_STATE": 0.0, "RELEASING_STATE": 0.0, "BLOCKED_STATE": 0.0}
+        }
+          
+         
+          if self.mode not in ["FIFO", "LIFO"]:
+            raise ValueError("Invalid mode. Choose either 'FIFO' or 'LIFO'.")
+          
           self.inbuiltstore = ReservablePriorityReqStore(env, capacity=self.instorecapacity)
-          self.out_store = ReservablePriorityReqStore(env, capacity=self.store_capacity-self.instorecapacity)
-          self.state = "Idle"
-          self.edge_type = "Buffer"
+          if mode == "FIFO":
+             self.out_store = ReservablePriorityReqStore(env, capacity=self.store_capacity-self.instorecapacity)
+          elif mode == "LIFO":
+             self.out_store = GenReservablePriorityReqStore(env, capacity=self.store_capacity-self.instorecapacity)
+          else:
+             raise ValueError("Invalid mode. Choose either 'FIFO' or 'LIFO'.")
+    
+          
+          if callable(delay):
+            self.delay = delay
+          elif hasattr(delay, '__next__'):
+            self.delay = delay
+          elif isinstance(delay, (int, float)):
+            self.delay = delay
+    
+          else:
+            raise ValueError("Invalid delay value. Provide a constant, generator, or a python callable.")
+            
           self.behavior =  self.env.process(self.behaviour())
 
-
+        
     
 
-
+    
 
     def can_put(self):
         """
@@ -58,7 +83,7 @@ class Buffer(Edge):
         bool
             True if the buffer can accept an item, False otherwise.
         """
-        return len(self.inbuiltstore.items) < self.instorecapacity 
+        return len(self.inbuiltstore.items) < (self.instorecapacity -len(self.inbuiltstore.reservations_put))
     
     def can_get(self):
         """
@@ -69,7 +94,7 @@ class Buffer(Edge):
         bool
             True if the buffer can give an item, False otherwise.
         """
-        return len(self.out_store.items) < self.store_capacity-self.instorecapacity 
+        return len(self.out_store.items) < ((self.store_capacity-self.instorecapacity)- -len(self.inbuiltstore.reservations_get))
     
     def behaviour(self):
       """
@@ -80,36 +105,40 @@ class Buffer(Edge):
 
       
       while True: 
-        if self.inbuiltstore.items :
-          state = "active"
+        if self.inbuiltstore.items or self.out_store.items: 
+          self.update_state("RELEASING_STATE", self.env.now)
+          print(f"T={self.env.now:.2f}: {self.id } is releasing an item from its in store")
 
         else:
-          state = "empty"
+          
+          self.update_state("EMPTY_STATE", self.env.now)
           print(f"T={self.env.now:.2f}: {self.id } is waiting to get an item ")
 
-
-        get_event = self.inbuiltstore.reserve_get()      
-        yield get_event
-        print(f"T={self.env.now:.2f}: {self.id } is getting an item from its in store")
-      
+        if self.state=="RELEASING_STATE":
+            get_event = self.inbuiltstore.reserve_get()      
+            yield get_event
+            print(f"T={self.env.now:.2f}: {self.id } is getting an item from its in store")
         
-        put_event = self.out_store.reserve_put()
-        yield put_event
-        print(f"T={self.env.now:.2f}: {self.id } is reserving an item in its out store")
-       
-        #yield self.env.all_of([put_event,get_event]) 
-       
+            
+            put_event = self.out_store.reserve_put()
+            yield put_event
+            print(f"T={self.env.now:.2f}: {self.id } is reserving an item in its out store")
         
-        print(f"T={self.env.now:.2f}: {self.id } is  yielded an item ")
+            #yield self.env.all_of([put_event,get_event]) 
+        
+            
+               
 
-        self.delay_time = next(self.delay) if isinstance(self.delay, Generator) else self.delay         
-        yield self.env.timeout(self.delay_time)
+            next_delay = self.get_delay(self.delay)
+            if not isinstance(next_delay, (int, float)):
+                raise AssertionError("delay returns an valid value. It should be int or float")
+            yield self.env.timeout(next_delay)
 
-        item = self.inbuiltstore.get(get_event)
+            item = self.inbuiltstore.get(get_event)
 
-        self.out_store.put(put_event, item)
-        print(f"T={self.env.now:.2f}: {self.id } is putting item {item.id} into its out store")
-        #print(f"T={self.env.now:.2f}: {self.id } is putting item {item.id} into its out store")
+            self.out_store.put(put_event, item)
+            print(f"T={self.env.now:.2f}: {self.id } is putting item {item.id} into its out store")
+            #print(f"T={self.env.now:.2f}: {self.id } is putting item {item.id} into its out store")
         
 
 

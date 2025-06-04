@@ -14,11 +14,7 @@ class Edge:
         state (str): The current state of the edge.
         src_node (Node): The source node connected to this edge.
         dest_node (Node): The destination node connected to this edge.
-        delay (int, float, Generator, or callable): Delay after which the item becomes available. It Can be
-        
-            - int or float: Used as a constant delay.
-            - Generator: A generator function yielding delay values.
-            - Callable: A function that returns a delay (int or float).
+       
 
     Raises:
         TypeError: If the type of `env` or `id` is incorrect.
@@ -33,7 +29,7 @@ class Edge:
     
 
 
-    def __init__(self, env, id, delay = 0):
+    def __init__(self, env, id):
         self.env = env
         self.id = id
         self.state = None
@@ -48,23 +44,52 @@ class Edge:
         
 
 
-        # Configure delay
-        if callable(delay):
-            self.delay = delay
-        elif hasattr(delay, '__next__'):
-            self.delay = delay
-        elif isinstance(delay, (int, float)):
-            self.delay = delay
-    
-        else:
-            raise ValueError(
-                "Invalid delay value. Provide a constant, generator, or a python callable."
-            )
+        
 
    
+    def get_delay(self,delay):
+        """
+        Returns value based on the type of parameter `delay` provided.
 
+        Args:
+             delay (int, float, generator, or callable): The delay time, which can be:
+             
+                - int or float: Used as a constant delay.
+                - generator: A generator instance yielding delay values.
+                - callable: A function that returns a delay values.
+
+        Returns:
+               Returns a constant delay if `delay` is an int or float, a value yielded  if `delay` is a generator, or the value returned from a Callable function if `delay` is callable.
+        """
+        if hasattr(delay, '__next__'):
+            # Generator instance
+            return next(delay)
+        elif callable(delay):
+            # Function
+            return delay()
+        else:
+            # int or float
+            return delay
+
+
+    def update_state(self, new_state: str, current_time: float):
+        """
+        Update node state and track the time spent in the previous state.
         
-    
+        Args:
+            new_state (str): The new state to transition to. Must be one of "SETUP_STATE", "GENERATING_STATE", "BLOCKED_STATE".
+            current_time (float): The current simulation time.
+
+        """
+        
+        if self.state is not None and self.stats["last_state_change_time"] is not None:
+            elapsed = current_time - self.stats["last_state_change_time"]
+
+            self.stats["total_time_spent_in_states"][self.state] = (
+                self.stats["total_time_spent_in_states"].get(self.state, 0.0) + elapsed
+            )    
+        self.state = new_state
+        self.stats["last_state_change_time"] = current_time
 
     def connect(self, src: Node, dest: Node, reconnect: bool = False):
         """

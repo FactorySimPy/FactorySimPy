@@ -231,7 +231,7 @@ class ReservablePriorityReqFilterStore(FilterStore):
         delta_position = len(self.reserved_events)
         #shifting the item
         item_to_shift = self.items.pop(event_in_index)
-        self.items.insert(delta_position, item_to_shift)
+        self.items.insert(delta_position-1, item_to_shift)
         #deleting the event
         self.reserved_events.pop(event_in_index)#if t is removed, then a waiting event can be succeeded, if any
 
