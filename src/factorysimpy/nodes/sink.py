@@ -14,30 +14,17 @@ class Sink(Node):
    
 
 
-    Methods
-    -------
-        add_in_edges(self, edge):
-            Adds an input edge to the sink.
-        add_out_edges(self, edge):
-            Raises an error since sinks do not have output edges.
-        behaviour(self):
-            Sink behavior that processes items from the input edges.
+    
 
-    Raises
-    -------
-        ValueError
-            If the sink already has the maximum number of input edges or tries to add an output edge.
-        AssertionError
-            If the sink does not have at least 1 input edge or has an output edge in the behaviour function.  
+    Raises :
+        
+        AssertionError: If the sink does not have at least 1 input edge or has an output edge .  
         """
 
     def __init__(self, env, id,in_edges=None,  node_setup_time=0):
         
           super().__init__( env, id, in_edges, None,   node_setup_time)
           self.state = "None"
-          self.store_level_low = self.env.event()  # Event triggered when store is empty
-       
-
           self.out_edges = None
           self.in_edges = in_edges
           
@@ -84,7 +71,7 @@ class Sink(Node):
         #yield self.env.timeout(1)
         #print("sink")
 
-        self.state ="COLLECTING_STATE"
+        self.update("COLLECTING_STATE",self.env.now)
         
         if isinstance(self.in_edges[0], ConveyorBelt):
             storetoget = self.in_edges[0]

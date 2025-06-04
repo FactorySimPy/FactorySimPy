@@ -11,7 +11,13 @@ class Edge:
     It is the base class used to model buffers, conveyors, fleets, etc in manufacturing system.
 
     Parameters:
-        state (str): The current state of the edge.
+        id (str): Identifier for the edge
+        node_setup_time (None, int, float, Callable, or Generator, optional): Initial setup time for the node. Can be:
+                
+            - None: Used when the setup time depends on parameters like current state or time.
+            - int or float: Used as a constant delay.
+            - Callable: A function that returns a delay (int or float).
+            - Generator: A generator function yielding delay values over time.
         src_node (Node): The source node connected to this edge.
         dest_node (Node): The destination node connected to this edge.
        
@@ -32,7 +38,6 @@ class Edge:
     def __init__(self, env, id):
         self.env = env
         self.id = id
-        self.state = None
         self.src_node = None
         self.dest_node = None
         
