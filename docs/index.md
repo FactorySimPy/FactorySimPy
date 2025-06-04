@@ -2,7 +2,7 @@
 # Discrete event Simulation for Manufacturing
 ## FactorySimPy
 <p style="text-align: justify;">
-FactorySimPy is an open-source, light-weight Python library for modeling and discrete-event simulation (DES) of manufacturing systems. It provides a well-defined set of canonical components commonly found in a manufacturing setting—such as machines with configurable processing delays, joints that packs/joins items from multiple inputs, buffers that operate as FIFO queues, etc. These components come with pre-built behavior that is easily configurable, enabling users to rapidly construct simulation models. To use the library, users define the structure of the system and specify the parameters for each component. The modular design allows users to extend functionality by subclassing existing components, making the library extensible and reusable. Built on top of SimPy 4, FactorySimPy supports both "as fast as possible" and real-time simulation modes. It is currently designed for discrete-item flow systems where the model structure remains fixed during the simulation. Future development plans include extending support to material flows.
+FactorySimPy is an open-source, light-weight Python library for modeling and discrete-event simulation (DES) of manufacturing systems. It provides a well-defined set of canonical components commonly found in a manufacturing setting—such as machines with configurable processing delays, joints that packs/joins items from multiple inputs, buffers that operate as queues holding items that wait, etc. These components come with pre-built behavior that is easily configurable, enabling users to rapidly construct simulation models. To use the library, users define the structure of the system and specify the parameters for each component. The modular design allows users to extend functionality by subclassing existing components, making the library extensible and reusable. Built on top of SimPy 4, FactorySimPy supports both "as fast as possible" and real-time simulation modes. It is currently designed for discrete-item flow systems where the model structure remains fixed during the simulation. Future development plans include extending support to material flows.
 
 </p>
 
@@ -56,7 +56,7 @@ An example model with 2 nodes and a directed edge
 
 
 ## **Simple Example**
-**A simple example simulating a machine that gets an items and pushes it to one of its out going edges after processing it**
+**A simple example simulating a machine that gets an items from a buffer and pushes it to one of its out going edges after processing it**
 
 ```python 
 
@@ -79,13 +79,13 @@ def distribution_generator(loc=4.0, scale=5.0, size=1):
 
 # Initializing nodes
 src= Source(env, id="Source-1",  inter_arrival_time=distribution_generator(),blocking=False,out_edge_selection="FIRST" )
-m1 = Machine(env, id="M1",work_capacity=4,store_capacity=5, processing_delay=distribution_generator(),in_edge_selection="FIRST",out_edge_selection="FIRST")
+m1 = Machine(env, id="M1",work_capacity=4,store_capacity=5, processing_delay=distribution_generator(),                               in_edge_selection="FIRST",out_edge_selection="FIRST")
 
 sink= Sink(env, id="Sink-1" )
 
 # Initializing edges
-buffer1 = Buffer(env, id="Buffer-1", store_capacity=4, delay=0.5)
-buffer2 = Buffer(env, id="Buffer-2", store_capacity=4, delay=0.5)
+buffer1 = Buffer(env, id="Buffer-1", store_capacity=4, delay=0.5, mode = "FIFO")
+buffer2 = Buffer(env, id="Buffer-2", store_capacity=4, delay=0.5, mode = "FIFO")
 
 # Adding connections
 buffer1.connect(src,m1)
