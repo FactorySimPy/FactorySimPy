@@ -30,7 +30,7 @@ class Buffer(Edge):
             The Buffer is a type of edge represents components that holds the items that are waiting to be accepted by the destination node. Items that are added in buffer becomes available
             for use after `delay` amount of time. It operates in two modes- 
             1. `FIFO`: It prioritizes items in the order they were added, with the oldest items being available for the destination node first.
-            2.  `LIFO`: It prioritizes items in the reverse order of their arrival, items that newly added are available to use by the destination node first
+            2. `LIFO`: It prioritizes items in the reverse order of their arrival, items that newly added are available to use by the destination node first
 
 
     
@@ -39,10 +39,10 @@ class Buffer(Edge):
         AssertionError: If the buffer does not have at least one source node or one destination node.
 
     Output performance metrics:
-        The key performance metrics of the buffer edge is captured in `stats` attribute (dict) during a simulation run. 
+        The key performance metrics of the buffer edge are captured in the `stats` attribute (dict) during a simulation run. 
             
             last_state_change_time                      : Time when the state was last changed.
-            time_averaged_num_of_items_in_buffer        : time averaged number of items available in buffer.
+            time_averaged_num_of_items_in_buffer        : Time-averaged number of items available in the buffer.
             total_time_spent_in_states                  : Dictionary with total time spent in each state.
     """
 
