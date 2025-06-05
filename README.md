@@ -57,8 +57,8 @@ FactorySimPy is a light-weight Python library for modeling and discrete-event si
 | Class | Purpose | Key parameters |
 |-------|---------|----------------|
 | `Node`   | base class for active entities | `id` , `node_set_up_time=0`, `in_edges=None`,`out_edges=None`  |
-| `Source`  | Generates new items | `inter_arrival_time=0` , `blocking=False` , `criterion_to_put=first_available`   |
-| `Machine` | Processes/modifies items.| `work_capacity=1`, `store_capacity=1`, `processing_delay=0`|
+| `Source`  | Generates new items | `inter_arrival_time=0` , `blocking=False` , `out_edge_selection="RANDOM"`   |
+| `Machine` | Processes/modifies items.| `work_capacity=1`, `store_capacity=1`, `processing_delay=0`, `out_edge_selection="ROUND_ROBIN"` , `in_edge_selection="FIRST"`|
 | `Sink`    | Collects / destroys items.
 | `Split`   | Routes items to multiple outputs (probability or rule). | `rule` |
 | `Joint`    | Merges input streams into one. 
@@ -68,7 +68,7 @@ FactorySimPy is a light-weight Python library for modeling and discrete-event si
 | Class | Purpose | Key parameters |
 |-------|---------|----------------|
 | `Edge`   | base class for passive entities | `name` ,`delay=0`, `src_node=None`,`dest_edges=None`  |
-| `Buffer`  | Finite‑capacity FIFO queue. | `store_capacity`|
+| `Buffer`  | Finite‑capacity queue. | `store_capacity`, mode = "FIFO"|
 | `Conveyor` | slotted conveyor belt; optional blocking slots. | `name`,`belt_capacity`, `time_per_slot`, `accumulating=False` |
 | `Fleet` | Pool of AGVs/robots moving items. | 
 
