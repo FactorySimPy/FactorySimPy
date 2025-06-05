@@ -9,47 +9,36 @@ class Node:
 
     Parameters:
         id (str): Identifier for the node.
-        node_setup_time (None, int, float, Callable, or Generator, optional): Initial setup time for the node. Can be:
-                
-            - None: Used when the setup time depends on parameters like current state or time.
-            - int or float: Used as a constant delay.
-            - Callable: A function that returns a delay (int or float).
-            - Generator: A generator function yielding delay values over time.  
-        in_edges (list, optional): List of input edges connected to the node. Default is None.
-        out_edges (list, optional): List of output edges connected to the node. Default is None.
+        node_setup_time ( int, or float, optional): Initial setup time for the node. Can be:
+        
+            - int or float: Used as a constant delay. 
+        in_edges (list, optional): List of input edges connected to the node. 
+        out_edges (list, optional): List of output edges connected to the node. 
 
     Raises:
         TypeError: If the type of `env` or `id` is incorrect.
         ValueError: If `node_setup_time` input is invalid.
     """
     
-    def __init__(self,env,id, in_edges = None, out_edges = None, node_setup_time= 0,):
+    def __init__(self,env,id, in_edges = None, out_edges = None, node_setup_time= 0):
    
         # Type checks
         if not isinstance(env, simpy.Environment):
             raise TypeError("env must be a simpy.Environment instance")
         if not isinstance(id, str):
             raise TypeError("name must be a string")
-        
-
         self.env = env
         self.id = id # Identifier for the node.
         self.node_setup_time = node_setup_time # Time taken to set up the node.
         self.in_edges = in_edges # List of input edges connected to the node.
         self.out_edges = out_edges #List of output edges connected to the node.
 
-        if callable(node_setup_time):
+       
+        if isinstance(node_setup_time, (int, float)):
             self.node_setup_time = node_setup_time
-        elif hasattr(node_setup_time, '__next__'):
-            # It's a generator
-            self.node_setup_time = node_setup_time
-        elif isinstance(node_setup_time, (int, float)):
-            self.node_setup_time = node_setup_time
-        elif node_setup_time is None:
-            self.node_setup_time = None
         else:
             raise ValueError(
-                "Invalid node_setup_time value. Provide a None constant ( int or float), generator, or a callable."
+                "Invalid node_setup_time value. Provide constant ( int or float)."
             )
         
        
