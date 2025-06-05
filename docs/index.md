@@ -45,8 +45,6 @@ A simple example simulating a machine that gets an item from a buffer and pushes
 
 ```python 
 
-
-
 import factorysimpy
 from factorysimpy.nodes.machine import Machine
 from factorysimpy.edges.buffer import Buffer

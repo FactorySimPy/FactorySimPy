@@ -118,7 +118,7 @@ The Machine component reports the following key metrics:
  A Sink is a terminal node that collects flow items at the end. Once an item enters the Sink, it is considered to have exited the system and cannot be retrieved or processed further. This sink can have multiple input edges and no output edges. It has a unique identifier. It only has a single state `COLLECTING_STATE`.
 </p>
 
-## Edge
+## Edges
 
 <p style="text-align: justify;">
 Edges represent passive elements in the system. This is the basis for the components like Buffer, Conveyor, Fleet, etc. Every edge has a unique identifier named `id` and maintains references to a source node `src_node` and a destination node `dest_node`. Edge acts as a conntction between these two nodes and facilitates the movement of items between the nodes. Every edge has a `edge_setup_time` that can be specified as a constant delay or a reference to a generator function or a normal function that represents an arbitrary distribution.

@@ -48,6 +48,7 @@ nav:
 
   
   - About:       
-    - Authors: about.md
-    - License: license.md
+    - Authors: authors.md
     - Changelog: changelog.md
+    - License: license.md
+    
