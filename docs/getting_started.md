@@ -89,7 +89,8 @@ FactorySimPy/
 │  ├─ nodes/     # Processor, Source, Sink, Split, Join
 │  ├─ edges/     # Buffer, Conveyor, Fleet
 │  ├─ base/      # SimPy extensions
-│  ├─ helper/    # Other necessary classes like Item
+│  ├─ helper/    # Other necessary classes like Item, 
+│  └─ utils/     # Other utility functions
 ├─ docs/
 │  ├─ index.md
 │  └─ examples/

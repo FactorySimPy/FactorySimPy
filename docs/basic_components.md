@@ -1,31 +1,31 @@
 # Basic Components
 
-<p style="text-align: justify;">
+
 Node, Edge and Item are the 3 basic component types in the library. All the other components are derived from these basic types.  Nodes are the active, static elements in the system and are responsible for operations such as processing, splitting, or combining items. Each node maintains a list of in_edges and out_edges, which are references to edge objects that connect it to other nodes. Other parameters of Nodes are id (an unique name) and node_setup_time (initial delay in each node, which can be a constant or an arbitrary  distribution that is specifies by pass the reference to a generator funtion). Common node types include Machine, Split, Joint, Source, and Sink. Source can be used to generate items that flow in the system. Machines are the entities that modifies/processes an item. To multiplex the items that flow in the system, Splits can be used and to pack/join items from different incoming edges a Joint can be used. Sink is the terminal node in the system and the items that enter this node cannot be retrieved.
-</p>
 
-<p style="text-align: justify;">
+
+
 Edges are passive components that connect exactly two nodes(src_node and dest_node) and helps in transfering items between them. Edges are directed. Each edge has parameter capacity and methods like can_put, reserve_put, put, can_get, reserve_get, and get to control item movement. Specific types of edges include Buffer, Conveyor, and Fleet. Buffers act as FIFO queues with a defined delay. Conveyors move items between nodes while preserving order and support both discrete (slotted belts) and continuous motion. Fleets represent systems like warehouse robots or human operators that transport items between nodes without preserving order.
-</p>
 
 
 
-<!-- Here, is an example of a model with 3 nodes that are connected using 2 edges. Nodes are of type source, machine and sink and edges are of type conveyor.  -->
 
-## System Description
+
+
+
 
 **Rules for interconnection**
 
-1. Nodes are static entities like machine, source, sink, split, joints, etc.
+1. Nodes are static entities like Machine, Source, Sink, Split, Joints, etc.
 2. Edges are directed and connects one node to another. Conveyor, buffer and fleet are the entities that are of type Edge.
 3. Items are discrete parts that flow in the system through the directed edges from one node to another. 
-3. Each Node has two lists `in_edges` and `out_edges` that points to the references of the edges that comes in and go out of the node
-4. Each Edge stores pointers to a `src_node` and a `dest_node`. An Edge can be used only to connect a single node(`src_node`) to another (or same) node(`dest_node`).
-5. An Edge can have the same node in both `src_node` and `dest_node`. (ie, a node can be connected to itself)
+3. Each Node has two lists `in_edges` and `out_edges` that points to the references of the edges that comes in and go out of the node.
+4. Each Edge stores pointers to a `src_node` and a `dest_node`. An Edge can be used only to connect a node to another or same node.
+5. An Edge can have the same node in both `src_node` and `dest_node`.
 6. Nodes are the active elements whose activites initiates state changes in the system.
-7. Edges are the passive elements and state change occurs due to actions initiated by nodes
-8. To split the output from a `machine` node into two streams, a `Split` must be connected to the `machine` using an Edge.
-9. To join two streams and to feed as input to a `machine` node, a `Joint` must be connected to the `machine` using an Edge
+7. Edges are the passive elements and state change occurs due to actions initiated by nodes.
+8. To split the output from a `Machine` node into two streams, a `Split` must be connected to the `Machine` using an Edge.
+9. To join two streams and to feed as input to a `Machine` node, a `Joint` must be connected to the `Machine` using an Edge.
 
 
 
@@ -51,16 +51,17 @@ Edges are passive components that connect exactly two nodes(src_node and dest_no
 
 ## Nodes 
 
-<p style="text-align: justify;">
+
 Nodes represent active elements in the system. This is a basic type and is the basis for the active components like Machine, Split, Sink, Source, Joint, etc. Every node has a unique identifier named `id` and maintains two lists named `in_edges` and `out_edges`. Every node has a `node_setup_time` that can be specified as a constant delay or a reference to a generator function or a normal function that represents an arbitrary distribution.
-</p>
+
 
 ### Source
 
-<p style="text-align: justify;">
+
 Source is responsible for generating items that enter and flow through the system. 
 There are two variants of sources available:
-</p>
+
+
 **Blocking**: This variant generates an item and attempts to send it to the connected outgoing edge. If the edge is full or unable to accept the item, the source will wait until space becomes available.
 
 **Non-blocking**: This variant generates items, but if the outgoing edge is full or unable to accept the item, the item is immediately discarded rather than waiting.
@@ -114,7 +115,7 @@ The Machine component reports the following key metrics:
 ### Sink
 
 <p style="text-align: justify;">
- A Sink is a terminal node that collects flow items at the end. Once an item enters the Sink, it is considered to have exited the system and cannot be retrieved or processed further. This sink can have multiple input edges and no output edges. It has a unique identifier. It only has a single state `COLLECTING_STATE`
+ A Sink is a terminal node that collects flow items at the end. Once an item enters the Sink, it is considered to have exited the system and cannot be retrieved or processed further. This sink can have multiple input edges and no output edges. It has a unique identifier. It only has a single state `COLLECTING_STATE`.
 </p>
 
 ## Edge
@@ -136,7 +137,7 @@ This helps to remove the bottlenecks that come when the processing delays of nod
 During a simulation run, `src_node` puts an item into the buffer and the item gets available after delay amount of time for the `dest_node`. It operates in two modes- First In First Out(FIFO) or Last In First Out(LIFO). The number of items that a buffer can hold at any time can be specified using the parameter `store_capacity`. Buffer transitions through the following states during simulation- `EMPTY_STATE` AND `RELEASING_STATE`.
 </p>
 **Monitoring and Reporting**
-The Buffer component reports the following key metrics:
+The Machine component reports the following key metrics:
 
 1. time averaged number of items available in buffer.
 2. Time spent in each state 
@@ -171,7 +172,7 @@ During a simulation run, the Conveyor gets an item and as soon as it gets an ite
 
 
 **Monitoring and Reporting**
-The conveyor reports the following key metrics:
+The component reports the following key metrics:
 
 1. Time averaged number of items 
 3. Time spent in each state 

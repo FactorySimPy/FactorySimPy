@@ -34,24 +34,20 @@ markdown_extensions:
 nav:
   - Overview: index.md  
   - Getting Started: getting_started.md
-  - Basic Components: basic_components.md 
-
-
-  - Examples: examples.md
-  - Other features:
-    - Monitoring and Measurement: monitoring.md
-    - Extending Components: extending_components.md
-    - Modeling interrupts: interrupts.md
-    - Enabling real-time simulation: RTsimulation.md     
-  - Supporting classes: 
-      - extendedresources.md  
-      -  reservablepriorityreqstore.md
-      -  priorityreqstore.md
-      -  reservablepriorityreqfilterstore.md
+  - SYSTEM DESCRIPTION:
+    - Basic Components: basic_components.md 
+    - Examples: examples.md
+    - Other features:
+      - Monitoring and Measurement: monitoring.md
+      - Extending Components: extending_components.md
+      - Modeling interrupts: interrupts.md
+      - Enabling real-time simulation: RTsimulation.md     
+  - REFERENCE:
+    - Supporting classes: extendedresources.md  
+    - API Reference: api_ref_main_page.md
 
   
-  - API Reference: api_ref_main_page.md
-
-  
-          
-  - About: about.md
+  - About:       
+    - Authors: about.md
+    - License: license.md
+    - Changelog: changelog.md
