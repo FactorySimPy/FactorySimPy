@@ -121,11 +121,8 @@ FactorySimPy/
 
 ## Documentation
 
+Detailed documentation is available in [FactorySimPy documentation](https://factorysimpy.github.io/FactorySimPy/)
 
-
-```
-https://factorysimpy.github.io/FactorySimPy/
-```
 
 
 ---
