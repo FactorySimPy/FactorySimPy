@@ -50,11 +50,22 @@ class Machine(Node):
                 - callable: A function that returns an edge index.
                 
 
-        
+        Behavior:
+            The machine node represents components that process or modify the items that flow in the simulation model. It can have multiple incoming edges
+            and multiple outgoing edge. Edge from whcih the item comes in and the edge to which processes item is pushed is decided using the method specified
+            in the parameter `in_edge_selection` and `out_edge_selection`. Machine will transition through the states- `SETUP_STATE`, `PROCESSING_STATE`, `IDLE_STATE` AND 
+            `BLOCKED_STATE`. The machine has a blocking behavior and gets blocked when it has `store_capacity` number of items in its store and the out edge is full and 
+            cannot accept the item that is being pushed by the machine
 
         Raises:
             AssertionError: If the Machine has no input or output edges.
+        Output performance metrics:
+        The key performance metrics of the Machine node is captured in `stats` attribute (dict) during a simulation run. 
             
+            last_state_change_time    : Time when the state was last changed.
+            num_item_processed        : Total number of items generated.
+            total_time_spent_in_states: Dictionary with total time spent in each state.
+                
     """
 
     def __init__(self, env, id, in_edges=None, out_edges=None,node_setup_time=0, work_capacity=1, store_capacity=1 ,processing_delay=0,in_edge_selection="FIRST",out_edge_selection="FIRST"):
