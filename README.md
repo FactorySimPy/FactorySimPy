@@ -45,7 +45,34 @@ FactorySimPy is a light-weight Python library for modeling and discrete-event si
 
 ## Quick‑start — A minimum working example
 
-[View a minimum working example](examples/quick_start.py)
+```python
+import factorysimpy
+from factorysimpy.nodes.machine import Machine
+from factorysimpy.edges.buffer import Buffer
+from factorysimpy.nodes.source import Source
+from factorysimpy.nodes.sink import Sink
+
+
+#creating an environment
+env = simpy.Environment()
+
+# Initializing nodes
+src= Source(env, id="Source-1",  inter_arrival_time=2, blocking=False,out_edge_selection="RANDOM" )
+m1 = Machine(env, id="M1", work_capacity=4, store_capacity=5, processing_delay=1.3, in_edge_selection="FIRST", out_edge_selection="FIRST")
+sink= Sink(env, id="Sink-1" )
+
+# Initializing edges
+buffer1 = Buffer(env, id="Buffer-1", store_capacity=4, delay=0.5, mode="FIFO")
+buffer2 = Buffer(env, id="Buffer-2", store_capacity=2, delay=0.7, mode ="LIFO")
+
+# Adding connections
+buffer1.connect(src,m1)
+buffer2.connect(m1,sink)
+
+#start simulation
+env.run(until=10)
+
+```
 
 
 
