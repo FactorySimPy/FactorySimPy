@@ -58,10 +58,10 @@ FactorySimPy is a light-weight Python library for modeling and discrete-event si
 |-------|---------|----------------|
 | `Node`   | base class for active entities | `id` , `node_set_up_time=0`, `in_edges=None`,`out_edges=None`  |
 | `Source`  | Generates new items | `inter_arrival_time=0` , `blocking=False` , `out_edge_selection="RANDOM"`   |
-| `Machine` | Processes/modifies items.| `work_capacity=1`, `store_capacity=1`, `processing_delay=0`, `out_edge_selection="ROUND_ROBIN"` , `in_edge_selection="FIRST"`|
+| `Machine` | Processes/modifies items.| `work_capacity=1`, `store_capacity=1`, `processing_delay=0`, `in_edge_selection="FIRST"`,`out_edge_selection="ROUND_ROBIN"`|
 | `Sink`    | Collects / destroys items.
-| `Split`   | Routes items to multiple outputs (probability or rule). | `rule` |
-| `Joint`    | Merges input streams into one. 
+| `Split`   | Routes items to multiple outputs  | `store_capacity=1`, `processing_delay=0`, `in_edge_selection="FIRST" |
+| `Joint`    | Merges input streams into one | `store_capacity=1`, `processing_delay=0`, `out_edge_selection="ROUND_ROBIN"`|
 
 
 ### Edges 
