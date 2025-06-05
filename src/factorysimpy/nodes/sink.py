@@ -27,8 +27,7 @@ class Sink(Node):
           self.out_edges = None
           self.in_edges = in_edges
           
-          self.stats={"num_item_received": 0
-                                 }
+          self.stats={"num_item_received": 0, "total_time_spent_in_state":{"COLLECTING_STATE":0.0}}
 
           # Start behavior process
           self.env.process(self.behaviour())
@@ -70,7 +69,7 @@ class Sink(Node):
         #yield self.env.timeout(1)
         #print("sink")
 
-        self.update("COLLECTING_STATE",self.env.now)
+        #self.update_state("COLLECTING_STATE",self.env.now)
         
         if isinstance(self.in_edges[0], ConveyorBelt):
             storetoget = self.in_edges[0]

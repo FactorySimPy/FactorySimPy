@@ -2,7 +2,7 @@
 
 
 from factorysimpy.edges.edge import Edge
-from factorysimpy.base.gen_reservable_priority_req_store import GenReservablePriorityReqStore  # Import your class
+from factorysimpy.base.gen_reservable_priority_req_filter_store import GenReservablePriorityReqFilterStore  # Import your class
 from factorysimpy.base.reservable_priority_req_store import ReservablePriorityReqStore  # Import your class
 
 
@@ -66,7 +66,7 @@ class Buffer(Edge):
           if mode == "FIFO":
              self.out_store = ReservablePriorityReqStore(env, capacity=self.store_capacity-self.instorecapacity)
           elif mode == "LIFO":
-             self.out_store = GenReservablePriorityReqStore(env, capacity=self.store_capacity-self.instorecapacity)
+             self.out_store = GenReservablePriorityReqFilterStore(env, capacity=self.store_capacity-self.instorecapacity)
           else:
              raise ValueError("Invalid mode. Choose either 'FIFO' or 'LIFO'.")
     
@@ -128,31 +128,31 @@ class Buffer(Edge):
           self.update_state("EMPTY_STATE", self.env.now)
           print(f"T={self.env.now:.2f}: {self.id } is waiting to get an item ")
 
-        if self.state=="RELEASING_STATE":
-            get_event = self.inbuiltstore.reserve_get()      
-            yield get_event
-            print(f"T={self.env.now:.2f}: {self.id } is getting an item from its in store")
         
-            
-            put_event = self.out_store.reserve_put()
-            yield put_event
-            print(f"T={self.env.now:.2f}: {self.id } is reserving an item in its out store")
+        get_event = self.inbuiltstore.reserve_get()      
+        yield get_event
+        print(f"T={self.env.now:.2f}: {self.id } is getting an item from its in store")
+    
         
-            #yield self.env.all_of([put_event,get_event]) 
+        put_event = self.out_store.reserve_put()
+        yield put_event
+        print(f"T={self.env.now:.2f}: {self.id } is reserving an item in its out store")
+    
+        #yield self.env.all_of([put_event,get_event]) 
+    
         
-            
-               
+          
 
-            next_delay = self.get_delay(self.delay)
-            if not isinstance(next_delay, (int, float)):
-                raise AssertionError("delay returns an valid value. It should be int or float")
-            yield self.env.timeout(next_delay)
+        next_delay = self.get_delay(self.delay)
+        if not isinstance(next_delay, (int, float)):
+            raise AssertionError("delay returns an valid value. It should be int or float")
+        yield self.env.timeout(next_delay)
 
-            item = self.inbuiltstore.get(get_event)
+        item = self.inbuiltstore.get(get_event)
 
-            self.out_store.put(put_event, item)
-            print(f"T={self.env.now:.2f}: {self.id } is putting item {item.id} into its out store")
-            #print(f"T={self.env.now:.2f}: {self.id } is putting item {item.id} into its out store")
+        self.out_store.put(put_event, item)
+        print(f"T={self.env.now:.2f}: {self.id } is putting item {item.id} into its out store")
+        #print(f"T={self.env.now:.2f}: {self.id } is putting item {item.id} into its out store")
         
 
 

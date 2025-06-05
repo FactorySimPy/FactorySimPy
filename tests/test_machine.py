@@ -1,44 +1,69 @@
-# tests/test_processor.py
+import pytest
+import simpy, sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
-import unittest
-import simpy
 
 
-class Item:
-    """A class representing an item with a 'ready' flag."""
-    def __init__(self, name):
-        self.name = name
+from factorysimpy.nodes.machine import Machine
+from factorysimpy.edges.buffer import Buffer
+from factorysimpy.helper.item import Item
 
-class TestProcessor(unittest.TestCase):
-    def setUp(self):
-        global input_store
-        self.env = simpy.Environment()
-        input_store = simpy.Store(self.env)  # Define input_store as a global variable
-        self.processor = Processor(self.env, "Processor1", k=2, c=3, delay=1)
-        self.env.process(item_producer(self.env, input_store))
-        self.env.process(item_consumer(self.env, self.processor))
 
-    def test_worker_behavior(self):
-        self.env.run(until=5)
-        self.assertTrue(all(len(worker.users) <= min(self.processor.k, self.processor.c) for worker in self.processor.resource.users))
+@pytest.fixture
+def simple_env():
+    return simpy.Environment()
 
-    def test_resource_utilization(self):
-        self.env.run(until=5)
-        self.assertTrue(all(self.processor.store.itemcount[1] <= min(self.processor.k, self.processor.c) for _ in range(5)))
 
-def item_producer(env, store):
-    """A process to produce items and put them in the store with ready=False."""
-    for i in range(10):
-        yield env.timeout(1)  # Produce items every 1 time unit
-        item = Item(name=f"Item{i}")  # Create an item with 'notready=True'
-        yield store.put(item)
+@pytest.fixture
+def setup_machine_with_buffers(simple_env):
+    # Create input buffers
+    in_buffer1 = Buffer(simple_env, "InBuffer1", store_capacity=1)
+    in_buffer2 = Buffer(simple_env, "InBuffer2", store_capacity=1)
 
-def item_consumer(env, processor):
-    """A process to consume items from the processor's store."""
-    while True:
-        yield env.timeout(2)  # Consume items every 2 time units
-        item = yield processor.store.get()
-        yield processor.store.put(item)
+    # Create output buffer
+    out_buffer = Buffer(simple_env, "OutBuffer", store_capacity=2)
 
-if __name__ == '__main__':
-    unittest.main()
+    # Create machine
+    machine = Machine(
+        env=simple_env,
+        id="M1",
+        in_edges=[in_buffer1, in_buffer2],
+        out_edges=[out_buffer],
+        processing_delay=2,
+        node_setup_time=0,
+        store_capacity=2,
+        work_capacity=2,
+        in_edge_selection="ROUND_ROBIN",
+        out_edge_selection="FIRST"
+    )
+
+    return simple_env, machine, in_buffer1, in_buffer2, out_buffer
+
+
+def test_machine_processes_multiple_inputs(setup_machine_with_buffers):
+    env, machine, in_buffer1, in_buffer2, out_buffer = setup_machine_with_buffers
+
+    # Put items into the input buffers
+    item1 = Item("item1")
+    item2 = Item("item2")
+
+    def put_items():
+        put_token1 = in_buffer1.inbuiltstore.reserve_put()
+        yield put_token1
+        in_buffer1.inbuiltstore.put(put_token1, item1)
+
+        put_token2 = in_buffer2.inbuiltstore.reserve_put()
+        yield put_token2
+        in_buffer2.inbuiltstore.put(put_token2, item2)
+
+    env.process(put_items())
+    env.run(until=20)  # Run long enough for processing to complete
+
+    # Check that output buffer got both items
+    assert len(out_buffer.inbuiltstore.items) == 2
+    output_item_ids = [item.id for item in out_buffer.inbuiltstore.items]
+    assert "item1" in output_item_ids
+    assert "item2" in output_item_ids
+
+    # Check that machine updated its stats
+    assert machine.stats["num_item_processed"] == 2

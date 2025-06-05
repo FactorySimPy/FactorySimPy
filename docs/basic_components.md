@@ -1,33 +1,24 @@
 # Basic Components
 
 
-Node, Edge and Item are the 3 basic component types in the library. All the other components are derived from these basic types.  Nodes are the active, static elements in the system and are responsible for operations such as processing, splitting, or combining items. Each node maintains a list of in_edges and out_edges, which are references to edge objects that connect it to other nodes. Other parameters of Nodes are id (an unique name) and node_setup_time (initial delay in each node, which can be a constant or an arbitrary  distribution that is specifies by pass the reference to a generator funtion). Common node types include Machine, Split, Joint, Source, and Sink. Source can be used to generate items that flow in the system. Machines are the entities that modifies/processes an item. To multiplex the items that flow in the system, Splits can be used and to pack/join items from different incoming edges a Joint can be used. Sink is the terminal node in the system and the items that enter this node cannot be retrieved.
+Node, Edge and Item are the 3 basic component types in the library. All the other components are derived from either Node or Edge. Item represents the entities that flow in the system. Nodes are the active, static elements in the system and are responsible for operations such as processing, splitting, or combining items. Each node maintains a list of in_edges and out_edges, which are references to edge objects that connect it to other nodes. Other parameters of Nodes are id (an unique name) and node_setup_time (initial delay in each node, which can be a constant or an arbitrary  distribution that is specifies by pass the reference to a generator funtion). Common node types include Machine, Split, Joint, Source, and Sink. Source can be used to generate items that flow in the system. Machines are the entities that modifies/processes an item. To multiplex the items that flow in the system, Splits can be used and to pack/join items from different incoming edges a Joint can be used. Sink is the terminal node in the system and the items that enter this node cannot be retrieved.
 
 
-
-Edges are passive components that connect exactly two nodes(src_node and dest_node) and helps in transfering items between them. Edges are directed. Each edge has parameter capacity and methods like can_put, reserve_put, put, can_get, reserve_get, and get to control item movement. Specific types of edges include Buffer, Conveyor, and Fleet. Buffers act as FIFO queues with a defined delay. Conveyors move items between nodes while preserving order and support both discrete (slotted belts) and continuous motion. Fleets represent systems like warehouse robots or human operators that transport items between nodes without preserving order.
-
-
-
-
-
-
+Edges are passive components that connect exactly two nodes(src_node and dest_node) and helps in transfering items between them. Edges are directed. Each edge has parameter capacity and methods like can_put, reserve_put, put, can_get, reserve_get, and get to control item movement. Specific types of edges include Buffer, Conveyor, and Fleet. Buffers act as queues with a defined delay. Conveyors move items between nodes while preserving order and support both discrete (slotted belts) and continuous motion. Fleets represent systems like warehouse robots or human operators that transport items between nodes without preserving order.
 
 
 **Rules for interconnection**
 
-1. Nodes are static entities like Machine, Source, Sink, Split, Joints, etc.
-2. Edges are directed and connects one node to another. Conveyor, buffer and fleet are the entities that are of type Edge.
+1. Node represent static entities that are active. Components like Machine, Source, Sink, Split, Joints, etc are derived from Node class.
+2. Edge is directed and connects one node to another. Conveyor, buffer and fleet are the entities that are of type Edge.
 3. Items are discrete parts that flow in the system through the directed edges from one node to another. 
-3. Each Node has two lists `in_edges` and `out_edges` that points to the references of the edges that comes in and go out of the node.
-4. Each Edge stores pointers to a `src_node` and a `dest_node`. An Edge can be used only to connect a node to another or same node.
-5. An Edge can have the same node in both `src_node` and `dest_node`.
+3. Each Node has two lists `in_edges` and `out_edges` that points to a list with references of the edges that comes in and go out of the node.
+4. Each Edge stores pointers to a `src_node` and a `dest_node`. An Edge can be used only to connect a Node to another Node or same Node.
+5. An Edge can have the same Node in both `src_node` and `dest_node`. Self loops are allowed.
 6. Nodes are the active elements whose activites initiates state changes in the system.
 7. Edges are the passive elements and state change occurs due to actions initiated by nodes.
-8. To split the output from a `Machine` node into two streams, a `Split` must be connected to the `Machine` using an Edge.
-9. To join two streams and to feed as input to a `Machine` node, a `Joint` must be connected to the `Machine` using an Edge.
-
-
+8. To multiplex the output from a `Machine` node into multiple streams, a `Split` must be connected to the `Machine` using an Edge.
+9. To join multiple streams and to feed as input to a `Machine` node, a `Joint` must be connected to the `Machine` using an Edge.
 
 
 
@@ -52,30 +43,31 @@ Edges are passive components that connect exactly two nodes(src_node and dest_no
 ## Nodes 
 
 
-Nodes represent active elements in the system. This is a basic type and is the basis for the active components like Machine, Split, Sink, Source, Joint, etc. Every node has a unique identifier named `id` and maintains two lists named `in_edges` and `out_edges`. Every node has a `node_setup_time` that can be specified as a constant delay or a reference to a generator function or a normal function that represents an arbitrary distribution.
+Nodes represent active elements in the system. This is a basic type and is the basis for the active components like Machine, Split, Sink, Source, Joint, etc. Every node has a unique identifier named `id` and maintains two lists named `in_edges` and `out_edges`. Every node has a `node_setup_time` that can be specified as a constant delay (integer of float)
 
 
 ### Source
 
+The Source component is responsible for generating items that enter and flow through the system. The API documentation of [Source](source.md)
 
-Source is responsible for generating items that enter and flow through the system. 
-There are two variants of sources available:
+There are two modes of operation for the Source:
+
+1. If the `blocking` parameter is set to True, the Source generates an item and tries to send it to the connected outgoing edge. If the edge is full or cannot accept the item, the Source waits until space becomes available.
+
+2. If the `blocking` parameter is set to False, the Source generates items and attempts to send them to the outgoing edge. If the edge is full or cannot accept the item, the Source discards the item.
 
 
-**Blocking**: This variant generates an item and attempts to send it to the connected outgoing edge. If the edge is full or unable to accept the item, the source will wait until space becomes available.
-
-**Non-blocking**: This variant generates items, but if the outgoing edge is full or unable to accept the item, the item is immediately discarded rather than waiting.
 
 **Behavior**
 
-During a simulation run, the Source component repeatedly generates items at intervals defined by `inter_arrival_time`. This delay can be specified as a fixed constant or as a reference to a generator function representing an arbitrary distribution.
+During a simulation run, the Source component repeatedly generates items at discrete instants of time specified by `inter_arrival_time`. The parameter `inter_arrival_time` can be specified as a fixed constant or as a reference to a python function or a generator function instance that generate random variates from a chosen distribution.
 After generating an item, the source behaves as follows:
 
-1. If the source is `blocking`, it waits until the outgoing edge becomes available before pushing the item.
+1. If the source is `blocking` is True, it waits until the outgoing edge becomes available before pushing the item.
 
-2. If the source is `non-blocking`, it checks the availability of the outgoing edge. If the edge is full or unavailable, the item is discarded.
+2. If the source is `blocking` is False, it checks the availability of the outgoing edge. If the edge is full or unavailable, the item is discarded.
 
-The source then waits for the next inter_arrival_time before attempting to generate the next item. Source can be connected to multiple outgoing edges. To control how the next edge is selected for item transfer, desired strategy can be specified using the `out_edge_selection` parameter. Various options available are `RANDOM`, `FIRST`, `LAST`,`ROUND_ROBIN`, `FIRST_AVAILABLE`, etc. During its operation, the source transitions through the following states:
+The source then waits for the next inter_arrival_time before attempting to generate the next item. Source can be connected to multiple outgoing edges. To control how the next edge is selected for item transfer, desired strategy can be specified using the `out_edge_selection` parameter. It can either be one of the methods available in the package or a python function or a generator function instance. Various options available in the package are are `RANDOM`, `FIRST`, `LAST`,`ROUND_ROBIN`, `FIRST_AVAILABLE`, etc. During its operation, the source transitions through the following states:
 
 1. `SETUP_STATE`: Initialization or warm-up phase before item generation starts.
 
@@ -94,8 +86,117 @@ The source component reports the following key metrics:
 
 These metrics help in analyzing the performance and efficiency of the item generation process within the simulation model.
 
+**Examples**
+```python
+
+import factorysimpy
+from factorysimpy.nodes.machine import Machine
+from factorysimpy.edges.buffer import Buffer
+from factorysimpy.nodes.source import Source
+from factorysimpy.nodes.sink import Sink
+
+env = simpy.Environment()
+
+def inter_arrival_generator(loc=4.0, scale=5.0, size=1):
+        delay = scipy.stats.expon.rvs(loc=0.0,scale=0.5,size=1)
+        return delay[0]
+
+def processing_delay_generator(Node,env):
+    while True:
+        if Node.stats["total_time_spent_in_states"]["PROCESSING_STATE"]>7:
+         yield 0.8
+        else:
+         yield 1.6
+
+
+
+# Initializing nodes
+src= Source(env, id="Source-1",  inter_arrival_time=inter_arrival_generator(),blocking=False,out_edge_selection="FIRST" )
+m1 = Machine(env, id="M1",work_capacity=4,store_capacity=5, processing_delay=None,in_edge_selection="FIRST",out_edge_selection="FIRST")
+
+process_delay_gen1=processing_delay_generator(m1,env)
+m1.processing_delay=process_delay_gen1
+m2 = Machine(env, id="M2",work_capacity=4,store_capacity=5, processing_delay=0.5,in_edge_selection="FIRST",out_edge_selection="FIRST")
+
+sink= Sink(env, id="Sink-1" )
+
+# Initializing edges
+buffer1 = Buffer(env, id="Buffer-1", store_capacity=4, delay=0.5)
+buffer2 = Buffer(env, id="Buffer-2", store_capacity=4, delay=0.5)
+buffer3 = Buffer(env, id="Buffer-3", store_capacity=4, delay=0.5)
+
+# Adding connections
+buffer1.connect(src,m1)
+buffer2.connect(m1,m2)
+buffer3.connect(m2,sink)
+
+
+env.run(until=10)
+```
+```python
+
+import factorysimpy
+from factorysimpy.nodes.machine import Machine
+from factorysimpy.edges.buffer import Buffer
+from factorysimpy.nodes.source import Source
+from factorysimpy.nodes.sink import Sink
+
+env = simpy.Environment()
+
+def inter_arrival_generator(loc=4.0, scale=5.0, size=1):
+        delay = scipy.stats.expon.rvs(loc=0.0,scale=0.5,size=1)
+        return delay[0]
+
+def processing_delay_generator(Node,env):
+    while True:
+        if Node.stats["total_time_spent_in_states"]["PROCESSING_STATE"]>7:
+         yield 0.8
+        else:
+         yield 1.6
+
+def out_edge_selector(Node, env):
+
+   while True:
+      if env.now%2==0:
+         yield 1
+      else:
+         yield 0
+
+
+
+# Initializing nodes
+src= Source(env, id="Source-1",  inter_arrival_time=inter_arrival_generator(),blocking=False,out_edge_selection=None )
+OES=out_edge_selector(src,env)
+src.out_edge_selection=OES
+
+m1 = Machine(env, id="M1",work_capacity=4,store_capacity=5, processing_delay=None,in_edge_selection="FIRST",out_edge_selection="FIRST")
+process_delay_gen1=processing_delay_generator(m1,env)
+m1.processing_delay=process_delay_gen1
+
+m2 = Machine(env, id="M2",work_capacity=4,store_capacity=5, processing_delay=0.5,in_edge_selection="FIRST",out_edge_selection="FIRST")
+sink1= Sink(env, id="Sink-1" )
+sink2= Sink(env, id="Sink-2" )
+
+# Initializing edges
+buffer1 = Buffer(env, id="Buffer-1", store_capacity=4, delay=0.5)
+buffer2 = Buffer(env, id="Buffer-2", store_capacity=4, delay=0.5)
+buffer3 = Buffer(env, id="Buffer-3", store_capacity=4, delay=0.5)
+buffer4 = Buffer(env, id="Buffer-4", store_capacity=4, delay=0.5)
+
+# Adding connections
+buffer1.connect(src,m1)
+buffer2.connect(src,m2)
+buffer3.connect(m1,sink1)
+buffer4.connect(m2,sink2)
+
+
+env.run(until=10)
+```
+
+
+---
 ### Machine
-Machine is a component that has a processing delay and processes/modifies items that flow in the system. It can have multiple incoming edges and outgoing edges. It gets an item from one of its in edges and processes the item in a `processing_delay` amount of time and pushes the item to one of its out edges. 
+Machine is a component that has a processing delay and processes/modifies items that flow in the system. It can have multiple incoming edges and outgoing edges. It gets an item from one of its in edges and processes the item in a `processing_delay` amount of time and pushes the item to one of its out edges. The API documentation of [Machine](machine.md)
 
 
 **Behavior**
@@ -115,7 +216,7 @@ The Machine component reports the following key metrics:
 ### Sink
 
 <p style="text-align: justify;">
- A Sink is a terminal node that collects flow items at the end. Once an item enters the Sink, it is considered to have exited the system and cannot be retrieved or processed further. This sink can have multiple input edges and no output edges. It has a unique identifier. It only has a single state `COLLECTING_STATE`.
+ A Sink is a terminal node that collects flow items at the end. Once an item enters the Sink, it is considered to have exited the system and cannot be retrieved or processed further. This sink can have multiple input edges and no output edges. It has a unique identifier. It only has a single state `COLLECTING_STATE`. The API documentation of [Sink](sink.md)
 </p>
 
 ## Edges

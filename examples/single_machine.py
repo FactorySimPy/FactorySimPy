@@ -5,7 +5,6 @@ import scipy.stats
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from factorysimpy.nodes.machine import Machine
 from factorysimpy.edges.buffer import Buffer
-
 from factorysimpy.nodes.source import Source
 from factorysimpy.nodes.sink import Sink
 
