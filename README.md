@@ -68,7 +68,7 @@ FactorySimPy is a light-weight Python library for modeling and discrete-event si
 | Class | Purpose | Key parameters |
 |-------|---------|----------------|
 | `Edge`   | base class for passive entities | `name` ,`delay=0`, `src_node=None`,`dest_edges=None`  |
-| `Buffer`  | Finite‑capacity queue. | `store_capacity`, mode = "FIFO"|
+| `Buffer`  | Finite‑capacity queue. | `store_capacity`, `mode="FIFO"`|
 | `Conveyor` | slotted conveyor belt; optional blocking slots. | `name`,`belt_capacity`, `time_per_slot`, `accumulating=False` |
 | `Fleet` | Pool of AGVs/robots moving items. | 
 
