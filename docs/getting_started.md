@@ -43,7 +43,7 @@ All components can be customized, and extended easily.
 ---
 
 ##  A Minimal Working Example
-An example that shows how to simulate a simple system with two machines and a conveyor
+An example that shows how to simulate a simple system with a machine and two buffers
 ```python
 import factorysimpy
 from factorysimpy.nodes.machine import Machine
