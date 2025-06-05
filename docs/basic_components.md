@@ -136,7 +136,7 @@ This helps to remove the bottlenecks that come when the processing delays of nod
 During a simulation run, `src_node` puts an item into the buffer and the item gets available after delay amount of time for the `dest_node`. It operates in two modes- First In First Out(FIFO) or Last In First Out(LIFO). The number of items that a buffer can hold at any time can be specified using the parameter `store_capacity`. Buffer transitions through the following states during simulation- `EMPTY_STATE` AND `RELEASING_STATE`.
 </p>
 **Monitoring and Reporting**
-The Machine component reports the following key metrics:
+The Buffer component reports the following key metrics:
 
 1. time averaged number of items available in buffer.
 2. Time spent in each state 
@@ -171,7 +171,7 @@ During a simulation run, the Conveyor gets an item and as soon as it gets an ite
 
 
 **Monitoring and Reporting**
-The source component reports the following key metrics:
+The conveyor reports the following key metrics:
 
 1. Time averaged number of items 
 3. Time spent in each state 
