@@ -31,7 +31,7 @@ FactorySimPy lets you simulate typical manufacturing scenarios using ready-made 
 
 - **Machine** is a node with configurable processing delay
 
-- **Split** and **Join** are nodes for splitting a flow into two or joining two flows
+- **Split** and **Join** are nodes for splitting an item or joining multiple items.
 
 - **Buffers**,**Conveyors** and **Fleets** are entities of type edge for transfering items from one node to another
 
@@ -43,10 +43,40 @@ All components can be customized, and extended easily.
 ---
 
 ##  A Minimal Working Example
+An example that shows how to simulate a simple system with two machines and a conveyor
+```python
+import factorysimpy
+from factorysimpy.nodes.machine import Machine
+from factorysimpy.edges.buffer import Buffer
+from factorysimpy.nodes.source import Source
+from factorysimpy.nodes.sink import Sink
 
-[An example that shows how to simulate a simple system with two machines and a conveyor](../examples/quick_start.py)
+
+env = simpy.Environment()
+
+def distribution_generator(loc=4.0, scale=5.0, size=1):
+    while True:
+        delay = scipy.stats.expon.rvs(loc=0.0,scale=0.5,size=1)
+        yield delay[0]
+
+# Initializing nodes
+src= Source(env, id="Source-1",  inter_arrival_time=distribution_generator(), blocking=False, out_edge_selection="FIRST" )
+m1 = Machine(env, id="M1",work_capacity=4,store_capacity=5, processing_delay=1.6,in_edge_selection="FIRST",out_edge_selection="FIRST")
+
+sink= Sink(env, id="Sink-1" )
+
+# Initializing edges
+buffer1 = Buffer(env, id="Buffer-1", store_capacity=4, delay=0.43, mode="LIFO")
+buffer2 = Buffer(env, id="Buffer-2", store_capacity=2, delay=0.87, mode= "FIFO")
+
+# Adding connections
+buffer1.connect(src,m1)
+buffer2.connect(m1,sink)
 
 
+env.run(until=10)
+
+```
 
 
 ---
@@ -70,12 +100,4 @@ FactorySimPy/
 
 ---
 
-##  Documentation
 
-Visit the [full documentation site](https://factorysimpy.github.io/FactorySimPy/)
-
-##  License
-
-FactorySimPy is licensed under the **MIT License**.
-
----
