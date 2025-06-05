@@ -7,9 +7,6 @@ FactorySimPy is an open-source, light-weight Python library for modeling and dis
 </p>
 
 
-
-
-
 ## Model Description
 <p style="text-align: justify;">
 The system is modeled as a graph consisting of two types of components: Nodes and Edges. Nodes represent active components that drive state changes—such as machines that introduce delays by performing operations like packing, unpacking, or modifying items. Edges, in contrast, represent passive components such as conveyor belts, human operators, warehouse robots, or transport vehicles that facilitate the movement of items between nodes.
@@ -23,16 +20,6 @@ Each Node maintains two lists: in_edges and out_edges, representing incoming and
 State transitions in the simulation are triggered solely by the actions of the Nodes, ensuring a clear separation between control (Nodes) and transport (Edges) within the model.
 </p>
 
-
-<p style="bold: justify;">Example Representation</p>
-
-An example model with 2 nodes and a directed edge
-
-<!--- ![Alt text](images/gr_2nodes.jpg) --->
-<img src="images/gr_2nodes.jpg" alt="System Architecture Diagram showing Nodes and Edges" width="400" height="10"/>
-
-
----
 
 
 ## **Class Hierarchy**
@@ -56,7 +43,8 @@ An example model with 2 nodes and a directed edge
 
 
 ## **Simple Example**
-**A simple example simulating a machine that gets an items from a buffer and pushes it to one of its out going edges after processing it**
+
+A simple example simulating a machine that gets an item from a buffer and pushes it to one of its outgoing edges after processing it
 
 ```python 
 
@@ -65,7 +53,6 @@ An example model with 2 nodes and a directed edge
 import factorysimpy
 from factorysimpy.nodes.machine import Machine
 from factorysimpy.edges.buffer import Buffer
-
 from factorysimpy.nodes.source import Source
 from factorysimpy.nodes.sink import Sink
 
@@ -79,8 +66,7 @@ def distribution_generator(loc=4.0, scale=5.0, size=1):
 
 # Initializing nodes
 src= Source(env, id="Source-1",  inter_arrival_time=distribution_generator(),blocking=False,out_edge_selection="FIRST" )
-m1 = Machine(env, id="M1",work_capacity=4,store_capacity=5, processing_delay=distribution_generator(),     in_edge_selection="FIRST",out_edge_selection="FIRST")
-
+m1 = Machine(env, id="M1",work_capacity=4,store_capacity=5, processing_delay=distribution_generator(), in_edge_selection="FIRST",out_edge_selection="FIRST")
 sink= Sink(env, id="Sink-1" )
 
 # Initializing edges
