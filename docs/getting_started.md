@@ -47,7 +47,7 @@ An example that shows how to simulate a simple system with a machine and two buf
 ```python
 
 #system layout
-#src ──> buffer1 ──> m1 ──> buffer3 ──> sink1
+#src ──> buffer1 ──> m1 ──> buffer2 ──> sink1
 
 import factorysimpy
 from factorysimpy.nodes.machine import Machine

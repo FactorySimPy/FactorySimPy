@@ -49,7 +49,7 @@ FactorySimPy is a light-weight Python library for modeling and discrete-event si
 
 
 #system layout
-#src ──> buffer1 ──> m1 ──> buffer3 ──> sink1
+#src ──> buffer1 ──> m1 ──> buffer2 ──> sink1
 
 import factorysimpy
 from factorysimpy.nodes.machine import Machine
