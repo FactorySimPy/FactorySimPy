@@ -147,7 +147,7 @@ SRC = Source(
 
 **About**
 
-Machine is a component that has a processing delay and processes/modifies items that flow in the system. It can have multiple incoming edges and outgoing edges. It gets an item from one of its in edges and processes the item in a `processing_delay` amount of time and pushes the item to one of its out edges. The API documentation can be found in [Machine](machine.md)
+Machine is a component that processes/modifies items that flow in the system. It uses a `processing_delay` amount of time to process an item. It can have multiple incoming edges and outgoing edges. A machine can process more than one item simultaneously. It gets an item from one of its in edges and processes the item in a `processing_delay` amount of time and pushes the item to one of its out edges. The API documentation can be found in [Machine](machine.md)
 
 **Attributes**
 
