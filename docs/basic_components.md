@@ -199,7 +199,7 @@ Machine is a component that has a processing delay and processes/modifies items 
 **Behavior**
 
 At the start of the simulation, the machine waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node. This parameter is a constant delay specified as an integer or a float.
-During a simulation run, machine gets object from one of the in_edges. To choose an incoming edge, to pull the item from, the Machine utilises the strategy specified in the parameter `in_edge_selection`. Various options available are  "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE", etc. Similarly, to select and outgoing edge, to push the item to, Machine uses the method specified in `out_edge_selection` parameter. User can also provide a custom function to these parameters. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initilise the parameter with thea reference to the function or directly pass it at the time of creation. This is illustrated in the examples shown below. Machine picks an item and takes `processing_delay` amount of time to process the item and puts it inside the inbuiltstore. The capacity of this store can be specified in the parameter `store_capacity`. Machine can parallely process `work_capacity` number of items. But, if `work_capacity` > `store_capacity`, then `work_capacity` is set to `store_capacity`. During its operation, Machine transitions through the following states: "SETUP_STATE", "PROCESSING_STATE", "BLOCKED_STATE", and "IDLE_STATE".
+During a simulation run, machine gets object from one of the in_edges. To choose an incoming edge, to pull the item from, the Machine utilises the strategy specified in the parameter `in_edge_selection`. Various options available are  "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE", etc. Similarly, to select and outgoing edge, to push the item to, Machine uses the method specified in `out_edge_selection` parameter. User can also provide a custom function to these parameters. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initilise the parameter with thea reference to the function or directly pass it at the time of creation. This is illustrated in the examples shown below. Machine picks an item and takes `processing_delay` amount of time to process the item and puts it inside the inbuiltstore. The capacity of this store can be specified in the parameter `store_capacity`. Machine can parallely process `work_capacity` number of items. But, if `work_capacity` > `store_capacity`, then `work_capacity` is set to `store_capacity`. During its operation, Machine transitions through the following states:
 
 1. "SETUP_STATE": Initialization or warm-up phase before item generation starts.
 
@@ -252,7 +252,10 @@ This helps to remove the bottlenecks that come when the processing delays of nod
 **Behavior**
 
 
-During a simulation run, `src_node` puts an item into the buffer and the item gets available after delay amount of time for the `dest_node`. It operates in two modes- First In First Out(FIFO) or Last In First Out(LIFO). The number of items that a buffer can hold at any time can be specified using the parameter `store_capacity`. Buffer transitions through the following states during simulation- `EMPTY_STATE` AND `RELEASING_STATE`.
+During a simulation run, `src_node` puts an item into the buffer and the item gets available after delay amount of time for the `dest_node`. It operates in two modes- First In First Out(FIFO) or Last In First Out(LIFO). The number of items that a buffer can hold at any time can be specified using the parameter `store_capacity`. Buffer transitions through the following states during simulation- 
+
+1. "EMPTY_STATE"  : when there is no items in the buffer
+2. "RELEASING_STATE". When there is items.
 
 
 **Monitoring and Reporting**
@@ -265,7 +268,7 @@ The Machine component reports the following key metrics:
 ### Conveyor
 <hr style="height:3px;border:dotted;color: grey; " />
 
-Conveyor connects two nodes and moves items from one end to the other 
+Conveyor connects two nodes and moves items from one end to the other. The API documentation of [Conveyor](conveyor.md)
 There are two variants of conveyor available:
 
 
@@ -282,14 +285,14 @@ Conveyors can be either `blocking` or `non-blocking`:
 **Behavior**
 
 
-During a simulation run, the Conveyor gets an item and as soon as it gets an item it starts moving and after moving it waits delay amount of time before the next move. It moves until the first item reaches the other end of the belt. If item is not taken out by a dest_npde, then conveyor will be in `BLOCKED_STATE`. During its operation, the source transitions through the following states:
+During a simulation run, the Conveyor gets an item and as soon as it gets an item it starts moving and after moving it waits delay amount of time before the next move. It moves until the first item reaches the other end of the belt. If item is not taken out by a dest_npde, then conveyor will be in "BLOCKED_STATE". During its operation, the source transitions through the following states:
 
 
-1. `SETUP_STATE`: Initialization or warm-up phase.
+1. "SETUP_STATE": Initialization or warm-up phase.
 
-2. `MOVING_STATE`: state when the belt is moving.
+2. "MOVING_STATE": state when the belt is moving.
 
-3. `BLOCKED_STATE`: IT is blocked, waiting for the dest_node to taken an item ouy.
+3. "BLOCKED_STATE": IT is blocked, waiting for the dest_node to taken an item ouy.
 
 
 
