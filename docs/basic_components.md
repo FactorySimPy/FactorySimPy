@@ -44,7 +44,7 @@ Edges are passive components that connect exactly two nodes (src_node and dest_n
 ## Nodes 
 <hr style="height:4px;border:none;color:blue; background-color:grey;" />
 
-Nodes represent active elements in the system. This is a basic type and is the basis for the active components like Machine, Split, Sink, Source, Joint, etc. Every node has a unique identifier named `id` and maintains two lists named `in_edges` and `out_edges`. Every node has a `node_setup_time` that can be specified as a constant delay (integer of float). Activities that takesplace in a node create state changes in the system. The API documentation of [Node](nodes.md)
+Nodes represent active elements in the system. This is a basic type and is the basis for the active components like Machine, Split, Sink, Source, Joint, etc. Every node has a unique identifier named `id` and maintains two lists named `in_edges` and `out_edges`. Every node has a `node_setup_time` that can be specified as a constant delay (integer of float). Activities that takesplace in a node create state changes in the system. The API documentation can be found in [Node](nodes.md)
 
 
 
@@ -53,7 +53,7 @@ Nodes represent active elements in the system. This is a basic type and is the b
 ### Source
 <hr style="height:2px;border:none;color:grey; background-color:grey;" />
 
-The source component is responsible for generating items that enter and flow through the system. The API documentation of [Source](source.md). There are two modes of operation for the source. If the `blocking` parameter is set to True, the source generates an item and tries to send it to the connected outgoing edge. If the edge is full or cannot accept the item, the source waits until space becomes available. If the `blocking` parameter is set to False, the source generates items and attempts to send them to the outgoing edge. If the edge is full or cannot accept the item, the source discards the item.
+The source component is responsible for generating items that enter and flow through the system. The API documentation can be found in [Source](source.md). There are two modes of operation for the source. If the `blocking` parameter is set to True, the source generates an item and tries to send it to the connected outgoing edge. If the edge is full or cannot accept the item, the source waits until space becomes available. If the `blocking` parameter is set to False, the source generates items and attempts to send them to the outgoing edge. If the edge is full or cannot accept the item, the source discards the item.
 
 
 
@@ -205,13 +205,13 @@ env.run(until=10)
 ### Machine
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
-Machine is a component that has a processing delay and processes/modifies items that flow in the system. It can have multiple incoming edges and outgoing edges. It gets an item from one of its in edges and processes the item in a `processing_delay` amount of time and pushes the item to one of its out edges. The API documentation of [Machine](machine.md)
+Machine is a component that has a processing delay and processes/modifies items that flow in the system. It can have multiple incoming edges and outgoing edges. It gets an item from one of its in edges and processes the item in a `processing_delay` amount of time and pushes the item to one of its out edges. The API documentation can be found in [Machine](machine.md)
 
 
 **Behavior**
 
 At the start of the simulation, the machine waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node. This parameter is a constant delay specified as an integer or a float.
-During a simulation run, machine gets object from one of the in_edges. To choose an incoming edge, to pull the item from, the Machine utilises the strategy specified in the parameter `in_edge_selection`. Various options available are  "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE", etc. Similarly, to select and outgoing edge, to push the item to, Machine uses the method specified in `out_edge_selection` parameter. User can also provide a custom function to these parameters. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initilise the parameter with thea reference to the function or directly pass it at the time of creation. This is illustrated in the examples shown below. Machine picks an item and takes `processing_delay` amount of time to process the item and puts it inside the inbuiltstore. The capacity of this store can be specified in the parameter `store_capacity`. Machine can parallely process `work_capacity` number of items. But, if `work_capacity` > `store_capacity`, then `work_capacity` is set to `store_capacity`. During its operation, Machine transitions through the following states:
+During a simulation run, machine gets object from one of the in_edges. To choose an incoming edge, to pull the item from, the Machine utilises the strategy specified in the parameter `in_edge_selection`. Various options available are  "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE", etc. Similarly, to select and outgoing edge, to push the item to, Machine uses the method specified in `out_edge_selection` parameter. User can also provide a custom function to these parameters. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initilise the parameter with thea reference to the function or directly pass it at the time of creation. This is illustrated in the examples shown below. Machine picks an item and takes `processing_delay` amount of time to process the item and puts it inside the inbuiltstore. The capacity of this store can be specified in the parameter `store_capacity`. Machine can parallely process `work_capacity` number of items. But, if `work_capacity` is greater than `store_capacity`, then `work_capacity` is set to `store_capacity`. During its operation, Machine transitions through the following states:
 
 1. "SETUP_STATE": Initialization or warm-up phase before item generation starts.
 
@@ -328,7 +328,7 @@ env.run(until=10)
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
 
- A Sink is a terminal node that collects flow items at the end. Once an item enters the Sink, it is considered to have exited the system and cannot be retrieved or processed further. This sink can have multiple input edges and no output edges. It has a unique identifier. It only has a single state "COLLECTING_STATE". The API documentation of [Sink](sink.md)
+ A Sink is a terminal node that collects flow items at the end. Once an item enters the Sink, it is considered to have exited the system and cannot be retrieved or processed further. This sink can have multiple input edges and no output edges. It has a unique identifier. It only has a single state "COLLECTING_STATE". The API documentation can be found in [Sink](sink.md)
 
 
 <hr style="height:3px;border:none;color: grey; background-color:grey; " />
@@ -345,7 +345,7 @@ Edges represent passive elements in the system. This is the basis for the compon
 
 
 Buffer is a type of edge that represents a queue to store items that wait to be accepted by a downstream component.
-This helps to remove the bottlenecks that come when the processing delays of nodes are not matching and one processes faster than the other. It has two modes of operation that are FIFO and LIFO. The API documentation of [Buffer](buffer.md)
+This helps to remove the bottlenecks that come when the processing delays of nodes are not matching and one processes faster than the other. It has two modes of operation that are FIFO and LIFO. The API documentation can be found in [Buffer](buffer.md)
 
 
 **Behavior**
@@ -367,7 +367,7 @@ The Machine component reports the following key metrics:
 ### Conveyor
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
-Conveyor connects two nodes and moves items from one end to the other. The API documentation of [Conveyor](conveyor.md)
+Conveyor connects two nodes and moves items from one end to the other. The API documentation can be found in [Conveyor](conveyor.md)
 There are two variants of conveyor available:
 
 
