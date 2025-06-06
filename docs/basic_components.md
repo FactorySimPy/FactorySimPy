@@ -228,9 +228,10 @@ Machine is a component that has a processing delay and processes/modifies items 
 
 **Behavior**
 
-At the start of the simulation, the source waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an `int` or `float`).
+At the start of the simulation, the machine waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an `int` or `float`).
 
-During a simulation run, machine gets object from one of the in_edges. To choose an incoming edge, to pull the item from, the Machine utilises the strategy specified in the parameter `in_edge_selection`. Various options available are  "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE", etc. Similarly, to select an outgoing edge, to push the item to, Machine uses the method specified in `out_edge_selection` parameter. User can also provide a custom function to these parameters. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initialise the parameter with the reference to the function. This is illustrated in the examples shown below. Various options available in the package for `in_edge_selection` and `out_edge_selection` include:
+During a simulation run, machine gets object from one of its `in_edges`. To choose an incoming edge to pull an item from, the machine utilises the strategy specified in the parameter `in_edge_selection`.  Similarly, to select an outgoing edge, to push the item to, machine uses the method specified in `out_edge_selection` parameter. User can also provide a custom python function or a generator function instance to these parameters. User-provided function should return or yield an edge index. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initialise the parameter with the reference to the function. This is illustrated in the examples shown below. 
+Various options available in the package for `in_edge_selection` and `out_edge_selection` include:
 
 - "RANDOM": Selects a random out edge.
 - "FIRST": Selects the first out edge.
@@ -238,7 +239,7 @@ During a simulation run, machine gets object from one of the in_edges. To choose
 - "ROUND_ROBIN": Selects out edges in a round-robin manner.
 - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
 
- Machine picks an item and takes `processing_delay` amount of time to process the item and puts it inside the inbuiltstore. This parameter can be specified as a constant value (`int` or `float`) or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution. If the function depends on any of the node attributes, users can pass `None` to this parameter at the time of node creation and later initialise the parameter with the reference to the function. The capacity of this store can be specified in the parameter `store_capacity`. Machine can parallely process `work_capacity` number of items. But, if `work_capacity` is greater than `store_capacity`, then `work_capacity` is set to `store_capacity`. During its operation, Machine transitions through the following states:
+ Machine picks an item and takes `processing_delay` amount of time to process the item and puts it inside the inbuiltstore. The parameter `processing_delay` can be specified as a constant value (`int` or `float`) or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution. If the function depends on any of the node attributes, users can pass `None` to this parameter at the time of node creation and later initialise the parameter with the reference to the function. The capacity of this store can be specified in the parameter `store_capacity`. Machine can parallely process `work_capacity` number of items. But, if `work_capacity` is greater than `store_capacity`, then `work_capacity` is reset to `store_capacity`. During its operation, machine transitions through the following states:
 
 1. "SETUP_STATE": Initialization or warm-up phase before item generation starts.
 
@@ -250,7 +251,7 @@ During a simulation run, machine gets object from one of the in_edges. To choose
 
 
 **Monitoring and Reporting**
-The Machine component reports the following key metrics:
+The machine component reports the following key metrics:
 
 1. Total number of items processed
 2. Time spent in each state 
@@ -343,25 +344,32 @@ env.run(until=10)
 ```
 
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
+
 ### Split
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
+
+Split represents entities that performs actions like unpacking, splitting etc. It can have multiple incoming edges and multiple outgoing edges.
 
 The API documentation can be found in [Split](split.md)
 
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
+
 ### Joint
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 The API documentation can be found in [Joint](joint.md)
 
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
+
 ### Sink
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
 
- A Sink is a terminal node that collects flow items at the end. Once an item enters the Sink, it is considered to have exited the system and cannot be retrieved or processed further. This sink can have multiple input edges and no output edges. It has a unique identifier. It only has a single state "COLLECTING_STATE". The API documentation can be found in [Sink](sink.md)
+ A Sink is a terminal node that collects flow items at the end. Once an item enters the sink, it is considered to have exited the system and cannot be retrieved or processed further. This sink can have multiple input edges and no output edges. It only has a single state "COLLECTING_STATE". The API documentation can be found in [Sink](sink.md)
 
 
 <hr style="height:3px;border:none;color: grey; background-color:grey; " />
+
+
 ## Edges
 <hr style="height:3px;border:none;color: grey;background-color:grey; " />
 
@@ -370,6 +378,7 @@ Edges represent passive elements in the system. This is the basis for the compon
 
 
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
+
 ### Buffer
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
@@ -388,12 +397,13 @@ During a simulation run, `src_node` puts an item into the buffer and the item ge
 
 
 **Monitoring and Reporting**
-The Machine component reports the following key metrics:
+The buffer component reports the following key metrics:
 
 1. time averaged number of items available in buffer.
 2. Time spent in each state 
 
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
+
 ### Conveyor
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
