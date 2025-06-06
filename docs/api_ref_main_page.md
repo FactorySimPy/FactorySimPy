@@ -14,6 +14,7 @@ Edge classes
 - [Edge](edges.md)
 - [Buffer](buffer.md)
 - [Conveyor](conveyor.md)
+- [Fleet](fleet.md)
 
 Extended classes from SimPy
 
