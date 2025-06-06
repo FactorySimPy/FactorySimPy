@@ -44,7 +44,7 @@ Edges are passive components that connect exactly two nodes (src_node and dest_n
 ## Nodes 
 <hr style="height:3px;border:none;color:blue; background-color:grey;" />
 
-Nodes represent active elements in the system. This is a basic type and is the basis for the active components like Machine, Split, Sink, Source, Joint, etc. Every node has a unique identifier named `id` and maintains two lists named `in_edges` and `out_edges`. Every node has a `node_setup_time` that can be specified as a constant delay (integer of float). Activities that takesplace in a node create state changes in the system. The API documentation of [Node](node.md)
+Nodes represent active elements in the system. This is a basic type and is the basis for the active components like Machine, Split, Sink, Source, Joint, etc. Every node has a unique identifier named `id` and maintains two lists named `in_edges` and `out_edges`. Every node has a `node_setup_time` that can be specified as a constant delay (integer of float). Activities that takesplace in a node create state changes in the system. The API documentation of [Node](nodes.md)
 
 
 <hr style="height:3px;border:dotted;color: grey; " />
