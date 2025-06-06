@@ -45,6 +45,10 @@ All components can be customized, and extended easily.
 ##  A Minimal Working Example
 An example that shows how to simulate a simple system with a machine and two buffers
 ```python
+
+#system layout
+#src ──> buffer1 ──> m1 ──> buffer3 ──> sink1
+
 import factorysimpy
 from factorysimpy.nodes.machine import Machine
 from factorysimpy.edges.buffer import Buffer

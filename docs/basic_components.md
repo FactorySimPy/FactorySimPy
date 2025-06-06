@@ -61,7 +61,7 @@ The source component is responsible for generating items that enter and flow thr
 
 At the start of the simulation, the source waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an `int` or `float`).
 
-During a simulation run, the source generates items at discrete instants of time determined by the parameter `inter_arrival_time`. This parameter can be specified as a constant value (`int` or `float`) or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initilise the parameter with thea reference to the function or directly pass it at the time of creation.
+During a simulation run, the source generates items at discrete instants of time determined by the parameter `inter_arrival_time`. This parameter can be specified as a constant value (`int` or `float`) or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution. If the function depends on any of the node attributes, users can pass `None` to this parameter at the time of node creation and later initilise the parameter with thea reference to the function or directly pass it at the time of creation.
 
 
 After generating an item, the source behaves as follows:
@@ -236,7 +236,7 @@ During a simulation run, machine gets object from one of the in_edges. To choose
 - "ROUND_ROBIN": Selects out edges in a round-robin manner.
 - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
 
- Machine picks an item and takes `processing_delay` amount of time to process the item and puts it inside the inbuiltstore. This parameter can be specified as a constant value (`int` or `float`) or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initilise the parameter with thea reference to the function or directly pass it at the time of creation. The capacity of this store can be specified in the parameter `store_capacity`. Machine can parallely process `work_capacity` number of items. But, if `work_capacity` is greater than `store_capacity`, then `work_capacity` is set to `store_capacity`. During its operation, Machine transitions through the following states:
+ Machine picks an item and takes `processing_delay` amount of time to process the item and puts it inside the inbuiltstore. This parameter can be specified as a constant value (`int` or `float`) or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution. If the function depends on any of the node attributes, users can pass `None` to this parameter at the time of node creation and later initilise the parameter with thea reference to the function or directly pass it at the time of creation. The capacity of this store can be specified in the parameter `store_capacity`. Machine can parallely process `work_capacity` number of items. But, if `work_capacity` is greater than `store_capacity`, then `work_capacity` is set to `store_capacity`. During its operation, Machine transitions through the following states:
 
 1. "SETUP_STATE": Initialization or warm-up phase before item generation starts.
 
@@ -344,9 +344,12 @@ env.run(until=10)
 ### Split
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
+The API documentation can be found in [Split](split.md)
+
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 ### Joint
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
+The API documentation can be found in [Joint](joint.md)
 
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 ### Sink
