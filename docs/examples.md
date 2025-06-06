@@ -5,6 +5,10 @@ In this section, we present examples that demonstrate how to use factorysimpy
 ***A simple example to connect a machine to an input buffer and output buffer and to simulate item flow through them.*** Here, all the delays(inter_arrival_time, processing_delay) are constant values and out_edge_selection and out_edge_selection uses the generator functions that are available in the package ("FIRST"). The function name can be passed as a string. See [API](api_ref_main_page.md) for the details of all the available functions.
 
 ```python
+
+#   System layout 
+#   src ──> buffer1 ──> m1 ──> buffer3 ──> sink1
+
 import factorysimpy
 from factorysimpy.nodes.machine import Machine
 from factorysimpy.edges.buffer import Buffer
@@ -38,6 +42,11 @@ env.run(until=10)
 ***An example showing how to pass functions as parameters.*** In this example inter_arrival is a python function that returns a value, processing_delay_generator and out_edge_selector are generator functions that yields a value based on some parameter of the node or simulation environment. 
 
 ```python
+
+
+#   System layout 
+#   src ──> buffer1 ──> m1 ──> buffer3 ──> sink1  
+#     └──> buffer2 ──> m2 ──> buffer4 ──> sink2
 
 import factorysimpy
 from factorysimpy.nodes.machine import Machine
@@ -101,6 +110,16 @@ env.run(until=10)
 Sources generate items and puts it into its outgoing buffer. Machine picks this item and processes it and puts it another buffer. It choses the in_edge and out_edge based on the values yielded from function specified in in_edge_selection parameter and out_edge_selection parameter. Sink is used to remove the finished items from the respective buffers. 
 
 ```python
+
+
+#  System layout 
+
+#   src1 ──> buffer1 ──┐
+#                      │
+#   src2 ──> buffer2 ──┴─> Machine1 ──┬─> buffer3 ──> sink1
+#                                     │
+#                                     └─> buffer4 ──> sink1
+#                                         
 
 import factorysimpy
 from factorysimpy.nodes.machine import Machine
