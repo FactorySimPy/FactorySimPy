@@ -104,6 +104,7 @@ These metrics help in analyzing the performance and efficiency of the item gener
 **Examples**
 
 ***Here's an example that shows how to interconnect a source to a machine using a buffer and pass a python function or a generator instance as parameter.***
+
 Source generates items and puts it into the buffer. Machine picks this item and processes it and puts it another buffer. Sink is used to remove the finished items from the buffer. This example shows how to pass a python function and a generation function as parameter to the node.
 
 ```python
@@ -158,7 +159,9 @@ buffer2.connect(m1,sink)
 env.run(until=10)
 ```
 
-***Here's another example that shows how to interconnect a source to multiple machines and to pass a custom function in out_edge_selection parameter.*** Source generates items and puts it into the buffer by selecting the edge based on  the value specified in the parameter  `out_edge_selection`.  Based on which buffer has an item, the succeeding machine picks up the item and pushes it to its outgoing edge after processing it. Sink is used to remove the finished items from the buffer. This example shows how to pass a generation function to the parameter `out_edge_selection`
+***Here's another example that shows how to interconnect a source to multiple machines and to pass a custom function in out_edge_selection parameter.*** 
+
+Source generates items and puts it into the buffer by selecting the edge based on  the value specified in the parameter  `out_edge_selection`.  Based on which buffer has an item, the succeeding machine picks up the item and pushes it to its outgoing edge after processing it. Sink is used to remove the finished items from the buffer. This example shows how to pass a generation function to the parameter `out_edge_selection`
 
 ```python
 
