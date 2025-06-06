@@ -3,7 +3,7 @@
 
 from factorysimpy.edges.edge import Edge
 from factorysimpy.base.gen_reservable_priority_req_filter_store import GenReservablePriorityReqFilterStore  # Import your class
-from factorysimpy.base.reservable_priority_req_store import ReservablePriorityReqStore  # Import your class
+from factorysimpy.base.reservable_priority_req_filter_store import ReservablePriorityReqFilterStore  # Import your class
 
 
 
@@ -63,7 +63,7 @@ class Buffer(Edge):
           
           
           if mode == "FIFO":
-             self.inbuiltstore= ReservablePriorityReqStore(env, capacity=self.store_capacity-self.store_capacity)
+             self.inbuiltstore= ReservablePriorityReqFilterStore(env, capacity=self.store_capacity)
           elif mode == "LIFO":
             self.inbuiltstore = GenReservablePriorityReqFilterStore(env, capacity=self.store_capacity-self.store_capacity)
           else:
