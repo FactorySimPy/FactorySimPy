@@ -103,7 +103,8 @@ During its operation, the source transitions through the following states:
 
 **Statistics collected**
 
-The source component reports the following key metrics:
+ Several key metrics are being monitored in the class can be accessed in the attribute `stats` as 
+ component.stats[`num_item_generated`]. The source component reports the following key metrics.
 
 1. Total number of items generated
 2. Number of items discarded (non-blocking mode)
@@ -134,9 +135,9 @@ SRC = Source(
 
 - ***[A simple example with all parameters passed as constants](examples.md/#a-simple-example)***
 
-- ***[An example with inter_arrival_delay passed as a reference to a generator function instance that generates random variates from a chosen distribution](examples.md/#example-with-delay-as-random-variates)***
+- ***[An example with `inter_arrival_delay` passed as a reference to a generator function instance that generates random variates from a chosen distribution](examples.md/#example-with-delay-as-random-variates)***
 
-- ***[An example with out_edge_selection parameter is passed as custom function that yield edge indices](examples.md/#example-with-a-custom-edge-selction-policy-is-passed-as-a-parameter)***
+- ***[An example with `out_edge_selection` parameter is passed as custom function that yield edge indices](examples.md/#example-with-a-custom-edge-selction-policy-is-passed-as-a-parameter)***
 
 
 
@@ -187,102 +188,38 @@ Various options available in the package for `in_edge_selection` and `out_edge_s
 
 
 **Statistics collected**
-The machine component reports the following key metrics:
+ Several key metrics are being monitored in the class can be accessed in the attribute `stats` as 
+ component.stats[`num_item_processed`]. The machine component reports the following key metrics. 
 
 1. Total number of items processed
 2. Time spent in each state 
 
 **Examples and usage**
-
-*** [Here's](examples.md/#a-simple-example) a simple example with all parameters passed as constants ***
-*** [Here's](examples.md/#example-with-delay-as-random-variates) an example with inter_arrival_delay passed as a reference to a generator function instance that generates random variates from a chosen distribution ***
-*** [Here's](examples.md/#example-with-a-custom-edge-selction-policy-is-passed-as-a-parameter) an example with out_edge_selection parameter is passed as custom function that yield edge indices ***
-
-***Here's an example that shows how to interconnect a source to a machine using buffers and pass a python function or a generator instance as parameter.***
-
-Sources generate items and puts it into its outgoing buffer. Machine picks this item and processes it and puts it another buffer. It choses the in_edge and out_edge based on the values yielded from function specified in in_edge_selection parameter and out_edge_selection parameter. Sink is used to remove the finished items from the respective buffers. 
+A machine can be initialised as below.
 
 ```python
-
-
-#  System layout 
-
-#   src1 ──> buffer1 ──┐
-#                      │
-#   src2 ──> buffer2 ──┴─> Machine1 ──┬─> buffer3 ──> sink1
-#                                     │
-#                                     └─> buffer4 ──> sink1
-#   
 import factorysimpy
 from factorysimpy.nodes.machine import Machine
-from factorysimpy.edges.buffer import Buffer
-from factorysimpy.nodes.source import Source
-from factorysimpy.nodes.sink import Sink
 
-env = simpy.Environment()
+MACHINE1 = Machine(
+    env,                        # Simulation environment
+    id="MACHINE1",                    # Unique identifier for the machine node
+    work_capacity=4,            # Max number of items that can be processed simultaneously
+    store_capacity=5,           # Max number of items that can be stored in the machine's internal store
+    processing_delay=1.2,       # Processing delay (constant or generator/function)
+    in_edge_selection="FIRST",  # Policy or function to select incoming edge
+    out_edge_selection="FIRST"  # Policy or function to select outgoing edge
+)
 
-def out_edge_selector(env):
-   while True:
-      if env.now%2==0:
-         yield 1
-      else:
-         yield 0
-
-def in_edge_selector(node):
-   num_edges= len(node.in_edges)
-   while True:
-         yield i
-         yield i
-         i = (i + 1) % num_edges
-    
-
-def processing_delay_generator(node,env):
-    while True:
-        if node.stats["total_time_spent_in_states"]["PROCESSING_STATE"]>7:
-         yield 0.8
-        else:
-         yield 1.6
-
-
-
-# Initializing nodes
-src1= Source(env, id="Source-1",  inter_arrival_time=0.7,blocking=False )
-src2= Source(env, id="Source-2",  inter_arrival_time=0.4,blocking=False )
-m1 = Machine(env, id="M1",work_capacity=4,store_capacity=5, processing_delay=None,in_edge_selection="FIRST",out_edge_selection="FIRST")
-sink1= Sink(env, id="Sink-1" )
-sink2= Sink(env, id="Sink-1" )
-
-#initialising in_edge_selection parameter
-in_edge_func=in_edge_selector(m1)
-m1.in_edge_selection=in_edge_func
-
-#initialising in_edge_selection parameter
-out_edge_func=out_edge_selector(env)
-m1.out_edge_selection=out_edge_func
-
-#initialising processing_delay parameter
-process_delay_gen1=processing_delay_generator(m1,env)
-m1.processing_delay=process_delay_gen1
-
-
-
-# Initializing edges
-buffer1 = Buffer(env, id="Buffer-1", store_capacity=2, delay=0.5)
-buffer2 = Buffer(env, id="Buffer-2", store_capacity=2, delay=0.5)
-buffer3 = Buffer(env, id="Buffer-3", store_capacity=2, delay=0.5)
-buffer4 = Buffer(env, id="Buffer-4", store_capacity=2, delay=0.5)
-
-
-# Adding connections
-buffer1.connect(src1,m1)
-buffer2.connect(src2,m1)
-buffer3.connect(m1,sink1)
-buffer4.connect(m1,sink2)
-
-
-
-env.run(until=10)
 ```
+
+- ***[A simple example with all parameters passed as constants](examples.md/#a-simple-example)***
+
+- ***[An example with `processing_delay` passed as a reference to a generator function instance that generates random variates from a chosen distribution](examples.md/#example-with-delay-as-random-variates)***
+
+- ***[An example with `out_edge_selection` and `in_edge_selection` parameter is passed as custom function that yield edge indices](examples.md/#example-with-a-custom-edge-selction-policy-is-passed-as-a-parameter)***
+
+
 
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
