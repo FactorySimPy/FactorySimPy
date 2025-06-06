@@ -289,7 +289,7 @@ class GenReservablePriorityReqFilterStore(FilterStore):
         if filter is None:
             #print(f"T={self.env.now} filter is None so making it true for all items")
             #filter = lambda item: True  # Default filter that accepts all items
-            filter = lambda items: max(items, key=lambda x: x.value, default=None)
+            filter = lambda items: max(items, key=lambda x: self.env.now> x.value+self.trigger_delay, default=None)
             event.filter = filter
         else:
             #print(f"T={self.env.now} filter is not None ")

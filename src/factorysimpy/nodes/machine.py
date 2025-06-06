@@ -268,7 +268,7 @@ class Machine(Node):
                     print(f"T={self.env.now:.2f}: {self.id} gets item {self.item_to_process[i].id} from {in_edge.id}  ")
                 
         elif in_edge.__class__.__name__ == "Buffer":
-                outstore = in_edge.out_store
+                outstore = in_edge.inbuiltstore
                 get_token = outstore.reserve_get()
                 yield get_token
                 self.item_to_process[i] =outstore.get(get_token)

@@ -51,7 +51,6 @@ class Buffer(Edge):
           self.state = "IDLE_STATE"
           self.mode=mode
           self.store_capacity =  store_capacity
-          self.instorecapacity = int(self.store_capacity/2)
           self.stats = {
             "last_state_change_time": None,
             "time_averaged_num_of_items_in_buffer": 0,
@@ -62,11 +61,11 @@ class Buffer(Edge):
           if self.mode not in ["FIFO", "LIFO"]:
             raise ValueError("Invalid mode. Choose either 'FIFO' or 'LIFO'.")
           
-          self.inbuiltstore = ReservablePriorityReqStore(env, capacity=self.instorecapacity)
+          
           if mode == "FIFO":
-             self.out_store = ReservablePriorityReqStore(env, capacity=self.store_capacity-self.instorecapacity)
+             self.inbuiltstore= ReservablePriorityReqStore(env, capacity=self.store_capacity-self.store_capacity)
           elif mode == "LIFO":
-             self.out_store = GenReservablePriorityReqFilterStore(env, capacity=self.store_capacity-self.instorecapacity)
+            self.inbuiltstore = GenReservablePriorityReqFilterStore(env, capacity=self.store_capacity-self.store_capacity)
           else:
              raise ValueError("Invalid mode. Choose either 'FIFO' or 'LIFO'.")
     
@@ -97,7 +96,7 @@ class Buffer(Edge):
         bool
             True if the buffer can accept an item, False otherwise.
         """
-        return len(self.inbuiltstore.items) < (self.instorecapacity -len(self.inbuiltstore.reservations_put))
+        return len(self.inbuiltstore.items) < (self.store_capacity -len(self.inbuiltstore.reservations_put))
     
     def can_get(self):
         """
@@ -108,7 +107,7 @@ class Buffer(Edge):
         bool
             True if the buffer can give an item, False otherwise.
         """
-        return len(self.out_store.items) < ((self.store_capacity-self.instorecapacity)- -len(self.inbuiltstore.reservations_get))
+        return len(self.out_store.items) < (self.store_capacity-len(self.inbuiltstore.reservations_get))
     
     def behaviour(self):
       """

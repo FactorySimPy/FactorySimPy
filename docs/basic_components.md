@@ -259,6 +259,7 @@ The machine component reports the following key metrics:
 **Examples**
 
 ***Here's an example that shows how to interconnect a source to a machine using buffers and pass a python function or a generator instance as parameter.***
+
 Sources generate items and puts it into its outgoing buffer. Machine picks this item and processes it and puts it another buffer. It choses the in_edge and out_edge based on the values yielded from function specified in in_edge_selection parameter and out_edge_selection parameter. Sink is used to remove the finished items from the respective buffers. 
 
 ```python
@@ -390,7 +391,7 @@ This helps to remove the bottlenecks that come when the processing delays of nod
 **Behavior**
 
 
-During a simulation run, `src_node` puts an item into the buffer and the item gets available after delay amount of time for the `dest_node`. It operates in two modes- First In First Out(FIFO) or Last In First Out(LIFO). The number of items that a buffer can hold at any time can be specified using the parameter `store_capacity`. Buffer transitions through the following states during simulation- 
+During a simulation run, `src_node` puts an item into the buffer and the item gets available after delay amount of time for the `dest_node`. It operates in two modes- First In First Out(FIFO) or Last In First Out(LIFO). The number of items that a buffer can hold at any time can be specified using the parameter `store_capacity`. Buffer transitions through the following states during simulation 
 
 1. "EMPTY_STATE"  : when there is no items in the buffer
 2. "RELEASING_STATE". When there is items.
@@ -399,7 +400,7 @@ During a simulation run, `src_node` puts an item into the buffer and the item ge
 **Monitoring and Reporting**
 The buffer component reports the following key metrics:
 
-1. time averaged number of items available in buffer.
+1. Time averaged number of items available in buffer.
 2. Time spent in each state 
 
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
