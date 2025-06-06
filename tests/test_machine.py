@@ -7,25 +7,27 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src'
 from factorysimpy.nodes.machine import Machine
 from factorysimpy.edges.buffer import Buffer
 from factorysimpy.helper.item import Item
+from factorysimpy.nodes.source import Source
+from factorysimpy.nodes.sink import Sink
 
 
 @pytest.fixture
-def simple_env():
+def env_for_test():
     return simpy.Environment()
 
 
 @pytest.fixture
-def setup_machine_with_buffers(simple_env):
+def setup_machine_with_buffers(env_for_test):
     # Create input buffers
-    in_buffer1 = Buffer(simple_env, "InBuffer1", store_capacity=1)
-    in_buffer2 = Buffer(simple_env, "InBuffer2", store_capacity=1)
+    in_buffer1 = Buffer(env_for_test, "InBuffer1", store_capacity=2)
+    in_buffer2 = Buffer(env_for_test, "InBuffer2", store_capacity=2)
 
     # Create output buffer
-    out_buffer = Buffer(simple_env, "OutBuffer", store_capacity=2)
+    out_buffer = Buffer(env_for_test, "OutBuffer", store_capacity=2)
 
     # Create machine
     machine = Machine(
-        env=simple_env,
+        env=env_for_test,
         id="M1",
         in_edges=[in_buffer1, in_buffer2],
         out_edges=[out_buffer],
@@ -36,13 +38,19 @@ def setup_machine_with_buffers(simple_env):
         in_edge_selection="ROUND_ROBIN",
         out_edge_selection="FIRST"
     )
-
-    return simple_env, machine, in_buffer1, in_buffer2, out_buffer
+    
+    # create source and sink
+    src1 = Source(env_for_test, id="Source-1",  inter_arrival_time=0.5,blocking=False,out_edge_selection="FIRST" )
+    src2 = Source(env_for_test, id="Source-2",  inter_arrival_time=0.5,blocking=False,out_edge_selection="FIRST" )
+    sink = Sink(env_for_test, id="Sink-1")
+    return env_for_test, machine, src1, src2, in_buffer1, in_buffer2, out_buffer, sink
 
 
 def test_machine_processes_multiple_inputs(setup_machine_with_buffers):
-    env, machine, in_buffer1, in_buffer2, out_buffer = setup_machine_with_buffers
-
+    env, machine,src1, src2, in_buffer1, in_buffer2, out_buffer, sink = setup_machine_with_buffers
+    in_buffer1.connect(src1, machine)
+    in_buffer2.connect(src2, machine)
+    out_buffer.connect(machine, sink)
     # Put items into the input buffers
     item1 = Item("item1")
     item2 = Item("item2")

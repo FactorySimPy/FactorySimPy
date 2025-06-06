@@ -37,7 +37,7 @@ Edges are passive components that connect exactly two nodes(src_node and dest_no
    e1.connect(n1, n2)
    e2.connect(n2, n3)
    ```
-
+---
 ---
 
 ## Nodes 
@@ -46,7 +46,7 @@ Edges are passive components that connect exactly two nodes(src_node and dest_no
 Nodes represent active elements in the system. This is a basic type and is the basis for the active components like Machine, Split, Sink, Source, Joint, etc. Every node has a unique identifier named `id` and maintains two lists named `in_edges` and `out_edges`. Every node has a `node_setup_time` that can be specified as a constant delay (integer of float)
 
 
-### Source
+#### Source
 
 The Source component is responsible for generating items that enter and flow through the system. The API documentation of [Source](source.md)
 

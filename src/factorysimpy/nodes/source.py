@@ -213,10 +213,9 @@ class Source(Node):
             self.update_state(self.state, self.env.now)
             if self.state == "SETUP_STATE":
                 print(f"T={self.env.now:.2f}: {self.id} is in SETUP_STATE. Waiting for setup time {self.node_setup_time} seconds")
-                node_setup_delay = self.get_delay(self.node_setup_time)
-                if not isinstance(node_setup_delay, (int, float)):
-                    raise AssertionError("node_setup_time returns an valid value. It should be int or float")
-                yield self.env.timeout(node_setup_delay)
+                
+                
+                yield self.env.timeout(self.node_setup_time)
                 
                 self.update_state("GENERATING_STATE", self.env.now)
      
