@@ -46,28 +46,28 @@ Edges are passive components that connect exactly two nodes(src_node and dest_no
 Nodes represent active elements in the system. This is a basic type and is the basis for the active components like Machine, Split, Sink, Source, Joint, etc. Every node has a unique identifier named `id` and maintains two lists named `in_edges` and `out_edges`. Every node has a `node_setup_time` that can be specified as a constant delay (integer of float)
 
 
-#### Source
+### Source
 
-The Source component is responsible for generating items that enter and flow through the system. The API documentation of [Source](source.md)
+The source component is responsible for generating items that enter and flow through the system. The API documentation of [Source](source.md)
 
-There are two modes of operation for the Source:
+There are two modes of operation for the source:
 
-1. If the `blocking` parameter is set to True, the Source generates an item and tries to send it to the connected outgoing edge. If the edge is full or cannot accept the item, the Source waits until space becomes available.
+1. If the `blocking` parameter is set to True, the source generates an item and tries to send it to the connected outgoing edge. If the edge is full or cannot accept the item, the source waits until space becomes available.
 
-2. If the `blocking` parameter is set to False, the Source generates items and attempts to send them to the outgoing edge. If the edge is full or cannot accept the item, the Source discards the item.
+2. If the `blocking` parameter is set to False, the source generates items and attempts to send them to the outgoing edge. If the edge is full or cannot accept the item, the source discards the item.
 
 
 
 **Behavior**
-
-During a simulation run, the Source component repeatedly generates items at discrete instants of time specified by `inter_arrival_time`. The parameter `inter_arrival_time` can be specified as a fixed constant or as a reference to a python function or a generator function instance that generate random variates from a chosen distribution.
+At the start of the simulation, the source waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node. This parameter is a constant delay specified as an integer or a float.
+During a simulation run, the source generates items at discrete instants of time specified by `inter_arrival_time`. The parameter `inter_arrival_time` can be specified as a fixed constant or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution.
 After generating an item, the source behaves as follows:
 
-1. If the source is `blocking` is True, it waits until the outgoing edge becomes available before pushing the item.
+1. If the source is `blocking` is True, it pushes the item without check if the outgoing edge if full and waits for the outgoing edge to accept the item.
 
-2. If the source is `blocking` is False, it checks the availability of the outgoing edge. If the edge is full or unavailable, the item is discarded.
+2. If the source is `blocking` is False, it checks if there is space in the outgoing edge to accomodate the item. If the edge is full or unavailable, the item is discarded.
 
-The source then waits for the next inter_arrival_time before attempting to generate the next item. Source can be connected to multiple outgoing edges. To control how the next edge is selected for item transfer, desired strategy can be specified using the `out_edge_selection` parameter. It can either be one of the methods available in the package or a python function or a generator function instance. Various options available in the package are are `RANDOM`, `FIRST`, `LAST`,`ROUND_ROBIN`, `FIRST_AVAILABLE`, etc. During its operation, the source transitions through the following states:
+The source then waits for an amount of time specified using the parameter `inter_arrival_time` before attempting to generate the next item. Source can be connected to multiple outgoing edges. To control how the next edge is selected for item transfer, desired strategy can be specified using the `out_edge_selection` parameter. It can either be one of the methods available in the package or a python function or a generator function instance that is provided by the user. Various options available in the package are are `RANDOM`, `FIRST`, `LAST`,`ROUND_ROBIN`, `FIRST_AVAILABLE`, etc. During its operation, the source transitions through the following states:
 
 1. `SETUP_STATE`: Initialization or warm-up phase before item generation starts.
 

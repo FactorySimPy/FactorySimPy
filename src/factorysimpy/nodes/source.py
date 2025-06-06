@@ -214,7 +214,6 @@ class Source(Node):
             if self.state == "SETUP_STATE":
                 print(f"T={self.env.now:.2f}: {self.id} is in SETUP_STATE. Waiting for setup time {self.node_setup_time} seconds")
                 
-                
                 yield self.env.timeout(self.node_setup_time)
                 
                 self.update_state("GENERATING_STATE", self.env.now)
