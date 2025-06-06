@@ -93,6 +93,10 @@ Source generates items and puts it into the buffer. Machine picks this item and 
 
 ```python
 
+#   System layout 
+#   src ──> buffer1 ──> m1 ──> buffer3 ──> sink1
+
+
 import factorysimpy
 from factorysimpy.nodes.machine import Machine
 from factorysimpy.edges.buffer import Buffer
@@ -143,6 +147,11 @@ env.run(until=10)
 
 ```python
 
+#  System layout 
+
+#   src ──> buffer1 ──> m1 ──> buffer3 ──> sink1  
+#     └──> buffer2 ──> m2 ──> buffer4 ──> sink2
+
 import factorysimpy
 from factorysimpy.nodes.machine import Machine
 from factorysimpy.edges.buffer import Buffer
@@ -153,7 +162,7 @@ env = simpy.Environment()
 
 
 
-def out_edge_selector(Node, env):
+def out_edge_selector(env):
 
    while True:
       if env.now%2==0:
@@ -226,6 +235,15 @@ Sources generate items and puts it into its outgoing buffer. Machine picks this 
 
 ```python
 
+
+#  System layout 
+
+#   src1 ──> buffer1 ──┐
+#                      │
+#   src2 ──> buffer2 ──┴─> Machine1 ──┬─> buffer3 ──> sink1
+#                                     │
+#                                     └─> buffer4 ──> sink1
+#   
 import factorysimpy
 from factorysimpy.nodes.machine import Machine
 from factorysimpy.edges.buffer import Buffer
@@ -310,7 +328,7 @@ env.run(until=10)
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
 
- A Sink is a terminal node that collects flow items at the end. Once an item enters the Sink, it is considered to have exited the system and cannot be retrieved or processed further. This sink can have multiple input edges and no output edges. It has a unique identifier. It only has a single state `COLLECTING_STATE`. The API documentation of [Sink](sink.md)
+ A Sink is a terminal node that collects flow items at the end. Once an item enters the Sink, it is considered to have exited the system and cannot be retrieved or processed further. This sink can have multiple input edges and no output edges. It has a unique identifier. It only has a single state "COLLECTING_STATE". The API documentation of [Sink](sink.md)
 
 
 <hr style="height:3px;border:none;color: grey; background-color:grey; " />
