@@ -101,7 +101,7 @@ env.run(until=10)
 |-------|---------|----------------|
 | `Edge`   | base class for passive entities | `id` ,`delay=0`, `src_node=None`,`dest_node=None`  |
 | `Buffer`  | Finite‑capacity queue. | `store_capacity`,`delay=0`, `mode="FIFO"`|
-| `Conveyor` | slotted conveyor belt; optional blocking slots. | `name`,`belt_capacity`, `time_per_slot`, `accumulating=False` |
+| `Conveyor` | slotted conveyor belt; optional blocking slots. | `belt_capacity`, `time_per_slot`, `accumulating=False` |
 | `Fleet` | Pool of AGVs/robots moving items. | 
 
 
