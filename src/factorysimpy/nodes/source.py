@@ -19,7 +19,7 @@ class Source(Node):
 
         inter_arrival_time (None, int, float, generator, or callable): Time between item generations. Can be:
                 
-            - None: Used when the setup time depends on parameters like the current state of the object or time.
+            - None: Used when the setup time depends on parameters of the node object (like current state of the object) or environment. 
             - int or float: Used as a constant delay.
             - Callable: A function that returns a delay (int or float).
             - Generator: A generator function yielding delay values over time.  
@@ -28,7 +28,7 @@ class Source(Node):
         out_edge_selection (None or str or callable): Criterion or function for selecting the out edge.
                                               Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
 
-            - None: Used when out edge selection depends on parameters like current state of the object or time.   
+            - None: Used when out edge selection depends on parameters of the node object (like current state of the object) or environment.    
             - str: A string that specifies the selection method.
                 - "RANDOM": Selects a random out edge.
                 - "FIRST": Selects the first out edge.
@@ -43,13 +43,13 @@ class Source(Node):
     The Source node is responsible for generating items that flow in the simulation model. It operates in two modes: 
     blocking and non-blocking.
 
-    Blocking Mode (`blocking=True`):
+    when `blocking=True`:
         - After each `inter_arrival_time`, the source generates an item.
         - If the selected out edge is full, the source waits until space is available.
         - Once space is available, the item is transferred to the selected edge.
         - `inter_arrival_time` must not be `None`.
 
-    Non-blocking Mode (`blocking=False`):
+    when `blocking=False`:
         - After each `inter_arrival_time`, the source generates an item.
         - If the selected out edge is full, the item is discarded immediately.
         - If space is available, the item is transferred without waiting.

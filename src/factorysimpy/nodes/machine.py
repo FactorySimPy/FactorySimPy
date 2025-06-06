@@ -22,14 +22,14 @@ class Machine(Node):
             work_capacity (int): Maximum number of items that can be processed simultaneously.
             processing_delay (None, int, float, Generator, Callable): Delay for processing items. Can be:
                 
-                - None: Used when the processing time depends on parameters like the current state or time.
+                - None: Used when the processing time depends on parameters of the node object (like current state of the object) or environment. 
                 - int or float: Used as a constant delay.
                 - Generator: A generator function yielding delay values over time.
                 - Callable: A function that returns a delay (int or float).
             in_edge_selection (None or str or callable): Criterion or function for selecting the edge.
                                               Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
 
-                - None: None: Used when edge selction depends on parameters like current state of the object or time.   
+                - None: None: Used when edge selction depends on parameters of the node object (like current state of the object) or environment. 
                 - str: A string that specifies the selection method.
                     - "RANDOM": Selects a random edge.
                     - "FIRST": Selects the first edge in the in_edges list.
@@ -40,7 +40,7 @@ class Machine(Node):
             out_edge_selection (None or str or callable): Criterion or function for selecting the out edge.
                                               Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
 
-                - None: None: Used when out edge selction depends on parameters like current state of the object or time.   
+                - None: None: Used when out edge selction depends on parameters of the node object (like current state of the object) or environment.   
                 - str: A string that specifies the selection method.
                     - "RANDOM": Selects a random out edge in the out_edges list.
                     - "FIRST": Selects the first out edge in the out_edges list.
