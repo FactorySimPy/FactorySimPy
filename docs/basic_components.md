@@ -53,17 +53,14 @@ Nodes represent active elements in the system. This is a basic type and is the b
 
 The source component is responsible for generating items that enter and flow through the system. The API documentation of [Source](source.md)
 
-There are two modes of operation for the source:
-
-1. If the `blocking` parameter is set to True, the source generates an item and tries to send it to the connected outgoing edge. If the edge is full or cannot accept the item, the source waits until space becomes available.
-
-2. If the `blocking` parameter is set to False, the source generates items and attempts to send them to the outgoing edge. If the edge is full or cannot accept the item, the source discards the item.
+There are two modes of operation for the source. If the `blocking` parameter is set to True, the source generates an item and tries to send it to the connected outgoing edge. If the edge is full or cannot accept the item, the source waits until space becomes available. If the `blocking` parameter is set to False, the source generates items and attempts to send them to the outgoing edge. If the edge is full or cannot accept the item, the source discards the item.
 
 
 
 **Behavior**
+
 At the start of the simulation, the source waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node. This parameter is a constant delay specified as an integer or a float.
-During a simulation run, the source generates items at discrete instants of time specified by `inter_arrival_time`. The parameter `inter_arrival_time` can be specified as a fixed constant or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution.
+During a simulation run, the source generates items at discrete instants of time specified by `inter_arrival_time`. The parameter `inter_arrival_time` can be specified as a constant value (int or float) or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution.
 After generating an item, the source behaves as follows:
 
 1. If the source is `blocking` is True, it pushes the item without check if the outgoing edge if full and waits for the outgoing edge to accept the item.
@@ -90,6 +87,9 @@ The source component reports the following key metrics:
 These metrics help in analyzing the performance and efficiency of the item generation process within the simulation model.
 
 **Examples**
+
+Here's an example that shows how to interconnect a source to a machine using a buffer. Source generates items and puts it into the buffer. Machine picks this item and processes it and puts it another buffer. Sink is used to remove the finished items from the buffer. This example shows how to pass a python function and a generation function as parameter to the node.
+
 ```python
 
 import factorysimpy
@@ -100,7 +100,7 @@ from factorysimpy.nodes.sink import Sink
 
 env = simpy.Environment()
 
-def inter_arrival_generator(loc=4.0, scale=5.0, size=1):
+def inter_arrival(loc=4.0, scale=5.0, size=1):
         delay = scipy.stats.expon.rvs(loc=0.0,scale=0.5,size=1)
         return delay[0]
 
@@ -114,28 +114,30 @@ def processing_delay_generator(Node,env):
 
 
 # Initializing nodes
-src= Source(env, id="Source-1",  inter_arrival_time=inter_arrival_generator(),blocking=False,out_edge_selection="FIRST" )
+src= Source(env, id="Source-1",  inter_arrival_time=inter_arrival(),blocking=False,out_edge_selection="FIRST" )
 m1 = Machine(env, id="M1",work_capacity=4,store_capacity=5, processing_delay=None,in_edge_selection="FIRST",out_edge_selection="FIRST")
 
 process_delay_gen1=processing_delay_generator(m1,env)
 m1.processing_delay=process_delay_gen1
-m2 = Machine(env, id="M2",work_capacity=4,store_capacity=5, processing_delay=0.5,in_edge_selection="FIRST",out_edge_selection="FIRST")
 
 sink= Sink(env, id="Sink-1" )
 
 # Initializing edges
 buffer1 = Buffer(env, id="Buffer-1", store_capacity=4, delay=0.5)
 buffer2 = Buffer(env, id="Buffer-2", store_capacity=4, delay=0.5)
-buffer3 = Buffer(env, id="Buffer-3", store_capacity=4, delay=0.5)
+
 
 # Adding connections
 buffer1.connect(src,m1)
-buffer2.connect(m1,m2)
-buffer3.connect(m2,sink)
+buffer2.connect(m1,sink)
+
 
 
 env.run(until=10)
 ```
+
+Here's another example that shows how to interconnect a source to multiple machines. Source generates items and puts it into the buffer by selecting the edge based on  the value specified in the parameter  `out_edge_selection`.  Based on which buffer has an item, the succeeding machine picks up the item and pushes it to its outgoing edge after processing it. Sink is used to remove the finished items from the buffer. This example shows how to pass a generation function to the parameter `out_edge_selection`
+
 ```python
 
 import factorysimpy
@@ -146,16 +148,7 @@ from factorysimpy.nodes.sink import Sink
 
 env = simpy.Environment()
 
-def inter_arrival_generator(loc=4.0, scale=5.0, size=1):
-        delay = scipy.stats.expon.rvs(loc=0.0,scale=0.5,size=1)
-        return delay[0]
 
-def processing_delay_generator(Node,env):
-    while True:
-        if Node.stats["total_time_spent_in_states"]["PROCESSING_STATE"]>7:
-         yield 0.8
-        else:
-         yield 1.6
 
 def out_edge_selector(Node, env):
 
@@ -168,13 +161,12 @@ def out_edge_selector(Node, env):
 
 
 # Initializing nodes
-src= Source(env, id="Source-1",  inter_arrival_time=inter_arrival_generator(),blocking=False,out_edge_selection=None )
+src= Source(env, id="Source-1",  inter_arrival_time=0.56,blocking=False,out_edge_selection=None )
 OES=out_edge_selector(src,env)
 src.out_edge_selection=OES
 
-m1 = Machine(env, id="M1",work_capacity=4,store_capacity=5, processing_delay=None,in_edge_selection="FIRST",out_edge_selection="FIRST")
-process_delay_gen1=processing_delay_generator(m1,env)
-m1.processing_delay=process_delay_gen1
+m1 = Machine(env, id="M1",work_capacity=4,store_capacity=5, processing_delay=0.98,in_edge_selection="FIRST",out_edge_selection="FIRST")
+
 
 m2 = Machine(env, id="M2",work_capacity=4,store_capacity=5, processing_delay=0.5,in_edge_selection="FIRST",out_edge_selection="FIRST")
 sink1= Sink(env, id="Sink-1" )
@@ -205,7 +197,9 @@ Machine is a component that has a processing delay and processes/modifies items 
 
 
 **Behavior**
-During a simulation run, Machine gets object from one of the in_edges. To choose an incoming edge, to pull the item from, the Machine utilises the strategy specified in the parameter `in_edge_selection`. Various options available are  "RANDOM", "FIRST", "LAST","ROUND_ROBIN", "FIRST_AVAILABLE", etc. Similarly, to select and outgoing edge, to push the item to, Machine uses the method specified in `out_edge_selection` parameter. User can also provide a custom function to these parameters. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initilise the parameter with thea reference to the function or directly pass it at the time of creation. This is illustrated in the examples shown below. Machine picks an item and takes `processing_delay` amount of time to process the item and puts it inside the inbuiltstore. The capacity of this store can be specified in the parameter `store_capacity`. Machine can parallely process `work_capacity` number of items. But, if `work_capacity` > `store_capacity`, then `work_capacity` is set to `store_capacity`. During its operation, Machine transitions through the following states: "SETUP_STATE", "PROCESSING_STATE", "BLOCKED_STATE", and "IDLE_STATE".
+
+At the start of the simulation, the machine waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node. This parameter is a constant delay specified as an integer or a float.
+During a simulation run, machine gets object from one of the in_edges. To choose an incoming edge, to pull the item from, the Machine utilises the strategy specified in the parameter `in_edge_selection`. Various options available are  "RANDOM", "FIRST", "LAST","ROUND_ROBIN", "FIRST_AVAILABLE", etc. Similarly, to select and outgoing edge, to push the item to, Machine uses the method specified in `out_edge_selection` parameter. User can also provide a custom function to these parameters. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initilise the parameter with thea reference to the function or directly pass it at the time of creation. This is illustrated in the examples shown below. Machine picks an item and takes `processing_delay` amount of time to process the item and puts it inside the inbuiltstore. The capacity of this store can be specified in the parameter `store_capacity`. Machine can parallely process `work_capacity` number of items. But, if `work_capacity` > `store_capacity`, then `work_capacity` is set to `store_capacity`. During its operation, Machine transitions through the following states: "SETUP_STATE", "PROCESSING_STATE", "BLOCKED_STATE", and "IDLE_STATE".
 
 **Monitoring and Reporting**
 The Machine component reports the following key metrics:
