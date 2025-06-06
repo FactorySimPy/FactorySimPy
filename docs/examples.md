@@ -2,7 +2,7 @@
 
 In this section, we present examples that demonstrate how to use factorysimpy
 
-A simple example to connect a machine to an input buffer and output buffer and to simulate item flow through them. Here, all the delays(inter_arrival_time, processing_delay) are constant values and out_edge_selection and out_edge_selection are generator functions that are available in the package. 
+A simple example to connect a machine to an input buffer and output buffer and to simulate item flow through them. Here, all the delays(inter_arrival_time, processing_delay) are constant values and out_edge_selection and out_edge_selection uses the generator functions that are available in the package ("FIRST"). The function name can be passed as a string. See [API](api_ref_main_page.md) for the details of all the available functions.
 
 ```python
 import factorysimpy

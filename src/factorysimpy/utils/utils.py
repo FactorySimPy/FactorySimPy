@@ -60,6 +60,8 @@ def Last(node, env, edge_type):
 def FirstAvailable(node, env, edge_type):
     while True:
         edges = getattr(node, f"{edge_type}_edges")
-        for i, edge in enumerate(edges):
-            if edge.can_put():
+        for i in range(len(edges)):
+            if edges[i].can_put():
                 yield i
+            if i== len(edges) - 1:
+                i = -1

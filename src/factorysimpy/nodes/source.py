@@ -28,7 +28,7 @@ class Source(Node):
         out_edge_selection (None or str or callable): Criterion or function for selecting the out edge.
                                               Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
 
-            - None: Used when out edge selction depends on parameters like current state of the object or time.   
+            - None: Used when out edge selection depends on parameters like current state of the object or time.   
             - str: A string that specifies the selection method.
                 - "RANDOM": Selects a random out edge.
                 - "FIRST": Selects the first out edge.
