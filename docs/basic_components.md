@@ -59,22 +59,42 @@ The source component is responsible for generating items that enter and flow thr
 
 **Behavior**
 
-At the start of the simulation, the source waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node. This parameter is a constant delay specified as an integer or a float.
-During a simulation run, the source generates items at discrete instants of time specified by `inter_arrival_time`. The parameter `inter_arrival_time` can be specified as a constant value (int or float) or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution.
-After generating an item, the source behaves as follows:
+At the start of the simulation, the source waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an `int` or `float`).
 
-1. If `blocking` is True, it pushes the item without check if the outgoing edge if full and waits for the outgoing edge to accept the item.
+During a simulation run, the source generates items at discrete instants of time determined by the parameter `inter_arrival_time`. This parameter can be specified as a constant value (`int` or `float`) or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution.
+
+
+After generating an item, the source behaves as follows:
+1. If `blocking` is `True`, it pushes the item without checking whether the outgoing edge is full and waits for the outgoing edge to accept the item.
 
 2. If `blocking` is False, it checks if there is space in the outgoing edge to accomodate the item. If the edge is full or unavailable, the item is discarded.
 
-The source then waits for an amount of time specified using the parameter `inter_arrival_time` before attempting to generate the next item. Source can be connected to multiple outgoing edges. To control how the next edge is selected for item transfer, desired strategy can be specified using the `out_edge_selection` parameter. It can either be one of the methods available in the package or a python function or a generator function instance that is provided by the user. Various options available in the package are "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE", etc. User can provide a reference to custom function in these parameters. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initilise the parameter with thea reference to the function. During its operation, the source transitions through the following states:
+
+
+The source can be connected to multiple outgoing edges. To control how the next edge is selected for item transfer, the desired strategy can be specified using the `out_edge_selection` parameter. It can either be one of the methods available in the package (passed as a string) or a Python function or a generator function instance provided by the user. 
+
+Various options available in the package for `out_edge_selection` include:
+
+- "RANDOM": Selects a random out edge.
+- "FIRST": Selects the first out edge.
+- "LAST": Selects the last out edge.
+- "ROUND_ROBIN": Selects out edges in a round-robin manner.
+- "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
+
+Users provided function should return or yield an edge index. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initialize the parameter with the reference to the function. The source then waits for an amount of time determined using the parameter `inter_arrival_time` before attempting to generate the next item.
+
+---
+
+### Operational States
+
+During its operation, the source transitions through the following states:
 
 1. "SETUP_STATE": Initialization or warm-up phase before item generation starts.
 
-2. "GENERATING_STATE": Active state where items are being created and pushed to the system.
+2. "GENERATING_STATE": Active state where items are being created and pushed to the out_edge.
 
-3. "BLOCKED_STATE": The source is blocked, waiting for the outgoing edge to accept an item (only in blocking mode).
-
+3. "BLOCKED_STATE": The source is blocked, waiting for the outgoing edge to accept an item (only when `blocking` is `True`).
+"""
 
 
 **Monitoring and Reporting**
