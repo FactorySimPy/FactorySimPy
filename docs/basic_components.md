@@ -61,7 +61,7 @@ The source component is responsible for generating items that enter and flow thr
 
 At the start of the simulation, the source waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an `int` or `float`).
 
-During a simulation run, the source generates items at discrete instants of time determined by the parameter `inter_arrival_time`. This parameter can be specified as a constant value (`int` or `float`) or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution.
+During a simulation run, the source generates items at discrete instants of time determined by the parameter `inter_arrival_time`. This parameter can be specified as a constant value (`int` or `float`) or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initilise the parameter with thea reference to the function or directly pass it at the time of creation.
 
 
 After generating an item, the source behaves as follows:
@@ -82,12 +82,7 @@ Various options available in the package for `out_edge_selection` include:
 - "ROUND_ROBIN": Selects out edges in a round-robin manner.
 - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
 
-Users provided function should return or yield an edge index. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initialize the parameter with the reference to the function. The source then waits for an amount of time determined using the parameter `inter_arrival_time` before attempting to generate the next item.
-
----
-
-### Operational States
-
+User-provided function should return or yield an edge index. If the function depends on any of the node attributes, user can pass `None` to this parameter at the time of node creation and later initialize the parameter with the reference to the function. The source then waits for an amount of time determined using the parameter `inter_arrival_time` before attempting to generate the next item.
 During its operation, the source transitions through the following states:
 
 1. "SETUP_STATE": Initialization or warm-up phase before item generation starts.
@@ -231,8 +226,17 @@ Machine is a component that has a processing delay and processes/modifies items 
 
 **Behavior**
 
-At the start of the simulation, the machine waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node. This parameter is a constant delay specified as an integer or a float.
-During a simulation run, machine gets object from one of the in_edges. To choose an incoming edge, to pull the item from, the Machine utilises the strategy specified in the parameter `in_edge_selection`. Various options available are  "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE", etc. Similarly, to select and outgoing edge, to push the item to, Machine uses the method specified in `out_edge_selection` parameter. User can also provide a custom function to these parameters. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initilise the parameter with thea reference to the function or directly pass it at the time of creation. This is illustrated in the examples shown below. Machine picks an item and takes `processing_delay` amount of time to process the item and puts it inside the inbuiltstore. The capacity of this store can be specified in the parameter `store_capacity`. Machine can parallely process `work_capacity` number of items. But, if `work_capacity` is greater than `store_capacity`, then `work_capacity` is set to `store_capacity`. During its operation, Machine transitions through the following states:
+At the start of the simulation, the source waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an `int` or `float`).
+
+During a simulation run, machine gets object from one of the in_edges. To choose an incoming edge, to pull the item from, the Machine utilises the strategy specified in the parameter `in_edge_selection`. Various options available are  "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE", etc. Similarly, to select an outgoing edge, to push the item to, Machine uses the method specified in `out_edge_selection` parameter. User can also provide a custom function to these parameters. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initilise the parameter with the reference to the function or directly pass it at the time of creation. This is illustrated in the examples shown below. Various options available in the package for `in_edge_selection` and `out_edge_selection` include:
+
+- "RANDOM": Selects a random out edge.
+- "FIRST": Selects the first out edge.
+- "LAST": Selects the last out edge.
+- "ROUND_ROBIN": Selects out edges in a round-robin manner.
+- "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
+
+ Machine picks an item and takes `processing_delay` amount of time to process the item and puts it inside the inbuiltstore. This parameter can be specified as a constant value (`int` or `float`) or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initilise the parameter with thea reference to the function or directly pass it at the time of creation. The capacity of this store can be specified in the parameter `store_capacity`. Machine can parallely process `work_capacity` number of items. But, if `work_capacity` is greater than `store_capacity`, then `work_capacity` is set to `store_capacity`. During its operation, Machine transitions through the following states:
 
 1. "SETUP_STATE": Initialization or warm-up phase before item generation starts.
 
