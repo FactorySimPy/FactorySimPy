@@ -3,6 +3,10 @@ name: Publish to TestPyPI
 on:
   workflow_dispatch:  # run manually from GitHub UI
 
+permissions:
+  id-token: write   # Required for PyPI OIDC
+  contents: read    # Needed to read repo content
+
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
