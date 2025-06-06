@@ -65,9 +65,10 @@ During a simulation run, the source generates items at discrete instants of time
 
 
 After generating an item, the source behaves as follows:
+
 1. If `blocking` is `True`, it pushes the item without checking whether the outgoing edge is full and waits for the outgoing edge to accept the item.
 
-2. If `blocking` is False, it checks if there is space in the outgoing edge to accomodate the item. If the edge is full or unavailable, the item is discarded.
+2. If `blocking` is `False`, it checks if there is space in the outgoing edge to accomodate the item. If the edge is full or unavailable, the item is discarded.
 
 
 
