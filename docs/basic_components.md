@@ -63,9 +63,9 @@ At the start of the simulation, the source waits for `node_setup_time`. This is 
 During a simulation run, the source generates items at discrete instants of time specified by `inter_arrival_time`. The parameter `inter_arrival_time` can be specified as a constant value (int or float) or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution.
 After generating an item, the source behaves as follows:
 
-1. If the source is `blocking` is True, it pushes the item without check if the outgoing edge if full and waits for the outgoing edge to accept the item.
+1. If `blocking` is True, it pushes the item without check if the outgoing edge if full and waits for the outgoing edge to accept the item.
 
-2. If the source is `blocking` is False, it checks if there is space in the outgoing edge to accomodate the item. If the edge is full or unavailable, the item is discarded.
+2. If `blocking` is False, it checks if there is space in the outgoing edge to accomodate the item. If the edge is full or unavailable, the item is discarded.
 
 The source then waits for an amount of time specified using the parameter `inter_arrival_time` before attempting to generate the next item. Source can be connected to multiple outgoing edges. To control how the next edge is selected for item transfer, desired strategy can be specified using the `out_edge_selection` parameter. It can either be one of the methods available in the package or a python function or a generator function instance that is provided by the user. Various options available in the package are "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE", etc. User can provide a reference to custom function in these parameters. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initilise the parameter with thea reference to the function. During its operation, the source transitions through the following states:
 
