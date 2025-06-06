@@ -46,8 +46,8 @@ All components can be customized, and extended easily.
 An example that shows how to simulate a simple system with a machine and two buffers
 ```python
 
-#system layout
-#src ──> buffer1 ──> m1 ──> buffer2 ──> sink1
+#   System layout 
+#   SRC ──> BUF1 ──> MACHINE1 ──> BUF2 ──> SINK
 
 import factorysimpy
 from factorysimpy.nodes.machine import Machine
@@ -58,29 +58,25 @@ from factorysimpy.nodes.sink import Sink
 
 env = simpy.Environment()
 
-def distribution_generator(loc=4.0, scale=5.0, size=1):
-    while True:
-        delay = scipy.stats.expon.rvs(loc=0.0,scale=0.5,size=1)
-        yield delay[0]
-
 # Initializing nodes
-src= Source(env, id="Source-1",  inter_arrival_time=distribution_generator(), blocking=False, out_edge_selection="FIRST" )
-m1 = Machine(env, id="M1",work_capacity=4,store_capacity=5, processing_delay=1.6,in_edge_selection="FIRST",out_edge_selection="FIRST")
-
-sink= Sink(env, id="Sink-1" )
+SRC= Source(env, id="SRC",  inter_arrival_time= 0.8,blocking=False,out_edge_selection="FIRST" )
+MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4,store_capacity=5, processing_delay=1.1, in_edge_selection="FIRST",out_edge_selection="FIRST")
+SINK= Sink(env, id="SINK" )
 
 # Initializing edges
-buffer1 = Buffer(env, id="Buffer-1", store_capacity=4, delay=0.43, mode="LIFO")
-buffer2 = Buffer(env, id="Buffer-2", store_capacity=2, delay=0.87, mode= "FIFO")
+BUF1 = Buffer(env, id="BUF1", store_capacity=4, delay=0.5, mode = "FIFO")
+BUF2 = Buffer(env, id="BUF2", store_capacity=4, delay=0.5, mode = "FIFO")
 
 # Adding connections
-buffer1.connect(src,m1)
-buffer2.connect(m1,sink)
+BUF1.connect(SRC,MACHINE1)
+BUF2.connect(MACHINE1,SINK)
 
 
 env.run(until=10)
 
+
 ```
+
 
 
 ---
