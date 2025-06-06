@@ -40,21 +40,20 @@ Edges are passive components that connect exactly two nodes (src_node and dest_n
 ---
 
 
-<hr style="height:3px;border:none;color:blue; background-color:grey;" />
+<hr style="height:4px;border:none;color:blue; background-color:grey;" />
 ## Nodes 
-<hr style="height:3px;border:none;color:blue; background-color:grey;" />
+<hr style="height:4px;border:none;color:blue; background-color:grey;" />
 
 Nodes represent active elements in the system. This is a basic type and is the basis for the active components like Machine, Split, Sink, Source, Joint, etc. Every node has a unique identifier named `id` and maintains two lists named `in_edges` and `out_edges`. Every node has a `node_setup_time` that can be specified as a constant delay (integer of float). Activities that takesplace in a node create state changes in the system. The API documentation of [Node](nodes.md)
 
 
-<hr style="height:3px;border:dotted;color: grey; " />
+
+<hr style="height:2px;border:none;color:grey; background-color:grey;" />
 
 ### Source
-<hr style="height:3px;border:dotted;color: grey; " />
+<hr style="height:2px;border:none;color:grey; background-color:grey;" />
 
-The source component is responsible for generating items that enter and flow through the system. The API documentation of [Source](source.md)
-
-There are two modes of operation for the source. If the `blocking` parameter is set to True, the source generates an item and tries to send it to the connected outgoing edge. If the edge is full or cannot accept the item, the source waits until space becomes available. If the `blocking` parameter is set to False, the source generates items and attempts to send them to the outgoing edge. If the edge is full or cannot accept the item, the source discards the item.
+The source component is responsible for generating items that enter and flow through the system. The API documentation of [Source](source.md). There are two modes of operation for the source. If the `blocking` parameter is set to True, the source generates an item and tries to send it to the connected outgoing edge. If the edge is full or cannot accept the item, the source waits until space becomes available. If the `blocking` parameter is set to False, the source generates items and attempts to send them to the outgoing edge. If the edge is full or cannot accept the item, the source discards the item.
 
 
 
@@ -89,7 +88,8 @@ These metrics help in analyzing the performance and efficiency of the item gener
 
 **Examples**
 
-Here's an example that shows how to interconnect a source to a machine using a buffer. Source generates items and puts it into the buffer. Machine picks this item and processes it and puts it another buffer. Sink is used to remove the finished items from the buffer. This example shows how to pass a python function and a generation function as parameter to the node.
+***Here's an example that shows how to interconnect a source to a machine using a buffer and pass a python function or a generator instance as parameter.***
+Source generates items and puts it into the buffer. Machine picks this item and processes it and puts it another buffer. Sink is used to remove the finished items from the buffer. This example shows how to pass a python function and a generation function as parameter to the node.
 
 ```python
 
@@ -117,11 +117,13 @@ def processing_delay_generator(Node,env):
 # Initializing nodes
 src= Source(env, id="Source-1",  inter_arrival_time=inter_arrival(),blocking=False,out_edge_selection="FIRST" )
 m1 = Machine(env, id="M1",work_capacity=4,store_capacity=5, processing_delay=None,in_edge_selection="FIRST",out_edge_selection="FIRST")
+sink= Sink(env, id="Sink-1" )
 
+#initialising processing_delay parameter
 process_delay_gen1=processing_delay_generator(m1,env)
 m1.processing_delay=process_delay_gen1
 
-sink= Sink(env, id="Sink-1" )
+
 
 # Initializing edges
 buffer1 = Buffer(env, id="Buffer-1", store_capacity=4, delay=0.5)
@@ -137,7 +139,7 @@ buffer2.connect(m1,sink)
 env.run(until=10)
 ```
 
-Here's another example that shows how to interconnect a source to multiple machines. Source generates items and puts it into the buffer by selecting the edge based on  the value specified in the parameter  `out_edge_selection`.  Based on which buffer has an item, the succeeding machine picks up the item and pushes it to its outgoing edge after processing it. Sink is used to remove the finished items from the buffer. This example shows how to pass a generation function to the parameter `out_edge_selection`
+***Here's another example that shows how to interconnect a source to multiple machines and to pass a custom function in out_edge_selection parameter.*** Source generates items and puts it into the buffer by selecting the edge based on  the value specified in the parameter  `out_edge_selection`.  Based on which buffer has an item, the succeeding machine picks up the item and pushes it to its outgoing edge after processing it. Sink is used to remove the finished items from the buffer. This example shows how to pass a generation function to the parameter `out_edge_selection`
 
 ```python
 
@@ -163,15 +165,14 @@ def out_edge_selector(Node, env):
 
 # Initializing nodes
 src= Source(env, id="Source-1",  inter_arrival_time=0.56,blocking=False,out_edge_selection=None )
-OES=out_edge_selector(src,env)
-src.out_edge_selection=OES
-
 m1 = Machine(env, id="M1",work_capacity=4,store_capacity=5, processing_delay=0.98,in_edge_selection="FIRST",out_edge_selection="FIRST")
-
-
 m2 = Machine(env, id="M2",work_capacity=4,store_capacity=5, processing_delay=0.5,in_edge_selection="FIRST",out_edge_selection="FIRST")
 sink1= Sink(env, id="Sink-1" )
 sink2= Sink(env, id="Sink-2" )
+
+#initialising out_edge_selection parameter
+out_edge_func=out_edge_selector(src,env)
+src.out_edge_selection=out_edge_func
 
 # Initializing edges
 buffer1 = Buffer(env, id="Buffer-1", store_capacity=4, delay=0.5)
@@ -190,9 +191,10 @@ env.run(until=10)
 ```
 
 
-<hr style="height:3px;border:dotted;color: grey; " />
+<hr style="height:2px;border:none;color:blue; background-color:grey;" />
+
 ### Machine
-<hr style="height:3px;border:dotted;color: grey; " />
+<hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
 Machine is a component that has a processing delay and processes/modifies items that flow in the system. It can have multiple incoming edges and outgoing edges. It gets an item from one of its in edges and processes the item in a `processing_delay` amount of time and pushes the item to one of its out edges. The API documentation of [Machine](machine.md)
 
@@ -217,17 +219,95 @@ The Machine component reports the following key metrics:
 1. Total number of items processed
 2. Time spent in each state 
 
-<hr style="height:3px;border:dotted;color: grey; " />
+**Examples**
+
+***Here's an example that shows how to interconnect a source to a machine using buffers and pass a python function or a generator instance as parameter.***
+Sources generate items and puts it into its outgoing buffer. Machine picks this item and processes it and puts it another buffer. It choses the in_edge and out_edge based on the values yielded from function specified in in_edge_selection parameter and out_edge_selection parameter. Sink is used to remove the finished items from the respective buffers. 
+
+```python
+
+import factorysimpy
+from factorysimpy.nodes.machine import Machine
+from factorysimpy.edges.buffer import Buffer
+from factorysimpy.nodes.source import Source
+from factorysimpy.nodes.sink import Sink
+
+env = simpy.Environment()
+
+def out_edge_selector(env):
+   while True:
+      if env.now%2==0:
+         yield 1
+      else:
+         yield 0
+
+def in_edge_selector(node):
+   num_edges= len(node.in_edges)
+   while True:
+         yield i
+         yield i
+         i = (i + 1) % num_edges
+    
+
+def processing_delay_generator(node,env):
+    while True:
+        if node.stats["total_time_spent_in_states"]["PROCESSING_STATE"]>7:
+         yield 0.8
+        else:
+         yield 1.6
+
+
+
+# Initializing nodes
+src1= Source(env, id="Source-1",  inter_arrival_time=0.7,blocking=False )
+src2= Source(env, id="Source-2",  inter_arrival_time=0.4,blocking=False )
+m1 = Machine(env, id="M1",work_capacity=4,store_capacity=5, processing_delay=None,in_edge_selection="FIRST",out_edge_selection="FIRST")
+sink1= Sink(env, id="Sink-1" )
+sink2= Sink(env, id="Sink-1" )
+
+#initialising in_edge_selection parameter
+in_edge_func=in_edge_selector(m1)
+m1.in_edge_selection=in_edge_func
+
+#initialising in_edge_selection parameter
+out_edge_func=out_edge_selector(env)
+m1.out_edge_selection=out_edge_func
+
+#initialising processing_delay parameter
+process_delay_gen1=processing_delay_generator(m1,env)
+m1.processing_delay=process_delay_gen1
+
+
+
+# Initializing edges
+buffer1 = Buffer(env, id="Buffer-1", store_capacity=2, delay=0.5)
+buffer2 = Buffer(env, id="Buffer-2", store_capacity=2, delay=0.5)
+buffer3 = Buffer(env, id="Buffer-3", store_capacity=2, delay=0.5)
+buffer4 = Buffer(env, id="Buffer-4", store_capacity=2, delay=0.5)
+
+
+# Adding connections
+buffer1.connect(src1,m1)
+buffer2.connect(src2,m1)
+buffer3.connect(m1,sink1)
+buffer4.connect(m1,sink2)
+
+
+
+env.run(until=10)
+```
+
+<hr style="height:2px;border:none;color:blue; background-color:grey;" />
 ### Split
-<hr style="height:3px;border:dotted;color: grey; " />
+<hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
-<hr style="height:3px;border:dotted;color: grey; " />
+<hr style="height:2px;border:none;color:blue; background-color:grey;" />
 ### Joint
-<hr style="height:3px;border:dotted;color: grey; " />
+<hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
-<hr style="height:3px;border:dotted;color: grey; " />
+<hr style="height:2px;border:none;color:blue; background-color:grey;" />
 ### Sink
-<hr style="height:3px;border:dotted;color: grey; " />
+<hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
 
  A Sink is a terminal node that collects flow items at the end. Once an item enters the Sink, it is considered to have exited the system and cannot be retrieved or processed further. This sink can have multiple input edges and no output edges. It has a unique identifier. It only has a single state `COLLECTING_STATE`. The API documentation of [Sink](sink.md)
@@ -241,9 +321,9 @@ The Machine component reports the following key metrics:
 Edges represent passive elements in the system. This is the basis for the components like Buffer, Conveyor, Fleet, etc. Every edge has a unique identifier named `id` and maintains references to a source node `src_node` and a destination node `dest_node`. Edge acts as a conntction between these two nodes and facilitates the movement of items between the nodes. 
 
 
-<hr style="height:3px;border:dotted;color: grey; " />
+<hr style="height:2px;border:none;color:blue; background-color:grey;" />
 ### Buffer
-<hr style="height:3px;border:dotted;color: grey; " />
+<hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
 
 Buffer is a type of edge that represents a queue to store items that wait to be accepted by a downstream component.
@@ -265,9 +345,9 @@ The Machine component reports the following key metrics:
 1. time averaged number of items available in buffer.
 2. Time spent in each state 
 
-<hr style="height:3px;border:dotted;color: grey; " />
+<hr style="height:2px;border:none;color:blue; background-color:grey;" />
 ### Conveyor
-<hr style="height:3px;border:dotted;color: grey; " />
+<hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
 Conveyor connects two nodes and moves items from one end to the other. The API documentation of [Conveyor](conveyor.md)
 There are two variants of conveyor available:
