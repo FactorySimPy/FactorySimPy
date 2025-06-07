@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://factorysimpy.github.io/FactorySimPy/conveyor/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Conveyor - FactorySimPy</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Conveyor";
+        var mkdocs_page_input_path = "conveyor.md";
+        var mkdocs_page_url = "/FactorySimPy/conveyor/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> FactorySimPy
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Overview</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../getting_started/">Getting Started</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">SYSTEM DESCRIPTION</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../basic_components/">Basic Components</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Other features</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../monitoring/">Monitoring and Measurement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../extending_components/">Extending Components</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../interrupts/">Modeling interrupts</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RTsimulation/">Enabling real-time simulation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">REFERENCE</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../extendedresources/">Supporting classes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../api_ref_main_page/">API Reference</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">About</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../authors/">Authors</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../changelog/">Changelog</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../license/">License</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">FactorySimPy</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Conveyor</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="factorysimpy.edges.conveyor"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="factorysimpy.edges.conveyor.BeltStore" class="doc doc-heading">
+            <code>BeltStore</code>
+
+
+<a href="#factorysimpy.edges.conveyor.BeltStore" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="ReservablePriorityReqFilterStore (factorysimpy.base.reservable_priority_req_filter_store.ReservablePriorityReqFilterStore)" href="../reservablepriorityreqfilterstore/#factorysimpy.base.reservable_priority_req_filter_store.ReservablePriorityReqFilterStore">ReservablePriorityReqFilterStore</a></code></p>
+
+
+        <p>This is a class that is derived from SimPy's Store class and has extra capabilities
+that makes it a priority-based reservable store for processes to reserve space
+for storing and retrieving items with priority-based access.</p>
+<p>Processes can use reserve_put() and reserve_get() methods to get notified when a space becomes
+available in the store or when an item gets available in the ReservablePriorityReqStore.
+These methods returns a unique event (SimPy.Event) to the process for every reserve requests it makes.
+Processes can also pass a priority as argument in the request. Lower values indicate higher priority.</p>
+<p>get and put are two methods that can be used for item storing and retrieval from ReservablePriorityReqStore.
+Process has to make a prior reservation and pass the associated reservation event as argument in the get and
+put requests. ReservablePriorityReqStore maintains separate queues for <code>reserve_put</code> and <code>reserve_get</code> operations
+to ensures that only processes with valid reservations can store or retrieve items.</p>
+<p>ReservablePriorityReqStore preserves item order by associating an unreserved item in the store with a reservation event
+by index when a reserve_get() request is made. As a result, it maintains a list of reserved events to preserve item order.</p>
+<p>It also allows users to cancel an already placed reserve_get or reserve_put request even if it is yielded.
+It also handles the dissociation of the event and item done at the time of reservation when an already yielded
+event is canceled.</p>
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="factorysimpy.edges.conveyor.ConveyorBelt" class="doc doc-heading">
+            <code>ConveyorBelt</code>
+
+
+<a href="#factorysimpy.edges.conveyor.ConveyorBelt" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="Edge (factorysimpy.edges.edge.Edge)" href="../edges/#factorysimpy.edges.edge.Edge">Edge</a></code></p>
+
+
+        <p>A conveyor belt system with optional accumulation.</p>
+<p>Attributes:</p>
+<div class="codehilite"><pre><span></span><code><span class="nv">state</span><span class="w"> </span><span class="ss">(</span><span class="nv">str</span><span class="ss">)</span>:<span class="w"> </span><span class="nv">state</span><span class="w"> </span><span class="nv">of</span><span class="w"> </span><span class="nv">the</span><span class="w"> </span><span class="nv">machine</span>
+<span class="nv">capacity</span><span class="w"> </span><span class="ss">(</span><span class="nv">int</span><span class="ss">)</span>:<span class="w"> </span><span class="nv">Maximum</span><span class="w"> </span><span class="nv">capacity</span><span class="w"> </span><span class="nv">of</span><span class="w"> </span><span class="nv">the</span><span class="w"> </span><span class="nv">belt</span>.
+<span class="nv">delay</span><span class="w"> </span><span class="ss">(</span><span class="nv">float</span><span class="ss">)</span>:<span class="w"> </span><span class="nv">Time</span><span class="w"> </span><span class="nv">delay</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="nv">items</span><span class="w"> </span><span class="nv">on</span><span class="w"> </span><span class="nv">the</span><span class="w"> </span><span class="nv">belt</span>.
+<span class="nv">accumulation</span><span class="w"> </span><span class="ss">(</span><span class="nv">int</span><span class="ss">)</span>:<span class="w"> </span><span class="nv">Whether</span><span class="w"> </span><span class="nv">the</span><span class="w"> </span><span class="nv">belt</span><span class="w"> </span><span class="nv">supports</span><span class="w"> </span><span class="nv">accumulation</span><span class="w"> </span><span class="ss">(</span><span class="mi">1</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="nv">yes</span>,<span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="nv">no</span><span class="ss">)</span>.
+<span class="nv">belt</span><span class="w"> </span><span class="ss">(</span><span class="nv">BeltStore</span><span class="ss">)</span>:<span class="w"> </span><span class="nv">The</span><span class="w"> </span><span class="nv">belt</span><span class="w"> </span><span class="nv">store</span><span class="w"> </span><span class="nv">object</span>.
+</code></pre></div>
+
+<p>Methods:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="n">Checks</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">belt</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">empty</span><span class="o">.</span>
+<span class="n">show_occupancy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="n">Returns</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">items</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">belt</span><span class="o">.</span>
+<span class="n">is_full</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="n">Checks</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">belt</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">full</span><span class="o">.</span>
+<span class="n">can_get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="n">Checks</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">retrieved</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">belt</span><span class="o">.</span>
+<span class="n">is_stalled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="n">Checks</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">belt</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">stalled</span><span class="w"> </span><span class="n">due</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="n">constraints</span><span class="o">.</span>
+<span class="n">can_put</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="n">Checks</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">added</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">belt</span><span class="o">.</span>
+
+
+<span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">get_event</span><span class="p">):</span>
+<span class="w">    </span><span class="n">Retrieves</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">belt</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">there</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">already</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">matching</span><span class="w"> </span><span class="n">get_event</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">belt</span><span class="o">.</span>
+<span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">put_event</span><span class="p">,</span><span class="w"> </span><span class="n">item</span><span class="p">):</span>
+<span class="w">    </span><span class="n">Places</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">belt</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">there</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">already</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">matching</span><span class="w"> </span><span class="n">put_event</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">belt</span><span class="o">.</span>
+<span class="n">reserve_get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="n">Queues</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">reservation</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">get</span><span class="w"> </span><span class="n">request</span><span class="o">.</span>
+<span class="n">reserve_put</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="n">Queues</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">reservation</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">put</span><span class="w"> </span><span class="n">request</span>
+
+<span class="n">behaviour</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="n">Main</span><span class="w"> </span><span class="n">behavior</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">conveyor</span><span class="w"> </span><span class="n">belt</span><span class="o">.</span>
+</code></pre></div>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="AssertionError">AssertionError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If the belt does not have at least one source node or one destination node.</p>
+              </div>
+            </li>
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If the belt already has 1 out_edge or tries to add an in_edge.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.edges.conveyor.ConveyorBelt.is_empty" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">is_empty</span><span class="p">()</span></code>
+
+<a href="#factorysimpy.edges.conveyor.ConveyorBelt.is_empty" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the belt is completely empty.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.edges.conveyor.ConveyorBelt.is_full" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">is_full</span><span class="p">()</span></code>
+
+<a href="#factorysimpy.edges.conveyor.ConveyorBelt.is_full" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the belt is full.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.edges.conveyor.ConveyorBelt.can_get" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">can_get</span><span class="p">()</span></code>
+
+<a href="#factorysimpy.edges.conveyor.ConveyorBelt.can_get" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if an item can be retrieved from the belt.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.edges.conveyor.ConveyorBelt.is_stalled" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">is_stalled</span><span class="p">()</span></code>
+
+<a href="#factorysimpy.edges.conveyor.ConveyorBelt.is_stalled" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the belt is stalled due to time constraints.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.edges.conveyor.ConveyorBelt.can_put" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">can_put</span><span class="p">()</span></code>
+
+<a href="#factorysimpy.edges.conveyor.ConveyorBelt.can_put" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if an item can be added to the belt.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.edges.conveyor.ConveyorBelt.move" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">move</span><span class="p">()</span></code>
+
+<a href="#factorysimpy.edges.conveyor.ConveyorBelt.move" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Move items along the belt.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.edges.conveyor.ConveyorBelt.accumulate" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">accumulate</span><span class="p">()</span></code>
+
+<a href="#factorysimpy.edges.conveyor.ConveyorBelt.accumulate" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Handle item accumulation on the belt.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.edges.conveyor.ConveyorBelt.noaccumulate" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">noaccumulate</span><span class="p">()</span></code>
+
+<a href="#factorysimpy.edges.conveyor.ConveyorBelt.noaccumulate" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Handle non-accumulating belt behavior.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.edges.conveyor.ConveyorBelt.reserve_get" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">reserve_get</span><span class="p">()</span></code>
+
+<a href="#factorysimpy.edges.conveyor.ConveyorBelt.reserve_get" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Queue a get request.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.edges.conveyor.ConveyorBelt.reserve_put" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">reserve_put</span><span class="p">()</span></code>
+
+<a href="#factorysimpy.edges.conveyor.ConveyorBelt.reserve_put" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Queue a put request or add item to the belt if possible.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.edges.conveyor.ConveyorBelt.behaviour" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">behaviour</span><span class="p">()</span></code>
+
+<a href="#factorysimpy.edges.conveyor.ConveyorBelt.behaviour" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Main behavior of the conveyor belt.</p>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
