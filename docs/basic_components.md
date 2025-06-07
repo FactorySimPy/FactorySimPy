@@ -383,7 +383,7 @@ The `Item` class represents the discrete entities that flow through the system. 
 - `source_id` - The ID of the source node that created the item.
 - `payload` - Optional data carried by the item.
 - `destructed_in_node` - The node where the item was destroyed.
-- `stats` - Dictionary recording the total time spent at each node.
+
 
 **Behavior**
 
@@ -401,10 +401,10 @@ item = Item("item1")
 item.set_creation(source_id="SRC1", env=env)
 
 # When item enters a node
-item.update_node_event(node_id="M1", env=env, event_type="entry")
+item.update_node_event(node_id="MACHINE1", env=env, event_type="entry")
 
 # When item exits a node
-item.update_node_event(node_id="M1", env=env, event_type="exit")
+item.update_node_event(node_id="MACHINE1", env=env, event_type="exit")
 
 # When item is destroyed (e.g., in a sink)
 item.set_destruction(node_id="SINK1", env=env)
