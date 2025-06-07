@@ -48,8 +48,8 @@ FactorySimPy is a light-weight Python library for modeling and discrete-event si
 ```python
 
 
-#system layout
-#src ──> buffer1 ──> m1 ──> buffer2 ──> sink1
+#   System layout 
+#   SRC ──> BUF1 ──> MACHINE1 ──> BUF2 ──> SINK
 
 import factorysimpy
 from factorysimpy.nodes.machine import Machine
@@ -58,23 +58,22 @@ from factorysimpy.nodes.source import Source
 from factorysimpy.nodes.sink import Sink
 
 
-#creating an environment
 env = simpy.Environment()
 
 # Initializing nodes
-src= Source(env, id="Source-1",  inter_arrival_time=2, blocking=False,out_edge_selection="RANDOM" )
-m1 = Machine(env, id="M1", work_capacity=4, store_capacity=5, processing_delay=1.3, in_edge_selection="FIRST", out_edge_selection="FIRST")
-sink= Sink(env, id="Sink-1" )
+SRC= Source(env, id="SRC",  inter_arrival_time= 0.8,blocking=False,out_edge_selection="FIRST" )
+MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4,store_capacity=5, processing_delay=1.1, in_edge_selection="FIRST",out_edge_selection="FIRST")
+SINK= Sink(env, id="SINK" )
 
 # Initializing edges
-buffer1 = Buffer(env, id="Buffer-1", store_capacity=4, delay=0.5, mode="FIFO")
-buffer2 = Buffer(env, id="Buffer-2", store_capacity=2, delay=0.7, mode ="LIFO")
+BUF1 = Buffer(env, id="BUF1", store_capacity=4, delay=0.5, mode = "FIFO")
+BUF2 = Buffer(env, id="BUF2", store_capacity=4, delay=0.5, mode = "FIFO")
 
 # Adding connections
-buffer1.connect(src,m1)
-buffer2.connect(m1,sink)
+BUF1.connect(SRC,MACHINE1)
+BUF2.connect(MACHINE1,SINK)
 
-#start simulation
+
 env.run(until=10)
 
 ```
