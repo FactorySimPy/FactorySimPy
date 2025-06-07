@@ -31,7 +31,7 @@ buffer1.connect(src,m1)
 buffer2.connect(m1,sink)
 
 
-env.run(until=5)
+env.run(until=10)
 print("Simulation completed.")
 # Print statistics
 print(f"Source {src.id} generated {src.stats['num_item_generated']} items.")
