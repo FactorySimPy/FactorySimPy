@@ -40,7 +40,8 @@ Edges are passive components that connect exactly two nodes (src_node and dest_n
 ---
 
 
-<hr style="height:4px;border:none;color:blue; background-color:grey;" />
+
+
 ## Nodes 
 <hr style="height:4px;border:none;color:blue; background-color:grey;" />
 
@@ -361,3 +362,62 @@ The component reports the following key metrics:
 1. Time averaged number of items 
 3. Time spent in each state 
 
+
+<hr style="height:4px;border:none;color:blue; background-color:grey;" />
+
+## Item
+<hr style="height:4px;border:none;color:blue; background-color:grey;" />
+
+**About**
+
+The `Item` class represents the discrete entities that flow through the system. Each item is created by a source node and is then processed, transferred, or collected by various nodes and edges as it moves through the simulation. The `Item` object tracks its movement, including timestamps for creation, entry and exit at each node, and destruction, as well as the time spent at each node.
+
+**Basic attributes**
+
+- `id` - Unique identifier for the item.
+- `timestamp_creation` - Time when the item was created.
+- `timestamp_destruction` - Time when the item was destroyed (e.g., collected by a sink).
+- `timestamp_node_entry` - Time when the item entered the current node.
+- `timestamp_node_exit` - Time when the item exited the current node.
+- `current_node_id` - The ID of the node the item is currently in.
+- `source_id` - The ID of the source node that created the item.
+- `payload` - Optional data carried by the item.
+- `destructed_in_node` - The node where the item was destroyed.
+- `stats` - Dictionary recording the total time spent at each node.
+
+**Behavior**
+
+When an item is created, its creation time and source node are recorded. As the item enters and exits nodes, the `update_node_event` method updates entry/exit times and accumulates the time spent at each node in the `stats` dictionary. When the item is destroyed (e.g., collected by a sink), the destruction time and node are recorded.
+
+**Usage**
+
+An item is typically created inside a source node and then passed through the system. The source node should call `set_creation` to record the creation time and source. Each node should call `update_node_event` when the item enters or exits, and the sink or terminal node should call `set_destruction` to record when and where the item is destroyed.
+
+```python
+from factorysimpy.helper.item import Item
+
+# Create an item in the source node
+item = Item("item1")
+item.set_creation(source_id="SRC1", env=env)
+
+# When item enters a node
+item.update_node_event(node_id="M1", env=env, event_type="entry")
+
+# When item exits a node
+item.update_node_event(node_id="M1", env=env, event_type="exit")
+
+# When item is destroyed (e.g., in a sink)
+item.set_destruction(node_id="SINK1", env=env)
+```
+
+**Statistics collected**
+
+The `Item` class tracks:
+
+1. Creation and destruction times.
+2. The node where the item was created and destroyed.
+3. Time spent at each node (accessible via the `stats` dictionary).
+
+This information can be used for detailed analysis of item flow and performance in the simulation.
+
+<hr style="height:4px;border:none;color:blue; background-color:grey;" />
