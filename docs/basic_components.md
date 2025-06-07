@@ -62,7 +62,7 @@ The source component is responsible for generating items that enter and flow thr
 - `state` - current state of the component
 - `inter_arrival_time`- time interval between two successive item generation
 - `blocking` -  If True, waits for outgoing edge to accept item; if False, discards if full
-- `out_edge_selection`- Policy to select outgoing edge
+- `out_edge_selection`- Edge selection policy as a function to select outgoing edge
 
 **Behavior**
 
@@ -151,7 +151,7 @@ print(f"Source {SRC.id}, state times: {SRC.stats["time_spent_in_states"]}")
 
 - ***[An example with `inter_arrival_delay` passed as a reference to a generator function instance that generates random variates from a chosen distribution](examples.md/#example-with-delay-as-random-variates)***
 
-- ***[An example with `out_edge_selection` parameter is passed as custom function that yield edge indices](examples.md/#example-with-a-custom-edge-selction-policy-is-passed-as-a-parameter)***
+- ***[An example with `out_edge_selection` parameter is passed as custom function that yields edge indices](examples.md/#example-with-a-custom-edge-selction-policy-as-a-function)***
 
 
 
@@ -170,8 +170,8 @@ Machine is a component that processes/modifies items that flow in the system. It
 - `processing_delay`- time taken to process an item
 - `work_capacity` - maximum number of jobs or items that can be processed by the machine simulataneously
 - `blocking`-  If True, waits for outgoing edge to accept item; if False, discards if full
-- `in_edge_selection`- Policy to select outgoing edge
-- `out_edge_selection`- Policy to select outgoing edge
+- `in_edge_selection`- Edge selection policy as a function to select outgoing edge
+- `out_edge_selection`- Edge selection policy as a function to select outgoing edge
 
 **Behavior**
 
@@ -260,7 +260,7 @@ print(f"Machine {MACHINE1.id}, worker2 state times: {MACHINE1.stats[1]["time_spe
 
 - ***[An example with `processing_delay` passed as a reference to a generator function instance that generates random variates from a chosen distribution](examples.md/#example-with-delay-as-random-variates)***
 
-- ***[An example with `out_edge_selection` and `in_edge_selection` parameter is passed as custom function that yield edge indices](examples.md/#example-with-a-custom-edge-selction-policy-is-passed-as-a-parameter)***
+- ***[An example with `out_edge_selection` and `in_edge_selection` parameter is passed as custom function that yields edge indices](examples.md/#example-with-a-custom-edge-selction-policy-as-a-function)***
 
 
 

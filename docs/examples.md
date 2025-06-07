@@ -105,7 +105,7 @@ BUF2.connect(MACHINE1,SINK)
 env.run(until=10)
 ```
 
-## Example WITH custom edge selction policy passed as a parameter
+## Example with a custom edge selction policy as a function
 
 ***Here's an example that shows how to interconnect a source to a machine using buffers and pass a python function or a generator instance as parameter.***
 
