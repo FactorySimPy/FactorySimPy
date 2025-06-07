@@ -68,26 +68,19 @@ class Machine(Node):
                 
     """
 
-    def __init__(self, env, id, in_edges=None, out_edges=None,node_setup_time=0, work_capacity=1, store_capacity=1 ,processing_delay=0,in_edge_selection="FIRST",out_edge_selection="FIRST"):
+    def __init__(self, env, id, in_edges=None, out_edges=None,node_setup_time=0, work_capacity=1,processing_delay=0,blocking=False,in_edge_selection="FIRST",out_edge_selection="FIRST"):
         super().__init__(env, id,in_edges, out_edges, node_setup_time)
         
-        self.state = "SETUP_STATE"
-        self.store_capacity = store_capacity
+        self.state = {} 
         self.work_capacity = work_capacity
-        self.item_to_process={}
-        self.item_token_put={}
+        self.blocking = blocking
+        self.item_in_process={}
+        self.stats={}
        
      
-        self.stats = {
-            "last_state_change_time": None,
-            "num_item_processed": 0,
-            "total_time_spent_in_states":{"SETUP_STATE": 0.0,"IDLE_STATE": 0.0, "PROCESSING_STATE": 0.0, "BLOCKED_STATE": 0.0}
-        }
+        
 
-        self.inbuiltstore = ReservablePriorityReqStore(env, capacity=store_capacity)  # Custom store with reserve capacity
-        if work_capacity > store_capacity:
-            print("Warning: Effective capacity is limited by the minimum of work_capacity and store_capacity.")
-
+        
 
         # Initialize processing delay 
         if callable(processing_delay):
@@ -142,7 +135,7 @@ class Machine(Node):
     
         
  
-    def update_state(self, new_state: str, current_time: float):
+    def update_state(self,i, new_state: str, current_time: float):
         """
         Update node state and track the time spent in the previous state.
         
@@ -152,14 +145,14 @@ class Machine(Node):
 
         """
         
-        if self.state is not None and self.stats["last_state_change_time"] is not None:
-            elapsed = current_time - self.stats["last_state_change_time"]
+        if self.state[i] is not None and self.stats[i]["last_state_change_time"] is not None:
+            elapsed = current_time - self.stats[i]["last_state_change_time"]
 
-            self.stats["total_time_spent_in_states"][self.state] = (
-                self.stats["total_time_spent_in_states"].get(self.state, 0.0) + elapsed
+            self.stats[i]["total_time_spent_in_states"][self.state[i]] = (
+                self.stats[i]["total_time_spent_in_states"].get(self.state[i], 0.0) + elapsed
             )
-        self.state = new_state
-        self.stats["last_state_change_time"] = current_time
+        self.state[i] = new_state
+        self.stats[i]["last_state_change_time"] = current_time
 
         
     
@@ -231,49 +224,61 @@ class Machine(Node):
     
    
 
-    def _push_item(self, out_edge):
+    def _push_item(self, i, out_edge):
         """
         It picks a processed item from the store and pushes it to the specified out_edge.
         The out_edge can be a ConveyorBelt or Buffer.
         Args:
+            i (int): Index of the worker processing the item.
             out_edge (Edge Object): The edge to which the item will be pushed.
 
 
         """
-        get_token= self.inbuiltstore.reserve_get()
-        yield get_token
-        item = self.inbuiltstore.get(get_token)
+       
         if out_edge.__class__.__name__ == "ConveyorBelt":                 
                 put_token = out_edge.reserve_put()
                 pe = yield put_token
-                y=out_edge.put(pe, item)
+                self.item_in_process[i].update_node_event(self.id, self.env, "exit")
+                
+                y=out_edge.put(pe, self.item_in_process[i])
                 if y:
-                    print(f"T={self.env.now:.2f}: {self.id} puts {item.id} item into {out_edge.id}  ")
+                    print(f"T={self.env.now:.2f}: {self.id} puts {self.item_in_process[i].id} item into {out_edge.id}  ")
         elif out_edge.__class__.__name__ == "Buffer":
                 outstore = out_edge.inbuiltstore
                 put_token = outstore.reserve_put()
                 yield put_token
-                y=outstore.put(put_token, item)
+                self.item_in_process[i].update_node_event(self.id, self.env, "exit")
+                y=outstore.put(put_token, self.item_in_process[i])
                 if y:
                     print(f"T={self.env.now:.2f}: {self.id} puts item into {out_edge.id}")
         else:
                 raise ValueError(f"Unsupported edge type: {out_edge.__class__.__name__}")
         
     def _pull_item(self,i, in_edge):
+        """
+        It pulls an item from the specified in_edge and assigns it to the worker for processing.
+        Args:
+            i (int): Index of the worker that will process the item.
+            in_edge (Edge Object): The edge from which the item will be pulled.
+
+        """
         if in_edge.__class__.__name__ == "ConveyorBelt":
                 get_token = in_edge.reserve_get()
                 gtoken = yield get_token
-                self.item_to_process[i]=yield in_edge.get(gtoken)
-                if self.item_to_process[i]:
-                    print(f"T={self.env.now:.2f}: {self.id} gets item {self.item_to_process[i].id} from {in_edge.id}  ")
+                self.item_in_process[i]=yield in_edge.get(gtoken)
+                self.item_in_process[i].update_node_event(self.id, self.env, "entry")
+              
+                if self.item_in_process[i]:
+                    print(f"T={self.env.now:.2f}: {self.id} gets item {self.item_in_process[i].id} from {in_edge.id}  ")
                 
         elif in_edge.__class__.__name__ == "Buffer":
                 outstore = in_edge.inbuiltstore
                 get_token = outstore.reserve_get()
                 yield get_token
-                self.item_to_process[i] =outstore.get(get_token)
-                if self.item_to_process[i]:
-                    print(f"T={self.env.now:.2f}: {self.id} gets item {self.item_to_process[i].id} from {in_edge.id} ")
+                self.item_in_process[i] =outstore.get(get_token)
+                self.item_in_process[i].update_node_event(self.id, self.env, "entry")
+                if self.item_in_process[i]:
+                    print(f"T={self.env.now:.2f}: {self.id} gets item {self.item_in_process[i].id} from {in_edge.id} ")
         else:
                 raise ValueError(f"Unsupported edge type: {in_edge.__class__.__name__}")
 
@@ -283,45 +288,55 @@ class Machine(Node):
         #Worker process that processes items with resource and reserve handling."""
         self.reset()
         while True:
-            print(f"T={self.env.now:.2f}: {self.id} worker{i} started processing")
-            if self.state == "SETUP_STATE":
+            #print(f"T={self.env.now:.2f}: {self.id} worker{i} started processing")
+            if self.state[i] == "SETUP_STATE":
+                
                 print(f"T={self.env.now:.2f}: {self.id} worker{i} is in SETUP_STATE")
                 yield self.env.timeout(self.node_setup_time)# always an int or float
-                self.update_state("IDLE_STATE", self.env.now)
+                self.update_state(i,"IDLE_STATE", self.env.now)
             
-            elif self.state == "IDLE_STATE":
+            elif self.state[i] == "IDLE_STATE":
                 print(f"T={self.env.now:.2f}: {self.id} worker{i} is in IDLE_STATE")
-                self.update_state("BLOCKED_STATE", self.env.now)
-                self.item_token_put[i] =  self.inbuiltstore.reserve_put()
-                yield self.item_token_put[i] 
-                self.update_state("IDLE_STATE", self.env.now)
+        
                 # Wait for the next item to process
                 edgeindex_to_get = self._get_in_edge_index()
                 in_edge = self.in_edges[edgeindex_to_get]
                 yield self.env.process(self._pull_item(i,in_edge))
-                self.update_state("PROCESSING_STATE", self.env.now)
+                
+                self.update_state(i,"PROCESSING_STATE", self.env.now)
 
-            elif self.state == "PROCESSING_STATE":
-                 if self.item_to_process[i] is None:
+            elif self.state[i] == "PROCESSING_STATE":
+                 if self.item_in_process[i] is None:
                    raise RuntimeError(f"{self.id} worker{i} - No item to process!")
                  next_processing_time = self.get_delay(self.processing_delay)
                  if not isinstance(next_processing_time, (int, float)):
                         raise AssertionError("processing_delay returns an valid value. It should be int or float")
                  yield self.env.timeout(next_processing_time)
-                 self.stats["num_item_processed"] += 1
-                 print(f"T={self.env.now:.2f}: {self.id} worker{i} processed item: {self.item_to_process[i].id}")
+                 self.stats[i]["num_item_processed"] += 1
+                 print(f"T={self.env.now:.2f}: {self.id} worker{i} processed item: {self.item_in_process[i].id}")
                  out_edge_index_to_put = self._get_out_edge_index()
                  outedge_to_put = self.out_edges[out_edge_index_to_put]
-                
-                 self.inbuiltstore.put(self.item_token_put[i], self.item_to_process[i])
-                 self.update_state("IDLE_STATE", self.env.now)
-                 self.item_to_process[i] = None  # Clear the processed item
+                 self.update_state(i,"BLOCKED_STATE", self.env.now)
+                 # Check if the out_edge can accept the item
+                 if self.blocking :
+                    yield self.env.process(self._push_item(self.item_in_process[i], outedge_to_put))
+                 else:
+                    # Check if the out_edge can accept the item
+                    if outedge_to_put.can_put():
+                        yield self.env.process(self._push_item(i, outedge_to_put))
+                    else:
+                        print(f"T={self.env.now:.2f}: {self.id} worker{i} is discarding item {self.item_in_process[i].id} because out_edge {outedge_to_put.id} is full.")
+                        self.stats[i]["num_item_discarded"] += 1  # Decrement processed count if item is discarded
+                        self.item_in_process[i].set_destruction(self.id, self.env)
+                        self.item_in_process[i] = None  # Clear the processed item
+                 self.update_state(i,"IDLE_STATE", self.env.now)
+                 self.item_in_process[i] = None  # Clear the processed item
                  # process items and put in inbuiltstore. 
                  # Pull_items will take the items and push it to next component.
-                 self.env.process(self._push_item(outedge_to_put))
+                 
                  
             else:
-                raise ValueError(f"Invalid state: {self.state} for worker {i} in Machine {self.id}")    
+                raise ValueError(f"Invalid state: {self.state[i]} for worker {i} in Machine {self.id}")    
             
           
                 
@@ -333,9 +348,20 @@ class Machine(Node):
         
         assert self.in_edges is not None and len(self.in_edges) >= 1, f"Machine '{self.id}' must have atleast 1 in_edge."
         assert self.out_edges is not None and len(self.out_edges) >= 1, f"Machine '{self.id}' must have atleast 1 out_edge."
-        cap = min(self.store_capacity, self.work_capacity)
-        for i in range(cap):
+        
+        for i in range(self.work_capacity):
             print(f"T={self.env.now:.2f}: {self.id} creating worker {i+1}")
+            self.state[i+1] = "SETUP_STATE" # Initialize state for each worker
+            self.item_in_process[i+1] = None  # Initialize item to process for each worker
+            
+            # Initialize stats for each worker
+            self.stats[i+1] = {
+                        "last_state_change_time": None,
+                        "num_item_processed": 0,
+                        "num_item_discarded": 0,
+                        "total_time_spent_in_states":{"SETUP_STATE": 0.0,"IDLE_STATE": 0.0, "PROCESSING_STATE": 0.0, "BLOCKED_STATE": 0.0}
+                    }
+            #starting worker process
             self.env.process(self.worker(i+1))
         yield self.env.timeout(0)  # Initialize the behavior without delay
 

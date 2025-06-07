@@ -78,7 +78,7 @@ class Sink(Node):
             item = yield storetoget.get(ge)
     
         else :
-            storetoget = self.in_edges[0].out_store
+            storetoget = self.in_edges[0].inbuiltstore
             get_token =  storetoget.reserve_get()
             yield get_token
             item = storetoget.get(get_token)

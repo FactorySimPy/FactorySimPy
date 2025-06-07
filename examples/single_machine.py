@@ -17,26 +17,27 @@ def distribution_generator(loc=4.0, scale=5.0, size=1):
         yield delay[0]
 
 # Initializing nodes
-src= Source(env, id="Source-1",  inter_arrival_time=distribution_generator(),blocking=True,out_edge_selection="ROUND_ROBIN" )
-m1 = Machine(env, id="M1",work_capacity=4,store_capacity=5, processing_delay=distribution_generator(),in_edge_selection="FIRST",out_edge_selection="FIRST")
+src= Source(env, id="Source-1",  inter_arrival_time=1,blocking=True,out_edge_selection="ROUND_ROBIN" )
+m1 = Machine(env, id="M1",node_setup_time=0,work_capacity=1, processing_delay=1,in_edge_selection="FIRST",out_edge_selection="FIRST")
 
 sink= Sink(env, id="Sink-1" )
 
 # Initializing edges
-buffer1 = Buffer(env, id="Buffer-1", store_capacity=4, delay=0.5)
-buffer2 = Buffer(env, id="Buffer-2", store_capacity=4, delay=0.5)
+buffer1 = Buffer(env, id="Buffer-1", store_capacity=4, delay=0, mode="LIFO")
+buffer2 = Buffer(env, id="Buffer-2", store_capacity=4, delay=0, mode="FIFO")
 
 # Adding connections
 buffer1.connect(src,m1)
 buffer2.connect(m1,sink)
 
 
-env.run(until=10)
+env.run(until=5)
 print("Simulation completed.")
 # Print statistics
 print(f"Source {src.id} generated {src.stats['num_item_generated']} items.")
 print(f"Source {src.id} discarded {src.stats['num_item_discarded']} items.")
 print(f"Source {src.id} state times: {src.stats['total_time_spent_in_states']}")
+print(f"Machine {m1.id} state times: {m1.stats}")
 
 print(f"Sink {sink.id} received {sink.stats['num_item_received']} items.")
 

@@ -179,7 +179,7 @@ class Source(Node):
                 put_token = out_edge.reserve_put()
 
                 pe = yield put_token
-        
+                item.timestamp_node_exit = self.env.now
                 y=out_edge.put(pe, item)
                 if y:
                     print(f"T={self.env.now:.2f}: {self.id} puts {item.id} item into {out_edge.id}  ")
@@ -188,6 +188,7 @@ class Source(Node):
                 outstore = out_edge.inbuiltstore
                 put_token = outstore.reserve_put()
                 yield put_token
+                item.timestamp_node_exit = self.env.now
                 y=outstore.put(put_token, item)
                 if y:
                     print(f"T={self.env.now:.2f}: {self.id} puts item into {out_edge.id} ")
@@ -228,6 +229,7 @@ class Source(Node):
                 yield self.env.timeout(next_arrival_time)
                 i+=1
                 item = Item(f'item{self.id+":"+str(i)}')
+                item.timestamp_creation = self.env.now
                 self.stats["num_item_generated"] +=1
                 #edgeindex_to_put = next(self.out_edge_selection)
                 edgeindex_to_put = self._get_out_edge_index()
@@ -238,6 +240,7 @@ class Source(Node):
                         yield self.env.process(self._push_item(item, out_edge))
                     else:
                         print(f"T={self.env.now:.2f}: {self.id}: Discarding {item.id} as no space in out_edge")
+                        item.timestamp_desctruction = self.env.now
                         self.stats["num_item_discarded"]+=1
                 else:  
                     self.update_state("BLOCKED_STATE", self.env.now)

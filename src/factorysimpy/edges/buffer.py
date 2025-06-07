@@ -50,6 +50,7 @@ class Buffer(Edge):
           super().__init__( env, id,)
           self.state = "IDLE_STATE"
           self.mode=mode
+          self.delay = delay
           self.store_capacity =  store_capacity
           self.stats = {
             "last_state_change_time": None,
@@ -65,7 +66,7 @@ class Buffer(Edge):
           if mode == "FIFO":
              self.inbuiltstore= ReservablePriorityReqFilterStore(env, capacity=self.store_capacity)
           elif mode == "LIFO":
-            self.inbuiltstore = GenReservablePriorityReqFilterStore(env, capacity=self.store_capacity-self.store_capacity)
+            self.inbuiltstore = GenReservablePriorityReqFilterStore(env, capacity=self.store_capacity, trigger_delay =self.delay)
           else:
              raise ValueError("Invalid mode. Choose either 'FIFO' or 'LIFO'.")
     
@@ -80,7 +81,7 @@ class Buffer(Edge):
           else:
             raise ValueError("Invalid delay value. Provide a constant, generator, or a python callable.")
             
-          self.behavior =  self.env.process(self.behaviour())
+          #self.behavior =  self.env.process(self.behaviour())
 
         
     
@@ -96,7 +97,7 @@ class Buffer(Edge):
         bool
             True if the buffer can accept an item, False otherwise.
         """
-        return len(self.inbuiltstore.items) < (self.store_capacity -len(self.inbuiltstore.reservations_put))
+        return (self.store_capacity-len(self.inbuiltstore.items)) >len(self.inbuiltstore.reservations_put)
     
     def can_get(self):
         """
@@ -107,7 +108,7 @@ class Buffer(Edge):
         bool
             True if the buffer can give an item, False otherwise.
         """
-        return len(self.out_store.items) < (self.store_capacity-len(self.inbuiltstore.reservations_get))
+        return len(self.inbuiltstore.items) > len(self.inbuiltstore.reservations_get)
     
     def behaviour(self):
       """
@@ -118,7 +119,7 @@ class Buffer(Edge):
 
       
       while True: 
-        if self.inbuiltstore.items or self.out_store.items: 
+        if self.inbuiltstore.items: 
           self.update_state("RELEASING_STATE", self.env.now)
           print(f"T={self.env.now:.2f}: {self.id } is releasing an item from its in store")
 
@@ -128,30 +129,14 @@ class Buffer(Edge):
           print(f"T={self.env.now:.2f}: {self.id } is waiting to get an item ")
 
         
-        get_event = self.inbuiltstore.reserve_get()      
-        yield get_event
-        print(f"T={self.env.now:.2f}: {self.id } is getting an item from its in store")
-    
         
-        put_event = self.out_store.reserve_put()
-        yield put_event
-        print(f"T={self.env.now:.2f}: {self.id } is reserving an item in its out store")
     
         #yield self.env.all_of([put_event,get_event]) 
     
         
           
 
-        next_delay = self.get_delay(self.delay)
-        if not isinstance(next_delay, (int, float)):
-            raise AssertionError("delay returns an valid value. It should be int or float")
-        yield self.env.timeout(next_delay)
-
-        item = self.inbuiltstore.get(get_event)
-
-        self.out_store.put(put_event, item)
-        print(f"T={self.env.now:.2f}: {self.id } is putting item {item.id} into its out store")
-        #print(f"T={self.env.now:.2f}: {self.id } is putting item {item.id} into its out store")
+    
         
 
 

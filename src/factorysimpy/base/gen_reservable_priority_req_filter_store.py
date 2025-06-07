@@ -286,13 +286,24 @@ class GenReservablePriorityReqFilterStore(FilterStore):
         event.priority_to_get = priority
 
         # Check if 'filter' is provided, if not, assign a default filter
-        if filter is None:
+        if filter is "LIFO":
             #print(f"T={self.env.now} filter is None so making it true for all items")
             #filter = lambda item: True  # Default filter that accepts all items
-            filter = lambda items: max(items, key=lambda x: self.env.now> x.value+self.trigger_delay, default=None)
+            print([(x.timestamp_node_exit, x.id) for x in self.items],self.trigger_delay)
+            #filter = lambda items: max(items, key=lambda x: self.env.now >= (x.timestamp_node_exit+self.trigger_delay), default=None)
+            filter = lambda items: max(
+                    [x for x in items if self.env.now >=  (x.timestamp_node_exit+self.trigger_delay)],
+                    key=lambda x:  x.timestamp_node_exit,
+                    default=None
+                )
             event.filter = filter
         else:
             #print(f"T={self.env.now} filter is not None ")
+            filter = lambda items: min(
+                    [x for x in items if self.env.now >=  (x.timestamp_node_exit+self.trigger_delay)],
+                    key=lambda x:  x.timestamp_node_exit,
+                    default=None
+                )
             event.filter = filter
 
         #sorting the list based on priority after appending the new event
@@ -368,6 +379,7 @@ class GenReservablePriorityReqFilterStore(FilterStore):
             if self.is_batch_filter(event.filter):
                 # Apply the filter to the list
                 selected_item = event.filter(self.items)
+                print("its here", event.filter, self.trigger_delay)
                 if selected_item is not None:
                     self.reservations_get.append(event)
                     event.succeed()
