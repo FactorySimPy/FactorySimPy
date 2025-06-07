@@ -161,22 +161,22 @@ print(f"Source {SRC.id}, state times: {SRC.stats["time_spent_in_states"]}")
 
 **About**
 
-Machine is a component that processes/modifies items that flow in the system. It uses a `processing_delay` amount of time to process an item. It can have multiple incoming edges and outgoing edges. A machine can process more than one item simultaneously. It gets an item from one of its in edges and processes the item in a `processing_delay` amount of time and pushes the item to one of its out edges. The API documentation can be found in [Machine](machine.md)
+Machine is a component that processes/modifies items that flow in the system. It uses a `processing_delay` amount of time to process an item. It can have multiple incoming edges and outgoing edges. A machine can process more than one item simultaneously. It gets an item from one of its in edges and processes the item in a `processing_delay` amount of time and pushes the item to one of its out edges. It does not have any inbuilt storage. Machine has two modes of operation based on the parameter value specified in `blocking`. If it is set to `True`, the machine pushes the processed item to a chosen outgoing edge and waits for it to accept the item. The other mode is when `blocking` is set to `False`. Machine checks if there is space available in the chosen outgoing edge and only if then the item is pushed. If the outgoing edge is unavailable or full, the item will be discarded. The API documentation can be found in [Machine](machine.md)
 
 **Basic attributes**
 
 - `state` - current state of the component
 - `processing_delay`- time taken to process an item
 - `work_capacity` - maximum number of jobs or items that can be processed by the machine simulataneously
--  `blocking`-  If True, waits for outgoing edge to accept item; if False, discards if full
+- `blocking`-  If True, waits for outgoing edge to accept item; if False, discards if full
 - `in_edge_selection`- Policy to select outgoing edge
 - `out_edge_selection`- Policy to select outgoing edge
 
 **Behavior**
 
-At the start of the simulation, the machine waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an `int` or `float`).
+At the start of the simulation, the machine waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an `int` or `float`).  Machine can parallely process `work_capacity` number of items. Machine spawns `work_capcity` number of workers that repeats all the activities from picking an item from a chosen incoming edge, processing it and pushing it out to the next chosen outgoing edge. 
 
-During a simulation run, machine gets object from one of its `in_edges`. To choose an incoming edge to pull an item from, the machine utilises the strategy specified in the parameter `in_edge_selection`.  Similarly, to select an outgoing edge, to push the item to, machine uses the method specified in `out_edge_selection` parameter. User can also provide a custom python function or a generator function instance to these parameters. User-provided function should return or yield an edge index. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initialise the parameter with the reference to the function. This is illustrated in the examples shown below. 
+During a simulation run, each worker thread gets object from one of its `in_edges`. To choose an incoming edge to pull an item from, the worker thread utilises the strategy specified in the parameter `in_edge_selection`.  Similarly, to select an outgoing edge, to push the item to, worker thread uses the method specified in `out_edge_selection` parameter. User can also provide a custom python function or a generator function instance to these parameters. User-provided function should return or yield an edge index. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initialise the parameter with the reference to the function. This is illustrated in the examples shown below. 
 Various options available in the package for `in_edge_selection` and `out_edge_selection` include:
 
 - "RANDOM": Selects a random out edge.
@@ -185,7 +185,15 @@ Various options available in the package for `in_edge_selection` and `out_edge_s
 - "ROUND_ROBIN": Selects out edges in a round-robin manner.
 - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
 
- Machine picks an item and takes `processing_delay` amount of time to process the item and puts it inside the inbuiltstore. The parameter `processing_delay` can be specified as a constant value (`int` or `float`) or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution. If the function depends on any of the node attributes, users can pass `None` to this parameter at the time of node creation and later initialise the parameter with the reference to the function. The capacity of this store can be specified in the parameter `store_capacity`. Machine can parallely process `work_capacity` number of items. But, if `work_capacity` is greater than `store_capacity`, then `work_capacity` is reset to `store_capacity`. 
+ The worker thread picks an item and takes `processing_delay` amount of time to process the item. The parameter `processing_delay` can be specified as a constant value (`int` or `float`) or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution. If the function depends on any of the node attributes, users can pass `None` to this parameter at the time of node creation and later initialise the parameter with the reference to the function. The worker thread does not have an any storage in it. 
+ 
+ After processing the item, the worker thread behaves as follows:
+
+1. If `blocking` is `True`, it pushes the item without checking whether the outgoing edge is full and waits for the outgoing edge to accept the item.
+
+2. If `blocking` is `False`, it checks if there is space in the outgoing edge to accomodate the item. If the edge is full or unavailable, the item is discarded.
+
+ The machine can parallely process `work_capacity` number of items. The machine spawns `work_capcity` number of workers that repeats all the activities from picking an item from a chosen incoming edge, processing it and pushing it out to the next chosen outgoing edge. 
  
  **States**
  
@@ -225,7 +233,7 @@ The machine component reports the following key metrics.
 1. Total number of items processed
 2. Time spent in each state 
 
-Consider a machine with `work_capacity`=2, `blocking`= `False` and and instance name as MACHINE1. Metrics of a component MACHINE1 can be accessed after completion of the simulation run as
+Consider a machine with `work_capacity`=`2`, `blocking`= `False` and and instance name as MACHINE1. Metrics of a component MACHINE1 can be accessed after completion of the simulation run as
 
 ```python
 
@@ -245,7 +253,7 @@ print(f"Machine {MACHINE1.id}, worker2 state times: {MACHINE1.stats[1]["time_spe
 
 **Examples**
 
-```
+
 
 - ***[A simple example with all parameters passed as constants](examples.md/#a-simple-example)***
 
