@@ -149,7 +149,7 @@ print(f"Source {SRC.id}, state times: {SRC.stats["time_spent_in_states"]}")
 
 - ***[A simple example with all parameters passed as constants](examples.md/#a-simple-example)***
 
-- ***[An example with `inter_arrival_delay` passed as a reference to a generator function instance that generates random variates from a chosen distribution](examples.md/#example-with-delay-as-random-variates)***
+- ***[An example with `inter_arrival_delay` passed as a normal python function that returns random variates from a chosen distribution](examples.md/#example-with-delay-as-random-variates)***
 
 - ***[An example with `out_edge_selection` parameter is passed as custom function that yields edge indices](examples.md/#example-with-a-custom-edge-selction-policy-as-a-function)***
 
