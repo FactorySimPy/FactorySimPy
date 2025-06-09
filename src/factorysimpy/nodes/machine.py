@@ -2,7 +2,7 @@
 import simpy
 from factorysimpy.nodes.node import Node
 from factorysimpy.utils.utils import get_index_selector
-from factorysimpy.base.reservable_priority_req_store import ReservablePriorityReqStore  # Import your class
+
 
 
 class Machine(Node):
@@ -11,14 +11,14 @@ class Machine(Node):
         This Machine can have multiple input edges and  output edges.
 
         Parameters:
-            state (str): Current state of the source node. One of :
+            state (str): Current state of the machine node. One of :
                    
                 - SETUP_STATE: Initial setup phase before machine starts to operate.
-                - IDLE_STATE: Waiting to receive an item and there is space avilable in the inbuiltstore
+                - IDLE_STATE: Worker threads waiting to receive items.
                 - PROCESSING_STATE: Actively processing items.
-                - BLOCKED_STATE: when the inbuiltstore is full and it is unable to get objects for processing.
+                - BLOCKED_STATE: When all the worker threads are waiting to push the processed item but the out going edge is full.
            
-            store_capacity (int): Maximum capacity of the internal storage.
+            
             work_capacity (int): Maximum number of items that can be processed simultaneously.
             processing_delay (None, int, float, Generator, Callable): Delay for processing items. Can be:
                 
@@ -48,14 +48,16 @@ class Machine(Node):
                     - "ROUND_ROBIN": Selects out edges in a round-robin manner.
                     - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
                 - callable: A function that returns an edge index.
-                
+            blocking (bool): If True, the source waits until it can put an item into the out edge.
 
         Behavior:
             The machine node represents components that process or modify the items that flow in the simulation model. It can have multiple incoming edges
-            and multiple outgoing edge. Edge from whcih the item comes in and the edge to which processes item is pushed is decided using the method specified
+            and multiple outgoing edge. Edge from which the item comes in and the edge to which processed item is pushed is decided using the method specified
             in the parameter `in_edge_selection` and `out_edge_selection`. Machine will transition through the states- `SETUP_STATE`, `PROCESSING_STATE`, `IDLE_STATE` AND 
-            `BLOCKED_STATE`. The machine has a blocking behavior and gets blocked when it has `store_capacity` number of items in its store and the out edge is full and 
-            cannot accept the item that is being pushed by the machine
+            `BLOCKED_STATE`. The machine has a blocking behavior if `blocking`=`True` and gets blocked when all its worker threads have processed items and the out edge is full and 
+            cannot accept the item that is being pushed by the machine and waits until the out edge can accept the item. If `blocking`=`False`, the machine will 
+            discard the item if the out edge is full and cannot accept the item that is being pushed by the machine.
+
 
         Raises:
             AssertionError: If the Machine has no input or output edges.

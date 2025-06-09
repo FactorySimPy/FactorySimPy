@@ -266,18 +266,161 @@ print(f"Machine {MACHINE1.id}, worker2 state times: {MACHINE1.stats[1]["time_spe
 
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
+### Joint
+<hr style="height:2px;border:none;color:blue; background-color:grey;" />
+
+**About**
+
+The `Joint` component represents a node that combines or packs items from multiple incoming edges into a single pallet or box, and then pushes the packed pallet to an outgoing edge. It is useful for modeling operations such as packing, assembly, or combining flows from different sources. The number of items to be taken from each incoming edge can be specified, and the first incoming edge is expected to provide the pallet or container. The API documentation can be found in [Joint](joint.md)
+
+**Basic attributes**
+
+- `state` - current state of the component
+- `processing_delay` - time taken to process and pack the items
+- `work_capacity` - maximum number of jobs or pallets that can be processed simultaneously
+- `blocking` - If True, waits for outgoing edge to accept the packed pallet; if False, discards if full
+- `target_quantity_of_each_item` - list specifying how many items to take from each incoming edge (first entry is always 1 for the pallet)
+- `out_edge_selection` - Edge selection policy as a function to select outgoing edge
+
+**Behavior**
+
+At the start of the simulation, the joint waits for `node_setup_time`. Each worker thread then repeatedly:
+1. Pulls a pallet from the first incoming edge.
+2. Pulls the specified number of items from each of the other incoming edges and adds them to the pallet.
+3. Waits for `processing_delay` to simulate packing/combining.
+4. Pushes the packed pallet to the outgoing edge, either waiting if `blocking` is True or discarding if the edge is full and `blocking` is False.
+
+The outgoing edge is selected according to the `out_edge_selection` policy, which can be a string (e.g., "FIRST", "ROUND_ROBIN") or a custom function.
+
+**States**
+
+During its operation, the joint transitions through the following states:
+
+1. "SETUP_STATE": Initialization or warm-up phase before packing starts.
+2. "IDLE_STATE": Waiting to receive a pallet and items.
+3. "PROCESSING_STATE": Actively packing items into the pallet.
+4. "BLOCKED_STATE": Blocked, waiting for the outgoing edge to accept the packed pallet.
+
+**Usage**
+
+A joint can be initialized as below:
+
+```python
+import factorysimpy
+from factorysimpy.nodes.joint import Joint
+
+JOINT1 = Joint(
+    env,                              # Simulation environment
+    id="JOINT1",                      # Unique identifier for the joint node
+    target_quantity_of_each_item=[1, 2],  # 1 pallet from in_edges[0], 2 items from in_edges[1]
+    work_capacity=1,                  # Number of pallets that can be packed simultaneously
+    processing_delay=1.5,             # Packing delay (constant or generator/function)
+    blocking=True,                    # Wait for outgoing edge to accept pallet
+    out_edge_selection="FIRST"        # Policy or function to select outgoing edge
+)
+```
+
+
+**Statistics collected**
+
+The joint component reports the following key metrics:
+
+1. Total number of pallets packed and pushed
+2. Number of pallets/items discarded (non-blocking mode)
+3. Time spent in each state
+
+After the simulation run, metrics can be accessed as:
+
+```python
+print(f"Total number of pallets processed by worker 1 of {JOINT1.id} = {JOINT1.stats[1]['num_item_processed']}")
+print(f"Total number of pallets discarded by worker 1 of {JOINT1.id} = {JOINT1.stats[1]['num_item_discarded']}")
+print(f"Joint {JOINT1.id}, worker1 state times: {JOINT1.stats[1]['total_time_spent_in_states']}")
+```
+
+**Examples**
+
+- ***[An example of a joint node combining items from two sources](examples.md/#joint-example)***
+
+<hr style="height:2px;border:none;color:blue; background-color:grey;" />
+
 ### Split
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
+
+
+**About**
+
+The `Split` component represents a node that unpacks or splits an incoming item (such as a pallet or batch) and sends its contents to multiple outgoing edges. It is useful for modeling operations such as unpacking, sorting, or distributing items from a container to different destinations. The incoming edge is selected according to the `in_edge_selection` policy, and the outgoing edge for each unpacked item is selected according to the `out_edge_selection` policy.
+
 
 Split represents entities that performs actions like unpacking, splitting etc. It can have multiple incoming edges and multiple outgoing edges.
 
 The API documentation can be found in [Split](split.md)
 
-<hr style="height:2px;border:none;color:blue; background-color:grey;" />
+**Basic attributes**
 
-### Joint
-<hr style="height:2px;border:none;color:blue; background-color:grey;" />
-The API documentation can be found in [Joint](joint.md)
+- `state` - current state of the component
+- `processing_delay` - time taken to process and unpack the items
+- `work_capacity` - number of worker threads that can process items concurrently
+- `blocking` - If True, waits for outgoing edge to accept the item; if False, discards if full
+- `in_edge_selection` - Edge selection policy as a function to select incoming edge
+- `out_edge_selection` - Edge selection policy as a function to select outgoing edge
+
+**Behavior**
+
+At the start of the simulation, the split waits for `node_setup_time`. Each worker thread then repeatedly:
+1. Pulls a container (e.g., pallet) from the selected incoming edge.
+2. Waits for `processing_delay` to simulate unpacking or splitting.
+3. Unpacks the items from the container and pushes each item to an outgoing edge, one by one, using the `out_edge_selection` policy.
+4. After all items are pushed, the empty container itself is pushed to an outgoing edge.
+5. If `blocking` is True, the split waits for the outgoing edge to accept each item; if `blocking` is False, items are discarded if the edge is full.
+
+**States**
+
+During its operation, the split transitions through the following states:
+
+1. "SETUP_STATE": Initialization or warm-up phase before unpacking starts.
+2. "IDLE_STATE": Waiting to receive a container/item.
+3. "PROCESSING_STATE": Actively unpacking or splitting items.
+4. "BLOCKED_STATE": Blocked, waiting for the outgoing edge to accept the item.
+
+**Usage**
+
+A split can be initialized as below:
+
+```python
+import factorysimpy
+from factorysimpy.nodes.split import Split
+
+SPLIT1 = Split(
+    env,                        # Simulation environment
+    id="SPLIT1",                # Unique identifier for the split node
+    work_capacity=1,            # Number of worker threads
+    processing_delay=1.0,       # Unpacking delay (constant or generator/function)
+    blocking=True,              # Wait for outgoing edge to accept item
+    in_edge_selection="FIRST",  # Policy or function to select incoming edge
+    out_edge_selection="ROUND_ROBIN"  # Policy or function to select outgoing edge
+)
+```
+
+**Statistics collected**
+
+The split component reports the following key metrics:
+
+1. Total number of items unpacked and pushed
+2. Number of items discarded (non-blocking mode)
+3. Time spent in each state
+
+After the simulation run, metrics can be accessed as:
+
+```python
+print(f"Total number of items processed by worker 1 of {SPLIT1.id} = {SPLIT1.stats[1]['num_item_processed']}")
+print(f"Total number of items discarded by worker 1 of {SPLIT1.id} = {SPLIT1.stats[1]['num_item_discarded']}")
+print(f"Split {SPLIT1.id}, worker1 state times: {SPLIT1.stats[1]['total_time_spent_in_states']}")
+```
+
+**Examples**
+
+- ***[An example of a split node unpacking a pallet and distributing items to multiple destinations](examples.md/#split-example)***
 
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
@@ -304,24 +447,75 @@ Edges represent passive elements in the system. This is the basis for the compon
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
 
-Buffer is a type of edge that represents a queue to store items that wait to be accepted by a downstream component.
-This helps to remove the bottlenecks that come when the processing delays of nodes are not matching and one processes faster than the other. It has two modes of operation that are FIFO and LIFO. The API documentation can be found in [Buffer](buffer.md)
+**About**
 
+The `Buffer` component represents a queue (FIFO or LIFO) that temporarily holds items between nodes in the system. It acts as an edge with internal storage, allowing items to be stored until the destination node is ready to accept them. Items placed in the buffer become available for retrieval after a specified `delay`. The buffer can operate in two modes:  
+- **FIFO (First In First Out):** Oldest items are released first.  
+- **LIFO (Last In First Out):** Newest items are released first.
+The API documentation can be found in [Buffer](buffer.md)
+**Basic attributes**
+
+- `state` - current state of the buffer (e.g., "IDLE_STATE", "RELEASING_STATE", "BLOCKED_STATE")
+- `store_capacity` - maximum number of items the buffer can hold
+- `mode` - "FIFO" or "LIFO" operation
+- `delay` - time after which an item becomes available for retrieval (can be a constant, generator, or callable)
 
 **Behavior**
 
+- When an item is put into the buffer, it is stored internally and becomes available for retrieval after the specified `delay`.
+- The buffer checks if it can accept new items (`can_put`) and if it can provide items to the next node (`can_get`).
+- In FIFO mode, items are released in the order they were added; in LIFO mode, the most recently added items are released first.
 
-During a simulation run, `src_node` puts an item into the buffer and the item gets available after delay amount of time for the `dest_node`. It operates in two modes- First In First Out(FIFO) or Last In First Out(LIFO). The number of items that a buffer can hold at any time can be specified using the parameter `store_capacity`. Buffer uses `ReservablePriorityReqFilterStore` as the inbuiltstore. In "FIFO" `mode`, it uses an additional filter to return the item which is added recently. Buffer transitions through the following states during simulation 
-
-1. "EMPTY_STATE"  : when there is no items in the buffer
-2. "RELEASING_STATE". When there is items.
+**States**
 
 
-**Monitoring and Reporting**
+- The buffer transitions between states such as "IDLE_STATE" (waiting for items), "RELEASING_STATE" (releasing items), and "BLOCKED_STATE" (cannot accept or release items due to capacity or downstream constraints).
+
+1. "EMPTY_STATE"  - when there is no items in the buffer
+2. "RELEASING_STATE"- When there is items in the buffer
+
+
+
+**Usage**
+
+A buffer can be initialized as below:
+
+```python
+import factorysimpy
+from factorysimpy.edges.buffer import Buffer
+
+BUF1 = Buffer(
+    env,                 # Simulation environment
+    id="BUF1",           # Unique identifier for the buffer
+    store_capacity=10,   # Maximum number of items in the buffer
+    delay=2.0,           # Delay before items become available (can be int, float, generator, or callable)
+    mode="FIFO"          # "FIFO" or "LIFO"
+)
+```
+
+**Statistics collected**
+
 The buffer component reports the following key metrics:
 
-1. Time averaged number of items available in buffer.
-2. Time spent in each state 
+1. Time when the state was last changed (`last_state_change_time`)
+2. Time-averaged number of items in the buffer (`time_averaged_num_of_items_in_buffer`)
+3. Total time spent in each state (`total_time_spent_in_states`)
+
+After the simulation run, metrics can be accessed as:
+
+```python
+print(f"Buffer {BUF1.id} last state change: {BUF1.stats['last_state_change_time']}")
+print(f"Buffer {BUF1.id} time-averaged number of items: {BUF1.stats['time_averaged_num_of_items_in_buffer']}")
+print(f"Buffer {BUF1.id} state times: {BUF1.stats['total_time_spent_in_states']}")
+```
+
+**Examples**
+
+- ***[A simple example with a FIFO buffer between a source and a machine](examples.md/#buffer-example)***
+
+
+
+
 
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 

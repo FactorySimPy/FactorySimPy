@@ -6,30 +6,66 @@ class Joint(Node):
     """
     Joint class representing a processing node in a factory simulation.
     Inherits from the Node class.
-    This joint can have multiple input edges and a single output edge.
-    It processes items from the input edges and puts them into the output edge.
-    
-    Methods
-    -------
-    
-    add_in_edges(self, edge):
-        Adds an input edge to the joint.
-    add_out_edges(self, edge):
-        Adds an output edge to the joint.
-    worker(self, i):
-        Worker process that processes items by combining two items.
-    behaviour(self):
-        Combiner behavior that creates workers based on the effective capacity.
+    This joint can have multiple input edges and a multiple output edges.
+    It gets items from the input edges and packs them into a pallet or box and pushes it to the output edge.
 
-    Raises
-    -------
-    ValueError
-        If the joint already has the maximum number of input or output edges.
-    AssertionError
-        If the joint does not have exactly 2 input edges or 1 output edge in the behaviour function.
+       
+
+    Parameters:
+        state (str): Current state of the node. One of :
+                
+            - SETUP_STATE: Initial setup phase before Joint starts to operate.
+            - IDLE_STATE: Worker threads waiting to receive items.
+            - PROCESSING_STATE: Actively processing items.
+            - BLOCKED_STATE: When all the worker threads are waiting to push the processed item but the out going edge is full.
+        
+        
+        work_capacity (int): Maximum number of items that can be processed simultaneously.
+        blocking (bool): If True, the source waits until it can put an item into the out edge.
+        processing_delay (None, int, float, Generator, Callable): Delay for processing items. Can be:
+            
+            - None: Used when the processing time depends on parameters of the node object (like current state of the object) or environment. 
+            - int or float: Used as a constant delay.
+            - Generator: A generator function yielding delay values over time.
+            - Callable: A function that returns a delay (int or float).
+        target_quantity_of_each_item (list): List with target quantity of each item to be combined where index correspond to the input edge.
+                                            The first index corresponds to the edge that supplies pallet/box and it is always 1
+        out_edge_selection (None or str or callable): Criterion or function for selecting the out edge.
+                                            Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
+
+            - None: None: Used when out edge selction depends on parameters of the node object (like current state of the object) or environment.   
+            - str: A string that specifies the selection method.
+                - "RANDOM": Selects a random out edge in the out_edges list.
+                - "FIRST": Selects the first out edge in the out_edges list.
+                - "LAST": Selects the last out edge in the out_edges list.
+                - "ROUND_ROBIN": Selects out edges in a round-robin manner.
+                - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
+            - callable: A function that returns an edge index.
+                
+
+        Behavior:
+            The joint node represents components that joints together or packs items from multiple in_edges. It can have multiple incoming edges
+            and multiple outgoing edge. User can specify a list in_edges and the number of quantity that has to be packed from each of the in_edges
+            as a list. The first item corresponds to the pallet used to put these packed items and the corresponding entry in the 
+            `target_quantity_of_each_item` list is 1. Edge to which packed item is pushed is decided using the method specified
+            in the parameter `out_edge_selection`. Joint will transition through the states- `SETUP_STATE`, `PROCESSING_STATE`, `IDLE_STATE` AND 
+            `BLOCKED_STATE`. The joint has a blocking behavior if `blocking`=`True` and gets blocked when all its worker threads have processed items and the out edge is full and 
+            cannot accept the item that is being pushed by the joint. It waits until the out edge becomes available to push the item. If `blocking`=`False`, 
+            it will discard the item if the out edge is full and cannot accept the item that is being pushed by the joint.
+
+        Raises:
+            AssertionError: If the Joint has no input or atleast 1 output edge.
+        Output performance metrics:
+        The key performance metrics of the joint node is captured in `stats` attribute (dict) during a simulation run. 
+            
+            last_state_change_time    : Time when the state was last changed.
+            num_item_processed        : Total number of items generated.
+            total_time_spent_in_states: Dictionary with total time spent in each state.
+                
+    
     """ 
-    def __init__(self, env, id,in_edges=None , out_edges=None,target_quantity_of_each_item=[1], work_capacity=1, processing_delay=1, blocking= "False", out_edge_selction="FIRST"):
-        super().__init__(env, id,in_edges=in_edges , out_edges=out_edges,  )
+    def __init__(self, env, id,in_edges=None , out_edges=None,node_setup_time=0,target_quantity_of_each_item=[1], work_capacity=1, processing_delay=1, blocking= "False", out_edge_selction="FIRST"):
+        super().__init__(env, id,in_edges=in_edges , out_edges=out_edges, node_setup_time=node_setup_time)  
         
         
         

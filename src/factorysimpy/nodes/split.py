@@ -8,31 +8,65 @@ from factorysimpy.utils.utils import get_index_selector
 
 class Split(Node):
     """
-    Split class representing a processing node that can split an incoming item in a factory simulation.
+    Split class representing a processing node that can unpack an incoming item and send it to multiple outgoing edges in a factory simulation.
     
-    Attributes
-    ----------
-   
-    
-   
-    Methods
-    -------
-   
-    add_in_edges(self, edge):
-        Adds an input edge to the splitter.
-    add_out_edges(self, edge):
-        Adds an output edge to the splitter.
-    worker(self, i):
-        Worker process that sorts and splits items based on a split ratio.
-    behaviour(self):
-        Splitter behavior that creates workers based on the effective capacity.
-    
-    Raises
-    -------
-    ValueError
-        If the splitter already has the maximum number of input or output edges.
-    AssertionError
-        If the splitter does not have exactly 1 input edge or 2 output edges in the behaviour function.
+    Parameters:
+            state (str): Current state of the node. One of :
+                   
+                - SETUP_STATE: Initial setup phase before split starts to operate.
+                - IDLE_STATE: Worker threads waiting to receive items.
+                - PROCESSING_STATE: Actively processing items.
+                - BLOCKED_STATE: When all the worker threads are waiting to push the processed item but the out going edge is full.
+           
+            
+            work_capacity (int): Number of worker threads that can process items concurrently. It should be greater than 0.
+            processing_delay (None, int, float, Generator, Callable): Delay for processing items. Can be:
+                
+                - None: Used when the processing time depends on parameters of the node object (like current state of the object) or environment. 
+                - int or float: Used as a constant delay.
+                - Generator: A generator function yielding delay values over time.
+                - Callable: A function that returns a delay (int or float).
+            in_edge_selection (None or str or callable): Criterion or function for selecting the edge.
+                                              Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
+
+                - None: None: Used when edge selction depends on parameters of the node object (like current state of the object) or environment. 
+                - str: A string that specifies the selection method.
+                    - "RANDOM": Selects a random edge.
+                    - "FIRST": Selects the first edge in the in_edges list.
+                    - "LAST": Selects the last edge in the in_edges list .
+                    - "ROUND_ROBIN": Selects edges in a round-robin manner.
+                    - "FIRST_AVAILABLE": Selects the first out edge that can give an item.
+                - callable: A function that returns an edge index.
+            out_edge_selection (None or str or callable): Criterion or function for selecting the out edge.
+                                              Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
+
+                - None: None: Used when out edge selction depends on parameters of the node object (like current state of the object) or environment.   
+                - str: A string that specifies the selection method.
+                    - "RANDOM": Selects a random out edge in the out_edges list.
+                    - "FIRST": Selects the first out edge in the out_edges list.
+                    - "LAST": Selects the last out edge in the out_edges list.
+                    - "ROUND_ROBIN": Selects out edges in a round-robin manner.
+                    - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
+                - callable: A function that returns an edge index.
+            blocking (bool): If True, the source waits until it can put an item into the out edge.
+
+        Behavior:
+            The split node represents components that unpakcs an item (pallet) from an incoming edge. It can have multiple incoming edges
+            and multiple outgoing edge. Edge from which the item comes in and the edge to which processed item is pushed is decided using the method specified
+            in the parameter `in_edge_selection` and `out_edge_selection`. Split will transition through the states- `SETUP_STATE`, `PROCESSING_STATE`, `IDLE_STATE` AND 
+            `BLOCKED_STATE`. It unpacks the items and pushes it to one of the outgoing edges one by one. The split has a blocking behavior if `blocking`=`True` and gets blocked when all its worker threads have processed items and the out edge is full and 
+            cannot accept the item that is being pushed by the split and waits until the out edge can accept the item. If `blocking`=`False`, the split will 
+            discard the item if the out edge is full and cannot accept the item that is being pushed by the machine.
+
+
+        Raises:
+            AssertionError: If the split has no input or output edges.
+        Output performance metrics:
+        The key performance metrics of the  node is captured in `stats` attribute (dict) during a simulation run. 
+            
+            last_state_change_time    : Time when the state was last changed.
+            num_item_processed        : Total number of items generated.
+            total_time_spent_in_states: Dictionary with total time spent in each state.
 
     """
     def __init__(self, env, id,in_edges=None, out_edges=None, node_setup_time=0, work_capacity=1 ,processing_delay=0,blocking=False,in_edge_selection="FIRST",out_edge_selection="FIRST"):
