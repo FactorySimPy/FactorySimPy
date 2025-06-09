@@ -1,13 +1,6 @@
-# @title Joint
-from typing import Generator
-import simpy ,os, sys
-
-
-from factorysimpy.base.reservable_priority_req_store import ReservablePriorityReqStore  # Import your class
+import simpy
 from factorysimpy.nodes.node import Node
-from factorysimpy.edges.conveyor import ConveyorBelt
-
-from factorysimpy.helper.item import Item
+from factorysimpy.utils.utils import get_index_selector
 
 class Joint(Node):
     """
@@ -35,31 +28,111 @@ class Joint(Node):
     AssertionError
         If the joint does not have exactly 2 input edges or 1 output edge in the behaviour function.
     """ 
-    def __init__(self, env, name,in_edges=None , out_edges=None, work_capacity=1, store_capacity=1, delay=1):
-        super().__init__(env, name,in_edges=in_edges , out_edges=out_edges,  work_capacity=work_capacity, store_capacity=store_capacity, delay=delay)
-        self.env = env
-        self.name = name
+    def __init__(self, env, id,in_edges=None , out_edges=None,target_quantity_of_each_item=[1], work_capacity=1, processing_delay=1, blocking= "False", out_edge_selction="FIRST"):
+        super().__init__(env, id,in_edges=in_edges , out_edges=out_edges,  )
+        
+        
+        
+        self.state={}
         self.work_capacity = work_capacity
-        self.store_capacity = store_capacity
-      
+        self.processing_delay = processing_delay
+        self.blocking = blocking
+        # list with target quantity of each item to be combined where index correspond to the input edge
+        # the first index correponds to the edge that supplies pallet/box.
+        self.target_quantity_of_each_item=  target_quantity_of_each_item 
+        
+        self.out_edge_selection = out_edge_selction
 
         self.in_edge_events={}
 
-        self.node_type = "Joint"
+       
 
-        
+    
         self.in_edges = in_edges
         self.out_edges = out_edges
-        self.inbuiltstore = ReservablePriorityReqStore(env, capacity=store_capacity)  # Custom store with reserve capacity
-        self.resource = simpy.Resource(env, capacity=min(work_capacity,store_capacity))  # Work capacity
+        
         
 
-        if work_capacity > store_capacity:
-            print("Warning: Effective capacity is limited by the minimum of work_capacity and store_capacity.")
 
-        # Start the processes
-        self.env.process(self.behaviour())
-        self.env.process(self.pushingput())
+      
+    
+
+
+        # Initialize processing delay 
+        if callable(processing_delay):
+            self.processing_delay = processing_delay 
+        elif hasattr(processing_delay, '__next__'):
+            # It's a generator
+            self.processing_delay = processing_delay    
+        elif isinstance(processing_delay, (int, float)):
+            self.processing_delay = processing_delay
+        elif processing_delay is None:
+            self.processing_delay = None
+        else:
+            raise ValueError(
+                "processing_delay must be a None, int, float, generator, or callable."
+            )
+        
+        self.env.process(self.behaviour())  # Start the machine behavior process
+        
+
+        
+        
+      
+    def reset(self):
+            
+
+            
+            
+            if isinstance(self.out_edge_selection, str):  
+                self.out_edge_selection = get_index_selector(self.out_edge_selection, self, self.env, "OUT")
+            elif callable(self.out_edge_selection):
+                # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+                self.out_edge_selection = self.out_edge_selection
+            elif self.out_edge_selection is None:
+                # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+                self.out_edge_selection = self.out_edge_selection
+            else:
+                raise ValueError("out_edge_selection must be a None, string or a callable (function/generator)")  
+            
+            
+
+            if self.processing_delay is None:
+                raise ValueError("Processing delay cannot be None.")
+            if self.in_edge_selection is None:
+                raise ValueError("in_edge_selection should not be None")
+            if self.out_edge_selection is None:
+                raise ValueError("out_edge_selection should not be None.")
+        
+
+    
+    def _get_out_edge_index(self):
+        
+        #Returns the next edge index from out_edge_selection, whether it's a generator or a callable.
+        event = self.env.event()
+        
+        #self.out_edge_selection = get_index_selector(self.out_edge_selection, self, self.env, edge_type="OUT")
+        if hasattr(self.out_edge_selection, '__next__'):
+            # It's a generator
+            val = next(self.out_edge_selection)
+            event.succeed(val)
+            return event
+        elif callable(self.out_edge_selection):
+            # It's a function (pass self and env if needed)
+            #return self.out_edge_selection(self, self.env)
+            val = self.out_edge_selection(self, self.env)
+            event.succeed(val)
+            return event
+        elif isinstance(self.out_edge_selection, (simpy.events.Event)):
+            #print("out_edge_selection is an event")
+            self.env.process(self.call_out_process(self.out_edge_selection,event))
+            return event
+        else:
+            raise ValueError("out_edge_selection must be a generator or a callable.")    
+                
+    def  call_out_process(self, out_edge_selection,event):
+        val = yield out_edge_selection
+        event.succeed(val) 
 
     def add_in_edges(self, edge):
         if self.in_edges is None:
@@ -85,88 +158,147 @@ class Joint(Node):
         else:
             raise ValueError(f"Edge already exists in Joint '{self.name}' out_edges.")
         
-    def pushingput(self):
-        while True:
-            get_token = self.inbuiltstore.reserve_get()
-            if isinstance(self.out_edges[0], ConveyorBelt):
+    def _push_item(self, i, out_edge):
+        """
+        It picks a processed item from the store and pushes it to the specified out_edge.
+        The out_edge can be a ConveyorBelt or Buffer.
+        Args:
+            i (int): Index of the worker processing the item.
+            out_edge (Edge Object): The edge to which the item will be pushed.
 
-                    outstore = self.out_edges[0]
-                    put_token = outstore.reserve_put()
 
-                    pe = yield put_token
-                    yield get_token
-                    item = self.inbuiltstore.get(get_token)
-                    outstore.put(pe, item)
-                    
-            else:
-                    outstore = self.out_edges[0].inbuiltstore
-                    put_token = outstore.reserve_put()
-                    yield self.env.all_of([put_token,get_token])
-                    item = self.inbuiltstore.get(get_token)
-                    outstore.put(put_token, item)
+        """
+       
+        if out_edge.__class__.__name__ == "ConveyorBelt":                 
+                put_token = out_edge.reserve_put()
+                pe = yield put_token
+                self.item_in_process[i].update_node_event(self.id, self.env, "exit")
+                
+                y=out_edge.put(pe, self.item_in_process[i])
+                if y:
+                    print(f"T={self.env.now:.2f}: {self.id} puts {self.item_in_process[i].id} item into {out_edge.id}  ")
+        elif out_edge.__class__.__name__ == "Buffer":
+                outstore = out_edge.inbuiltstore
+                put_token = outstore.reserve_put()
+                yield put_token
+                self.item_in_process[i].update_node_event(self.id, self.env, "exit")
+                y=outstore.put(put_token, self.item_in_process[i])
+                if y:
+                    print(f"T={self.env.now:.2f}: {self.id} puts item into {out_edge.id}")
+        else:
+                raise ValueError(f"Unsupported edge type: {out_edge.__class__.__name__}")
+        
+    def _pull_item(self,i, in_edge):
+        """
+        It pulls an item from the specified in_edge and assigns it to the worker for processing.
+        Args:
+            i (int): Index of the worker that will process the item.
+            in_edge (Edge Object): The edge from which the item will be pulled.
 
-            print(f"T={self.env.now:.2f}: {self.name} puts item into {self.out_edges[0].name}  ")
+        """
+        if in_edge.__class__.__name__ == "ConveyorBelt":
+                get_token = in_edge.reserve_get()
+                gtoken = yield get_token
+                self.item_in_process[i]=yield in_edge.get(gtoken)
+                self.item_in_process[i].update_node_event(self.id, self.env, "entry")
+              
+                if self.item_in_process[i]:
+                    print(f"T={self.env.now:.2f}: {self.id} gets item {self.item_in_process[i].id} from {in_edge.id}  ")
+                
+        elif in_edge.__class__.__name__ == "Buffer":
+                outstore = in_edge.inbuiltstore
+                get_token = outstore.reserve_get()
+                yield get_token
+                self.item_in_process[i] =outstore.get(get_token)
+                self.item_in_process[i].update_node_event(self.id, self.env, "entry")
+                if self.item_in_process[i]:
+                    print(f"T={self.env.now:.2f}: {self.id} gets item {self.item_in_process[i].id} from {in_edge.id} ")
+        else:
+                raise ValueError(f"Unsupported edge type: {in_edge.__class__.__name__}")
 
+
+    
     def worker(self, i):
         """Worker process that processes items by combining two items."""
         while True:
-            with self.resource.request() as req:
-                yield req  # Wait for work capacity
-                put_event  = self.inbuiltstore.reserve_put()  # Wait for a reserved slot if needed
-                yield put_event
-                print(f"T={self.env.now:.2f}: {self.name} worker {i} reserving space for combined item")
+            #print(f"T={self.env.now:.2f}: {self.id} worker{i} started processing")
+            if self.state[i] == "SETUP_STATE":
+                
+                print(f"T={self.env.now:.2f}: {self.id} worker{i} is in SETUP_STATE")
+                yield self.env.timeout(self.node_setup_time)# always an int or float
+                self.update_state(i,"IDLE_STATE", self.env.now)
+            
+            elif self.state[i] == "IDLE_STATE":
+                 #get all items from the in_edges
+                 # 1. Pull the pallet from in_edges[0]
+                yield self.env.process(self._pull_item(i, self.in_edges[0]))
+                if self.item_in_process[i].item_type != "Pallet":
+                    raise RuntimeError(f"{self.id} worker{i} - Expected a Pallet item, but got {self.item_in_process[i].type}!")
+                
+                pallet = self.item_in_process[i]  # Assume the pulled item is a Pallet instance
 
-                # Retrieve two items from input_store for combining
-               
-                   
-                # Reserve from all input edges
-                self.in_edge_events[i] = [
-                    (edge, edge.reserve_get() if isinstance(edge, ConveyorBelt) else edge.out_store.reserve_get())
-                    for edge in self.in_edges
-                ]
+                # 2. Pull required items from other in_edges and add to pallet
+                for edge_idx in range(1, len(self.in_edges)):
+                    qty = self.target_quantity_of_each_item[edge_idx]
+                    for _ in range(qty):
+                        yield self.env.process(self._pull_item(i, self.in_edges[edge_idx]))
+                        item = self.item_in_process[i]
+                        pallet.add_item(item)  # Add the item to the pallet
 
-                print(f"T={self.env.now:.2f}: {self.name} worker{i} waiting to reserve from {[edge.name for edge, _ in self.in_edge_events[i]]}")
-
-                # Wait for all reservations
-                reserve_events = [event for _, event in self.in_edge_events[i]]
-                yield self.env.all_of(reserve_events)
-
-                # Perform get() on each edge
-                items = []
-                for edge, event in self.in_edge_events[i]:
-                    if isinstance(edge, ConveyorBelt):
-                        item = yield edge.get(reserve_events[event])
+                # 3. Assign the filled pallet to item_in_process for processing
+                self.item_in_process[i] = pallet
+                self.update_state(i, "PROCESSING_STATE", self.env.now)
+                        
+                
+            elif self.state[i] == "PROCESSING_STATE":
+                if self.item_in_process[i] is None:
+                    raise RuntimeError(f"{self.id} worker{i} - No item to process!")
+                next_processing_time = self.get_delay(self.processing_delay)
+                if not isinstance(next_processing_time, (int, float)):
+                    raise AssertionError("processing_delay returns an valid value. It should be int or float")
+                yield self.env.timeout(next_processing_time)
+                self.stats["num_item_processed"] += 1
+                print(f"T={self.env.now:.2f}: {self.id} worker{i} processed item: {self.item_in_process[i].id}")
+                out_edge_index_to_put_event = self._get_out_edge_index()
+                out_edge_index_to_put = yield out_edge_index_to_put_event
+                outedge_to_put = self.out_edges[out_edge_index_to_put]
+                self.update_state(i,"BLOCKED_STATE", self.env.now)
+                # Push the combined item to the output edge
+                if self.blocking :
+                    yield self.env.process(self._push_item(self.item_in_process[i], outedge_to_put))
+                else:
+                    # Check if the out_edge can accept the item
+                    if outedge_to_put.can_put():
+                        yield self.env.process(self._push_item(i, outedge_to_put))
                     else:
-                        item = edge.out_store.get(event)
-                    items.append(item)
-
-                # Now `items` contains all the input items from each edge
-                print(f"T={self.env.now:.2f}: {self.name} worker{i} got items: {[item.name for item in items]}")
-
-
-
-
-
-              
-
-                print(f"T={self.env.now:.2f}: {self.name} worker {i} retrieved items {items[0].name} and {items[1].name} for combining")
-
-                # Simulate processing delay for combining items
-                self.delay_time = next(self.delay) if isinstance(self.delay, Generator) else self.delay
-                yield self.env.timeout(self.delay_time)
-
-                # Create a combined output item and put it in the combiner's store
-                combined_item = Item(name=f"Combined_{items[0].name}_{items[1].name}")
-                self.inbuiltstore.put(put_event, combined_item)
-
-                print(f"T={self.env.now:.2f}: {self.name} worker {i} placed combined item {combined_item.name} into its store")
-
+                        print(f"T={self.env.now:.2f}: {self.id} worker{i} is discarding item {self.item_in_process[i].id} because out_edge {outedge_to_put.id} is full.")
+                        self.stats[i]["num_item_discarded"] += 1  # Decrement processed count if item is discarded
+                        self.item_in_process[i].set_destruction(self.id, self.env)
+                       
+                self.update_state(i,"IDLE_STATE", self.env.now)
+                self.item_in_process[i] = None  # Clear the processed item
+                 # process items and put in inbuiltstore. 
+                 # Pull_items will take the items and push it to next component.
     def behaviour(self):
         """Combiner behavior that creates workers based on the effective capacity."""
+        self.reset()  # Reset the joint to ensure proper initialization
+
 
         assert self.in_edges is not None and len(self.in_edges) == 2, f"Joint '{self.name}' must have exactly 2 in_edges."
         assert self.out_edges is not None and len(self.out_edges) == 1, f"Joint '{self.name}' must have exactly 1 out_edge."
-        cap = min(self.work_capacity, self.store_capacity)
-        for i in range(cap):
+        assert len(self.target_quantity_of_each_item) == len(self.in_edges), \
+            f"Joint '{self.name}' target_quantity_of_each_item must match the number of in_edges."
+        self.state[i+1] = "SETUP_STATE" # Initialize state for each worker
+        self.item_in_process[i+1] = None  # Initialize item to process for each worker
+        
+        # Initialize stats for each worker
+        self.stats[i+1] = {
+                    "last_state_change_time": None,
+                    "num_item_processed": 0,
+                    "num_item_discarded": 0,
+                    "total_time_spent_in_states":{"SETUP_STATE": 0.0,"IDLE_STATE": 0.0, "PROCESSING_STATE": 0.0, "BLOCKED_STATE": 0.0}
+                }
+        
+        for i in range(self.work_capacity):
             self.env.process(self.worker(i+1))
         yield self.env.timeout(0)  # Initialize the behavior without delay

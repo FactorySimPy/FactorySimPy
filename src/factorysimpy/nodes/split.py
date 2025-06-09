@@ -1,16 +1,9 @@
 # @title Split
-import random
-from typing import Generator
 import simpy
-
-from factorysimpy.base.reservable_priority_req_filter_store import ReservablePriorityReqFilterStore  # Import your class
-from factorysimpy.base.reservable_priority_req_store import ReservablePriorityReqStore  # Import your class
 from factorysimpy.nodes.node import Node
-from factorysimpy.edges.conveyor import ConveyorBelt
-from factorysimpy.edges.buffer import Buffer
+
 from factorysimpy.utils.utils import get_index_selector
 
-from factorysimpy.helper.item import Item
 
 
 class Split(Node):
@@ -42,27 +35,22 @@ class Split(Node):
         If the splitter does not have exactly 1 input edge or 2 output edges in the behaviour function.
 
     """
-    def __init__(self, env, id,in_edges=None, out_edges=None, node_setup_time=0, work_capacity=1, store_capacity=1 ,processing_delay=0,in_edge_selection="FIRST",out_edge_selection="FIRST"):
+    def __init__(self, env, id,in_edges=None, out_edges=None, node_setup_time=0, work_capacity=1 ,processing_delay=0,blocking=False,in_edge_selection="FIRST",out_edge_selection="FIRST"):
         super().__init__(env, id, in_edges , out_edges, node_setup_time)
     
         self.work_capacity = work_capacity
-        self.store_capacity = store_capacity
-   
+        self.blocking = blocking
+        self.in_edge_selection = in_edge_selection
+        self.out_edge_selection = out_edge_selection
+        self.item_in_process = {}
+        self.state = {}
+    
        
        
-        self.inbuiltstore = ReservablePriorityReqFilterStore(env, capacity=store_capacity)  # Custom store with reserve capacity
-        self.inbuiltstoreA = ReservablePriorityReqStore(env, capacity=int(store_capacity/2))  # Custom store with reserve capacity
-        self.inbuiltstoreB = ReservablePriorityReqStore(env, capacity=store_capacity-int(store_capacity/2))  # Custom store with reserve capacity
-        self.resource = simpy.Resource(env, capacity=min(work_capacity,store_capacity))  # Work capacity
-        self.stats = {
-            "last_state_change_time": None,
-            "num_item_processed": 0,
-            "total_time_spent_in_states":{"SETUP_STATE": 0.0,"IDLE_STATE": 0.0, "PROCESSING_STATE": 0.0, "BLOCKED_STATE": 0.0}
-        }
-
-        if work_capacity>store_capacity :
-            print("Warning: Effective capacity is limited by the minimum of work_capacity and store_capacity.")
         
+        self.stats = {}
+
+       
         
         # Initialize processing delay 
         if callable(processing_delay):
@@ -74,42 +62,51 @@ class Split(Node):
         else:
             raise ValueError("processing_delay must be a None, int, float, generator, or callable.")
         
-        if isinstance(in_edge_selection, str):  
-            self.out_edge_selection = get_index_selector(in_edge_selection, self, env)
-        elif callable(in_edge_selection):
-            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
-            self.in_edge_selection = in_edge_selection
-        elif out_edge_selection is None:
-            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
-            self.in_edge_selection = in_edge_selection
-        else:
-            raise ValueError("in_edge_selection must be a None, string or a callable (function/generator)")
-        
 
-        if isinstance(out_edge_selection, str):  
-            self.out_edge_selection = get_index_selector(out_edge_selection, self, env)
-        elif callable(out_edge_selection):
-            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
-            self.out_edge_selection = out_edge_selection
-        elif out_edge_selection is None:
-            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
-            self.out_edge_selection = out_edge_selection
-        else:
-            raise ValueError("out_edge_selection must be a string or a callable (function/generator)")
+        def reset(self):
+            
 
-         
-        # Start the behaviour process
-        self.env.process(self.behaviour())
-        self.env.process(self.pushing_puta())
-        self.env.process(self.pushing_putb())
-    
-    def reset(self):
+            # Initialize in_edge_selection and out_edge_selection
+            if isinstance(self.in_edge_selection, str):  
+                self.in_edge_selection = get_index_selector(self.in_edge_selection, self, self.env, "IN")
+                
+
+            elif callable(self.in_edge_selection):
+                # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+                self.in_edge_selection = self.in_edge_selection
+            elif self.in_edge_selection is None:
+                # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+                self.in_edge_selection = self.in_edge_selection
+            else:
+                raise ValueError("in_edge_selection must be a None, string or a callable (function/generator)")
+            
+            
+            if isinstance(self.out_edge_selection, str):  
+                self.out_edge_selection = get_index_selector(self.out_edge_selection, self, self.env, "OUT")
+            elif callable(self.out_edge_selection):
+                # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+                self.out_edge_selection = self.out_edge_selection
+            elif self.out_edge_selection is None:
+                # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+                self.out_edge_selection = self.out_edge_selection
+            else:
+                raise ValueError("out_edge_selection must be a None, string or a callable (function/generator)")  
+            
+            
+
             if self.processing_delay is None:
                 raise ValueError("Processing delay cannot be None.")
             if self.in_edge_selection is None:
                 raise ValueError("in_edge_selection should not be None")
             if self.out_edge_selection is None:
                 raise ValueError("out_edge_selection should not be None.")
+
+         
+        # Start the behaviour process
+        self.env.process(self.behaviour())
+    
+    
+   
 
     def update_state(self, new_state: str, current_time: float):
         """
@@ -152,139 +149,207 @@ class Split(Node):
             self.out_edges.append(edge)
         else:
             raise ValueError(f"Edge already exists in Split '{self.id}' out_edges.")
-    def pushing_puta(self):
-        """Pushes items to the first output edge."""
-        while True:
-           
-            #get_token = self.inbuiltstore.reserve_get(filter=lambda item: item.name.endswith('_a'))  # Wait for a reserved slot if needed 
-            get_token = self.inbuiltstoreA.reserve_get()
-            if isinstance(self.out_edges[0], ConveyorBelt):
-
-                    outstore = self.out_edges[0]
-                    put_token = outstore.reserve_put()
-
-                    pe = yield put_token
-                    yield get_token
-                    item = self.inbuiltstoreA.get(get_token)
-                    outstore.put(pe, item)
-                    
-            else:
-                    outstore = self.out_edges[0].inbuiltstore
-                    put_token = outstore.reserve_put()
-                    yield self.env.all_of([get_token,put_token])
-                    #yield self.env.all_of([put_token,get_token])
-                    item = self.inbuiltstoreA.get(get_token)
-                    outstore.put(put_token, item)
-
-            print(f"T={self.env.now:.2f}: {self.name} puts item into {self.out_edges[0].name}  ")
-
-
-    def pushing_putb(self):
-        """Pushes items to the first output edge."""
     
-        while True:
-            #get_token = self.inbuiltstore.reserve_get(filter=lambda item: item.name.endswith('_b'))  # Wait for a reserved slot if needed 
-            get_token = self.inbuiltstoreB.reserve_get()
-            if isinstance(self.out_edges[1], ConveyorBelt):
 
-                    outstore = self.out_edges[1]
-                    put_token = outstore.reserve_put()
 
-                    pe = yield put_token
-                    yield get_token
-                    item = self.inbuiltstoreB.get(get_token)
-                    outstore.put(pe, item)
-                    
-            else:
-                    outstore = self.out_edges[1].inbuiltstore
-                    put_token = outstore.reserve_put()
-                    yield self.env.all_of([get_token,put_token])
-                    item = self.inbuiltstoreB.get(get_token)
-                    outstore.put(put_token, item)
-
-            print(f"T={self.env.now:.2f}: {self.name} puts item into {self.out_edges[0].name}  ")
-    def worker(self, i):
-        """Worker process that sorts and splits items based on a split ratio."""
-        while True:
-            with self.resource.request() as req:
-                yield req  # Wait for work capacity
-                
-                #storetoget = self.in_edges[0] if isinstance(self.in_edges[0], ConveyorBelt) else self.in_edges[0].out_store
-                if isinstance(self.in_edges[0], ConveyorBelt):
-                    storetoget = self.in_edges[0]
-                    get_token =  storetoget.reserve_get()
-                    ge = yield get_token
-                    item = yield storetoget.get(ge)
-            
-                else :
-                    storetoget = self.in_edges[0].out_store
-                    get_token =  storetoget.reserve_get()
-                    yield get_token
-                    item = storetoget.get(get_token)
+    def _get_out_edge_index(self):
         
-                # Create a combined output item and put it in the combiner's store
-                if random.random()<self.rule:
-                    put_token = self.inbuiltstoreA.reserve_put()
-                    print(f"T={self.env.now:.2f}: {self.name } worker{i} is reserving an space in its store")
-                    yield put_token
-                    print(f"T={self.env.now:.2f}: {self.name } worker{i} is reserved an space in its store")
-                    if isinstance(self.in_edges[0], ConveyorBelt):
-                        storetoget = self.in_edges[0]
-                        get_token =  storetoget.reserve_get()
-                        ge = yield get_token
-                        item = yield storetoget.get(ge)
+        #Returns the next edge index from out_edge_selection, whether it's a generator or a callable.
+        event = self.env.event()
+        
+        #self.out_edge_selection = get_index_selector(self.out_edge_selection, self, self.env, edge_type="OUT")
+        if hasattr(self.out_edge_selection, '__next__'):
+            # It's a generator
+            val = next(self.out_edge_selection)
+            event.succeed(val)
+            return event
+        elif callable(self.out_edge_selection):
+            # It's a function (pass self and env if needed)
+            #return self.out_edge_selection(self, self.env)
+            val = self.out_edge_selection(self, self.env)
+            event.succeed(val)
+            return event
+        elif isinstance(self.out_edge_selection, (simpy.events.Event)):
+            #print("out_edge_selection is an event")
+            self.env.process(self.call_out_process(self.out_edge_selection,event))
+            return event
+        else:
+            raise ValueError("out_edge_selection must be a generator or a callable.")    
                 
-                    else :
-                        storetoget = self.in_edges[0].out_store
-                        get_token =  storetoget.reserve_get()
-                        yield get_token
-                        item = storetoget.get(get_token)
-                    print(f"T={self.env.now:.2f}: {self.name }worker {i} received item {item.name}  for splitting")
-                    
-                    # Simulate processing delay for combining items
-                    self.delay_time = next(self.delay) if isinstance(self.delay, Generator) else self.delay
-                    yield self.env.timeout(self.delay_time)
+    def  call_out_process(self, out_edge_selection,event):
+        val = yield out_edge_selection
+        event.succeed(val)
 
-                    split_item = Item(name=f"{item.name}_a")
-                    self.inbuiltstoreA.put(put_token, split_item)
-                else:
-                    put_token = self.inbuiltstoreB.reserve_put()
-                    print(f"T={self.env.now:.2f}: {self.name } worker{i} is reserving an space in its store")
-                    yield put_token
-                    print(f"T={self.env.now:.2f}: {self.name } worker{i} is reserved an space in its store")
-                    if isinstance(self.in_edges[0], ConveyorBelt):
-                        storetoget = self.in_edges[0]
-                        get_token =  storetoget.reserve_get()
-                        ge = yield get_token
-                        item = yield storetoget.get(ge)
+    def _get_in_edge_index(self):
+        
+        #Returns the next edge index from out_edge_selection, whether it's a generator or a callable.
+        event = self.env.event()
+        
+        #self.out_edge_selection = get_index_selector(self.out_edge_selection, self, self.env, edge_type="OUT")
+        if hasattr(self.in_edge_selection, '__next__'):
+            # It's a generator
+            val = next(self.in_edge_selection)
+            event.succeed(val)
+            return event
+        elif callable(self.in_edge_selection):
+            # It's a function (pass self and env if needed)
+            #return self.out_edge_selection(self, self.env)
+            val = self.in_edge_selection(self, self.env)
+            event.succeed(val)
+            return event
+        elif isinstance(self.in_edge_selection, (simpy.events.Event)):
+            #print("out_edge_selection is an event")
+            self.env.process(self.call_in_process(self.in_edge_selection,event))
+            return event
+        else:
+            raise ValueError("out_edge_selection must be a generator or a callable.")    
                 
-                    else :
-                        storetoget = self.in_edges[0].out_store
-                        get_token =  storetoget.reserve_get()
-                        yield get_token
-                        item = storetoget.get(get_token)
-                    print(f"T={self.env.now:.2f}: {self.name } worker {i} received item {item.name}  for splitting")
-                    
-                    # Simulate processing delay for combining items
-                    self.delaytime = next(self.delay)
-                    yield self.env.timeout(self.delaytime)
+    def  call_in_process(self, in_edge_selection,event):
+        val = yield in_edge_selection
+        event.succeed(val)
+    
+   
 
-                    split_item = Item(name=f"{item.name}_b")
-                    self.inbuiltstoreB.put(put_token, split_item)
-                #self.inbuiltstore.put(put_token, split_item)
+    def _push_item(self, i, out_edge):
+        """
+        It picks a processed item from the store and pushes it to the specified out_edge.
+        The out_edge can be a ConveyorBelt or Buffer.
+        Args:
+            i (int): Index of the worker processing the item.
+            out_edge (Edge Object): The edge to which the item will be pushed.
 
 
-                print(f"T={self.env.now:.2f}: {self.name} worker {i} placed split item {split_item.name} into store")
+        """
+       
+        if out_edge.__class__.__name__ == "ConveyorBelt":                 
+                put_token = out_edge.reserve_put()
+                pe = yield put_token
+                self.item_in_process[i].update_node_event(self.id, self.env, "exit")
+                
+                y=out_edge.put(pe, self.item_in_process[i])
+                if y:
+                    print(f"T={self.env.now:.2f}: {self.id} puts {self.item_in_process[i].id} item into {out_edge.id}  ")
+        elif out_edge.__class__.__name__ == "Buffer":
+                outstore = out_edge.inbuiltstore
+                put_token = outstore.reserve_put()
+                yield put_token
+                self.item_in_process[i].update_node_event(self.id, self.env, "exit")
+                y=outstore.put(put_token, self.item_in_process[i])
+                if y:
+                    print(f"T={self.env.now:.2f}: {self.id} puts item into {out_edge.id}")
+        else:
+                raise ValueError(f"Unsupported edge type: {out_edge.__class__.__name__}")
+        
+    def _pull_item(self,i, in_edge):
+        """
+        It pulls an item from the specified in_edge and assigns it to the worker for processing.
+        Args:
+            i (int): Index of the worker that will process the item.
+            in_edge (Edge Object): The edge from which the item will be pulled.
+
+        """
+        if in_edge.__class__.__name__ == "ConveyorBelt":
+                get_token = in_edge.reserve_get()
+                gtoken = yield get_token
+                self.item_in_process[i]=yield in_edge.get(gtoken)
+                self.item_in_process[i].update_node_event(self.id, self.env, "entry")
+              
+                if self.item_in_process[i]:
+                    print(f"T={self.env.now:.2f}: {self.id} gets item {self.item_in_process[i].id} from {in_edge.id}  ")
+                
+        elif in_edge.__class__.__name__ == "Buffer":
+                outstore = in_edge.inbuiltstore
+                get_token = outstore.reserve_get()
+                yield get_token
+                self.item_in_process[i] =outstore.get(get_token)
+                self.item_in_process[i].update_node_event(self.id, self.env, "entry")
+                if self.item_in_process[i]:
+                    print(f"T={self.env.now:.2f}: {self.id} gets item {self.item_in_process[i].id} from {in_edge.id} ")
+        else:
+                raise ValueError(f"Unsupported edge type: {in_edge.__class__.__name__}")
+
+
+    def worker(self, i):
+        while True:
+            if self.state[i] == "SETUP_STATE":
+                yield self.env.timeout(self.node_setup_time)
+                self.update_state(i, "IDLE_STATE", self.env.now)
+
+            elif self.state[i] == "IDLE_STATE":
+                edgeindex_to_get_event = self._get_in_edge_index()
+                edgeindex_to_get = yield edgeindex_to_get_event
+                in_edge = self.in_edges[edgeindex_to_get]
+                yield self.env.process(self._pull_item(i, in_edge))
+                if self.pallet_in_process[i].item_type != "Pallet":
+                    raise ValueError(f"{self.id} worker{i} - Item type {self.pallet_in_process[i].item_type} is not supported for processing!")
+                self.update_state(i, "PROCESSING_STATE", self.env.now)
+
+            elif self.state[i] == "PROCESSING_STATE":
+                next_processing_time = self.get_delay(self.processing_delay)
+                yield self.env.timeout(next_processing_time)
+                self.stats[i]["num_item_processed"] += 1
+                self.update_state(i, "BLOCKED_STATE", self.env.now)
+
+            elif self.state[i] == "BLOCKED_STATE":
+                # Push all items from the pallet, then the pallet itself
+                while True:
+                    next_item = self.pallet_in_process[i].remove_item()
+                    if next_item is not None:
+                        self.item_in_process[i] = next_item
+                        out_edge_index_to_put_event = self._get_out_edge_index()
+                        out_edge_index_to_put = yield out_edge_index_to_put_event
+                        outedge_to_put = self.out_edges[out_edge_index_to_put]
+                        if self.blocking:
+                            yield self.env.process(self._push_item(i, outedge_to_put))
+                        else:
+                            if outedge_to_put.can_put():
+                                yield self.env.process(self._push_item(i, outedge_to_put))
+                            else:
+                                self.stats[i]["num_item_discarded"] += 1
+                                if hasattr(self.item_in_process[i], "set_destruction"):
+                                    self.item_in_process[i].set_destruction(self.id, self.env)
+                                self.item_in_process[i] = None
+                    else:
+                        # All items are pushed, now push the pallet itself
+                        self.item_in_process[i] = self.pallet_in_process[i]
+                        out_edge_index_to_put_event = self._get_out_edge_index()
+                        out_edge_index_to_put = yield out_edge_index_to_put_event
+                        outedge_to_put = self.out_edges[out_edge_index_to_put]
+                        if self.blocking:
+                            yield self.env.process(self._push_item(i, outedge_to_put))
+                        else:
+                            if outedge_to_put.can_put():
+                                yield self.env.process(self._push_item(i, outedge_to_put))
+                            else:
+                                self.stats[i]["num_item_discarded"] += 1
+                                if hasattr(self.item_in_process[i], "set_destruction"):
+                                    self.item_in_process[i].set_destruction(self.id, self.env)
+                                self.item_in_process[i] = None
+                        # Reset for next cycle
+                        self.pallet_in_process[i] = None
+                        self.item_in_process[i] = None
+                        self.update_state(i, "IDLE_STATE", self.env.now)
+                        break
+
+
+
 
     def behaviour(self):
         """Splitter behavior that creates workers based on the effective capacity."""
 
         assert self.in_edges is not None and len(self.in_edges) == 1, f"Split '{self.name}' must have exactly 1 in_edge."
         assert self.out_edges is not None and len(self.out_edges) == 2, f"Split '{self.name}' must have exactly 2 out_edges."
+        self.reset()
+        self.item_in_process[i+1] = None  # Initialize item_in_process for each worker
+        self.state[i]="SETUP_STATE"
+        self.stats[i] = {
+            "last_state_change_time": None,
+            "num_item_processed": 0,
+            "total_time_spent_in_states":{"SETUP_STATE": 0.0,"IDLE_STATE": 0.0, "PROCESSING_STATE": 0.0, "BLOCKED_STATE": 0.0}
+        }
 
-
-        cap = min(self.work_capacity, self.store_capacity)
-        for i in range(cap):
+        
+        for i in range(self.work_capacity):
             self.env.process(self.worker(i+1))
         yield self.env.timeout(0)  # Initialize the behavior without delay
 
