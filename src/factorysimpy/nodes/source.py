@@ -1,6 +1,6 @@
 # @title Source
 
-
+import simpy
 
 from factorysimpy.nodes.node import Node
 from factorysimpy.helper.item import Item
@@ -83,23 +83,15 @@ class Source(Node):
         
         self.state = "SETUP_STATE" # Initial state of the source node
         self.blocking = blocking
+        self.out_edge_selection = out_edge_selection  # Selection strategy for out edges
         self.stats = {
             "last_state_change_time": None,
             "num_item_generated": 0,
             "num_item_discarded": 0,
             "total_time_spent_in_states":{"SETUP_STATE": 0.0, "GENERATING_STATE": 0.0, "BLOCKED_STATE": 0.0}
         }
+        
 
-        if isinstance(out_edge_selection, str):  
-            self.out_edge_selection = get_index_selector(out_edge_selection, self, env, edge_type="OUT")
-        elif callable(out_edge_selection):
-            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
-            self.out_edge_selection = out_edge_selection
-        elif out_edge_selection is None:
-            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
-            self.out_edge_selection = out_edge_selection
-        else:
-            raise ValueError("out_edge_selection must be a string or a callable (function/generator)")
         
         
         
@@ -115,7 +107,7 @@ class Source(Node):
         elif inter_arrival_time is None:
             self.inter_arrival_time = inter_arrival_time
         else:
-            print("GGG",inter_arrival_time)
+            #print("GGG",inter_arrival_time)
             raise ValueError("inter_arrival_time must be a None, int, float, generator, or callable.")
          # Start behavior process
         self.env.process(self.behaviour())
@@ -124,6 +116,20 @@ class Source(Node):
         # if self.inter_arrival_time or self.out_edge_selection was initialized to None at the time of object creation 
         # user is expected to set it to valid form before starting the simulation
         
+        if isinstance(self.out_edge_selection, str):  
+            self.out_edge_selection = get_index_selector(self.out_edge_selection, self, self.env, edge_type="OUT")
+
+            #print(f"out_edge_selection is set to {self.out_edge_selection} for Source {self.id}, {type(self.out_edge_selection)={type(self.out_edge_selection)}")
+        elif callable(self.out_edge_selection):
+            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+            self.out_edge_selection = self.out_edge_selection
+        elif self.out_edge_selection is None:
+            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+            self.out_edge_selection = self.out_edge_selection
+        else:
+            raise ValueError("out_edge_selection must be a string or a callable (function/generator)")
+        
+
         if self.inter_arrival_time is None:
             raise ValueError("inter_arrival_time should not be None.")
         if self.out_edge_selection is None:
@@ -132,18 +138,31 @@ class Source(Node):
     def _get_out_edge_index(self):
         
         #Returns the next edge index from out_edge_selection, whether it's a generator or a callable.
+        event = self.env.event()
         
-        
+        #self.out_edge_selection = get_index_selector(self.out_edge_selection, self, self.env, edge_type="OUT")
         if hasattr(self.out_edge_selection, '__next__'):
             # It's a generator
-            return next(self.out_edge_selection)
+            val = next(self.out_edge_selection)
+            event.succeed(val)
+            return event
         elif callable(self.out_edge_selection):
             # It's a function (pass self and env if needed)
-            return self.out_edge_selection(self, self.env)
+            #return self.out_edge_selection(self, self.env)
+            val = self.out_edge_selection(self, self.env)
+            event.succeed(val)
+            return event
+        elif isinstance(self.out_edge_selection, (simpy.events.Event)):
+            #print("out_edge_selection is an event")
+            self.env.process(self.call_out_process(self.out_edge_selection,event))
+            return event
         else:
             raise ValueError("out_edge_selection must be a generator or a callable.")    
                 
-    
+    def  call_out_process(self, out_edge_selection,event):
+        val = yield out_edge_selection
+        event.succeed(val)
+
 
     
         
@@ -229,10 +248,13 @@ class Source(Node):
                 yield self.env.timeout(next_arrival_time)
                 i+=1
                 item = Item(f'item{self.id+":"+str(i)}')
-                item.timestamp_creation = self.env.now
+                item.set_creation(self.id, self.env)
                 self.stats["num_item_generated"] +=1
                 #edgeindex_to_put = next(self.out_edge_selection)
-                edgeindex_to_put = self._get_out_edge_index()
+                out_index_event = self._get_out_edge_index()
+                #print("here")
+                edgeindex_to_put = yield out_index_event
+                #print(edgeindex_to_put)
                 out_edge = self.out_edges[edgeindex_to_put]
 
                 if not self.blocking:
@@ -240,7 +262,7 @@ class Source(Node):
                         yield self.env.process(self._push_item(item, out_edge))
                     else:
                         print(f"T={self.env.now:.2f}: {self.id}: Discarding {item.id} as no space in out_edge")
-                        item.timestamp_desctruction = self.env.now
+                        item.set_destruction(self.id, self.env)
                         self.stats["num_item_discarded"]+=1
                 else:  
                     self.update_state("BLOCKED_STATE", self.env.now)

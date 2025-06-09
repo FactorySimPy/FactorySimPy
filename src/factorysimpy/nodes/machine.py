@@ -1,5 +1,5 @@
 # Machine m input and 1 output without using cancel
-
+import simpy
 from factorysimpy.nodes.node import Node
 from factorysimpy.utils.utils import get_index_selector
 from factorysimpy.base.reservable_priority_req_store import ReservablePriorityReqStore  # Import your class
@@ -73,6 +73,8 @@ class Machine(Node):
         
         self.state = {} 
         self.work_capacity = work_capacity
+        self.in_edge_selection = in_edge_selection
+        self.out_edge_selection = out_edge_selection
         self.blocking = blocking
         self.item_in_process={}
         self.stats={}
@@ -97,33 +99,43 @@ class Machine(Node):
                 "processing_delay must be a None, int, float, generator, or callable."
             )
         
-        # Initialize in_edge_selection and out_edge_selection
-        if isinstance(in_edge_selection, str):  
-            self.in_edge_selection = get_index_selector(in_edge_selection, self, env, "IN")
-        elif callable(in_edge_selection):
-            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
-            self.in_edge_selection = in_edge_selection
-        elif in_edge_selection is None:
-            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
-            self.in_edge_selection = in_edge_selection
-        else:
-            raise ValueError("in_edge_selection must be a None, string or a callable (function/generator)")
+        self.env.process(self.behaviour())  # Start the machine behavior process
+        
+
         
         
-        if isinstance(out_edge_selection, str):  
-            self.out_edge_selection = get_index_selector(out_edge_selection, self, env, "OUT")
-        elif callable(out_edge_selection):
-            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
-            self.out_edge_selection = out_edge_selection
-        elif out_edge_selection is None:
-            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
-            self.out_edge_selection = out_edge_selection
-        else:
-            raise ValueError("out_edge_selection must be a None, string or a callable (function/generator)")  
-        
-        self.env.process(self.behaviour())
       
     def reset(self):
+            
+
+            # Initialize in_edge_selection and out_edge_selection
+            if isinstance(self.in_edge_selection, str):  
+                self.in_edge_selection = get_index_selector(self.in_edge_selection, self, self.env, "IN")
+                
+
+            elif callable(self.in_edge_selection):
+                # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+                self.in_edge_selection = self.in_edge_selection
+            elif self.in_edge_selection is None:
+                # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+                self.in_edge_selection = self.in_edge_selection
+            else:
+                raise ValueError("in_edge_selection must be a None, string or a callable (function/generator)")
+            
+            
+            if isinstance(self.out_edge_selection, str):  
+                self.out_edge_selection = get_index_selector(self.out_edge_selection, self, self.env, "OUT")
+            elif callable(self.out_edge_selection):
+                # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+                self.out_edge_selection = self.out_edge_selection
+            elif self.out_edge_selection is None:
+                # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+                self.out_edge_selection = self.out_edge_selection
+            else:
+                raise ValueError("out_edge_selection must be a None, string or a callable (function/generator)")  
+            
+            
+
             if self.processing_delay is None:
                 raise ValueError("Processing delay cannot be None.")
             if self.in_edge_selection is None:
@@ -197,30 +209,58 @@ class Machine(Node):
     def _get_out_edge_index(self):
         
         #Returns the next edge index from out_edge_selection, whether it's a generator or a callable.
+        event = self.env.event()
         
-        
+        #self.out_edge_selection = get_index_selector(self.out_edge_selection, self, self.env, edge_type="OUT")
         if hasattr(self.out_edge_selection, '__next__'):
             # It's a generator
-            return next(self.out_edge_selection)
+            val = next(self.out_edge_selection)
+            event.succeed(val)
+            return event
         elif callable(self.out_edge_selection):
             # It's a function (pass self and env if needed)
-            return self.out_edge_selection(self, self.env)
+            #return self.out_edge_selection(self, self.env)
+            val = self.out_edge_selection(self, self.env)
+            event.succeed(val)
+            return event
+        elif isinstance(self.out_edge_selection, (simpy.events.Event)):
+            #print("out_edge_selection is an event")
+            self.env.process(self.call_out_process(self.out_edge_selection,event))
+            return event
         else:
-            raise ValueError("out_edge_selection must be a generator or a callable.") 
-        
+            raise ValueError("out_edge_selection must be a generator or a callable.")    
+                
+    def  call_out_process(self, out_edge_selection,event):
+        val = yield out_edge_selection
+        event.succeed(val)
+
     def _get_in_edge_index(self):
         
-        #Returns the next edge index from in_edge_selection, whether it's a generator or a callable.
+        #Returns the next edge index from out_edge_selection, whether it's a generator or a callable.
+        event = self.env.event()
         
-        
+        #self.out_edge_selection = get_index_selector(self.out_edge_selection, self, self.env, edge_type="OUT")
         if hasattr(self.in_edge_selection, '__next__'):
             # It's a generator
-            return next(self.in_edge_selection)
+            val = next(self.in_edge_selection)
+            event.succeed(val)
+            return event
         elif callable(self.in_edge_selection):
             # It's a function (pass self and env if needed)
-            return self.in_edge_selection(self, self.env)
+            #return self.out_edge_selection(self, self.env)
+            val = self.in_edge_selection(self, self.env)
+            event.succeed(val)
+            return event
+        elif isinstance(self.in_edge_selection, (simpy.events.Event)):
+            #print("out_edge_selection is an event")
+            self.env.process(self.call_in_process(self.in_edge_selection,event))
+            return event
         else:
-            raise ValueError("in_edge_selection must be a generator or a callable.") 
+            raise ValueError("out_edge_selection must be a generator or a callable.")    
+                
+    def  call_in_process(self, in_edge_selection,event):
+        val = yield in_edge_selection
+        event.succeed(val)
     
    
 
@@ -286,7 +326,7 @@ class Machine(Node):
 
     def worker(self, i):
         #Worker process that processes items with resource and reserve handling."""
-        self.reset()
+        
         while True:
             #print(f"T={self.env.now:.2f}: {self.id} worker{i} started processing")
             if self.state[i] == "SETUP_STATE":
@@ -299,7 +339,14 @@ class Machine(Node):
                 print(f"T={self.env.now:.2f}: {self.id} worker{i} is in IDLE_STATE")
         
                 # Wait for the next item to process
-                edgeindex_to_get = self._get_in_edge_index()
+                edgeindex_to_get_event = self._get_in_edge_index()
+                edgeindex_to_get = yield edgeindex_to_get_event
+                
+                #print(f"worker{i} - edgeindex_to_get: {edgeindex_to_get}")
+                if edgeindex_to_get is None :
+                    raise ValueError(f"{self.id} worker{i} - No in_edge available for processing!")
+                if  edgeindex_to_get < 0 or edgeindex_to_get >= len(self.in_edges):
+                    raise IndexError(f"{self.id} worker{i} - Invalid edge index {edgeindex_to_get} for in_edges.")
                 in_edge = self.in_edges[edgeindex_to_get]
                 yield self.env.process(self._pull_item(i,in_edge))
                 
@@ -314,7 +361,8 @@ class Machine(Node):
                  yield self.env.timeout(next_processing_time)
                  self.stats[i]["num_item_processed"] += 1
                  print(f"T={self.env.now:.2f}: {self.id} worker{i} processed item: {self.item_in_process[i].id}")
-                 out_edge_index_to_put = self._get_out_edge_index()
+                 out_edge_index_to_put_event = self._get_out_edge_index()
+                 out_edge_index_to_put = yield out_edge_index_to_put_event
                  outedge_to_put = self.out_edges[out_edge_index_to_put]
                  self.update_state(i,"BLOCKED_STATE", self.env.now)
                  # Check if the out_edge can accept the item
@@ -345,7 +393,7 @@ class Machine(Node):
     def behaviour(self):
         #Machine behavior that creates workers based on the effective capacity."""
         
-        
+        self.reset()
         assert self.in_edges is not None and len(self.in_edges) >= 1, f"Machine '{self.id}' must have atleast 1 in_edge."
         assert self.out_edges is not None and len(self.out_edges) >= 1, f"Machine '{self.id}' must have atleast 1 out_edge."
         

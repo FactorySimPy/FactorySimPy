@@ -2,7 +2,7 @@
 
 
 from factorysimpy.edges.edge import Edge
-from factorysimpy.base.gen_reservable_priority_req_filter_store import GenReservablePriorityReqFilterStore  # Import your class
+from factorysimpy.base.buffer_store import BufferStore  # Import your class
 from factorysimpy.base.reservable_priority_req_filter_store import ReservablePriorityReqFilterStore  # Import your class
 
 
@@ -63,12 +63,10 @@ class Buffer(Edge):
             raise ValueError("Invalid mode. Choose either 'FIFO' or 'LIFO'.")
           
           
-          if mode == "FIFO":
-             self.inbuiltstore= ReservablePriorityReqFilterStore(env, capacity=self.store_capacity)
-          elif mode == "LIFO":
-            self.inbuiltstore = GenReservablePriorityReqFilterStore(env, capacity=self.store_capacity, trigger_delay =self.delay)
-          else:
-             raise ValueError("Invalid mode. Choose either 'FIFO' or 'LIFO'.")
+          # Initialize the buffer store
+         
+          self.inbuiltstore = BufferStore(env, capacity=self.store_capacity, trigger_delay =self.delay, mode=self.mode)
+          
     
           
           if callable(delay):
@@ -97,6 +95,11 @@ class Buffer(Edge):
         bool
             True if the buffer can accept an item, False otherwise.
         """
+        # Check if the buffer has space for new items
+        if  len(self.inbuiltstore.items)== self.store_capacity:
+            return False
+        # return True if the number of items in the buffer is less than the store capacity minus the number of reservations
+        # reservations_put is the number of items that are already reserved to be put in the buffer
         return (self.store_capacity-len(self.inbuiltstore.items)) >len(self.inbuiltstore.reservations_put)
     
     def can_get(self):
@@ -108,7 +111,12 @@ class Buffer(Edge):
         bool
             True if the buffer can give an item, False otherwise.
         """
-        return len(self.inbuiltstore.items) > len(self.inbuiltstore.reservations_get)
+        if not self.inbuiltstore.items:
+            return False
+        #only return items that are older than the delay. Count such items
+        count = sum(1 for item in self.inbuiltstore.items if item.time_stamp_creation + self.delay <= self.env.now)
+        # count should be greater than the number of reservations that are already there
+        return count > len(self.inbuiltstore.reservations_get)
     
     def behaviour(self):
       """

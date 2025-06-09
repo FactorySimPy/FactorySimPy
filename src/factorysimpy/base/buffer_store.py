@@ -4,7 +4,7 @@
 import simpy, inspect
 from simpy.resources.store import FilterStore
 
-class GenReservablePriorityReqFilterStore(FilterStore):
+class BufferStore(FilterStore):
     """
         This is a class that is derived from SimPy's Store class and has extra capabilities
         that makes it a priority-based reservable store for processes to reserve space
@@ -34,7 +34,7 @@ class GenReservablePriorityReqFilterStore(FilterStore):
            reserved_events (list):  Maintains events corresponding to reserved items to preserve item order by index
         """
 
-    def __init__(self, env, capacity=float('inf'),trigger_delay=0):
+    def __init__(self, env, capacity=float('inf'),trigger_delay=0,mode="FIFO"):
         """
         Initializes a reservable store with priority-based reservations.
 
@@ -47,11 +47,14 @@ class GenReservablePriorityReqFilterStore(FilterStore):
         self.env = env
 
         self.trigger_delay = trigger_delay
+        self.mode=mode
         self.reserve_put_queue = []  # Queue for managing reserve_put reservations
         self.reservations_put = []   # List of successful put reservations
         self.reserve_get_queue = []  # Queue for managing reserve_get reservations
         self.reservations_get = []   # List of successful get reservations
-        #self.reserved_events = []     # Maintains events corresponding to reserved items to preserve item order
+        self.reserved_events = []     # Maintains events corresponding to reserved items to preserve item order
+        self.reserved_items=[]
+        self.unreserved_items=[]
 
 
     def reserve_put(self, priority=0):
@@ -236,19 +239,18 @@ class GenReservablePriorityReqFilterStore(FilterStore):
       elif get_event_to_cancel in self.reservations_get:
         self.reservations_get.remove(get_event_to_cancel)
 
-        # #deleting the associated event in the reserved_events list to preserve the order of the items
-        # #finding index of the item
-        # event_in_index = self.reserved_events.index(get_event_to_cancel)
-        # delta_position = len(self.reserved_events)
-        # print(event_in_index)
-        # print(f"T={self.env.now:.2f} just before canceling num_events = {delta_position}")
-        # #shifting the item
-        # item_to_shift = self.items.pop(event_in_index)
-        # self.items.insert(delta_position-1, item_to_shift)
-        # print(f"T={self.env.now:.2f} placed {item_to_shift.name} back {[i.name for i in self.items]}")
+        #deleting the associated event in the reserved_events list to preserve the order of the items
+        #finding index of the item
+        event_in_index = self.reserved_events.index(get_event_to_cancel)
+        delta_position = len(self.reserved_events)
+       
+        #shifting the item
+        item_to_shift = self.reserved_items.pop(event_in_index)
+        self.unreserved_items.insert(delta_position-1, item_to_shift)
+        #print(f"T={self.env.now:.2f} placed {item_to_shift.name} back {[i.name for i in self.items]}")
 
-        # #deleting the event
-        # self.reserved_events.pop(event_in_index)#if t is removed, then a waiting event can be succeeded, if any
+        #deleting the event
+        self.reserved_events.pop(event_in_index)#if t is removed, then a waiting event can be succeeded, if any
 
         self._trigger_reserve_get(None)
         return True
@@ -257,7 +259,7 @@ class GenReservablePriorityReqFilterStore(FilterStore):
         raise RuntimeError("No matching event in reserve_get_queue or reservations_get for this process")
 
 
-    def reserve_get(self,priority=0,filter= None):
+    def reserve_get(self,priority=0,):
         """
         Create a reservation request to retrieve an item from the store.
 
@@ -272,7 +274,7 @@ class GenReservablePriorityReqFilterStore(FilterStore):
         Args:
             priority (int, optional): The priority level of the reservation request.
                                       Lower values indicate higher priority. Defaults to 0.
-            filter( filter=lambda item: True, optional):  Filter to be used while using "reserve_get
+            
 
         Returns:
             simpy.Event: A reservation event that will succeed when an item becomes available.
@@ -286,10 +288,10 @@ class GenReservablePriorityReqFilterStore(FilterStore):
         event.priority_to_get = priority
 
         # Check if 'filter' is provided, if not, assign a default filter
-        if filter is "LIFO":
+        if self.mode is "LIFO":
             #print(f"T={self.env.now} filter is None so making it true for all items")
             #filter = lambda item: True  # Default filter that accepts all items
-            print([(x.timestamp_node_exit, x.id) for x in self.items],self.trigger_delay)
+            #print([(x.timestamp_node_exit, x.id) for x in self.items],self.trigger_delay)
             #filter = lambda items: max(items, key=lambda x: self.env.now >= (x.timestamp_node_exit+self.trigger_delay), default=None)
             filter = lambda items: max(
                     [x for x in items if self.env.now >=  (x.timestamp_node_exit+self.trigger_delay)],
@@ -297,14 +299,18 @@ class GenReservablePriorityReqFilterStore(FilterStore):
                     default=None
                 )
             event.filter = filter
-        else:
+        elif self.mode is "FIFO":
             #print(f"T={self.env.now} filter is not None ")
             filter = lambda items: min(
                     [x for x in items if self.env.now >=  (x.timestamp_node_exit+self.trigger_delay)],
                     key=lambda x:  x.timestamp_node_exit,
                     default=None
                 )
-            event.filter = filter
+            
+        else:
+            raise ValueError(f"Invalid mode {self.mode} for reservable store. It should be either FIFO or LIFO")
+        
+        event.filter = filter
 
         #sorting the list based on priority after appending the new event
         self.reserve_get_queue.append(event)
@@ -378,16 +384,23 @@ class GenReservablePriorityReqFilterStore(FilterStore):
 
             if self.is_batch_filter(event.filter):
                 # Apply the filter to the list
-                selected_item = event.filter(self.items)
-                print("its here", event.filter, self.trigger_delay)
+                #selected_item = event.filter(self.items)
+                selected_item = event.filter(self.unreserved_items)
+                #print("its here", event.filter, self.trigger_delay)
                 if selected_item is not None:
                     self.reservations_get.append(event)
+                    self.reserved_events.append(event)  # Maintain order by associating event with item
+                    self.reserved_items.append(selected_item)  # Store the reserved item
+                    self.unreserved_items.remove(selected_item)  # Remove from unreserved items
                     event.succeed()
 
             else:
                 for item in self.items:
                     if event.filter(item):
                         self.reservations_get.append(event)
+                        self.reserved_events.append(event)  # Maintain order by associating event with item
+                        self.reserved_items.append(item)  # Store the reserved item
+                        self.unreserved_items.remove(item)  # Remove from unreserved items
                         event.succeed()
 
                         break
@@ -485,33 +498,18 @@ class GenReservablePriorityReqFilterStore(FilterStore):
             raise RuntimeError(
                 f"Time {self.env.now:.2f}, No matching reservation found for process {self.env.active_process}."
             )
-
+        
+        assigned_item = None
         # Identify the corresponding item in the reserved events list
-        #item_index = self.reserved_events.index(reserved_event)
-        self.reservations_get.remove(reserved_event)
+        item_index = self.reserved_events.index(reserved_event)
+        
 
         # Retrieve the assigned item and remove it from storage
-        #assigned_item = self.items.pop(item_index)
-        #self.reserved_events.pop(item_index)
-        assigned_item = None
-        # for item in self.items:
-        #     if reserved_event.filter(item):
-        #         self.items.remove(item)
-        #         assigned_item = item
-        #         break
-
-        if self.is_batch_filter(reserved_event.filter):
-                # Apply the filter to the list
-                assigned_item = reserved_event.filter(self.items)
-                if assigned_item is not None:
-                    self.items.remove(assigned_item)
-
-        else:
-            for item in self.items:
-                if reserved_event.filter(item):
-                    self.items.remove(item)
-                    assigned_item = item
-                    break
+        assigned_item = self.reserved_items.pop(item_index)# from reseved_items list get item. it is only there in unreserved_items list
+        
+        self.items.remove(assigned_item)  # Remove the item from the store
+        self.reservations_get.remove(reserved_event)
+        self.reserved_events.pop(item_index)  # Remove the event from reserved events
 
         if assigned_item is None:
             raise ValueError(f"Reserved item for {get_event} not found in store.")
@@ -633,5 +631,6 @@ class GenReservablePriorityReqFilterStore(FilterStore):
             item.put_time=self.env.now
             #print(f"Time is {self.env.now}")
             self.items.append(item)
+            self.unreserved_items.append(item)  # Add to unreserved items
             return True  # Successfully added item
 
