@@ -7,6 +7,8 @@ Node classes
 - [Node](nodes.md)
 - [Machine](machine.md)
 - [Source](source.md)
+- [Split](split.md)
+- [Joint](joint.md)
 - [Sink](sink.md)
 
 Edge classes

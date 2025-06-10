@@ -78,6 +78,7 @@ class Split(Node):
         self.out_edge_selection = out_edge_selection
         self.worker_process_map = {}
         self.item_in_process = {}
+        self.pallet_in_process = {}
         self.state = {}
     
        
@@ -92,13 +93,21 @@ class Split(Node):
             self.processing_delay = processing_delay 
         elif isinstance(processing_delay, (int, float)):
             self.processing_delay = processing_delay
+        elif hasattr(processing_delay, '__next__'):
+            # It's a generator
+            self.processing_delay = processing_delay 
         elif processing_delay is None:
             self.processing_delay = None
         else:
             raise ValueError("processing_delay must be a None, int, float, generator, or callable.")
         
 
-        def reset(self):
+    
+         
+        # Start the behaviour process
+        self.env.process(self.behaviour())
+
+    def reset(self):
             
 
             # Initialize in_edge_selection and out_edge_selection
@@ -112,6 +121,9 @@ class Split(Node):
             elif self.in_edge_selection is None:
                 # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
                 self.in_edge_selection = self.in_edge_selection
+            elif hasattr(self.in_edge_selection, '__next__'):
+                # It's a generator
+                self.in_edge_selection = self.in_edge_selection
             else:
                 raise ValueError("in_edge_selection must be a None, string or a callable (function/generator)")
             
@@ -123,6 +135,9 @@ class Split(Node):
                 self.out_edge_selection = self.out_edge_selection
             elif self.out_edge_selection is None:
                 # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+                self.out_edge_selection = self.out_edge_selection
+            elif hasattr(self.out_edge_selection, '__next__'):
+                # It's a generator
                 self.out_edge_selection = self.out_edge_selection
             else:
                 raise ValueError("out_edge_selection must be a None, string or a callable (function/generator)")  
@@ -136,16 +151,13 @@ class Split(Node):
             if self.out_edge_selection is None:
                 raise ValueError("out_edge_selection should not be None.")
 
-         
-        # Start the behaviour process
-        self.env.process(self.behaviour())
     
     
    
 
-    def update_state(self, new_state: str, current_time: float):
+    def update_state(self,i, new_state: str, current_time: float):
         """
-        Update state and track the time spent in the previous state.
+        Update node state and track the time spent in the previous state.
         
         Args:
             new_state (str): The new state to transition to. Must be one of "SETUP_STATE", "GENERATING_STATE", "BLOCKED_STATE".
@@ -153,14 +165,18 @@ class Split(Node):
 
         """
         
-        if self.state is not None and self.stats["last_state_change_time"] is not None:
-            elapsed = current_time - self.stats["last_state_change_time"]
+        if self.state[i] is not None and self.stats[i]["last_state_change_time"] is not None:
+            elapsed = current_time - self.stats[i]["last_state_change_time"]
 
-            self.stats["total_time_spent_in_states"][self.state] = (
-                self.stats["total_time_spent_in_states"].get(self.state, 0.0) + elapsed
+            self.stats[i]["total_time_spent_in_states"][self.state[i]] = (
+                self.stats[i]["total_time_spent_in_states"].get(self.state[i], 0.0) + elapsed
             )
-        self.state = new_state
-        self.stats["last_state_change_time"] = current_time
+        self.state[i] = new_state
+        self.stats[i]["last_state_change_time"] = current_time
+
+
+
+
     def add_in_edges(self, edge):
         if self.in_edges is None:
             self.in_edges = []
@@ -315,6 +331,7 @@ class Split(Node):
                 edgeindex_to_get = yield edgeindex_to_get_event
                 in_edge = self.in_edges[edgeindex_to_get]
                 yield self.env.process(self._pull_item(i, in_edge))
+                self.pallet_in_process[i]= self.item_in_process[i]
                 if self.pallet_in_process[i].flow_item_type != "Pallet":
                     raise ValueError(f"{self.id} worker{i} - Item type {self.pallet_in_process[i].flow_item_type} is not supported for processing!")
                 self.update_state(i, "PROCESSING_STATE", self.env.now)
@@ -330,6 +347,7 @@ class Split(Node):
                 while True:
                     next_item = self.pallet_in_process[i].remove_item()
                     if next_item is not None:
+                        self.stats[i]["num_item_processed"] += 1
                         self.item_in_process[i] = next_item
                         out_edge_index_to_put_event = self._get_out_edge_index()
                         out_edge_index_to_put = yield out_edge_index_to_put_event
@@ -356,7 +374,7 @@ class Split(Node):
                             if outedge_to_put.can_put():
                                 yield self.env.process(self._push_item(i, outedge_to_put))
                             else:
-                                self.stats[i]["num_item_discarded"] += 1
+                                self.stats[i]["num_pallet_discarded"] += 1
                                 if hasattr(self.item_in_process[i], "set_destruction"):
                                     self.item_in_process[i].set_destruction(self.id, self.env)
                                 self.item_in_process[i] = None
@@ -375,20 +393,25 @@ class Split(Node):
         assert self.in_edges is not None and len(self.in_edges) == 1, f"Split '{self.name}' must have exactly 1 in_edge."
         assert self.out_edges is not None and len(self.out_edges) == 2, f"Split '{self.name}' must have exactly 2 out_edges."
         self.reset()
-        self.item_in_process[i+1] = None  # Initialize item_in_process for each worker
-        self.state[i]="SETUP_STATE"
-        self.stats[i] = {
-            "last_state_change_time": None,
-            "num_item_processed": 0,
-            "num_item_discarded": 0,
-            "num_pallet_processed": 0,
-            "num_pallet_discarded": 0,
-            "total_time_spent_in_states":{"SETUP_STATE": 0.0,"IDLE_STATE": 0.0, "PROCESSING_STATE": 0.0, "BLOCKED_STATE": 0.0}
-        }
+        
 
         
         for i in range(self.work_capacity):
+
+            self.item_in_process[i+1] = None  # Initialize item_in_process for each worker
+            self.pallet_in_process[i+1] = None
+            self.state[i+1]="SETUP_STATE"
+            self.stats[i+1] = {
+                "last_state_change_time": None,
+                "num_item_processed": 0,
+                "num_item_discarded": 0,
+                "num_pallet_processed": 0,
+                "num_pallet_discarded": 0,
+                "total_time_spent_in_states":{"SETUP_STATE": 0.0,"IDLE_STATE": 0.0, "PROCESSING_STATE": 0.0, "BLOCKED_STATE": 0.0}
+            }
+
             proc = self.env.process(self.worker(i+1))
+        
             self.worker_process_map[proc]=i+1
         yield self.env.timeout(0)  # Initialize the behavior without delay
 

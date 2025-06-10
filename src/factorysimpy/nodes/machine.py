@@ -78,6 +78,7 @@ class Machine(Node):
         self.in_edge_selection = in_edge_selection
         self.out_edge_selection = out_edge_selection
         self.blocking = blocking
+        self.worker_process_map = {}
         self.item_in_process={}
         self.stats={}
        
@@ -118,6 +119,9 @@ class Machine(Node):
             elif callable(self.in_edge_selection):
                 # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
                 self.in_edge_selection = self.in_edge_selection
+            elif hasattr(self.in_edge_selection, '__next__'):
+                # It's a generator
+                self.in_edge_selection = self.in_edge_selection
             elif self.in_edge_selection is None:
                 # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
                 self.in_edge_selection = self.in_edge_selection
@@ -129,6 +133,9 @@ class Machine(Node):
                 self.out_edge_selection = get_index_selector(self.out_edge_selection, self, self.env, "OUT")
             elif callable(self.out_edge_selection):
                 # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+                self.out_edge_selection = self.out_edge_selection
+            elif hasattr(self.out_edge_selection, '__next__'):
+                # It's a generator
                 self.out_edge_selection = self.out_edge_selection
             elif self.out_edge_selection is None:
                 # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
@@ -412,6 +419,8 @@ class Machine(Node):
                         "total_time_spent_in_states":{"SETUP_STATE": 0.0,"IDLE_STATE": 0.0, "PROCESSING_STATE": 0.0, "BLOCKED_STATE": 0.0}
                     }
             #starting worker process
-            self.env.process(self.worker(i+1))
+            proc = self.env.process(self.worker(i+1))
+        
+            self.worker_process_map[proc]=i+1
         yield self.env.timeout(0)  # Initialize the behavior without delay
 

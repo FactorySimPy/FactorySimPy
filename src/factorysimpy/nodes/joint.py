@@ -64,7 +64,7 @@ class Joint(Node):
                 
     
     """ 
-    def __init__(self, env, id,in_edges=None , out_edges=None,node_setup_time=0,target_quantity_of_each_item=[1], work_capacity=1, processing_delay=1, blocking= "False", out_edge_selction="FIRST"):
+    def __init__(self, env, id,in_edges=None , out_edges=None,node_setup_time=0,target_quantity_of_each_item=[1], work_capacity=1, processing_delay=1, blocking= "False", out_edge_selection="FIRST"):
         super().__init__(env, id,in_edges=in_edges , out_edges=out_edges, node_setup_time=node_setup_time)  
         
         
@@ -77,9 +77,12 @@ class Joint(Node):
         # the first index correponds to the edge that supplies pallet/box.
         self.target_quantity_of_each_item=  target_quantity_of_each_item 
         
-        self.out_edge_selection = out_edge_selction
+        self.out_edge_selection = out_edge_selection
 
-        self.in_edge_events={}
+      
+        self.item_in_process = {}
+        self.worker_process_map = {}
+        self.stats = {}
 
        
 
@@ -125,6 +128,9 @@ class Joint(Node):
             elif callable(self.out_edge_selection):
                 # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
                 self.out_edge_selection = self.out_edge_selection
+            elif hasattr(self.out_edge_selection, '__next__'):
+                # It's a generator
+                self.out_edge_selection = self.out_edge_selection
             elif self.out_edge_selection is None:
                 # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
                 self.out_edge_selection = self.out_edge_selection
@@ -135,8 +141,7 @@ class Joint(Node):
 
             if self.processing_delay is None:
                 raise ValueError("Processing delay cannot be None.")
-            if self.in_edge_selection is None:
-                raise ValueError("in_edge_selection should not be None")
+            
             if self.out_edge_selection is None:
                 raise ValueError("out_edge_selection should not be None.")
         
@@ -252,6 +257,24 @@ class Joint(Node):
         else:
                 raise ValueError(f"Unsupported edge type: {in_edge.__class__.__name__}")
 
+    def update_state(self,i, new_state: str, current_time: float):
+        """
+        Update node state and track the time spent in the previous state.
+        
+        Args:
+            new_state (str): The new state to transition to. Must be one of "SETUP_STATE", "GENERATING_STATE", "BLOCKED_STATE".
+            current_time (float): The current simulation time.
+
+        """
+        
+        if self.state[i] is not None and self.stats[i]["last_state_change_time"] is not None:
+            elapsed = current_time - self.stats[i]["last_state_change_time"]
+
+            self.stats[i]["total_time_spent_in_states"][self.state[i]] = (
+                self.stats[i]["total_time_spent_in_states"].get(self.state[i], 0.0) + elapsed
+            )
+        self.state[i] = new_state
+        self.stats[i]["last_state_change_time"] = current_time
 
     
     def worker(self, i):
@@ -269,7 +292,7 @@ class Joint(Node):
                  # 1. Pull the pallet from in_edges[0]
                 yield self.env.process(self._pull_item(i, self.in_edges[0]))
                 if self.item_in_process[i].flow_item_type != "Pallet":
-                    raise RuntimeError(f"{self.id} worker{i} - Expected a Pallet item, but got {self.item_in_process[i].type}!")
+                    raise RuntimeError(f"{self.id} worker{i} - Expected a Pallet item, but got {self.item_in_process[i].flow_item_type}!")
                 
                 pallet = self.item_in_process[i]  # Assume the pulled item is a Pallet instance
 
@@ -293,7 +316,7 @@ class Joint(Node):
                 if not isinstance(next_processing_time, (int, float)):
                     raise AssertionError("processing_delay returns an valid value. It should be int or float")
                 yield self.env.timeout(next_processing_time)
-                self.stats["num_item_processed"] += 1
+                self.stats[i]["num_item_processed"] += 1
                 print(f"T={self.env.now:.2f}: {self.id} worker{i} processed item: {self.item_in_process[i].id}")
                 out_edge_index_to_put_event = self._get_out_edge_index()
                 out_edge_index_to_put = yield out_edge_index_to_put_event
@@ -324,17 +347,20 @@ class Joint(Node):
         assert self.out_edges is not None and len(self.out_edges) == 1, f"Joint '{self.name}' must have exactly 1 out_edge."
         assert len(self.target_quantity_of_each_item) == len(self.in_edges), \
             f"Joint '{self.name}' target_quantity_of_each_item must match the number of in_edges."
-        self.state[i+1] = "SETUP_STATE" # Initialize state for each worker
-        self.item_in_process[i+1] = None  # Initialize item to process for each worker
         
-        # Initialize stats for each worker
-        self.stats[i+1] = {
+        
+        for i in range(self.work_capacity):
+            self.state[i+1] = "SETUP_STATE" # Initialize state for each worker
+            self.item_in_process[i+1] = None  # Initialize item to process for each worker
+        
+            # Initialize stats for each worker
+            self.stats[i+1] = {
                     "last_state_change_time": None,
                     "num_item_processed": 0,
                     "num_item_discarded": 0,
                     "total_time_spent_in_states":{"SETUP_STATE": 0.0,"IDLE_STATE": 0.0, "PROCESSING_STATE": 0.0, "BLOCKED_STATE": 0.0}
                 }
+            proc = self.env.process(self.worker(i+1))
         
-        for i in range(self.work_capacity):
-            self.env.process(self.worker(i+1))
+            self.worker_process_map[proc]=i+1
         yield self.env.timeout(0)  # Initialize the behavior without delay
