@@ -1,10 +1,13 @@
 # Basic Components
 
 
-Node, Edge and Item are the 3 basic component types in the library. All the other components are derived from either Node or Edge. Item represents the entities that flow in the system. Nodes are the active, static elements in the system and are responsible for operations such as processing, splitting, or combining items. Every node maintains a list of `in_edges` and `out_edges`, which are references to edge objects that connect it to other nodes. Other parameters of Nodes are `id` (an unique name) and `node_setup_time` (initial delay in each node, which is be a constant value). Common node types include Machine, Split, Joint, Source, and Sink. Source can be used to generate items that flow in the system. Machines are the entities that modifies/processes an item. To multiplex the items that flow in the system, Splits can be used and to pack/join items from different incoming edges a Joint can be used. Sink is the terminal node in the system and the items that enter this node cannot be retrieved.
+Node, Edge and BaseFlowItem are the 3 basic component types in the library. All the other components are derived from them. Nodes are the active, static elements in the system and are responsible for operations such as processing, splitting, or combining items. Every node maintains a list of `in_edges` and `out_edges`, which are references to edge objects that connect it to other nodes. Other parameters of Nodes are `id` (an unique name) and `node_setup_time` (initial delay in each node, which is be a constant value). Common node types include Machine, Split, Joint, Source, and Sink. Source can be used to generate items that flow in the system. Machines are the entities that modifies/processes an item. To multiplex the items that flow in the system, Splits can be used and to pack/join items from different incoming edges a Joint can be used. Sink is the terminal node in the system and the items that enter this node cannot be retrieved.
 
 
 Edges are passive components that connect exactly two nodes (src_node and dest_node) and helps in transfering items between them. Edges are directed. Each edge has a unique identifier called `id`, and parameters `src_node` and `dest_node` to store the reference to the source node and destination node. Specific types of edges include Buffer, Conveyor, and Fleet. Buffers act as queues with a defined delay. Conveyors move items between nodes while preserving order and support both discrete (slotted belts) and continuous motion. Fleets represent systems like warehouse robots or human operators that transport items between nodes without preserving order.
+
+BaseFlowItem represents the entities that flow in the system. Every baseflowitem has a unique `id`. There are mainly two two of flow items available specified as `flow_item_type`. It can be either item or a pallet. Item is the smallest unit of discrete items that flow in the system.
+Pallets represents enitities that can hold multiple base items that belong to `flow_item_type`- "items".  
 
 
 **Rules for interconnection**
@@ -602,16 +605,9 @@ The `Item` class represents the discrete entities that flow through the system. 
 
 **Basic attributes**
 
-- `id` - Unique identifier for the item.
-- `flow_item_type` - Set to `"Pallet"` to distinguish from regular items.
-- `timestamp_creation` - Time when the item was created.
-- `timestamp_destruction` - Time when the item was destroyed (e.g., collected by a sink).
-- `timestamp_node_entry` - Time when the item entered the current node.
-- `timestamp_node_exit` - Time when the item exited the current node.
-- `current_node_id` - The ID of the node the item is currently in.
-- `source_id` - The ID of the source node that created the item.
-- `payload` - Optional data carried by the item.
-- `destructed_in_node` - The node where the item was destroyed.
+
+- `flow_item_type` - Set to `"item"`
+
 
 
 **Behavior**
@@ -641,17 +637,10 @@ The `Pallet` class represents a special type of item that can hold multiple othe
 
 **Basic attributes**
 
-- `id` - Unique identifier for the pallet.
+
 - `flow_item_type` - Set to `"Pallet"` to distinguish from regular items.
 - `items` - List of items currently held in the pallet.
-- `timestamp_creation` - Time when the pallet was created.
-- `timestamp_destruction` - Time when the pallet was destroyed (e.g., collected by a sink).
-- `timestamp_node_entry` - Time when the pallet entered the current node.
-- `timestamp_node_exit` - Time when the pallet exited the current node.
-- `current_node_id` - The ID of the node the pallet is currently in.
-- `source_id` - The ID of the source node that created the pallet.
-- `payload` - Optional data carried by the pallet.
-- `destructed_in_node` - The node where the pallet was destroyed.
+
 
 **Behavior**
 
