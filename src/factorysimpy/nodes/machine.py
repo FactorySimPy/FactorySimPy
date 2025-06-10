@@ -19,7 +19,7 @@ class Machine(Node):
                 - BLOCKED_STATE: When all the worker threads are waiting to push the processed item but the out going edge is full.
            
             
-            work_capacity (int): Maximum number of items that can be processed simultaneously.
+            work_capacity (int): Maximum no. of processing that can be performed simultaneously.1  worker thread can process one item.
             processing_delay (None, int, float, Generator, Callable): Delay for processing items. Can be:
                 
                 - None: Used when the processing time depends on parameters of the node object (like current state of the object) or environment. 

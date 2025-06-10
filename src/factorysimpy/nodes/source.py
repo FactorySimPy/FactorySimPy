@@ -4,6 +4,7 @@ import simpy
 
 from factorysimpy.nodes.node import Node
 from factorysimpy.helper.item import Item
+from factorysimpy.helper.pallet import Pallet
 from factorysimpy.utils.utils import get_index_selector
 
 
@@ -78,12 +79,13 @@ class Source(Node):
 
     """
 
-    def __init__(self, env, id, in_edges=None, out_edges=None, inter_arrival_time=0, blocking=False, out_edge_selection="FIRST" ):
+    def __init__(self, env, id, in_edges=None, out_edges=None, flow_item_type = "item", inter_arrival_time=0, blocking=False, out_edge_selection="FIRST" ):
         super().__init__( env, id,in_edges , out_edges )
         
         self.state = "SETUP_STATE" # Initial state of the source node
         self.blocking = blocking
         self.out_edge_selection = out_edge_selection  # Selection strategy for out edges
+        self.flow_item_type = flow_item_type # Type of item to be generated, default is "item"
         self.stats = {
             "last_state_change_time": None,
             "num_item_generated": 0,
@@ -247,7 +249,10 @@ class Source(Node):
                     raise AssertionError("inter_arrival_time returns an invalid value. It should be int or float")
                 yield self.env.timeout(next_arrival_time)
                 i+=1
-                item = Item(f'item{self.id+":"+str(i)}')
+                if self.flow_item_type == "item":
+                    item = Item(f'item_{self.id+"_"+str(i)}')
+                else:
+                    item = Pallet(f'pallet_{self.id+"_"+str(i)}')
                 item.set_creation(self.id, self.env)
                 self.stats["num_item_generated"] +=1
                 #edgeindex_to_put = next(self.out_edge_selection)

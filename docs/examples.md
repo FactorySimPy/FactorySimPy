@@ -24,7 +24,7 @@ env = simpy.Environment()
 
 # Initializing nodes
 SRC= Source(env, id="SRC",  inter_arrival_time= 0.8,blocking=False,out_edge_selection="FIRST" )
-MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4,store_capacity=5, processing_delay=1.1, in_edge_selection="FIRST",out_edge_selection="FIRST")
+MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4, processing_delay=1.1, in_edge_selection="FIRST",out_edge_selection="FIRST")
 SINK= Sink(env, id="SINK" )
 
 # Initializing edges
@@ -83,7 +83,7 @@ def processing_delay_generator(node,env):
 SRC= Source(env, id="SRC",  inter_arrival_time=inter_arrival(),blocking=False, )
 
 
-MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4,store_capacity=5, processing_delay=None,in_edge_selection="FIRST",out_edge_selection="FIRST")
+MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4,processing_delay=None,in_edge_selection="FIRST",out_edge_selection="FIRST")
 process_delay_gen1=processing_delay_generator(MACHINE1,env)
 MACHINE1.processing_delay=process_delay_gen1
 
@@ -161,7 +161,7 @@ def source_out_edge_selector(node, env):
 # Initializing nodes
 SRC1= Source(env, id="SRC1",  inter_arrival_time=0.7,blocking=False )
 SRC2= Source(env, id="SRC2",  inter_arrival_time=0.4,blocking=False, out_edge_selection=None )
-MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4,store_capacity=5, processing_delay=None,in_edge_selection=None,out_edge_selection=None)
+MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4, processing_delay=None,in_edge_selection=None,out_edge_selection=None)
 SINK1= Sink(env, id="SINK1" )
 SINK2= Sink(env, id="SINK2" )
 SINK3= Sink(env, id="SINK3" )
@@ -204,5 +204,164 @@ BUF5.connect(SRC2,SINK3)
 env.run(until=10)
 ```
 
+## Example showing packing and unpacking 
+
+```python
+import factorysimpy
+from factorysimpy.nodes.machine import Machine
+from factorysimpy.edges.buffer import Buffer
+from factorysimpy.nodes.source import Source
+from factorysimpy.nodes.sink import Sink
+from factorysimpy.nodes.joint import Joint
+from factorysimpy.nodes.split import Split
+
+
+env = simpy.Environment()
+
+
+def split_out_edge_selector(node):
+   while True:
+      proc=node.env.active_process
+      worker_index = node.worker_process_map[proc]
+      if worker_index is None:
+         raise RuntimeError("Unknown calling process")
+      item = node.item_in_process.get(proc, None)
+      
+      if item.flow_item_type=="item":
+         yield 1
+      elif item.flow_item_type=="pallet":
+         yield 0
+      else:
+         raise ValueError("Invalid item_type encountered)
+
+# Initializing nodes
+SRC1= Source(env, id="SRC1", flow_item_type = "item", inter_arrival_time= 0.8,blocking=False,out_edge_selection="FIRST" )
+
+SRC2= Source(env, id="SRC2", flow_item_type = "pallet",  inter_arrival_time= 0.8,blocking=False,out_edge_selection="FIRST" )
+
+JOINT1 = Joint(env, id="JOINT1", target_quantity_for_each_item=[1,4], work_capacity=1, processing_delay=1.1, blocking= False, out_edge_selection="FIRST" )
+
+SPLIT1 = Split(env, id="SPLIT1",work_capacity=4, processing_delay=1.1, in_edge_selection="FIRST",out_edge_selection="FIRST" )
+
+
+SINK1= Sink(env, id="SINK1" )
+SINK2= Sink(env, id="SINK2" )
+
+
+#initialising in_edge_selection parameter for split
+split_out_edge_func = split_out_edge_selector(SPLIT1, env)
+SPLIT1.out_edge_selection = split_out_edge_func
+
+# Initializing edges
+BUF1 = Buffer(env, id="BUF1", store_capacity=2, delay=0.5, mode = "FIFO")
+BUF2 = Buffer(env, id="BUF2", store_capacity=2, delay=0.5, mode = "FIFO")
+BUF3 = Buffer(env, id="BUF3", store_capacity=2, delay=0.5, mode = "FIFO")
+BUF4 = Buffer(env, id="BUF4", store_capacity=2, delay=0.5, mode = "FIFO")
+BUF5 = Buffer(env, id="BUF5", store_capacity=2, delay=0.5, mode = "FIFO")
+
+
+# Adding connections
+BUF1.connect(SRC1,JOINT1)
+BUF2.connect(SRC2,JOINT1)
+BUF3.connect(JOINT1,SPLIT1)
+BUF4.connect(SPLIT1,SINK1)
+BUF5.connect(SPLIT1,SINK2)
+
+
+env.run(until=10)
+
+
+
+
+
+
+
+env.run(until=100)
+
+```
+
+## Example with constructs
+
+***Here's an example that shows the utility of the constructs***
+
+
+Suppose you want to model an assembly line with 20 machines connected in series, each separated by a buffer. Manually creating and connecting each machine and buffer would be repetitive, error-prone, and require a lot of code. To simplify this process for large, homogeneous systems, FactorySimPy provides constructs that automate the creation and connection of such chains.
+
+
+
+```python
+
+
+#  System layout 
+
+#   SRC ──> BUF1 ──> MACHINE1 ──> BUF2 ──> MACHINE2 ──>   
+#       ──> BUF3 ──> MACHINE3 ──> BUF4 ──> MACHINE4 ──>  ...
+#            .          .           .         .
+#            .          .           .         .
+#       ...   BUF19 ──> MACHINE19 ──> BUF20 ──> MACHINE20 ──> SINK
+
+# (20 machines in series, each separated by a buffer)
+
+import factorysimpy
+from factorysimpy.nodes.machine import Machine
+from factorysimpy.edges.buffer import Buffer
+from factorysimpy.nodes.source import Source
+from factorysimpy.nodes.sink import Sink
+from factorysimpy.constructs.chain import connect_chain_with_source_sink, connect_nodes_with_buffers    
+
+env = simpy.Environment()
+
+node_kwargs = {
+   
+    "node_setup_time": 0,
+    "work_capacity": 1,
+    "processing_delay": 0.8,
+    "in_edge_selection": "FIRST",
+    "out_edge_selection": "FIRST_AVAILABLE"
+}
+
+edge_kwargs = {
+    
+    "store_capacity": 4,
+    "delay": 0,
+    "mode": "LIFO"
+}
+
+source_kwargs = {
+    
+    "inter_arrival_time": 1,
+    "blocking": True,
+    "out_edge_selection": "FIRST_AVAILABLE"
+}
+sink_kwargs = {
+    "id": "Sink-1"
+}
+
+
+# Example for a chain of 1 machine (count=1)
+nodes, edges, src, sink = connect_chain_with_source_sink(
+    env,
+    count=20,
+    node_cls=Machine,
+    edge_cls=Buffer,
+    source_cls=Source,
+    sink_cls=Sink,
+    node_kwargs=node_kwargs,
+    edge_kwargs=edge_kwargs,
+    source_kwargs = source_kwargs,
+    sink_kwargs= sink_kwargs,
+    prefix="Machine",
+    edge_prefix="Buffer"
+)
+
+
+machines, buffers = connect_nodes_with_buffers(nodes, edges, src, sink)
+
+
+
+
+env.run(until=100)
+
+```
 
 

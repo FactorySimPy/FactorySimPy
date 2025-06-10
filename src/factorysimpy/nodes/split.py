@@ -76,6 +76,7 @@ class Split(Node):
         self.blocking = blocking
         self.in_edge_selection = in_edge_selection
         self.out_edge_selection = out_edge_selection
+        self.worker_process_map = {}
         self.item_in_process = {}
         self.state = {}
     
@@ -314,8 +315,8 @@ class Split(Node):
                 edgeindex_to_get = yield edgeindex_to_get_event
                 in_edge = self.in_edges[edgeindex_to_get]
                 yield self.env.process(self._pull_item(i, in_edge))
-                if self.pallet_in_process[i].item_type != "Pallet":
-                    raise ValueError(f"{self.id} worker{i} - Item type {self.pallet_in_process[i].item_type} is not supported for processing!")
+                if self.pallet_in_process[i].flow_item_type != "Pallet":
+                    raise ValueError(f"{self.id} worker{i} - Item type {self.pallet_in_process[i].flow_item_type} is not supported for processing!")
                 self.update_state(i, "PROCESSING_STATE", self.env.now)
 
             elif self.state[i] == "PROCESSING_STATE":
@@ -384,6 +385,7 @@ class Split(Node):
 
         
         for i in range(self.work_capacity):
-            self.env.process(self.worker(i+1))
+            proc = self.env.process(self.worker(i+1))
+            self.worker_process_map[proc]=i+1
         yield self.env.timeout(0)  # Initialize the behavior without delay
 

@@ -45,8 +45,17 @@ Edges are passive components that connect exactly two nodes (src_node and dest_n
 ## Nodes 
 <hr style="height:4px;border:none;color:blue; background-color:grey;" />
 
+
+
+
 Nodes represent active elements in the system. This is a basic type and is the basis for the active components like Machine, Split, Sink, Source, Joint, etc. Every node has a unique identifier named `id` and maintains two lists named `in_edges` and `out_edges`. Every node has a `node_setup_time` that can be specified as a constant delay (integer of float). Activities that takesplace in a node create state changes in the system. The API documentation can be found in [Node](nodes.md)
 
+**Basic attributes**
+
+- `id` - unique identifier of the node
+- `in_edges`- list of all the incoming edges to the node
+- `out_edges` -  list of all the outgoing edges from the node
+- `node_setup_time`- an initial delay to set up the node. 
 
 
 <hr style="height:2px;border:none;color:grey; background-color:grey;" />
@@ -55,14 +64,15 @@ Nodes represent active elements in the system. This is a basic type and is the b
 <hr style="height:2px;border:none;color:grey; background-color:grey;" />
 
 **About**
-The source component is responsible for generating items that enter and flow through the system. The API documentation can be found in [Source](source.md). There are two modes of operation for the source. If the `blocking` parameter is set to True, the source generates an item and tries to send it to the connected outgoing edge. If the edge is full or cannot accept the item, the source waits until space becomes available. If the `blocking` parameter is set to False, the source generates items and attempts to send them to the outgoing edge. If the edge is full or cannot accept the item, the source discards the item.
+
+The source component is responsible for generating items that enter and flow through the system. The API documentation can be found in [Source](source.md). There are two modes of operation for the source. If the parameter `blocking` is set to True, the source generates an item and tries to send it to the connected outgoing edge. If the edge is full or cannot accept the item, the source waits until space becomes available. If the `blocking` parameter is set to False, the source generates items and attempts to send them to the outgoing edge. If the edge is full or cannot accept the item, the source discards the item.
 
 **Basic attributes**
 
 - `state` - current state of the component
 - `inter_arrival_time`- time interval between two successive item generation
-- `blocking` -  If True, waits for outgoing edge to accept item; if False, discards if full
-- `out_edge_selection`- Edge selection policy as a function to select outgoing edge
+- `blocking` -  if True, waits for outgoing edge to accept item; if False, discards the item if the outgoing edge if full
+- `out_edge_selection`- edge selection policy as a function to select outgoing edge
 
 **Behavior**
 
@@ -75,7 +85,7 @@ After generating an item, the source behaves as follows:
 
 1. If `blocking` is `True`, it pushes the item without checking whether the outgoing edge is full and waits for the outgoing edge to accept the item.
 
-2. If `blocking` is `False`, it checks if there is space in the outgoing edge to accomodate the item. If the edge is full or unavailable, the item is discarded.
+2. If `blocking` is `False`, it checks if there is space in the outgoing edge to accomodate the item. If the edge is full or unavailable, the item is discarded. It pushes the item only if there is space in the outgoing edge.
 
 
 
@@ -162,16 +172,16 @@ print(f"Source {SRC.id}, state times: {SRC.stats["time_spent_in_states"]}")
 
 **About**
 
-Machine is a component that processes/modifies items that flow in the system. It uses a `processing_delay` amount of time to process an item. It can have multiple incoming edges and outgoing edges. A machine can process more than one item simultaneously. It gets an item from one of its in edges and processes the item in a `processing_delay` amount of time and pushes the item to one of its out edges. It does not have any inbuilt storage. Machine has two modes of operation based on the parameter value specified in `blocking`. If it is set to `True`, the machine pushes the processed item to a chosen outgoing edge and waits for it to accept the item. The other mode is when `blocking` is set to `False`. Machine checks if there is space available in the chosen outgoing edge and only if then the item is pushed. If the outgoing edge is unavailable or full, the item will be discarded. The API documentation can be found in [Machine](machine.md)
+Machine is a component that processes/modifies items that flow in the system. It uses a `processing_delay` amount of time to process an item. It can have multiple incoming edges and outgoing edges. A machine can process more than one item simultaneously and this number can be set using parameter `work_capacity`. Machine creates that many worker threads to mimic its actions. It gets an item from one of its `in_edges` and processes the item in a `processing_delay` amount of time and pushes the item to one of its `out_edges`. It does not have any inbuilt storage. Machine has two modes of operation based on the parameter value specified in `blocking`. If it is set to `True`, the machine pushes the processed item to a chosen outgoing edge and waits for the edge to accept the item. The other mode can be configured by setting `blocking` to `False`. in this mode , the machine checks if there is space available in the chosen outgoing edge and only if there is space the item is pushed. If the outgoing edge is unavailable or full, the item will be discarded. The API documentation can be found in [Machine](machine.md)
 
 **Basic attributes**
 
-- `state` - current state of the component
+- `state` - current state of the component. This is a dictionary where each key is a worker thread's ID (assigned in order of initialization), and the value is the current state of that worker.
 - `processing_delay`- time taken to process an item
 - `work_capacity` - maximum number of jobs or items that can be processed by the machine simulataneously
-- `blocking`-  If True, waits for outgoing edge to accept item; if False, discards if full
-- `in_edge_selection`- Edge selection policy as a function to select outgoing edge
-- `out_edge_selection`- Edge selection policy as a function to select outgoing edge
+- `blocking`-  if True, waits for outgoing edge to accept item; if False, discards the item if the outgoing edge is full
+- `in_edge_selection`- edge selection policy as a function to select incoming edge
+- `out_edge_selection`- edge selection policy as a function to select outgoing edge
 
 **Behavior**
 
@@ -271,20 +281,20 @@ print(f"Machine {MACHINE1.id}, worker2 state times: {MACHINE1.stats[1]["time_spe
 
 **About**
 
-The `Joint` component represents a node that combines or packs items from multiple incoming edges into a single pallet or box, and then pushes the packed pallet to an outgoing edge. It is useful for modeling operations such as packing, assembly, or combining flows from different sources. The number of items to be taken from each incoming edge can be specified, and the first incoming edge is expected to provide the pallet or container. The API documentation can be found in [Joint](joint.md)
+The `Joint` component represents a node that combines or packs items from multiple incoming edges into a single pallet or box, and then pushes the packed pallet to an outgoing edge. It is useful for modeling operations such as packing, assembly, or combining flows from different sources. The number of items to be taken from each incoming edge can be specified, and the first incoming edge is expected to provide the pallet or container. A joint can process more than one item simultaneously and this number can be set using parameter `work_capacity`. Joint creates that many worker threads to mimic its actions. The API documentation can be found in [Joint](joint.md)
 
 **Basic attributes**
 
-- `state` - current state of the component
+- `state` - current state of the component. This is a dictionary where each key is a worker thread's ID (assigned in order of initialization), and the value is the current state of that worker.
 - `processing_delay` - time taken to process and pack the items
 - `work_capacity` - maximum number of jobs or pallets that can be processed simultaneously
-- `blocking` - If True, waits for outgoing edge to accept the packed pallet; if False, discards if full
+- `blocking` - if True, waits for outgoing edge to accept the packed pallet; if False, discards the pallet if the outgoing edge is full
 - `target_quantity_of_each_item` - list specifying how many items to take from each incoming edge (first entry is always 1 for the pallet)
-- `out_edge_selection` - Edge selection policy as a function to select outgoing edge
+- `out_edge_selection` - edge selection policy as a function to select outgoing edge
 
 **Behavior**
-
-At the start of the simulation, the joint waits for `node_setup_time`. Each worker thread then repeatedly:
+ At the start of the simulation, the joint waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an `int` or `float`). Then it spawns `work_capacity` number of threads.
+ Each worker thread then repeatedly:
 1. Pulls a pallet from the first incoming edge.
 2. Pulls the specified number of items from each of the other incoming edges and adds them to the pallet.
 3. Waits for `processing_delay` to simulate packing/combining.
@@ -349,30 +359,25 @@ print(f"Joint {JOINT1.id}, worker1 state times: {JOINT1.stats[1]['total_time_spe
 
 **About**
 
-The `Split` component represents a node that unpacks or splits an incoming item (such as a pallet or batch) and sends its contents to multiple outgoing edges. It is useful for modeling operations such as unpacking, sorting, or distributing items from a container to different destinations. The incoming edge is selected according to the `in_edge_selection` policy, and the outgoing edge for each unpacked item is selected according to the `out_edge_selection` policy.
-
-
-Split represents entities that performs actions like unpacking, splitting etc. It can have multiple incoming edges and multiple outgoing edges.
-
-The API documentation can be found in [Split](split.md)
+The `Split` component represents a node that unpacks or splits an incoming item (such as a pallet or batch) and sends its contents to multiple outgoing edges. It is useful for modeling operations such as unpacking, sorting, or distributing items from a container to different destinations.  A split can process more than one pallet or jobs simultaneously and this number can be set using parameter `work_capacity`. Split creates that many worker threads to mimic its actions. The incoming edge is selected according to the `in_edge_selection` policy, and the outgoing edge for each unpacked item is selected according to the `out_edge_selection` policy. The API documentation can be found in [Split](split.md)
 
 **Basic attributes**
 
-- `state` - current state of the component
+- `state` - current state of the component. This is a dictionary where each key is a worker thread's ID (assigned in order of initialization), and the value is the current state of that worker.
 - `processing_delay` - time taken to process and unpack the items
-- `work_capacity` - number of worker threads that can process items concurrently
-- `blocking` - If True, waits for outgoing edge to accept the item; if False, discards if full
-- `in_edge_selection` - Edge selection policy as a function to select incoming edge
-- `out_edge_selection` - Edge selection policy as a function to select outgoing edge
+- `work_capacity` - number of worker threads that can process items or jobs concurrently
+- `blocking` - if True, waits for outgoing edge to accept the item; if False, discards the items if the outgoing edge is full
+- `in_edge_selection` - edge selection policy as a function to select incoming edge
+- `out_edge_selection` - edge selection policy as a function to select outgoing edge
 
 **Behavior**
 
 At the start of the simulation, the split waits for `node_setup_time`. Each worker thread then repeatedly:
-1. Pulls a container (e.g., pallet) from the selected incoming edge.
+1. Pulls a packed item (e.g., pallet) from the selected incoming edge.
 2. Waits for `processing_delay` to simulate unpacking or splitting.
-3. Unpacks the items from the container and pushes each item to an outgoing edge, one by one, using the `out_edge_selection` policy.
+3. Unpacks the items from the pallet and pushes each item to an outgoing edge, one by one, using the `out_edge_selection` policy.
 4. After all items are pushed, the empty container itself is pushed to an outgoing edge.
-5. If `blocking` is True, the split waits for the outgoing edge to accept each item; if `blocking` is False, items are discarded if the edge is full.
+5. If `blocking` is True, the split waits for the outgoing edge to accept each item; if `blocking` is False, items are discarded if the outgoing edge is full.
 
 **States**
 
@@ -441,6 +446,13 @@ print(f"Split {SPLIT1.id}, worker1 state times: {SPLIT1.stats[1]['total_time_spe
 Edges represent passive elements in the system. This is the basis for the components like Buffer, Conveyor, Fleet, etc. Every edge has a unique identifier named `id` and maintains references to a source node `src_node` and a destination node `dest_node`. Edge acts as a conntction between these two nodes and facilitates the movement of items between the nodes. 
 
 
+**Basic attributes**
+
+
+   - `id` (str) - unique identifier for the edge
+   - `src_node` (Node) - reference to the source node connected to this edge.
+   - `dest_node` (Node) - reference to the destination node connected to this edge.
+
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
 ### Buffer
@@ -453,6 +465,7 @@ The `Buffer` component represents a queue (FIFO or LIFO) that temporarily holds 
 - **FIFO (First In First Out):** Oldest items are released first.  
 - **LIFO (Last In First Out):** Newest items are released first.
 The API documentation can be found in [Buffer](buffer.md)
+
 **Basic attributes**
 
 - `state` - current state of the buffer (e.g., "IDLE_STATE", "RELEASING_STATE", "BLOCKED_STATE")
@@ -463,7 +476,7 @@ The API documentation can be found in [Buffer](buffer.md)
 **Behavior**
 
 - When an item is put into the buffer, it is stored internally and becomes available for retrieval after the specified `delay`.
-- The buffer checks if it can accept new items (`can_put`) and if it can provide items to the next node (`can_get`).
+- The buffer has methods to check if it can accept new items (`can_put`) and if it can provide items to the next node (`can_get`).
 - In FIFO mode, items are released in the order they were added; in LIFO mode, the most recently added items are released first.
 
 **States**
@@ -511,7 +524,7 @@ print(f"Buffer {BUF1.id} state times: {BUF1.stats['total_time_spent_in_states']}
 
 **Examples**
 
-- ***[A simple example with a FIFO buffer between a source and a machine](examples.md/#buffer-example)***
+- ***[A simple example with a FIFO buffer between a source and a machine](examples.md/#a-simple-example)***
 
 
 
@@ -559,7 +572,28 @@ The component reports the following key metrics:
 
 <hr style="height:4px;border:none;color:blue; background-color:grey;" />
 
-## Item
+## BaseFlowItem
+<hr style="height:4px;border:none;color:blue; background-color:grey;" />
+
+This is base class for the items that flow in the system. 
+
+
+**Basic attributes**
+
+- `id` - Unique identifier for the pallet.
+- `timestamp_creation` - Time when the pallet was created.
+- `timestamp_destruction` - Time when the pallet was destroyed (e.g., collected by a sink).
+- `timestamp_node_entry` - Time when the pallet entered the current node.
+- `timestamp_node_exit` - Time when the pallet exited the current node.
+- `current_node_id` - The ID of the node the pallet is currently in.
+- `source_id` - The ID of the source node that created the pallet.
+- `payload` - Optional data carried by the pallet.
+- `destructed_in_node` - The node where the pallet was destroyed.
+
+
+<hr style="height:4px;border:none;color:blue; background-color:grey;" />
+
+### Item
 <hr style="height:4px;border:none;color:blue; background-color:grey;" />
 
 **About**
@@ -569,6 +603,7 @@ The `Item` class represents the discrete entities that flow through the system. 
 **Basic attributes**
 
 - `id` - Unique identifier for the item.
+- `flow_item_type` - Set to `"Pallet"` to distinguish from regular items.
 - `timestamp_creation` - Time when the item was created.
 - `timestamp_destruction` - Time when the item was destroyed (e.g., collected by a sink).
 - `timestamp_node_entry` - Time when the item entered the current node.
@@ -583,26 +618,7 @@ The `Item` class represents the discrete entities that flow through the system. 
 
 When an item is created, its creation time and source node are recorded. As the item enters and exits nodes, the `update_node_event` method updates entry/exit times and accumulates the time spent at each node in the `stats` dictionary. When the item is destroyed (e.g., collected by a sink), the destruction time and node are recorded.
 
-**Usage**
 
-An item is typically created inside a source node and then passed through the system. The source node should call `set_creation` to record the creation time and source. Each node should call `update_node_event` when the item enters or exits, and the sink or terminal node should call `set_destruction` to record when and where the item is destroyed.
-
-```python
-from factorysimpy.helper.item import Item
-
-# Create an item in the source node
-item = Item("item1")
-item.set_creation(source_id="SRC1", env=env)
-
-# When item enters a node
-item.update_node_event(node_id="MACHINE1", env=env, event_type="entry")
-
-# When item exits a node
-item.update_node_event(node_id="MACHINE1", env=env, event_type="exit")
-
-# When item is destroyed (e.g., in a sink)
-item.set_destruction(node_id="SINK1", env=env)
-```
 
 **Statistics collected**
 
@@ -613,5 +629,49 @@ The `Item` class tracks:
 3. Time spent at each node (accessible via the `stats` dictionary).
 
 This information can be used for detailed analysis of item flow and performance in the simulation.
+
+<hr style="height:4px;border:none;color:blue; background-color:grey;" />
+
+### Pallet
+<hr style="height:2px;border:none;color:blue; background-color:grey;" />
+
+**About**
+
+The `Pallet` class represents a special type of item that can hold multiple other items. It is used to model containers, pallets, or boxes that group several items together for combined processing, transport, or packing/unpacking operations in the system. The `Pallet` object tracks its own journey through the system, just like a regular `Item`, and also maintains a list of the items it contains.
+
+**Basic attributes**
+
+- `id` - Unique identifier for the pallet.
+- `flow_item_type` - Set to `"Pallet"` to distinguish from regular items.
+- `items` - List of items currently held in the pallet.
+- `timestamp_creation` - Time when the pallet was created.
+- `timestamp_destruction` - Time when the pallet was destroyed (e.g., collected by a sink).
+- `timestamp_node_entry` - Time when the pallet entered the current node.
+- `timestamp_node_exit` - Time when the pallet exited the current node.
+- `current_node_id` - The ID of the node the pallet is currently in.
+- `source_id` - The ID of the source node that created the pallet.
+- `payload` - Optional data carried by the pallet.
+- `destructed_in_node` - The node where the pallet was destroyed.
+
+**Behavior**
+
+- When a pallet is created, its creation time and source node are recorded.
+- Items can be added to the pallet using the `add_item(item)` method.
+- Items can be removed from the pallet using the `remove_item()` method, which returns an item or `None` if the pallet is empty.
+- As the pallet enters and exits nodes, the `update_node_event` method updates entry/exit times and accumulates the time spent at each node in the `stats` dictionary.
+- When the pallet is destroyed (e.g., collected by a sink), the destruction time and node are recorded.
+
+
+
+**Statistics collected**
+
+The `Pallet` class tracks:
+
+1. Creation and destruction times.
+2. The node where the pallet was created and destroyed.
+3. Time spent at each node (accessible via the `stats` dictionary).
+4. The number of items currently held in the pallet.
+
+This information can be used for detailed analysis of pallet flow, packing/unpacking operations, and system performance.
 
 <hr style="height:4px;border:none;color:blue; background-color:grey;" />

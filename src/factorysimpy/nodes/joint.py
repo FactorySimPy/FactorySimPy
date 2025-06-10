@@ -268,7 +268,7 @@ class Joint(Node):
                  #get all items from the in_edges
                  # 1. Pull the pallet from in_edges[0]
                 yield self.env.process(self._pull_item(i, self.in_edges[0]))
-                if self.item_in_process[i].item_type != "Pallet":
+                if self.item_in_process[i].flow_item_type != "Pallet":
                     raise RuntimeError(f"{self.id} worker{i} - Expected a Pallet item, but got {self.item_in_process[i].type}!")
                 
                 pallet = self.item_in_process[i]  # Assume the pulled item is a Pallet instance

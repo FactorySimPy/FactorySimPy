@@ -39,6 +39,7 @@ nav:
     - Examples: examples.md
     - Other features:
       - Monitoring and Measurement: monitoring.md
+      - Constructs for Modeling: constructs.md
       - Extending Components: extending_components.md
       - Modeling interrupts: interrupts.md
       - Enabling real-time simulation: RTsimulation.md     

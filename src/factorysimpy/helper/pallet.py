@@ -1,10 +1,10 @@
-from item import Item
+from factorysimpy.helper.baseflowitem import BaseFlowItem
 
-class Pallet(Item):
+class Pallet(BaseFlowItem):
     """A class representing a pallet, which can hold multiple items."""
     def __init__(self, id):
         super().__init__(id)
-        self.item_type = "Pallet"
+        self.flow_item_type = "Pallet"
         self.items = []  # List to hold contained items
 
     def add_item(self, item):
