@@ -116,11 +116,11 @@ Sources generate items and puts it into its outgoing buffer. Machine picks this 
 
 #  System layout 
 
-#   src1 ──> buffer1 ──┐
+#   SRC1 ──> BUFFER1 ──┐
 #                      │
-#   src2 ──> buffer2 ──┴─> Machine1 ──┬─> buffer3 ──> sink1
+#   SRC2 ──> BUFFER2 ──┴─> MACHINE1 ──┬─> BUFFER3 ──> SINK1
 #      │                              │
-#      └─> buffer4 ──> sink1          └─> buffer4 ──> sink1
+#      └─> BUFFER5 ──> SINK3          └─> BUFFER4 ──> SINK2
 #                                         
 
 import factorysimpy
@@ -213,6 +213,19 @@ the method to unpack these packed items using a split is also shown.
 
 
 ```python
+
+
+
+#  System layout 
+
+#   SRC1 ──> BUFFER1 ──┐
+#                      │
+#   SRC2 ──> BUFFER2 ──┴─> JOINT1 ──> BUFFER3 ──>SPLIT1 ──┬─> BUFFER4 ──> SINK1
+#                                                         │
+#                                                         └─> BUFFER5 ──> SINK2
+# 
+
+
 import factorysimpy
 from factorysimpy.nodes.machine import Machine
 from factorysimpy.edges.buffer import Buffer
