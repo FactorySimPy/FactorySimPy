@@ -2,49 +2,45 @@ import simpy
 from factorysimpy.nodes.node import Node
 from factorysimpy.utils.utils import get_index_selector
 
-class Joint(Node):
+class Joint(Node):     
     """
-    Joint class representing a processing node in a factory simulation.
-    Inherits from the Node class.
-    This joint can have multiple input edges and a multiple output edges.
-    It gets items from the input edges and packs them into a pallet or box and pushes it to the output edge.
+        Joint class representing a processing node in a factory simulation.
+        Inherits from the Node class.This joint can have multiple input edges and a multiple output edges.
+        It gets items from the input edges and packs them into a pallet or box and pushes it to the output edge.  
 
-       
-
-    Parameters:
-        state (str): Current state of the node. One of :
-                
-            - SETUP_STATE: Initial setup phase before Joint starts to operate.
-            - IDLE_STATE: Worker threads waiting to receive items.
-            - PROCESSING_STATE: Actively processing items.
-            - BLOCKED_STATE: When all the worker threads are waiting to push the processed item but the out going edge is full.
-        
-        
-        work_capacity (int): Maximum number of items that can be processed simultaneously.
-        blocking (bool): If True, the source waits until it can put an item into the out edge.
-        processing_delay (None, int, float, Generator, Callable): Delay for processing items. Can be:
+        Parameters:
+            state (str): Current state of the node. One of :
+                    
+                - SETUP_STATE: Initial setup phase before Joint starts to operate.
+                - IDLE_STATE: Worker threads waiting to receive items.
+                - PROCESSING_STATE: Actively processing items.
+                - BLOCKED_STATE: When all the worker threads are waiting to push the processed item but the out going edge is full.
             
-            - None: Used when the processing time depends on parameters of the node object (like current state of the object) or environment. 
-            - int or float: Used as a constant delay.
-            - Generator: A generator function yielding delay values over time.
-            - Callable: A function that returns a delay (int or float).
-        target_quantity_of_each_item (list): List with target quantity of each item to be combined where index correspond to the input edge.
-                                            The first index corresponds to the edge that supplies pallet/box and it is always 1
-        out_edge_selection (None or str or callable): Criterion or function for selecting the out edge.
-                                            Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
+            
+            work_capacity (int): Maximum number of items that can be processed simultaneously.
+            blocking (bool): If True, the source waits until it can put an item into the out edge.
+            processing_delay (None, int, float, Generator, Callable): Delay for processing items. Can be:
+                
+                - None: Used when the processing time depends on parameters of the node object (like current state of the object) or environment. 
+                - int or float: Used as a constant delay.
+                - Generator: A generator function yielding delay values over time.
+                - Callable: A function that returns a delay (int or float).
+            target_quantity_of_each_item (list): List with target quantity of each item to be combined where index correspond to the input edge.
+                                                The first index corresponds to the edge that supplies pallet/box and it is always 1
+            out_edge_selection (None or str or callable): Criterion or function for selecting the out edge.
+                                                Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
 
-            - None: None: Used when out edge selction depends on parameters of the node object (like current state of the object) or environment.   
-            - str: A string that specifies the selection method.
-                - "RANDOM": Selects a random out edge in the out_edges list.
-                - "FIRST": Selects the first out edge in the out_edges list.
-                - "LAST": Selects the last out edge in the out_edges list.
-                - "ROUND_ROBIN": Selects out edges in a round-robin manner.
-                - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
-            - callable: A function that returns an edge index.
+                - None: Used when out edge selction depends on parameters of the node object (like current state of the object) or environment.   
+                - str: A string that specifies the selection method.
+                    - "RANDOM": Selects a random out edge in the out_edges list.
+                    - "FIRST": Selects the first out edge in the out_edges list.
+                    - "LAST": Selects the last out edge in the out_edges list.
+                    - "ROUND_ROBIN": Selects out edges in a round-robin manner.
+                    - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
+                - callable: A function that returns an edge index.
                 
 
-    Behavior:
-
+        Behavior:
             The joint node represents components that joints together or packs items from multiple in_edges. It can have multiple incoming edges
             and multiple outgoing edge. User can specify a list in_edges and the number of quantity that has to be packed from each of the in_edges
             as a list. The first item corresponds to the pallet used to put these packed items and the corresponding entry in the 
@@ -54,17 +50,17 @@ class Joint(Node):
             cannot accept the item that is being pushed by the joint. It waits until the out edge becomes available to push the item. If `blocking`=`False`, 
             it will discard the item if the out edge is full and cannot accept the item that is being pushed by the joint.
 
-    Raises:
-
+        Raises:
             AssertionError: If the Joint has no input or atleast 1 output edge.
-        
-    Output performance metrics:
-        
-        The key performance metrics of the joint node is captured in `stats` attribute (dict) during a simulation run. 
             
-            last_state_change_time    : Time when the state was last changed.
-            num_item_processed        : Total number of items generated.
-            total_time_spent_in_states: Dictionary with total time spent in each state.
+        Output performance metrics:
+            The key performance metrics of the joint node is captured in `stats` attribute (dict) during a simulation run. 
+                
+                last_state_change_time    : Time when the state was last changed.
+                num_item_processed        : Total number of items that is put into pallets.
+                num_pallet_processed      : Total number of pallets packed.
+                num_pallet_discarded      : Total number of packed pallets discarded.
+                total_time_spent_in_states: Dictionary with total time spent in each state.
                 
     
     """ 
@@ -80,26 +76,12 @@ class Joint(Node):
         # list with target quantity of each item to be combined where index correspond to the input edge
         # the first index correponds to the edge that supplies pallet/box.
         self.target_quantity_of_each_item=  target_quantity_of_each_item 
-        
-        self.out_edge_selection = out_edge_selection
-
-      
+        self.out_edge_selection = out_edge_selection    
         self.item_in_process = {}
         self.worker_process_map = {}
-        self.stats = {}
-
-       
-
-    
-        self.in_edges = in_edges
-        self.out_edges = out_edges
-        
-        
-
-
+        self.stats = {}    
+  
       
-    
-
 
         # Initialize processing delay 
         if callable(processing_delay):
@@ -280,9 +262,46 @@ class Joint(Node):
         self.state[i] = new_state
         self.stats[i]["last_state_change_time"] = current_time
 
+    def add_in_edges(self, edge):
+        """
+        Adds an in_edge to the node. Raises an error if the edge already exists in the in_edges list.
+        
+        Args:
+            edge (Edge Object) : The edge to be added as an in_edge.
+            """
+        if self.in_edges is None:
+            self.in_edges = []
+        
+        # if len(self.in_edges) >= self.num_in_edges:
+        #     raise ValueError(f"Machine'{self.id}' already has {self.num_in_edges} in_edges. Cannot add more.")
+        
+        if edge not in self.in_edges:
+            self.in_edges.append(edge)
+        else:
+            raise ValueError(f"Edge already exists in Machine '{self.id}' in_edges.")
+
+    def add_out_edges(self, edge):
+        """
+        Adds an out_edge to the node. Raises an error if the edge already exists in the out_edges list.
+        
+        Args:
+            edge (Edge Object) : The edge to be added as an out_edge.
+        """
+        if self.out_edges is None:
+            self.out_edges = []
+
+        # if len(self.out_edges) >= 1:
+        #     raise ValueError(f"Machine '{self.id}' already has 1 out_edge. Cannot add more.")
+
+        if edge not in self.out_edges:
+            self.out_edges.append(edge)
+        else:
+            raise ValueError(f"Edge already exists in Machine '{self.id}' out_edges.")
+        
+
     
     def worker(self, i):
-        """Worker process that processes items by combining two items."""
+        #Worker process that processes items by combining two items.
         while True:
             #print(f"T={self.env.now:.2f}: {self.id} worker{i} started processing")
             if self.state[i] == "SETUP_STATE":
@@ -306,6 +325,7 @@ class Joint(Node):
                     for _ in range(qty):
                         yield self.env.process(self._pull_item(i, self.in_edges[edge_idx]))
                         item = self.item_in_process[i]
+                        self.stats[i]["num_item_processed"] += 1
                         pallet.add_item(item)  # Add the item to the pallet
 
                 # 3. Assign the filled pallet to item_in_process for processing
@@ -320,7 +340,7 @@ class Joint(Node):
                 if not isinstance(next_processing_time, (int, float)):
                     raise AssertionError("processing_delay returns an valid value. It should be int or float")
                 yield self.env.timeout(next_processing_time)
-                self.stats[i]["num_item_processed"] += 1
+                self.stats[i]["num_pallet_processed"] += 1
                 print(f"T={self.env.now:.2f}: {self.id} worker{i} processed item: {self.item_in_process[i].id}")
                 out_edge_index_to_put_event = self._get_out_edge_index()
                 out_edge_index_to_put = yield out_edge_index_to_put_event
@@ -335,7 +355,7 @@ class Joint(Node):
                         yield self.env.process(self._push_item(i, outedge_to_put))
                     else:
                         print(f"T={self.env.now:.2f}: {self.id} worker{i} is discarding item {self.item_in_process[i].id} because out_edge {outedge_to_put.id} is full.")
-                        self.stats[i]["num_item_discarded"] += 1  # Decrement processed count if item is discarded
+                        self.stats[i]["num_pallet_discarded"] += 1  # Decrement processed count if item is discarded
                         self.item_in_process[i].set_destruction(self.id, self.env)
                        
                 self.update_state(i,"IDLE_STATE", self.env.now)
@@ -343,7 +363,7 @@ class Joint(Node):
                  # process items and put in inbuiltstore. 
                  # Pull_items will take the items and push it to next component.
     def behaviour(self):
-        """Combiner behavior that creates workers based on the effective capacity."""
+        #Combiner behavior that creates workers based on the effective capacity.
         self.reset()  # Reset the joint to ensure proper initialization
 
 
@@ -361,7 +381,8 @@ class Joint(Node):
             self.stats[i+1] = {
                     "last_state_change_time": None,
                     "num_item_processed": 0,
-                    "num_item_discarded": 0,
+                    "num_pallet_processed": 0,
+                    "num_pallet_discarded": 0,
                     "total_time_spent_in_states":{"SETUP_STATE": 0.0,"IDLE_STATE": 0.0, "PROCESSING_STATE": 0.0, "BLOCKED_STATE": 0.0}
                 }
             proc = self.env.process(self.worker(i+1))

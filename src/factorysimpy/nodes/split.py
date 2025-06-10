@@ -11,64 +11,65 @@ class Split(Node):
     Split class representing a processing node that can unpack an incoming item and send it to multiple outgoing edges in a factory simulation.
     
     Parameters:
-            state (str): Current state of the node. One of :
-                   
-                - SETUP_STATE: Initial setup phase before split starts to operate.
-                - IDLE_STATE: Worker threads waiting to receive items.
-                - PROCESSING_STATE: Actively processing items.
-                - BLOCKED_STATE: When all the worker threads are waiting to push the processed item but the out going edge is full.
-           
-            
-            work_capacity (int): Number of worker threads that can process items concurrently. It should be greater than 0.
-            processing_delay (None, int, float, Generator, Callable): Delay for processing items. Can be:
+        state (str): Current state of the node. One of :
                 
-                - None: Used when the processing time depends on parameters of the node object (like current state of the object) or environment. 
-                - int or float: Used as a constant delay.
-                - Generator: A generator function yielding delay values over time.
-                - Callable: A function that returns a delay (int or float).
-            in_edge_selection (None or str or callable): Criterion or function for selecting the edge.
-                                              Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
+            - SETUP_STATE: Initial setup phase before split starts to operate.
+            - IDLE_STATE: Worker threads waiting to receive items.
+            - PROCESSING_STATE: Actively processing items.
+            - BLOCKED_STATE: When all the worker threads are waiting to push the processed item but the out going edge is full.
+        
+        
+        work_capacity (int): Number of worker threads that can process items concurrently. It should be greater than 0.
+        processing_delay (None, int, float, Generator, Callable): Delay for processing items. Can be:
+            
+            - None: Used when the processing time depends on parameters of the node object (like current state of the object) or environment. 
+            - int or float: Used as a constant delay.
+            - Generator: A generator function yielding delay values over time.
+            - Callable: A function that returns a delay (int or float).
+        in_edge_selection (None or str or callable): Criterion or function for selecting the edge.
+                                            Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
 
-                - None: None: Used when edge selction depends on parameters of the node object (like current state of the object) or environment. 
-                - str: A string that specifies the selection method.
-                    - "RANDOM": Selects a random edge.
-                    - "FIRST": Selects the first edge in the in_edges list.
-                    - "LAST": Selects the last edge in the in_edges list .
-                    - "ROUND_ROBIN": Selects edges in a round-robin manner.
-                    - "FIRST_AVAILABLE": Selects the first out edge that can give an item.
-                - callable: A function that returns an edge index.
-            out_edge_selection (None or str or callable): Criterion or function for selecting the out edge.
-                                              Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
+            - None: None: Used when edge selction depends on parameters of the node object (like current state of the object) or environment. 
+            - str: A string that specifies the selection method.
+                - "RANDOM": Selects a random edge.
+                - "FIRST": Selects the first edge in the in_edges list.
+                - "LAST": Selects the last edge in the in_edges list .
+                - "ROUND_ROBIN": Selects edges in a round-robin manner.
+                - "FIRST_AVAILABLE": Selects the first out edge that can give an item.
+            - callable: A function that returns an edge index.
+        out_edge_selection (None or str or callable): Criterion or function for selecting the out edge.
+                                            Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
 
-                - None: None: Used when out edge selction depends on parameters of the node object (like current state of the object) or environment.   
-                - str: A string that specifies the selection method.
-                    - "RANDOM": Selects a random out edge in the out_edges list.
-                    - "FIRST": Selects the first out edge in the out_edges list.
-                    - "LAST": Selects the last out edge in the out_edges list.
-                    - "ROUND_ROBIN": Selects out edges in a round-robin manner.
-                    - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
-                - callable: A function that returns an edge index.
-            blocking (bool): If True, the source waits until it can put an item into the out edge.
+            - None: None: Used when out edge selction depends on parameters of the node object (like current state of the object) or environment.   
+            - str: A string that specifies the selection method.
+                - "RANDOM": Selects a random out edge in the out_edges list.
+                - "FIRST": Selects the first out edge in the out_edges list.
+                - "LAST": Selects the last out edge in the out_edges list.
+                - "ROUND_ROBIN": Selects out edges in a round-robin manner.
+                - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
+            - callable: A function that returns an edge index.
+        blocking (bool): If True, the source waits until it can put an item into the out edge.
 
     Behavior:
-
-            The split node represents components that unpakcs an item (pallet) from an incoming edge. It can have multiple incoming edges
-            and multiple outgoing edge. Edge from which the item comes in and the edge to which processed item is pushed is decided using the method specified
-            in the parameter `in_edge_selection` and `out_edge_selection`. Split will transition through the states- `SETUP_STATE`, `PROCESSING_STATE`, `IDLE_STATE` AND 
-            `BLOCKED_STATE`. It unpacks the items and pushes it to one of the outgoing edges one by one. The split has a blocking behavior if `blocking`=`True` and gets blocked when all its worker threads have processed items and the out edge is full and 
-            cannot accept the item that is being pushed by the split and waits until the out edge can accept the item. If `blocking`=`False`, the split will 
-            discard the item if the out edge is full and cannot accept the item that is being pushed by the machine.
+        The split node represents components that unpakcs an item (pallet) from an incoming edge. It can have multiple incoming edges
+        and multiple outgoing edge. Edge from which the item comes in and the edge to which processed item is pushed is decided using the method specified
+        in the parameter `in_edge_selection` and `out_edge_selection`. Split will transition through the states- `SETUP_STATE`, `PROCESSING_STATE`, `IDLE_STATE` AND 
+        `BLOCKED_STATE`. It unpacks the items and pushes it to one of the outgoing edges one by one. The split has a blocking behavior if `blocking`=`True` and gets blocked when all its worker threads have processed items and the out edge is full and 
+        cannot accept the item that is being pushed by the split and waits until the out edge can accept the item. If `blocking`=`False`, the split will 
+        discard the item if the out edge is full and cannot accept the item that is being pushed by the machine.
 
 
     Raises:
-            
-            AssertionError: If the split has no input or output edges.
-            
+        AssertionError: If the split has no input or output edges.
+
     Output performance metrics:
-    The key performance metrics of the  node is captured in `stats` attribute (dict) during a simulation run. 
+        The key performance metrics of the  node is captured in `stats` attribute (dict) during a simulation run. 
         
             last_state_change_time    : Time when the state was last changed.
-            num_item_processed        : Total number of items generated.
+            num_item_processed        : Total number of items it has unpacked from a pallet.
+            num_item_discarded        : Total number of items split has discarded.
+            num_pallet_processed      : Total number of pallets it has unpacked.
+            num_pallet_discarded      : Total number of unpacked pallets split has discarded.
             total_time_spent_in_states: Dictionary with total time spent in each state.
 
     """
@@ -181,28 +182,41 @@ class Split(Node):
 
 
     def add_in_edges(self, edge):
+        """
+        Adds an in_edge to the node. Raises an error if the edge already exists in the in_edges list.
+        
+        Args:
+            edge (Edge Object) : The edge to be added as an in_edge.
+            """
         if self.in_edges is None:
             self.in_edges = []
-
-        # if len(self.in_edges) >= 1:
-        #     raise ValueError(f"Split '{self.name}' already has 1 in_edge. Cannot add more.")
-
+        
+        # if len(self.in_edges) >= self.num_in_edges:
+        #     raise ValueError(f"Machine'{self.id}' already has {self.num_in_edges} in_edges. Cannot add more.")
+        
         if edge not in self.in_edges:
             self.in_edges.append(edge)
         else:
-            raise ValueError(f"Edge already exists in Split '{self.id}' in_edges.")
+            raise ValueError(f"Edge already exists in Machine '{self.id}' in_edges.")
 
     def add_out_edges(self, edge):
+        """
+        Adds an out_edge to the node. Raises an error if the edge already exists in the out_edges list.
+        
+        Args:
+            edge (Edge Object) : The edge to be added as an out_edge.
+        """
         if self.out_edges is None:
             self.out_edges = []
 
-        if len(self.out_edges) >= 2:
-            raise ValueError(f"Split '{self.id}' already has 2 out_edges. Cannot add more.")
+        # if len(self.out_edges) >= 1:
+        #     raise ValueError(f"Machine '{self.id}' already has 1 out_edge. Cannot add more.")
 
         if edge not in self.out_edges:
             self.out_edges.append(edge)
         else:
-            raise ValueError(f"Edge already exists in Split '{self.id}' out_edges.")
+            raise ValueError(f"Edge already exists in Machine '{self.id}' out_edges.")
+        
     
 
 
@@ -391,7 +405,7 @@ class Split(Node):
 
 
     def behaviour(self):
-        """Splitter behavior that creates workers based on the effective capacity."""
+        #Splitter behavior that creates workers based on the effective capacity.
 
         assert self.in_edges is not None and len(self.in_edges) == 1, f"Split '{self.name}' must have exactly 1 in_edge."
         assert self.out_edges is not None and len(self.out_edges) == 2, f"Split '{self.name}' must have exactly 2 out_edges."
