@@ -322,7 +322,7 @@ class Split(Node):
             elif self.state[i] == "PROCESSING_STATE":
                 next_processing_time = self.get_delay(self.processing_delay)
                 yield self.env.timeout(next_processing_time)
-                self.stats[i]["num_item_processed"] += 1
+                self.stats[i]["num_pallet_processed"] += 1
                 self.update_state(i, "BLOCKED_STATE", self.env.now)
 
             elif self.state[i] == "BLOCKED_STATE":
@@ -380,6 +380,9 @@ class Split(Node):
         self.stats[i] = {
             "last_state_change_time": None,
             "num_item_processed": 0,
+            "num_item_discarded": 0,
+            "num_pallet_processed": 0,
+            "num_pallet_discarded": 0,
             "total_time_spent_in_states":{"SETUP_STATE": 0.0,"IDLE_STATE": 0.0, "PROCESSING_STATE": 0.0, "BLOCKED_STATE": 0.0}
         }
 

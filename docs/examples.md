@@ -204,7 +204,13 @@ BUF5.connect(SRC2,SINK3)
 env.run(until=10)
 ```
 
-## Example showing packing and unpacking 
+## Example to illustrate the use of the components split and joint
+
+***An example to understand how to simulate packing and unpacking of items using split and joint***
+
+Consider a system which has to pack 5 base items of `flow_item_type`="item" in to an entity of `flow_item_type`="pallet". And in the same example
+the method to unpack these packed items using a split is also shown.
+
 
 ```python
 import factorysimpy
@@ -239,7 +245,7 @@ SRC1= Source(env, id="SRC1", flow_item_type = "item", inter_arrival_time= 0.8,bl
 
 SRC2= Source(env, id="SRC2", flow_item_type = "pallet",  inter_arrival_time= 0.8,blocking=False,out_edge_selection="FIRST" )
 
-JOINT1 = Joint(env, id="JOINT1", target_quantity_for_each_item=[1,4], work_capacity=1, processing_delay=1.1, blocking= False, out_edge_selection="FIRST" )
+JOINT1 = Joint(env, id="JOINT1", target_quantity_for_each_item=[1,5], work_capacity=1, processing_delay=1.1, blocking= False, out_edge_selection="FIRST" )
 
 SPLIT1 = Split(env, id="SPLIT1",work_capacity=4, processing_delay=1.1, in_edge_selection="FIRST",out_edge_selection="FIRST" )
 
