@@ -18,7 +18,7 @@ class Split(Node):
             - PROCESSING_STATE: Actively processing items.
             - BLOCKED_STATE: When all the worker threads are waiting to push the processed item but the out going edge is full.
         
-        
+        blocking (bool): If True, the source waits until it can put an item into the out edge. If False, it discards the item if the out edge is full and cannot accept the item that is being pushed by the split.
         work_capacity (int): Number of worker threads that can process items concurrently. It should be greater than 0.
         processing_delay (None, int, float, Generator, Callable): Delay for processing items. Can be:
             
@@ -40,7 +40,7 @@ class Split(Node):
         out_edge_selection (None or str or callable): Criterion or function for selecting the out edge.
                                             Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
 
-            - None: None: Used when out edge selction depends on parameters of the node object (like current state of the object) or environment.   
+            - None: Used when out edge selction depends on parameters of the node object (like current state of the object) or environment.   
             - str: A string that specifies the selection method.
                 - "RANDOM": Selects a random out edge in the out_edges list.
                 - "FIRST": Selects the first out edge in the out_edges list.
@@ -48,7 +48,7 @@ class Split(Node):
                 - "ROUND_ROBIN": Selects out edges in a round-robin manner.
                 - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
             - callable: A function that returns an edge index.
-        blocking (bool): If True, the source waits until it can put an item into the out edge.
+        
 
     Behavior:
         The split node represents components that unpakcs an item (pallet) from an incoming edge. It can have multiple incoming edges

@@ -16,9 +16,8 @@ class Joint(Node):
                 - PROCESSING_STATE: Actively processing items.
                 - BLOCKED_STATE: When all the worker threads are waiting to push the processed item but the out going edge is full.
             
-            
+            blocking (bool): If True, the source waits until it can put an item into the out edge. If False, it discards the item if the out edge is full and cannot accept the item that is being pushed by the joint.
             work_capacity (int): Maximum number of items that can be processed simultaneously.
-            blocking (bool): If True, the source waits until it can put an item into the out edge.
             processing_delay (None, int, float, Generator, Callable): Delay for processing items. Can be:
                 
                 - None: Used when the processing time depends on parameters of the node object (like current state of the object) or environment. 
@@ -248,6 +247,7 @@ class Joint(Node):
         Update node state and track the time spent in the previous state.
         
         Args:
+            i (int): Index of the worker whose state is being updated.
             new_state (str): The new state to transition to. Must be one of "SETUP_STATE", "GENERATING_STATE", "BLOCKED_STATE".
             current_time (float): The current simulation time.
 

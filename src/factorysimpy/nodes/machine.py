@@ -18,7 +18,7 @@ class Machine(Node):
                 - PROCESSING_STATE: Actively processing items.
                 - BLOCKED_STATE: When all the worker threads are waiting to push the processed item but the out going edge is full.
            
-            
+            blocking (bool): If True, the source waits until it can put an item into the out edge. If False, it discards the item if the out edge is full and cannot accept the item that is being pushed by the machine.
             work_capacity (int): Maximum no. of processing that can be performed simultaneously.1  worker thread can process one item.
             processing_delay (None, int, float, Generator, Callable): Delay for processing items. Can be:
                 
@@ -48,7 +48,7 @@ class Machine(Node):
                     - "ROUND_ROBIN": Selects out edges in a round-robin manner.
                     - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
                 - callable: A function that returns an edge index.
-            blocking (bool): If True, the source waits until it can put an item into the out edge.
+            
 
         Behavior:
             The machine node represents components that process or modify the items that flow in the simulation model. It can have multiple incoming edges
