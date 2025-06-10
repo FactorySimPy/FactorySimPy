@@ -161,6 +161,7 @@ class Machine(Node):
         Update node state and track the time spent in the previous state.
         
         Args:
+            i (int): The index of the worker thread to update the state for.
             new_state (str): The new state to transition to. Must be one of "SETUP_STATE", "GENERATING_STATE", "BLOCKED_STATE".
             current_time (float): The current simulation time.
 

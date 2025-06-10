@@ -164,6 +164,7 @@ class Split(Node):
         Update node state and track the time spent in the previous state.
         
         Args:
+            i (int): Index of the worker whose state is being updated.
             new_state (str): The new state to transition to. Must be one of "SETUP_STATE", "GENERATING_STATE", "BLOCKED_STATE".
             current_time (float): The current simulation time.
 
