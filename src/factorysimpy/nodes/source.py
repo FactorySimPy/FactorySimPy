@@ -26,8 +26,9 @@ class Source(Node):
             - Generator: A generator function yielding delay values over time.  
         
         flow_item_type (str): Type of item to be generated. Default is "item". Can be 
+            
             -"item" 
-            -"pallet".
+            -"pallet"
     
         blocking (bool): If True, the source waits until it can put an item into the out edge.
         out_edge_selection (None or str or callable): Criterion or function for selecting the out edge.
