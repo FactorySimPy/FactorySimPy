@@ -74,6 +74,7 @@ The source component is responsible for generating items that enter and flow thr
 
 - `state` - current state of the component
 - `inter_arrival_time`- time interval between two successive item generation
+- `flow_item_type` - this is the type of items the source should generate
 - `blocking` -  if True, waits for outgoing edge to accept item; if False, discards the item if the outgoing edge if full
 - `out_edge_selection`- edge selection policy as a function to select outgoing edge
 
@@ -81,7 +82,7 @@ The source component is responsible for generating items that enter and flow thr
 
 At the start of the simulation, the source waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an `int` or `float`).
 
-During a simulation run, the source generates items at discrete instants of time determined by the parameter `inter_arrival_time`. This parameter can be specified as a constant value (`int` or `float`) or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution. If the function depends on any of the node attributes, users can pass `None` to this parameter at the time of node creation and later initialise the parameter with the reference to the function.
+During a simulation run, the source generates items at discrete instants of time determined by the parameter `inter_arrival_time`. This parameter can be specified as a constant value (`int` or `float`) or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution. If the function depends on any of the node attributes, users can pass `None` to this parameter at the time of node creation and later initialise the parameter with the reference to the function. After the wait it produces a flow item based on the type mentioned in `flow_item_type`. It can be of two type namely "item" and "pallet". Item represents the smallest unit of discrete items that flow in the system. Pallets are type which can hold multiple items inside and can be used to pack items.
 
 
 After generating an item, the source behaves as follows:
