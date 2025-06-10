@@ -606,7 +606,7 @@ The `Item` class represents the discrete entities that flow through the system. 
 **Basic attributes**
 
 
-- `flow_item_type` - Set to `"item"`
+- `flow_item_type` - `"item"` type of the base flow item
 
 
 
@@ -624,7 +624,7 @@ The `Item` class tracks:
 2. The node where the item was created and destroyed.
 3. Time spent at each node (accessible via the `stats` dictionary).
 
-This information can be used for detailed analysis of item flow and performance in the simulation.
+
 
 <hr style="height:4px;border:none;color:blue; background-color:grey;" />
 
@@ -638,7 +638,7 @@ The `Pallet` class represents a special type of item that can hold multiple othe
 **Basic attributes**
 
 
-- `flow_item_type` - Set to `"Pallet"` to distinguish from regular items.
+- `flow_item_type` -  `"Pallet"` type of the base flow item
 - `items` - List of items currently held in the pallet.
 
 
@@ -661,6 +661,5 @@ The `Pallet` class tracks:
 3. Time spent at each node (accessible via the `stats` dictionary).
 4. The number of items currently held in the pallet.
 
-This information can be used for detailed analysis of pallet flow, packing/unpacking operations, and system performance.
 
 <hr style="height:4px;border:none;color:blue; background-color:grey;" />
