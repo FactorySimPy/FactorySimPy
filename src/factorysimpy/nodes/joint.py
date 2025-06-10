@@ -44,7 +44,7 @@ class Joint(Node):
             and multiple outgoing edge. User can specify a list in_edges and the number of quantity that has to be packed from each of the in_edges
             as a list. The first item corresponds to the pallet used to put these packed items and the corresponding entry in the 
             `target_quantity_of_each_item` list is 1. Edge to which packed item is pushed is decided using the method specified
-            in the parameter `out_edge_selection`. Joint will transition through the states- `SETUP_STATE`, `PROCESSING_STATE`, `IDLE_STATE` AND 
+            in the parameter `out_edge_selection`. Joint will transition through the states- `SETUP_STATE`, `PROCESSING_STATE`, `IDLE_STATE` and 
             `BLOCKED_STATE`. The joint has a blocking behavior if `blocking`=`True` and gets blocked when all its worker threads have processed items and the out edge is full and 
             cannot accept the item that is being pushed by the joint. It waits until the out edge becomes available to push the item. If `blocking`=`False`, 
             it will discard the item if the out edge is full and cannot accept the item that is being pushed by the joint.

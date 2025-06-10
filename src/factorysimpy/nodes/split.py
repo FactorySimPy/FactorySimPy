@@ -53,7 +53,7 @@ class Split(Node):
     Behavior:
         The split node represents components that unpakcs an item (pallet) from an incoming edge. It can have multiple incoming edges
         and multiple outgoing edge. Edge from which the item comes in and the edge to which processed item is pushed is decided using the method specified
-        in the parameter `in_edge_selection` and `out_edge_selection`. Split will transition through the states- `SETUP_STATE`, `PROCESSING_STATE`, `IDLE_STATE` AND 
+        in the parameter `in_edge_selection` and `out_edge_selection`. Split will transition through the states- `SETUP_STATE`, `PROCESSING_STATE`, `IDLE_STATE` and 
         `BLOCKED_STATE`. It unpacks the items and pushes it to one of the outgoing edges one by one. The split has a blocking behavior if `blocking`=`True` and gets blocked when all its worker threads have processed items and the out edge is full and 
         cannot accept the item that is being pushed by the split and waits until the out edge can accept the item. If `blocking`=`False`, the split will 
         discard the item if the out edge is full and cannot accept the item that is being pushed by the machine.

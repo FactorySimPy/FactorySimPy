@@ -53,7 +53,7 @@ class Machine(Node):
         Behavior:
             The machine node represents components that process or modify the items that flow in the simulation model. It can have multiple incoming edges
             and multiple outgoing edge. Edge from which the item comes in and the edge to which processed item is pushed is decided using the method specified
-            in the parameter `in_edge_selection` and `out_edge_selection`. Machine will transition through the states- `SETUP_STATE`, `PROCESSING_STATE`, `IDLE_STATE` AND 
+            in the parameter `in_edge_selection` and `out_edge_selection`. Machine will transition through the states- `SETUP_STATE`, `PROCESSING_STATE`, `IDLE_STATE` and 
             `BLOCKED_STATE`. The machine has a blocking behavior if `blocking`=`True` and gets blocked when all its worker threads have processed items and the out edge is full and 
             cannot accept the item that is being pushed by the machine and waits until the out edge can accept the item. If `blocking`=`False`, the machine will 
             discard the item if the out edge is full and cannot accept the item that is being pushed by the machine.
