@@ -36,7 +36,7 @@ State transitions in the simulation are triggered solely by the actions of the n
 
 ├── BaseFlowItem(Base Class for components that flow through the systen)
     ├── Item        #Smallest unit of discrete item and it cannot hold other items inside. 
-    ├── Pallet      #Entities that store multiple smaller units of items and to pack it as a single unit
+    ├── Pallet      #Entities that can store multiple smaller units of items.
   
 
 ```
