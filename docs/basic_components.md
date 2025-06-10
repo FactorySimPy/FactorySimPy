@@ -128,7 +128,8 @@ SRC = Source(
     env,                        # Simulation environment
     id="SRC2",                  # Unique identifier for the source node
     inter_arrival_time=0.4,     # Time between item generations (can be constant or function/generator)
-    blocking=False,             # If True, waits for outgoing edge to accept item; if False, discards if full
+    flow_item_type="item",      # Type of baseflowitem that the source should generate
+    blocking=False,             # If True, waits for outgoing edge to accept item; if False, discards item if the outgoing edge is full
     out_edge_selection=None     # Strategy or function to select outgoing edge (can be string or callable)
 )
 
@@ -234,8 +235,8 @@ MACHINE1 = Machine(
     env,                        # Simulation environment
     id="MACHINE1",                    # Unique identifier for the machine node
     work_capacity=4,            # Max number of items that can be processed simultaneously
-    store_capacity=5,           # Max number of items that can be stored in the machine's internal store
     processing_delay=1.2,       # Processing delay (constant or generator/function)
+    blocking=False,             # If True, waits for outgoing edge to accept item; if False, discards item if the outgoing edge is full
     in_edge_selection="FIRST",  # Policy or function to select incoming edge
     out_edge_selection="FIRST"  # Policy or function to select outgoing edge
 )
