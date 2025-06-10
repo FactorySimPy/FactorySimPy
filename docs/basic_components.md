@@ -624,7 +624,17 @@ The `Item` class tracks:
 2. The node where the item was created and destroyed.
 3. Time spent at each node (accessible via the `stats` dictionary).
 
+Consider that an item is created inside a source and it has finished its flow in the system. The statistics can be collected as f0llows
 
+```python
+
+item1 = Item(id= "item1")
+
+for key, value in item1.stats:
+    print("Time spent in node{key.id} is {value}")
+
+
+```
 
 <hr style="height:4px;border:none;color:blue; background-color:grey;" />
 
@@ -660,6 +670,18 @@ The `Pallet` class tracks:
 2. The node where the pallet was created and destroyed.
 3. Time spent at each node (accessible via the `stats` dictionary).
 4. The number of items currently held in the pallet.
+
+
+Consider that an pallet is created inside a source and it has finished its flow in the system. The statistics can be collected as f0llows
+
+```python
+
+pallet1 = Pallet(id= "pallet1")
+
+for key, value in pallet1.stats:
+    print("Time spent in node {key.id} is {value}")
+
+```
 
 
 <hr style="height:4px;border:none;color:blue; background-color:grey;" />
