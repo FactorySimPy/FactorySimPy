@@ -68,7 +68,7 @@ Nodes represent active elements in the system. This is a basic type and is the b
 
 **About**
 
-The source component is responsible for generating items that enter and flow through the system. The API documentation can be found in [Source](source.md). There are two modes of operation for the source. If the parameter `blocking` is set to True, the source generates an item and tries to send it to the connected outgoing edge. If the edge is full or cannot accept the item, the source waits until space becomes available. If the `blocking` parameter is set to False, the source generates items and attempts to send them to the outgoing edge. If the edge is full or cannot accept the item, the source discards the item.
+The source component is responsible for generating items that enter and flow through the system. There are two modes of operation for the source. If the parameter `blocking` is set to True, the source generates an item and tries to send it to the connected outgoing edge. If the edge is full or cannot accept the item, the source waits until space becomes available. If the `blocking` parameter is set to False, the source generates items and attempts to send them to the outgoing edge. If the edge is full or cannot accept the item, the source discards the item. The API documentation can be found in [Source](source.md). 
 
 **Basic attributes**
 
@@ -469,6 +469,7 @@ Edges represent passive elements in the system. This is the basis for the compon
 The `Buffer` component represents a queue (FIFO or LIFO) that temporarily holds items between nodes in the system. It acts as an edge with internal storage, allowing items to be stored until the destination node is ready to accept them. Items placed in the buffer become available for retrieval after a specified `delay`. The buffer can operate in two modes:  
 - **FIFO (First In First Out):** Oldest items are released first.  
 - **LIFO (Last In First Out):** Newest items are released first.
+
 The API documentation can be found in [Buffer](buffer.md)
 
 **Basic attributes**
