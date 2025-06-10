@@ -59,8 +59,8 @@ from factorysimpy.nodes.sink import Sink
 env = simpy.Environment()
 
 # Initializing nodes
-SRC= Source(env, id="SRC",  inter_arrival_time= 0.8,blocking=False,out_edge_selection="FIRST" )
-MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4,store_capacity=5, processing_delay=1.1, in_edge_selection="FIRST",out_edge_selection="FIRST")
+SRC= Source(env, id="SRC", flow_item_type="item", inter_arrival_time= 0.8,blocking=False,out_edge_selection="FIRST" )
+MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4, processing_delay=1.1,blocking=False, in_edge_selection="FIRST",out_edge_selection="FIRST")
 SINK= Sink(env, id="SINK" )
 
 # Initializing edges
@@ -89,7 +89,8 @@ FactorySimPy/
 │  ├─ nodes/     # Processor, Source, Sink, Split, Join
 │  ├─ edges/     # Buffer, Conveyor, Fleet
 │  ├─ base/      # SimPy extensions
-│  ├─ helper/    # Other necessary classes like Item, 
+│  ├─ constructs/      # constructs to simplify model creation
+│  ├─ helper/    # Other necessary classes like Item, baseflowitem, pallet
 │  └─ utils/     # Other utility functions
 ├─ docs/
 │  ├─ index.md

@@ -33,6 +33,12 @@ State transitions in the simulation are triggered solely by the actions of the n
     ├── Fleet      # Fleet of human operstor, warehouse robots or transport vehicles
     ├── Buffer     # Queue of items waiting to be accepted by the next node in a model
 
+
+├── BaseFlowItem(Base Class for components that flow through the systen)
+    ├── Item        #Smallest unit of discrete item in the package and it cannot contain other items inside. 
+    ├── Pallet      #Entities that store multiple smaller units of items and to pack it as a single unit
+  
+
 ```
 
 
@@ -57,8 +63,8 @@ from factorysimpy.nodes.sink import Sink
 env = simpy.Environment()
 
 # Initializing nodes
-SRC= Source(env, id="SRC",  inter_arrival_time= 0.8,blocking=False,out_edge_selection="FIRST" )
-MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4,store_capacity=5, processing_delay=1.1, in_edge_selection="FIRST",out_edge_selection="FIRST")
+SRC= Source(env, id="SRC", flow_item_type="item", inter_arrival_time= 0.8,blocking=False,out_edge_selection="FIRST" )
+MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4, processing_delay=1.1,blocking=False, in_edge_selection="FIRST",out_edge_selection="FIRST")
 SINK= Sink(env, id="SINK" )
 
 # Initializing edges

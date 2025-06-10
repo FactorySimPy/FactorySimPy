@@ -61,8 +61,8 @@ from factorysimpy.nodes.sink import Sink
 env = simpy.Environment()
 
 # Initializing nodes
-SRC= Source(env, id="SRC",  inter_arrival_time= 0.8,blocking=False,out_edge_selection="FIRST" )
-MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4,store_capacity=5, processing_delay=1.1, in_edge_selection="FIRST",out_edge_selection="FIRST")
+SRC= Source(env, id="SRC", flow_item_type="item", inter_arrival_time= 0.8,blocking=False,out_edge_selection="FIRST" )
+MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4, processing_delay=1.1,blocking=False, in_edge_selection="FIRST",out_edge_selection="FIRST")
 SINK= Sink(env, id="SINK" )
 
 # Initializing edges
@@ -88,11 +88,11 @@ env.run(until=10)
 | Class | Purpose | Key parameters |
 |-------|---------|----------------|
 | `Node`   | base class for active entities | `id` , `node_set_up_time=0`, `in_edges=None`,`out_edges=None`  |
-| `Source`  | Generates new items | `inter_arrival_time=0` , `blocking=False` , `out_edge_selection="RANDOM"`   |
-| `Machine` | Processes/modifies items.| `work_capacity=1`, `store_capacity=1`, `processing_delay=0`, `in_edge_selection="FIRST"`,`out_edge_selection="ROUND_ROBIN"`|
+| `Source`  | Generates new items | `inter_arrival_time=0` , `flow_item_type="item"`, `blocking=False` , `out_edge_selection="RANDOM"`   |
+| `Machine` | Processes/modifies items.| `work_capacity=1`, `blocking=False` , `processing_delay=0`, `in_edge_selection="FIRST"`,`out_edge_selection="ROUND_ROBIN"`|
 | `Sink`    | Collects / destroys items.
-| `Split`   | Routes items to multiple outputs  | `store_capacity=1`, `processing_delay=0`, `in_edge_selection="FIRST"` |
-| `Joint`    | Merges input streams into one | `store_capacity=1`, `processing_delay=0`, `out_edge_selection="ROUND_ROBIN"`|
+| `Split`   | Routes items to multiple outputs  | `blocking=False` , `processing_delay=0`, `in_edge_selection="FIRST"`, `out_edge_selection="FIRST"` |
+| `Joint`    | Merges input streams into one | `blocking=False` , `processing_delay=0`,`target_quantity_for_each_item=[1]`, `in_edge_selection="FIRST"`,`out_edge_selection="ROUND_ROBIN"`|
 
 
 ### Edges 
