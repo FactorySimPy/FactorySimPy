@@ -50,7 +50,8 @@ class Split(Node):
                 - callable: A function that returns an edge index.
             blocking (bool): If True, the source waits until it can put an item into the out edge.
 
-        Behavior:
+    Behavior:
+
             The split node represents components that unpakcs an item (pallet) from an incoming edge. It can have multiple incoming edges
             and multiple outgoing edge. Edge from which the item comes in and the edge to which processed item is pushed is decided using the method specified
             in the parameter `in_edge_selection` and `out_edge_selection`. Split will transition through the states- `SETUP_STATE`, `PROCESSING_STATE`, `IDLE_STATE` AND 
@@ -59,11 +60,13 @@ class Split(Node):
             discard the item if the out edge is full and cannot accept the item that is being pushed by the machine.
 
 
-        Raises:
-            AssertionError: If the split has no input or output edges.
-        Output performance metrics:
-        The key performance metrics of the  node is captured in `stats` attribute (dict) during a simulation run. 
+    Raises:
             
+            AssertionError: If the split has no input or output edges.
+            
+    Output performance metrics:
+    The key performance metrics of the  node is captured in `stats` attribute (dict) during a simulation run. 
+        
             last_state_change_time    : Time when the state was last changed.
             num_item_processed        : Total number of items generated.
             total_time_spent_in_states: Dictionary with total time spent in each state.

@@ -43,7 +43,8 @@ class Joint(Node):
             - callable: A function that returns an edge index.
                 
 
-        Behavior:
+    Behavior:
+
             The joint node represents components that joints together or packs items from multiple in_edges. It can have multiple incoming edges
             and multiple outgoing edge. User can specify a list in_edges and the number of quantity that has to be packed from each of the in_edges
             as a list. The first item corresponds to the pallet used to put these packed items and the corresponding entry in the 
@@ -53,9 +54,12 @@ class Joint(Node):
             cannot accept the item that is being pushed by the joint. It waits until the out edge becomes available to push the item. If `blocking`=`False`, 
             it will discard the item if the out edge is full and cannot accept the item that is being pushed by the joint.
 
-        Raises:
+    Raises:
+
             AssertionError: If the Joint has no input or atleast 1 output edge.
-        Output performance metrics:
+        
+    Output performance metrics:
+        
         The key performance metrics of the joint node is captured in `stats` attribute (dict) during a simulation run. 
             
             last_state_change_time    : Time when the state was last changed.
