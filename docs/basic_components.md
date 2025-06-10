@@ -352,7 +352,7 @@ print(f"Joint {JOINT1.id}, worker1 state times: {JOINT1.stats[1]['total_time_spe
 
 **Examples**
 
-- ***[An example of a joint node combining items from two sources](examples.md/#joint-example)***
+- ***[An example of a joint node combining items from two sources](examples.md/#example-showing-packing-and-unpacking)***
 
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
@@ -428,7 +428,7 @@ print(f"Split {SPLIT1.id}, worker1 state times: {SPLIT1.stats[1]['total_time_spe
 
 **Examples**
 
-- ***[An example of a split node unpacking a pallet and distributing items to multiple destinations](examples.md/#split-example)***
+- ***[An example of a split node unpacking a pallet and distributing items to multiple destinations](examples.md/#example-showing-packing-and-unpacking)***
 
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
