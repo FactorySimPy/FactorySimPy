@@ -66,6 +66,7 @@ class Machine(Node):
             
             last_state_change_time    : Time when the state was last changed.
             num_item_processed        : Total number of items generated.
+            num_item_discarded        : Total number of items discarded.
             total_time_spent_in_states: Dictionary with total time spent in each state.
                 
     """
