@@ -37,8 +37,6 @@ class Source(Node):
             - None: Used when out edge selection depends on parameters of the node object (like current state of the object) or environment.    
             - str: A string that specifies the selection method.
                 - "RANDOM": Selects a random out edge.
-                - "FIRST": Selects the first out edge.
-                - "LAST": Selects the last out edge.
                 - "ROUND_ROBIN": Selects out edges in a round-robin manner.
                 - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
             - callable: A function that returns an edge index.
@@ -84,7 +82,7 @@ class Source(Node):
 
     """
 
-    def __init__(self, env, id, in_edges=None, out_edges=None, flow_item_type = "item", inter_arrival_time=0, blocking=False, out_edge_selection="FIRST" ):
+    def __init__(self, env, id, in_edges=None, out_edges=None, flow_item_type = "item", inter_arrival_time=0, blocking=False, out_edge_selection="FIRST_AVAILABLE" ):
         super().__init__( env, id,in_edges , out_edges )
         
         self.state = "SETUP_STATE" # Initial state of the source node

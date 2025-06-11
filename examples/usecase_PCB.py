@@ -67,7 +67,7 @@ package_delay = package_distribution_generator()
 # Define the parameters for the processors and edges
 
 
-#m1 = Machine(env, id="M1",node_setup_time=0,work_capacity=1,blockin processing_delay=1,in_edge_selection="FIRST",out_edge_selection="FIRST")
+#m1 = Machine(env, id="M1",node_setup_time=0,work_capacity=1,blockin processing_delay=1,in_edge_selection="RANDOM",out_edge_selection="RANDOM")
 
 board_loader=Machine(env, "board_loader",  work_capacity=1, blocking=True,  processing_delay=loader_delay)
 solder_printer=Machine(env, "solder_printer",  work_capacity=1, blocking=True,  processing_delay=solder_delay)
@@ -75,7 +75,7 @@ component_placer=Machine(env, "component_placer",  work_capacity=1, blocking=Tru
 reflow_oven=Machine(env, "reflow_oven", work_capacity=1, blocking=True, processing_delay=reflow_delay)
 inspection=Machine(env, "inspection",  work_capacity=1,blocking=True,  processing_delay=inspect_delay)
 packing=Machine(env, "packing",  work_capacity=1,blocking=True, processing_delay=package_delay)
-source=Source(env, "source", inter_arrival_time=source_delay_generator(), blocking=True, out_edge_selection="FIRST")
+source=Source(env, "source", inter_arrival_time=source_delay_generator(), blocking=True, out_edge_selection="RANDOM")
 sink=Sink(env, "sink",)
 
 #edges

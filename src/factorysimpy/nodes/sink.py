@@ -20,7 +20,7 @@ class Sink(Node):
         AssertionError: If the sink does not have at least 1 input edge or has an output edge.  
     """
 
-    def __init__(self, env, id,in_edges=None,  node_setup_time=0, in_edge_selection="FIRST"):
+    def __init__(self, env, id,in_edges=None,  node_setup_time=0, in_edge_selection="FIRST_AVAILABLE"):
         
           super().__init__( env, id, in_edges, None,   node_setup_time)
           self.state = "None"

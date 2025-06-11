@@ -63,8 +63,8 @@ from factorysimpy.nodes.sink import Sink
 env = simpy.Environment()
 
 # Initializing nodes
-SRC= Source(env, id="SRC", flow_item_type="item", inter_arrival_time= 0.8,blocking=False,out_edge_selection="FIRST" )
-MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4, processing_delay=1.1,blocking=False, in_edge_selection="FIRST",out_edge_selection="FIRST")
+SRC= Source(env, id="SRC", flow_item_type="item", inter_arrival_time= 0.8,blocking=False,out_edge_selection="RANDOM" )
+MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4, processing_delay=1.1,blocking=False, in_edge_selection="RANDOM",out_edge_selection="RANDOM")
 SINK= Sink(env, id="SINK" )
 
 # Initializing edges

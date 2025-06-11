@@ -6,7 +6,7 @@ In this section, we present examples that demonstrate how to use FactorySimPy
 
 ***Here's a simple example to connect a machine to an input buffer and output buffer and to simulate item flow through them.***
 
-In the example, the delays `inter_arrival_time`, `processing_delay`, etc are constant values and `out_edge_selection` and `out_edge_selection` uses the generator functions that are available in the package ("FIRST"). The function name can be passed as a string. See [API](api_ref_main_page.md) for the details of all the available functions.
+In the example, the delays `inter_arrival_time`, `processing_delay`, etc are constant values and `out_edge_selection` and `out_edge_selection` uses the generator functions that are available in the package ("RANDOM"). The function name can be passed as a string. See [API](api_ref_main_page.md) for the details of all the available functions.
  
 ```python
 
@@ -23,8 +23,8 @@ from factorysimpy.nodes.sink import Sink
 env = simpy.Environment()
 
 # Initializing nodes
-SRC= Source(env, id="SRC",  inter_arrival_time= 0.8,blocking=False,out_edge_selection="FIRST" )
-MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4, processing_delay=1.1, in_edge_selection="FIRST",out_edge_selection="FIRST")
+SRC= Source(env, id="SRC",  inter_arrival_time= 0.8,blocking=False,out_edge_selection="RANDOM" )
+MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4, processing_delay=1.1, in_edge_selection="RANDOM",out_edge_selection="RANDOM")
 SINK= Sink(env, id="SINK" )
 
 # Initializing edges
@@ -83,7 +83,7 @@ def processing_delay_generator(node,env):
 SRC= Source(env, id="SRC",  inter_arrival_time=inter_arrival(),blocking=False, )
 
 
-MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4,processing_delay=None,in_edge_selection="FIRST",out_edge_selection="FIRST")
+MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4,processing_delay=None,in_edge_selection="RANDOM",out_edge_selection="RANDOM")
 process_delay_gen1=processing_delay_generator(MACHINE1,env)
 MACHINE1.processing_delay=process_delay_gen1
 
@@ -258,13 +258,13 @@ def split_out_edge_selector(node):
          raise ValueError("Invalid item_type encountered")
 
 # Initializing nodes
-SRC1= Source(env, id="SRC1", flow_item_type = "pallet", inter_arrival_time= 0.8,blocking=False,out_edge_selection="FIRST" )
+SRC1= Source(env, id="SRC1", flow_item_type = "pallet", inter_arrival_time= 0.8,blocking=False,out_edge_selection="RANDOM" )
 
-SRC2= Source(env, id="SRC2", flow_item_type = "item",  inter_arrival_time= 0.8,blocking=False,out_edge_selection="FIRST" )
+SRC2= Source(env, id="SRC2", flow_item_type = "item",  inter_arrival_time= 0.8,blocking=False,out_edge_selection="RANDOM" )
 
-JOINT1 = Joint(env, id="JOINT1", target_quantity_of_each_item=[1,5], work_capacity=1, processing_delay=1.1, blocking= False, out_edge_selection="FIRST" )
+JOINT1 = Joint(env, id="JOINT1", target_quantity_of_each_item=[1,5], work_capacity=1, processing_delay=1.1, blocking= False, out_edge_selection="RANDOM" )
 
-SPLIT1 = Split(env, id="SPLIT1",work_capacity=1, processing_delay=1.1, in_edge_selection="FIRST",out_edge_selection=None )
+SPLIT1 = Split(env, id="SPLIT1",work_capacity=1, processing_delay=1.1, in_edge_selection="RANDOM",out_edge_selection=None )
 
 
 SINK1= Sink(env, id="SINK1" )
@@ -333,7 +333,7 @@ node_kwargs = {
     "node_setup_time": 0,
     "work_capacity": 1,
     "processing_delay": 0.8,
-    "in_edge_selection": "FIRST",
+    "in_edge_selection": "RANDOM",
     "out_edge_selection": "FIRST_AVAILABLE"
 }
 

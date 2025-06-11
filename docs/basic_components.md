@@ -98,8 +98,6 @@ The source can be connected to multiple outgoing edges. To control how the next 
 Various options available in the package for `out_edge_selection` include:
 
 - "RANDOM": Selects a random out edge.
-- "FIRST": Selects the first out edge.
-- "LAST": Selects the last out edge.
 - "ROUND_ROBIN": Selects out edges in a round-robin manner.
 - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
 
@@ -196,8 +194,6 @@ During a simulation run, each worker thread gets object from one of its `in_edge
 Various options available in the package for `in_edge_selection` and `out_edge_selection` include:
 
 - "RANDOM": Selects a random out edge.
-- "FIRST": Selects the first out edge.
-- "LAST": Selects the last out edge.
 - "ROUND_ROBIN": Selects out edges in a round-robin manner.
 - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
 
@@ -237,8 +233,8 @@ MACHINE1 = Machine(
     work_capacity=4,            # Max number of items that can be processed simultaneously
     processing_delay=1.2,       # Processing delay (constant or generator/function)
     blocking=False,             # If True, waits for outgoing edge to accept item; if False, discards item if the outgoing edge is full
-    in_edge_selection="FIRST",  # Policy or function to select incoming edge
-    out_edge_selection="FIRST"  # Policy or function to select outgoing edge
+    in_edge_selection="RANDOM",  # Policy or function to select incoming edge
+    out_edge_selection="RANDOM"  # Policy or function to select outgoing edge
 )
 ```
 
@@ -310,8 +306,6 @@ To select an outgoing edge, to push the item to, worker thread uses the method s
 Various options available in the package for `out_edge_selection` include:
 
 - "RANDOM": Selects a random out edge.
-- "FIRST": Selects the first out edge.
-- "LAST": Selects the last out edge.
 - "ROUND_ROBIN": Selects out edges in a round-robin manner.
 - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
 
@@ -339,7 +333,7 @@ JOINT1 = Joint(
     work_capacity=1,                  # Number of pallets that can be packed simultaneously
     processing_delay=1.5,             # Packing delay (constant or generator/function)
     blocking=True,                    # Wait for outgoing edge to accept pallet
-    out_edge_selection="FIRST"        # Policy or function to select outgoing edge
+    out_edge_selection="RANDOM"        # Policy or function to select outgoing edge
 )
 ```
 
@@ -397,8 +391,6 @@ To select an outgoing edge and incoming edge, worker thread uses the method spec
 Various options available in the package for `in_edge_selection` and `out_edge_selection` include:
 
 - "RANDOM": Selects a random out edge.
-- "FIRST": Selects the first out edge.
-- "LAST": Selects the last out edge.
 - "ROUND_ROBIN": Selects out edges in a round-robin manner.
 - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
 
@@ -426,7 +418,7 @@ SPLIT1 = Split(
     work_capacity=1,            # Number of worker threads
     processing_delay=1.0,       # Unpacking delay (constant or generator/function)
     blocking=True,              # Wait for outgoing edge to accept item
-    in_edge_selection="FIRST",  # Policy or function to select incoming edge
+    in_edge_selection="RANDOM",  # Policy or function to select incoming edge
     out_edge_selection="ROUND_ROBIN"  # Policy or function to select outgoing edge
 )
 ```
@@ -471,7 +463,7 @@ from factorysimpy.nodes.sink import Sink
 SINK = SINK(
     env,                        # Simulation environment
     id="SINK",                # Unique identifier for the  node
-    in_edge_selection="FIRST",  # Policy or function to select incoming edge
+    in_edge_selection="RANDOM",  # Policy or function to select incoming edge
     
 )
 ```

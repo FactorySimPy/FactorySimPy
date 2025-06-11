@@ -20,7 +20,7 @@ def distribution_generator(loc=4.0, scale=5.0, size=1):
 # Initializing nodes
 src1= Source(env, id="Source-1",  inter_arrival_time=1,blocking=True,out_edge_selection="FIRST_AVAILABLE" )
 src2= Source(env, id="Source-2",  inter_arrival_time=1,blocking=True,out_edge_selection="FIRST_AVAILABLE" )
-m1 = Machine(env, id="M1",node_setup_time=0,work_capacity=1, processing_delay=1,in_edge_selection="FIRST",out_edge_selection="FIRST_AVAILABLE")
+m1 = Machine(env, id="M1",node_setup_time=0,work_capacity=1, processing_delay=1,in_edge_selection="RANDOM",out_edge_selection="FIRST_AVAILABLE")
 
 sink= Sink(env, id="Sink-1" )
 

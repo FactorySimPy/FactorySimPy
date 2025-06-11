@@ -27,13 +27,11 @@ class Joint(Node):
             target_quantity_of_each_item (list): List with target quantity of each item to be combined where index correspond to the input edge.
                                                 The first index corresponds to the edge that supplies pallet/box and it is always 1
             out_edge_selection (None or str or callable): Criterion or function for selecting the out edge.
-                                                Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
+                                                Options include "RANDOM", "ROUND_ROBIN", "FIRST_AVAILABLE".
 
                 - None: Used when out edge selction depends on parameters of the node object (like current state of the object) or environment.   
                 - str: A string that specifies the selection method.
                     - "RANDOM": Selects a random out edge in the out_edges list.
-                    - "FIRST": Selects the first out edge in the out_edges list.
-                    - "LAST": Selects the last out edge in the out_edges list.
                     - "ROUND_ROBIN": Selects out edges in a round-robin manner.
                     - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
                 - callable: A function that returns an edge index.
@@ -63,7 +61,7 @@ class Joint(Node):
                 
     
     """ 
-    def __init__(self, env, id,in_edges=None , out_edges=None,node_setup_time=0,target_quantity_of_each_item=[1], work_capacity=1, processing_delay=1, blocking= "False", out_edge_selection="FIRST"):
+    def __init__(self, env, id,in_edges=None , out_edges=None,node_setup_time=0,target_quantity_of_each_item=[1], work_capacity=1, processing_delay=1, blocking= "False", out_edge_selection="FIRST_AVAILABLE"):
         super().__init__(env, id,in_edges=in_edges , out_edges=out_edges, node_setup_time=node_setup_time)  
         
         

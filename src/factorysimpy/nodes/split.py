@@ -27,24 +27,20 @@ class Split(Node):
             - Generator: A generator function yielding delay values over time.
             - Callable: A function that returns a delay (int or float).
         in_edge_selection (None or str or callable): Criterion or function for selecting the edge.
-                                            Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
+                                            Options include "RANDOM", "ROUND_ROBIN", "FIRST_AVAILABLE".
 
             - None: None: Used when edge selction depends on parameters of the node object (like current state of the object) or environment. 
             - str: A string that specifies the selection method.
                 - "RANDOM": Selects a random edge.
-                - "FIRST": Selects the first edge in the in_edges list.
-                - "LAST": Selects the last edge in the in_edges list .
                 - "ROUND_ROBIN": Selects edges in a round-robin manner.
                 - "FIRST_AVAILABLE": Selects the first out edge that can give an item.
             - callable: A function that returns an edge index.
         out_edge_selection (None or str or callable): Criterion or function for selecting the out edge.
-                                            Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".
+                                            Options include "RANDOM", "ROUND_ROBIN", "FIRST_AVAILABLE".
 
             - None: Used when out edge selction depends on parameters of the node object (like current state of the object) or environment.   
             - str: A string that specifies the selection method.
                 - "RANDOM": Selects a random out edge in the out_edges list.
-                - "FIRST": Selects the first out edge in the out_edges list.
-                - "LAST": Selects the last out edge in the out_edges list.
                 - "ROUND_ROBIN": Selects out edges in a round-robin manner.
                 - "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
             - callable: A function that returns an edge index.
@@ -73,7 +69,7 @@ class Split(Node):
             total_time_spent_in_states: Dictionary with total time spent in each state.
 
     """
-    def __init__(self, env, id,in_edges=None, out_edges=None, node_setup_time=0, work_capacity=1 ,processing_delay=0,blocking=False,in_edge_selection="FIRST",out_edge_selection="FIRST"):
+    def __init__(self, env, id,in_edges=None, out_edges=None, node_setup_time=0, work_capacity=1 ,processing_delay=0,blocking=False,in_edge_selection="FIRST_AVAILABLE",out_edge_selection="FIRST_AVAILABLE"):
         super().__init__(env, id, in_edges , out_edges, node_setup_time)
     
         self.work_capacity = work_capacity
