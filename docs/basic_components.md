@@ -306,7 +306,14 @@ The `Joint` component represents a node that combines or packs items from multip
 3. Waits for `processing_delay` to simulate packing/combining.
 4. Pushes the packed pallet to the outgoing edge, either waiting if `blocking` is True or discarding if the edge is full and `blocking` is False.
 
-The outgoing edge is selected according to the `out_edge_selection` policy, which can be a string (e.g., "FIRST", "ROUND_ROBIN") or a custom function.
+To select an outgoing edge, to push the item to, worker thread uses the method specified in `out_edge_selection` parameter. User can also provide a custom python function or a generator function instance to these parameters. User-provided function should return or yield an edge index. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initialise the parameter with the reference to the function. This is illustrated in the examples shown below. 
+Various options available in the package for `out_edge_selection` include:
+
+- "RANDOM": Selects a random out edge.
+- "FIRST": Selects the first out edge.
+- "LAST": Selects the last out edge.
+- "ROUND_ROBIN": Selects out edges in a round-robin manner.
+- "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
 
 **States**
 
@@ -385,6 +392,16 @@ At the start of the simulation, the split waits for `node_setup_time`. Each work
 3. Unpacks the items from the pallet and pushes each item to an outgoing edge, one by one, using the `out_edge_selection` policy.
 4. After all items are pushed, the empty container itself is pushed to an outgoing edge.
 5. If `blocking` is True, the split waits for the outgoing edge to accept each item; if `blocking` is False, items are discarded if the outgoing edge is full.
+
+To select an outgoing edge and incoming edge, worker thread uses the method specified in `out_edge_selection` and `in_edge_selection` parameters. User can also provide a custom python function or a generator function instance to these parameters. User-provided function should return or yield an edge index. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initialise the parameter with the reference to the function. This is illustrated in the examples shown below. 
+Various options available in the package for `in_edge_selection` and `out_edge_selection` include:
+
+- "RANDOM": Selects a random out edge.
+- "FIRST": Selects the first out edge.
+- "LAST": Selects the last out edge.
+- "ROUND_ROBIN": Selects out edges in a round-robin manner.
+- "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
+
 
 **States**
 
