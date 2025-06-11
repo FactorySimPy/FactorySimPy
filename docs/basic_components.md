@@ -471,9 +471,8 @@ from factorysimpy.nodes.sink import Sink
 SINK = SINK(
     env,                        # Simulation environment
     id="SINK",                # Unique identifier for the  node
-    
     in_edge_selection="FIRST",  # Policy or function to select incoming edge
-    out_edge_selection="ROUND_ROBIN"  # Policy or function to select outgoing edge
+    
 )
 ```
 
