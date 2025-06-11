@@ -525,9 +525,9 @@ The API documentation can be found in [Buffer](buffer.md)
 
 **Basic attributes**
 
-- `state` - current state of the buffer (e.g., "IDLE_STATE", "RELEASING_STATE", "BLOCKED_STATE")
+- `state` - current state of the buffer 
 - `store_capacity` - maximum number of items the buffer can hold
-- `mode` - "FIFO" or "LIFO" operation
+- `mode` - mode of operation of the buffer. Either "FIFO" or "LIFO".
 - `delay` - time after which an item becomes available for retrieval (can be a constant, generator, or callable)
 
 **Behavior**
