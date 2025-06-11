@@ -267,7 +267,7 @@ class Machine(Node):
             self.env.process(self.call_in_process(self.in_edge_selection,event))
             return event
         else:
-            raise ValueError("out_edge_selection must be a generator or a callable.")    
+            raise ValueError("in_edge_selection must be a generator or a callable.")    
                 
     def  call_in_process(self, in_edge_selection,event):
         val = yield in_edge_selection

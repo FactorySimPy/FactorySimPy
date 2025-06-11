@@ -31,11 +31,11 @@ FactorySimPy lets you simulate typical manufacturing scenarios using ready-made 
 
 - **Machine** is a node with configurable processing delay
 
-- **Split** and **Join** are nodes for splitting an item or joining multiple items.
+- **Split** and **Joint** are nodes for splitting an item or joining multiple items.
 
-- **Buffers**,**Conveyors** and **Fleets** are entities of type edge for transfering items from one node to another
+- **Buffer**,**Conveyor** and **Fleet** are entities of type edge for aiding in item transfer from one node to another
 
-- **Sources** and **Sinks** for generating and collecting items
+- **Source** and **Sink** for generating and collecting items
 
 
 All components can be customized, and extended easily.

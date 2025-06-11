@@ -348,7 +348,7 @@ class Joint(Node):
                 self.update_state(i,"BLOCKED_STATE", self.env.now)
                 # Push the combined item to the output edge
                 if self.blocking :
-                    yield self.env.process(self._push_item(self.item_in_process[i], outedge_to_put))
+                    yield self.env.process(self._push_item(i, outedge_to_put))
                 else:
                     # Check if the out_edge can accept the item
                     if outedge_to_put.can_put():

@@ -439,7 +439,25 @@ print(f"Split {SPLIT1.id}, worker1 state times: {SPLIT1.stats[1]['total_time_spe
 
 
  A Sink is a terminal node that collects flow items at the end. Once an item enters the sink, it is considered to have exited the system and cannot be retrieved or processed further. This sink can have multiple input edges and no output edges. It only has a single state "COLLECTING_STATE". The API documentation can be found in [Sink](sink.md)
+ 
+ **Statistics collected**
 
+The sink component reports the following key metrics. 
+
+1. Total number of items received
+2. Total cycle time
+
+Consider a sink with instance name as SINK. Its metrics can be accessed after completion of the simulation run as
+
+```python
+
+
+total= SINK.stats["num_item_received"]
+cycle_time = SINK.stats["total_cycle_time"]/60
+print(f"Average cycle time per item: {cycle_time/total if total > 0 else 0:.2f} minutes")
+print(f"Total number of items received: {sink.stats}")
+
+```
 
 <hr style="height:3px;border:none;color: grey; background-color:grey; " />
 
@@ -451,12 +469,8 @@ print(f"Split {SPLIT1.id}, worker1 state times: {SPLIT1.stats[1]['total_time_spe
 Edges represent passive elements in the system. This is the basis for the components like Buffer, Conveyor, Fleet, etc. Every edge has a unique identifier named `id` and maintains references to a source node `src_node` and a destination node `dest_node`. Edge acts as a conntction between these two nodes and facilitates the movement of items between the nodes. 
 
 
-**Basic attributes**
 
 
-   - `id` (str) - unique identifier for the edge
-   - `src_node` (Node) - reference to the source node connected to this edge.
-   - `dest_node` (Node) - reference to the destination node connected to this edge.
 
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
