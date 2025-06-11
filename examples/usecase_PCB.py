@@ -67,15 +67,15 @@ package_delay = package_distribution_generator()
 # Define the parameters for the processors and edges
 
 
+#m1 = Machine(env, id="M1",node_setup_time=0,work_capacity=1,blockin processing_delay=1,in_edge_selection="FIRST",out_edge_selection="FIRST")
 
-
-board_loader=Machine(env, "board_loader",  work_capacity=1, store_capacity=1, processing_delay=loader_delay)
-solder_printer=Machine(env, "solder_printer",  work_capacity=1, store_capacity=1, processing_delay=solder_delay)
-component_placer=Machine(env, "component_placer",  work_capacity=1, store_capacity=1, processing_delay=placer_delay)
-reflow_oven=Machine(env, "reflow_oven", work_capacity=1, store_capacity=1, processing_delay=reflow_delay)
-inspection=Machine(env, "inspection",  work_capacity=1, store_capacity=1, processing_delay=inspect_delay)
-packing=Machine(env, "packing",  work_capacity=1, store_capacity=1, processing_delay=package_delay)
-source=Source(env, "source", inter_arrival_time=source_delay_generator(),criterion_to_put="first", blocking=False)
+board_loader=Machine(env, "board_loader",  work_capacity=1, blocking=True,  processing_delay=loader_delay)
+solder_printer=Machine(env, "solder_printer",  work_capacity=1, blocking=True,  processing_delay=solder_delay)
+component_placer=Machine(env, "component_placer",  work_capacity=1, blocking=True,  processing_delay=placer_delay)
+reflow_oven=Machine(env, "reflow_oven", work_capacity=1, blocking=True, processing_delay=reflow_delay)
+inspection=Machine(env, "inspection",  work_capacity=1,blocking=True,  processing_delay=inspect_delay)
+packing=Machine(env, "packing",  work_capacity=1,blocking=True, processing_delay=package_delay)
+source=Source(env, "source", inter_arrival_time=source_delay_generator(), blocking=True, out_edge_selection="FIRST")
 sink=Sink(env, "sink",)
 
 #edges
@@ -98,4 +98,8 @@ buffer_sink.connect(packing,sink)
 env.run(until=6000)
 
 print("Simulation completed.")
-print(f"Total items received: {sink.class_statistics['item_received']}")
+total= sink.stats["num_item_received"]
+cycle_time = sink.stats["total_cycle_time"]/60
+print(f"Average cycle time per item: {cycle_time/total if total > 0 else 0:.2f} minutes")
+print(f"Total items received: {sink.stats}")
+print(f"Throughput: {total/(6000/60):.2f} items per minute")

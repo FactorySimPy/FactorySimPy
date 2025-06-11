@@ -55,6 +55,22 @@ class BufferStore(FilterStore):
         self.reserved_events = []     # Maintains events corresponding to reserved items to preserve item order
         self.reserved_items=[]
         self.unreserved_items=[]
+        self.time_averaged_num_of_items_in_store = 0.0  # Time-averaged number of items in the buffer
+        self._last_level_change_time = self.env.now
+        self._last_num_items = 0
+        self._weighted_sum = 0.0
+
+    def _update_time_averaged_level(self):
+        now = self.env.now
+        interval = now - self._last_level_change_time
+        self._weighted_sum += self._last_num_items * interval
+        self._last_level_change_time = now
+        self._last_num_items = len(self.items)
+        # Optionally, update stats in real time
+        total_time = now
+        self.time_averaged_num_of_items_in_store = (
+            self._weighted_sum / total_time if total_time > 0 else 0.0
+        )
 
 
     def reserve_put(self, priority=0):
@@ -443,6 +459,7 @@ class BufferStore(FilterStore):
         if item is None:
           raise RuntimeError(f"No item found in the store for {get_event.requesting_process} and get request failed")
         else:
+          self._update_time_averaged_level()
           return item
 
     def _trigger_get(self, get_event):
@@ -552,6 +569,7 @@ class BufferStore(FilterStore):
 
           raise RuntimeError(f"No matching put_event found in the reservations and put failed for{item}")
         else:
+          self._update_time_averaged_level()
           return proceed
 
     def _trigger_put(self,put_event, item):

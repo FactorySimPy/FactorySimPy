@@ -27,7 +27,7 @@ class Sink(Node):
           self.out_edges = None
           self.in_edges = in_edges
           
-          self.stats={"num_item_received": 0, "total_time_spent_in_state":{"COLLECTING_STATE":0.0}}
+          self.stats={"num_item_received": 0, "total_time_spent_in_state":{"COLLECTING_STATE":0.0}, "total_cycle_time":0.0}
 
           # Start behavior process
           self.env.process(self.behaviour())
@@ -84,6 +84,8 @@ class Sink(Node):
             item = storetoget.get(get_token)
                 
         self.stats["num_item_received"] += 1
-        print(f"T={self.env.now:.2f}: {self.id } is got an {item} ")
+        self.stats["total_cycle_time"] += self.env.now - item.timestamp_creation
+        #print("fromsink", self.env.now - item.timestamp_creation)
+        #print(f"T={self.env.now:.2f}: {self.id } is got an {item} ")
        
         

@@ -46,7 +46,7 @@ class Buffer(Edge):
             total_time_spent_in_states                  : Dictionary with total time spent in each state.
     """
 
-    def __init__(self, env, id,  store_capacity=10, delay=0,  mode="FIFO"):
+    def __init__(self, env, id,  store_capacity=1, delay=0,  mode="FIFO"):
           super().__init__( env, id,)
           self.state = "IDLE_STATE"
           self.mode=mode
@@ -80,11 +80,22 @@ class Buffer(Edge):
             raise ValueError("Invalid delay value. Provide a constant, generator, or a python callable.")
             
           #self.behavior =  self.env.process(self.behaviour())
-
+          self.stats_collector = self.env.process(self._stats_collector(sample_interval=3))
+    def initial_test(self):
+        assert self.src_node is not None , f"Buffer '{self.id}' must have atleast 1 src_node."
+        assert self.dest_node is not None , f"Buffer '{self.id}' must have atleast 1 dest_node."
         
     
-
+    def _stats_collector(self, sample_interval=3):
+        """
+        Periodically sample the number of items in the buffer and compute the time-averaged value.
+        """
+        self.initial_test()
     
+        while True:
+            yield self.env.timeout(sample_interval)
+            #print(self.stats["time_averaged_num_of_items_in_buffer"])
+            self.stats["time_averaged_num_of_items_in_buffer"] = self.inbuiltstore.time_averaged_num_of_items_in_store
 
     def can_put(self):
         """
@@ -119,9 +130,9 @@ class Buffer(Edge):
         return count > len(self.inbuiltstore.reservations_get)
     
     def behaviour(self):
-      """
-      Simulates the buffer behavior, checking the state of the buffer and processing items.
-      """
+      
+      #Simulates the buffer behavior, checking the state of the buffer and processing items.
+      
       assert self.src_node is not None , f"Buffer '{self.id}' must have atleast 1 src_node."
       assert self.dest_node is not None , f"Buffer '{self.id}' must have atleast 1 dest_node."
 

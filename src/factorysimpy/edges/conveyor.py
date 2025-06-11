@@ -60,7 +60,7 @@ class BeltStore(ReservablePriorityReqFilterStore):
       """Override to handle the put operation."""
       #print(f"At {self.env.now} do_putting an item. Put queue length: {len(self.put_queue)}")
       returnval = super()._do_put(event, item)
-      print(f"T={self.env.now:.2f}: Beltstore:_do_put: putting item on belt {item.name} and belt items are {[(i.name,i.put_time) for i in self.items]}")
+      print(f"T={self.env.now:.2f}: Beltstore:_do_put: putting item on belt {item.id} and belt items are {[(i.id,i.put_time) for i in self.items]}")
       # if self.item_put_event.triggered:
       #   self.item_put_event=self.env.event()
 
@@ -126,10 +126,10 @@ class ConveyorBelt(Edge):
         ValueError: If the belt already has 1 out_edge or tries to add an in_edge.
 
     """
-  def __init__(self,env,name,belt_capacity,delay_per_slot,accumulating=0):
-    super().__init__(env,name)
+  def __init__(self,env,id,belt_capacity,delay_per_slot,accumulating=0):
+    super().__init__(env,id)
     self.env=env
-    self.name = name
+    self.id = id
     self.state=None
     self.belt=BeltStore(env,belt_capacity,delay_per_slot,accumulating)
     self.accumulating=accumulating
@@ -196,16 +196,16 @@ class ConveyorBelt(Edge):
         """Move items along the belt."""
 
         if self.put_request_queue and self.can_put():
-            print(f"T={self.env.now:.2f}: Conveyor '{self.name}':Move: starting put inside move")
+            print(f"T={self.env.now:.2f}: Conveyor '{self.id}':Move: starting put inside move")
 
             yield from self._handle_put_request()
 
         if self.get_request_queue and self.can_get:
           if  len(self.belt.reservations_get)+len(self.belt.reserve_get_queue)<len(self.get_request_queue):
-            print(f"T={self.env.now:.2f}: Conveyor '{self.name}':Move:starting get inside move")
+            print(f"T={self.env.now:.2f}: Conveyor '{self.id}':Move:starting get inside move")
             #yield from self._handle_get_request()
             self.item_get_fromslot =  True
-            print(f"T={self.env.now:.2f}: Conveyor '{self.name}':Move:Changing item_get_fromslot to {self.item_get_fromslot}")
+            print(f"T={self.env.now:.2f}: Conveyor '{self.id}':Move:Changing item_get_fromslot to {self.item_get_fromslot}")
             self.env.process(self._handle_get_request())
 
 
@@ -238,7 +238,7 @@ class ConveyorBelt(Edge):
                self.noaccumulation_mode_on=True # to ensure that only one item will be put into the nonaccum store at the initial position
                yield from self._handle_put_request()
             else:
-              print(f"T={self.env.now:.2f}: Conveyor '{self.name} is in non-accumulating")
+              print(f"T={self.env.now:.2f}: Conveyor '{self.id} is in non-accumulating")
         else:
           if self.get_request_queue:
             self.env.process(self._handle_get_request())
@@ -246,12 +246,12 @@ class ConveyorBelt(Edge):
 
   def _handle_put_request(self):
       """Handles logic common to processing a put request."""
-      print(f"T={self.env.now:.2f}: Conveyor '{self.name}':_handle_put_request: placed put")
+      print(f"T={self.env.now:.2f}: Conveyor '{self.id}':_handle_put_request: placed put")
       put_event = self.belt.reserve_put()
       yield put_event
-      print(f"T={self.env.now:.2f}: Conveyor '{self.name}':_handle_put_request: placed put yielded")
+      print(f"T={self.env.now:.2f}: Conveyor '{self.id}':_handle_put_request: placed put yielded")
       self.item_put_inslot = True
-      print(f"T={self.env.now:.2f}: Conveyor '{self.name}':_handle_put_request: Changing item_put_inslot to {self.item_put_inslot}")
+      print(f"T={self.env.now:.2f}: Conveyor '{self.id}':_handle_put_request: Changing item_put_inslot to {self.item_put_inslot}")
 
       if put_event not in self.put_dict:
           trigger_put_to = self.env.event()
@@ -259,7 +259,7 @@ class ConveyorBelt(Edge):
       else:
           trigger_put_to = self.put_dict[put_event]
 
-      print(f"T={self.env.now:.2f}: Conveyor '{self.name}':_handle_put_request: put_request {self.put_request_queue[0]}")
+      print(f"T={self.env.now:.2f}: Conveyor '{self.id}':_handle_put_request: put_request {self.put_request_queue[0]}")
       requester_event = self.put_request_queue.pop(0)
       requester_event.succeed(value=put_event)
 
@@ -267,7 +267,7 @@ class ConveyorBelt(Edge):
       #   self.item_put_after_a_break_event=self.env.event()
       #   print(f"T={self.env.now:.2f}: Resetting item_put_after_a_break_even inside put while moving")
 
-      print(f"T={self.env.now:.2f}: Conveyor '{self.name}':_handle_put_request: succeeded a req from put_request_queue")
+      print(f"T={self.env.now:.2f}: Conveyor '{self.id}':_handle_put_request: succeeded a req from put_request_queue")
 
       item = yield trigger_put_to
 
@@ -285,7 +285,7 @@ class ConveyorBelt(Edge):
           trigger_get_to= self.env.event()
           self.get_dict[ge] = trigger_get_to
 
-        print(f"T={self.env.now:.2f}: Conveyor '{self.name}':_handle_get_request:yielded get request {get_event}")
+        print(f"T={self.env.now:.2f}: Conveyor '{self.id}':_handle_get_request:yielded get request {get_event}")
         self.get_request_queue.pop(0).succeed(value=ge)
         yield trigger_get_to
 
@@ -304,7 +304,7 @@ class ConveyorBelt(Edge):
           trigger_get_to= self.env.event()
           self.get_dict[get_event] = trigger_get_to
 
-        print(f"T={self.env.now:.2f}: Conveyor '{self.name}':_handle_get_request:yielded get request {get_event}")
+        print(f"T={self.env.now:.2f}: Conveyor '{self.id}':_handle_get_request:yielded get request {get_event}")
         self.get_request_queue.pop(0).succeed(value=get_event)
         yield trigger_get_to
 
@@ -350,7 +350,7 @@ class ConveyorBelt(Edge):
 
 
   def put(self,put_event,item):
-    print(f"T={self.env.now:.2f}: Conveyor '{self.name}':put: placing a put request to belt")
+    print(f"T={self.env.now:.2f}: Conveyor '{self.id}':put: placing a put request to belt")
     def process():
       ##print(f"T={self.env.now:.2f}, placing a put request to belt")
       #print(self.put_dict, put_event)
@@ -379,7 +379,7 @@ class ConveyorBelt(Edge):
         get_event = self.env.event()
         get_event.resourcename = self
         self.get_request_queue.append(get_event)
-        print(f"T={self.env.now:.2f}: Conveyor '{self.name}':reserve_get: placing a get request in release queue")
+        print(f"T={self.env.now:.2f}: Conveyor '{self.id}':reserve_get: placing a get request in release queue")
         return get_event
 
 
@@ -395,7 +395,7 @@ class ConveyorBelt(Edge):
         self.put_request_queue.append(put_event)
         # if self.belt.item_put_event.triggered:
         #   self.belt.item_put_event=self.env.event()
-        print(f"T={self.env.now:.2f}: Conveyor '{self.name}':reserve_put: placing a put request in release queue")
+        print(f"T={self.env.now:.2f}: Conveyor '{self.id}':reserve_put: placing a put request in release queue")
         #if len(self.belt.items)==0:
         if len(self.put_request_queue)==1 and len(self.belt.items)==0 and self.can_put():
           if self.item_put_event.triggered:   # Check if the event has already been triggered
@@ -403,14 +403,14 @@ class ConveyorBelt(Edge):
 
           self.item_put_event.succeed()
         else:
-          print(f"T={self.env.now:.2f}: Conveyor '{self.name}':_reserve_put: item_put_inslot to {self.item_put_inslot}")
+          print(f"T={self.env.now:.2f}: Conveyor '{self.id}':_reserve_put: item_put_inslot to {self.item_put_inslot}")
           if len(self.put_request_queue)==1 and len(self.belt.items)!=0 and self.can_put():
-             print(f"T={self.env.now:.2f}: Conveyor '{self.name}':reserve_put: put request queue=={len(self.put_request_queue) }and check nect event 11111111 ")
+             print(f"T={self.env.now:.2f}: Conveyor '{self.id}':reserve_put: put request queue=={len(self.put_request_queue) }and check nect event 11111111 ")
              if not self.item_put_after_a_break_event.triggered: # Check if the event has already been triggered
-               print(f"T={self.env.now:.2f}: Conveyor '{self.name}':reserve_put: put request queue=={len(self.put_request_queue) }and self.item_put_after_a_break_event and check for previous event 11111111 ")
+               print(f"T={self.env.now:.2f}: Conveyor '{self.id}':reserve_put: put request queue=={len(self.put_request_queue) }and self.item_put_after_a_break_event and check for previous event 11111111 ")
                #self.item_put_after_a_break_event = self.env.event()   # Reset the event if triggered before
                self.item_put_after_a_break_event.succeed()
-               print(f"T={self.env.now:.2f}: Conveyor '{self.name}':reserve_put: put request queue=={len(self.put_request_queue) }")
+               print(f"T={self.env.now:.2f}: Conveyor '{self.id}':reserve_put: put request queue=={len(self.put_request_queue) }")
 
         return put_event
 
@@ -425,52 +425,52 @@ class ConveyorBelt(Edge):
 
       if self.is_empty():
         self.state="empty"
-        print(f"T={self.env.now:.2f}: Conveyor '{self.name}' is empty")
+        print(f"T={self.env.now:.2f}: Conveyor '{self.id}' is empty")
 
         result=yield self.env.any_of([self.env.timeout(self.time_per_slot), self.item_put_event])# to start as soon as the first item is placed
 
         if self.item_put_event.triggered:
-          print(f"T={self.env.now:.2f}: Conveyor '{self.name}' yielded item_put_event")
+          print(f"T={self.env.now:.2f}: Conveyor '{self.id}' yielded item_put_event")
           self.item_put_event=self.env.event()
-          print(f"T={self.env.now:.2f}: Conveyor '{self.name}' starting to move")
+          print(f"T={self.env.now:.2f}: Conveyor '{self.id}' starting to move")
           yield self.env.process(self.move())
           self.last_move_time=self.env.now
           yield self.env.timeout(self.time_per_slot)
           self.item_put_inslot = False
           self.item_get_fromslot =  False
-          print(f"T={self.env.now:.2f}: Conveyor '{self.name}' Changing item_get_fromslot to {self.item_get_fromslot}")
+          print(f"T={self.env.now:.2f}: Conveyor '{self.id}' Changing item_get_fromslot to {self.item_get_fromslot}")
           #print(f"T={self.env.now:.2f}: Changing item_put_inslot to {self.item_put_inslot}")
 
 
 
       elif self.is_stalled():#belt need not be full; it can have an item with time>delay to travel and has reached other end and it is not taken out
           self.state = "stalled"
-          print(f"T={self.env.now:.2f}: Conveyor '{self.name}' is stalled")
+          print(f"T={self.env.now:.2f}: Conveyor '{self.id}' is stalled")
 
           if self.accumulating:
-              print(f"T={self.env.now:.2f}: Conveyor '{self.name}' is accumulating")
+              print(f"T={self.env.now:.2f}: Conveyor '{self.id}' is accumulating")
               yield self.env.process(self.accumulate())
 
           else:
-              print(f"T={self.env.now:.2f}: Conveyor '{self.name}' is a non-accumulating belt")
+              print(f"T={self.env.now:.2f}: Conveyor '{self.id}' is a non-accumulating belt")
               yield self.env.process(self.noaccumulate())
 
           yield self.env.timeout(self.time_per_slot)
           self.last_move_time=self.env.now
           self.item_put_inslot = False
           self.item_get_fromslot =  False
-          print(f"T={self.env.now:.2f}: Conveyor '{self.name}' Changing item_get_fromslot to {self.item_get_fromslot}")
+          print(f"T={self.env.now:.2f}: Conveyor '{self.id}' Changing item_get_fromslot to {self.item_get_fromslot}")
           #print(f"T={self.env.now:.2f}: Changing item_put_inslot to {self.item_put_inslot}")
 
       else:
           self.state = "moving"
-          print(f"T={self.env.now:.2f}: Conveyor '{self.name}' is {self.state}")
+          print(f"T={self.env.now:.2f}: Conveyor '{self.id}' is {self.state}")
           # check if conveyor is stalled and in the last position an item got added before
           if self.noaccumulation_mode_on:
             #there is a get request on the stalled conveyor
             
             if self.get_request_queue:
-              print(f"T={self.env.now:.2f}: Conveyor '{self.name}' is in noaccumulation mode and has get requests lastmov{self.last_move_time}")
+              print(f"T={self.env.now:.2f}: Conveyor '{self.id}' is in noaccumulation mode and has get requests lastmov{self.last_move_time}")
 
               yield self.env.process(self.noaccumulate())
               self.noaccumulation_mode_on=False
@@ -478,33 +478,33 @@ class ConveyorBelt(Edge):
               yield self.env.timeout(self.time_per_slot)
             else:
               #wait until a get comes because the last place in conveyor is filled and the conveor is stalled.
-              print(f"T={self.env.now:.2f}: Conveyor '{self.name}' is in noaccumulation mode and has no get requests lastmov{self.last_move_time}")
+              print(f"T={self.env.now:.2f}: Conveyor '{self.id}' is in noaccumulation mode and has no get requests lastmov{self.last_move_time}")
               self.last_move_time=self.env.now
               yield self.env.timeout(self.time_per_slot)
 
           # if there is put and get or only put request
           elif (self.put_request_queue and self.get_request_queue) or self.put_request_queue:
-            print(f"T={self.env.now:.2f}: Conveyor '{self.name}' is moving with requests lastmov{self.last_move_time}")
+            print(f"T={self.env.now:.2f}: Conveyor '{self.id}' is moving with requests lastmov{self.last_move_time}")
             yield self.env.process(self.move())
             self.last_move_time=self.env.now
             yield self.env.timeout(self.time_per_slot)
 
-            print(f"T={self.env.now:.2f}: Conveyor '{self.name}' lastmove changed inside move last moved time is {self.last_move_time}")
+            print(f"T={self.env.now:.2f}: Conveyor '{self.id}' lastmove changed inside move last moved time is {self.last_move_time}")
             self.item_put_inslot = False
             self.item_get_fromslot =  False
-            print(f"T={self.env.now:.2f}: Conveyor '{self.name}' Changing item_get_fromslot to {self.item_get_fromslot}")
+            print(f"T={self.env.now:.2f}: Conveyor '{self.id}' Changing item_get_fromslot to {self.item_get_fromslot}")
             #print(f"T={self.env.now:.2f}: Changing item_put_inslot to {self.item_put_inslot}")
 
           # if there is only get request- no flags to be changed
           elif self.get_request_queue and self.can_get():
-            print(f"T={self.env.now:.2f}: Conveyor '{self.name}' is moving with get requests lastmov{self.last_move_time}")
+            print(f"T={self.env.now:.2f}: Conveyor '{self.id}' is moving with get requests lastmov{self.last_move_time}")
             yield self.env.process(self.move())
             yield self.env.timeout(self.time_per_slot)
 
           #if there is currently no events but it can come in the interval
           else:
              starttime=self.env.now
-             print(f"T={self.env.now:.2f}: Conveyor '{self.name}' move starting counter to see if any events are coming in put_request queue {len(self.put_request_queue)}")
+             print(f"T={self.env.now:.2f}: Conveyor '{self.id}' move starting counter to see if any events are coming in put_request queue {len(self.put_request_queue)}")
              self.last_move_time=self.env.now
              self.item_put_inslot = False
              time_out_event = self.env.timeout(self.time_per_slot)
@@ -512,33 +512,33 @@ class ConveyorBelt(Edge):
              result=yield self.env.any_of([time_out_event, self.item_put_after_a_break_event])# to start as soon as the first item is placed
              # if no events came
              if time_out_event in result:
-              print(f"T={self.env.now:.2f}: Conveyor '{self.name}' no put or get events")
+              print(f"T={self.env.now:.2f}: Conveyor '{self.id}' no put or get events")
              # if one put event came
              else:
               if self.item_put_after_a_break_event.triggered:
-                print(f"T={self.env.now:.2f}: Conveyor '{self.name}' yielded item_put_after_a_break_even while moving in put_request queue {len(self.put_request_queue)}")
+                print(f"T={self.env.now:.2f}: Conveyor '{self.id}' yielded item_put_after_a_break_even while moving in put_request queue {len(self.put_request_queue)}")
                 self.item_put_after_a_break_event=self.env.event()
 
                 yield self.env.process(self.move())
 
                 # self.item_put_after_a_break_event=self.env.event()
                 # if self.item_put_after_a_break_event.triggered:
-                print(f"T={self.env.now:.2f}: Conveyor '{self.name}' finished move after item_put_after_a_break_even while moving  and start time is {starttime}")
+                print(f"T={self.env.now:.2f}: Conveyor '{self.id}' finished move after item_put_after_a_break_even while moving  and start time is {starttime}")
 
                 time_elapsed=self.env.now-starttime
                 #print(f"!!!!{self.env.now},{starttime},{time_elapsed}")
                 yield self.env.timeout(self.time_per_slot-time_elapsed)
-                print(f"T={self.env.now:.2f}: Conveyor '{self.name}' time elapsed after yielding item_put_after-a_break event {self.time_per_slot-time_elapsed}")
+                print(f"T={self.env.now:.2f}: Conveyor '{self.id}' time elapsed after yielding item_put_after-a_break event {self.time_per_slot-time_elapsed}")
                 self.item_put_inslot = False
                 self.item_get_fromslot =  False
-                print(f"T={self.env.now:.2f}: Conveyor '{self.name}' Changing item_get_fromslot to {self.item_get_fromslot}")
+                print(f"T={self.env.now:.2f}: Conveyor '{self.id}' Changing item_get_fromslot to {self.item_get_fromslot}")
 
 
 
 
 
-      print(f"T={self.env.now:.2f}: Conveyor '{self.name}' Changing item_put_inslot to {self.item_put_inslot}")
-      print(f"T={self.env.now:.2f}: Conveyor '{self.name}' last moved time is {self.last_move_time}")
+      print(f"T={self.env.now:.2f}: Conveyor '{self.id}' Changing item_put_inslot to {self.item_put_inslot}")
+      print(f"T={self.env.now:.2f}: Conveyor '{self.id}' last moved time is {self.last_move_time}")
 
 
 

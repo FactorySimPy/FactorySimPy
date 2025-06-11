@@ -74,7 +74,7 @@ The source component is responsible for generating items that enter and flow thr
 
 - `state` - current state of the component
 - `inter_arrival_time`- time interval between two successive item generation
-- `flow_item_type` - this is the type of items the source should generate
+- `flow_item_type` - this is the type of item the source should generate. Either "item" or "pallet".
 - `blocking` -  if True, waits for outgoing edge to accept item; if False, discards the item if the outgoing edge if full
 - `out_edge_selection`- edge selection policy as a function to select outgoing edge
 

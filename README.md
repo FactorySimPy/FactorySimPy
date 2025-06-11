@@ -94,7 +94,7 @@ env.run(until=10)
 | `Split`   | Routes items to multiple outputs  | `blocking=False` , `processing_delay=0`, `in_edge_selection="FIRST"`, `out_edge_selection="FIRST"` |
 | `Joint`    | Merges input streams into one | `blocking=False` , `processing_delay=0`,`target_quantity_of_each_item=[1]`, `in_edge_selection="FIRST"`,`out_edge_selection="ROUND_ROBIN"`|
 
-
+ 
 ### Edges 
 | Class | Purpose | Key parameters |
 |-------|---------|----------------|
