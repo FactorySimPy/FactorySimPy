@@ -33,7 +33,7 @@ FactorySimPy lets you simulate typical manufacturing scenarios using ready-made 
 
 - **Split** and **Joint** are nodes for splitting an item or joining multiple items.
 
-- **Buffer**,**Conveyor** and **Fleet** are entities of type edge for aiding in item transfer from one node to another
+- **Buffer**, **Conveyor** and **Fleet** are entities of type edge for aiding in item transfer from one node to another
 
 - **Source** and **Sink** for generating and collecting items
 

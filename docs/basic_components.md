@@ -440,12 +440,30 @@ print(f"Split {SPLIT1.id}, worker1 state times: {SPLIT1.stats[1]['total_time_spe
 
  A Sink is a terminal node that collects flow items at the end. Once an item enters the sink, it is considered to have exited the system and cannot be retrieved or processed further. This sink can have multiple input edges and no output edges. It only has a single state "COLLECTING_STATE". The API documentation can be found in [Sink](sink.md)
  
+
+**Usage**
+
+A split can be initialized as below:
+
+```python
+import factorysimpy
+from factorysimpy.nodes.sink import Sink
+
+SINK = SINK(
+    env,                        # Simulation environment
+    id="SINK",                # Unique identifier for the  node
+    
+    in_edge_selection="FIRST",  # Policy or function to select incoming edge
+    out_edge_selection="ROUND_ROBIN"  # Policy or function to select outgoing edge
+)
+```
+
  **Statistics collected**
 
 The sink component reports the following key metrics. 
 
 1. Total number of items received
-2. Total cycle time
+2. sum of cycle times of all items received by the sink
 
 Consider a sink with instance name as SINK. Its metrics can be accessed after completion of the simulation run as
 
