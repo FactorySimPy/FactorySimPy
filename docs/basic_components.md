@@ -300,6 +300,7 @@ The `Joint` component represents a node that combines or packs items from multip
 **Behavior**
  At the start of the simulation, the joint waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an `int` or `float`). Then it spawns `work_capacity` number of threads.
  Each worker thread then repeatedly:
+
 1. Pulls a pallet from the first incoming edge.
 2. Pulls the specified number of items from each of the other incoming edges and adds them to the pallet.
 3. Waits for `processing_delay` to simulate packing/combining.
@@ -378,6 +379,7 @@ The `Split` component represents a node that unpacks or splits an incoming item 
 **Behavior**
 
 At the start of the simulation, the split waits for `node_setup_time`. Each worker thread then repeatedly:
+
 1. Pulls a packed item (e.g., pallet) from the selected incoming edge.
 2. Waits for `processing_delay` to simulate unpacking or splitting.
 3. Unpacks the items from the pallet and pushes each item to an outgoing edge, one by one, using the `out_edge_selection` policy.
