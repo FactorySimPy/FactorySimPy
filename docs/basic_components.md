@@ -1,7 +1,7 @@
 # Basic Components
 
 
-Node, Edge and BaseFlowItem are the 3 basic component types in the library. All the other components are derived from them. Nodes are the active, static elements in the system and are responsible for operations such as processing, splitting, or combining items. Every node maintains a list of `in_edges` and `out_edges`, which are references to edge objects that connect it to other nodes. Other parameters of Nodes are `id` (an unique name) and `node_setup_time` (initial delay in each node, which is be a constant value). Common node types include Machine, Split, Joint, Source, and Sink. Source can be used to generate items that flow in the system. Machines are the entities that modifies/processes an item. To multiplex the items that flow in the system, Splits can be used and to pack/join items from different incoming edges a Joint can be used. Sink is the terminal node in the system and the items that enter this node cannot be retrieved.
+Node, Edge and BaseFlowItem are the 3 basic component types in the library. All the other components are derived from them. Nodes are the active, static elements in the system and are responsible for operations such as processing, splitting, or combining items. Every node maintains a list of `in_edges` and `out_edges`, which are references to edge objects that connect it to other nodes. Other parameters of Nodes are `id` (a unique name) and `node_setup_time` (initial delay in each node, which is be a constant value). Common node types include Machine, Split, Joint, Source, and Sink. Source can be used to generate items that flow in the system. Machines are the entities that modifies/processes an item. To multiplex the items that flow in the system, Splits can be used and to pack/join items from different incoming edges a Joint can be used. Sink is the terminal node in the system and the items that enter this node cannot be retrieved.
 
 
 Edges are passive components that connect exactly two nodes (src_node and dest_node) and helps in transfering items between them. Edges are directed. Each edge has a unique identifier called `id`, and parameters `src_node` and `dest_node` to store the reference to the source node and destination node. Specific types of edges include Buffer, Conveyor, and Fleet. Buffers act as queues with a defined delay. Conveyors move items between nodes while preserving order and support both discrete (slotted belts) and continuous motion. Fleets represent systems like warehouse robots or human operators that transport items between nodes without preserving order.
@@ -43,7 +43,7 @@ Pallets represents enitities that can hold multiple base items that belong to `f
 ---
 
 
-
+<hr style="height:4px;border:none;color:blue; background-color:grey;" />
 
 ## Nodes 
 <hr style="height:4px;border:none;color:blue; background-color:grey;" />
@@ -533,8 +533,11 @@ The API documentation can be found in [Buffer](buffer.md)
 **Behavior**
 
 - When an item is put into the buffer, it is stored internally and becomes available for retrieval after the specified `delay`.
-- The buffer has methods to check if it can accept new items (`can_put`) and if it can provide items to the next node (`can_get`).
+- The buffer has methods to check if it can accept new items using can_put method and if it can provide items to the next node using 
+  can_get method.
 - In FIFO mode, items are released in the order they were added; in LIFO mode, the most recently added items are released first.
+- Incoming edges can use reserve_get and reserve_put calls on the store in the buffer to reserve an item or space and after yielding 
+ the requests, an item can be put and obtained by using put and get methods. 
 
 **States**
 

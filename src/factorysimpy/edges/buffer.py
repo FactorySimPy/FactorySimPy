@@ -20,18 +20,18 @@ class Buffer(Edge):
         mode (str): Mode of operation for the buffer, It can be
             - "FIFO" (First In First Out) 
             - "LIFO" (Last In First Out).
-        delay (int, float, Generator, or callable): Delay after which the item becomes available. It Can be
+        delay (int, float): Delay after which the item becomes available. It Can be
         
             - int or float: Used as a constant delay.
-            - Generator: A generator function yielding delay values.
-            - Callable: A function that returns a delay (int or float).
+           
 
      Behavior:
             The Buffer is a type of edge represents components that holds the items that are waiting to be accepted by the destination node. Items that are added in buffer becomes available
             for use after `delay` amount of time. It operates in two modes- 
             1. `FIFO`: It prioritizes items in the order they were added, with the oldest items being available for the destination node first.
             2. `LIFO`: It prioritizes items in the reverse order of their arrival, items that newly added are available to use by the destination node first
-
+            Incoming edges can use reserve_get and reserve_put calls on the store in the buffer to reserve an item or space and after yielding 
+            the requests, an item can be put and obtained by using put and get methods.
 
     
 
@@ -128,6 +128,8 @@ class Buffer(Edge):
         count = sum(1 for item in self.inbuiltstore.items if item.time_stamp_creation + self.delay <= self.env.now)
         # count should be greater than the number of reservations that are already there
         return count > len(self.inbuiltstore.reservations_get)
+    
+
     
     def behaviour(self):
       
