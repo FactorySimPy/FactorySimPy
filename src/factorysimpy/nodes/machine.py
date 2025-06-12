@@ -504,7 +504,7 @@ class Machine(Node):
                     if outedge_to_put.can_put():
                         blocking_start_time = self.env.now
                         yield self.env.process(self._push_item(item, outedge_to_put))
-                        print(f"T={self.env.now:.2f}: {self.id} worker puts item {item.id} into {out_edge_to_put.id} ")
+                        print(f"T={self.env.now:.2f}: {self.id} worker puts item {item.id} into {outedge_to_put.id} ")
                         self._update_avg_time_spent_in_blocked(self.env.now - blocking_start_time)
                     else:
                         print(f"T={self.env.now:.2f}: {self.id} worker is discarding item {item.id} because out_edge {outedge_to_put.id} is full.")
@@ -591,7 +591,7 @@ class Machine(Node):
                     
                     yield self.env.process(self._pull_item( in_edge_to_get))
                     
-                    print(f"T={self.env.now:.2f}: {self.id} received item {item.id} from {in_edge_to_get.id} ")
+                    print(f"T={self.env.now:.2f}: {self.id} received item {self.item_in_process.id} from {in_edge_to_get.id} ")
               
                 if self.item_in_process is None:
                     raise ValueError(f"{self.id} - No item pulled from in_edge {in_edge_to_get.id}!")
