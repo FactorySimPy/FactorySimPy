@@ -10,17 +10,17 @@ There are different methods available to choose an input edge and output edge. T
 
 In case of "FIRST_AVAILABLE", always the edge with the least index value will be selected if multiple edges are available. If `blocking` is set to False and `out_edge_selection` is set to "FIRST_AVAILABLE", then the worker thread will check if any of the out edges is available to accept. The item is discarded only if none of the edges are available.  
 
+### Examples
 
-***[Example showing how to pass constant values to these parameters](examples.md/#a-simple-example)***
-
-***[Example showing how to pass one of the methods available in the package as a string or a custom function to these parameters](examples.md/#example-with-a-custom-edge-selction-policy-as-a-function)***
+- ***[Example showing how to pass constant values to these parameters](examples.md/#a-simple-example)***
+- ***[Example showing how to pass one of the methods available in the package as a string or a custom function to these parameters](examples.md/#example-with-a-custom-edge-selction-policy-as-a-function)***
 
 
 ## Delay parameters
 
 `node_setup_time`, `inter_arrival_time` and `processing_delay` are one of the two delay paramaters that can be configured. `node_setup_time` is an intial one time delay for setting up any node. `inter_arrival_time` is the time interval between two successive item generation in the source and `processing_delay` is the time incurres by an item to get processed in components like machine, split, joint, etc. `node_setup_time` can be an `int` or a `float` and is a constant value. The parameters `inter_arrival_time` and `processing_delay` can be specified as a constant value (`int` or `float`) or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution. If the function depends on any of the node attributes, users can pass `None` to this parameter at the time of node creation and later initialise the parameter with the reference to the function.
 
+### Examples
 
-***[Example showing how to pass constant values to these parameters](examples.md/#a-simple-example)***
-
-***[Example showing how to pass a custom function or generator function instance to these parameters](examples.md/#example-with-delay-as-random-variates)***
+- **[Example showing how to pass constant values to these parameters](examples.md/#a-simple-example)***
+- ***[Example showing how to pass a custom function or generator function instance to these parameters](examples.md/#example-with-delay-as-random-variates)***
