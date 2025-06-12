@@ -8,7 +8,7 @@ To choose an input edge to pull an item from, the nodes utilises the strategy sp
 
 - "RANDOM": Selects a random out edge.
 - "ROUND_ROBIN": Selects out edges in a round-robin manner.
-- "FIRST_AVAILABLE": Selects the first out edge that can accept an item. In case of "FIRST_AVAILABLE", always the edge with the least index value will be selected if multiple edges are available
+- "FIRST_AVAILABLE": Selects the first out edge that can accept an item. In case of "FIRST_AVAILABLE", always the edge with the least index value will be selected if multiple edges are available. If `blocking` is set to False and `out_edge_selection` is set to "FIRST_AVAILABLE", then the worker thread will check if any of the out edges is available to accept. The item is discarded only if none of the edges are available.  
 
 
 ***[Example showing how to pass constant values to these parameters](examples.md/#a-simple-example)***

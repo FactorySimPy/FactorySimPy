@@ -68,32 +68,32 @@ Nodes represent active elements in the system. This is a basic type and is the b
 
 **About**
 
-The source component is responsible for generating items that enter and flow through the system. There are two modes of operation for the source. If the parameter `blocking` is set to True, the source generates an item and tries to send it to the connected outgoing edge. If the edge is full or cannot accept the item, the source waits until space becomes available. If the `blocking` parameter is set to False, the source generates items and attempts to send them to the outgoing edge. If the edge is full or cannot accept the item, the source discards the item. The API documentation can be found in [Source](source.md). 
+The source is an active component that generates items that flow through the system. There are two modes of operation for the source. If the parameter `blocking` is set to True, the source generates an item and tries to send it to the connected output edge. If the edge is full or cannot accept the item, the source waits until space becomes available. If the `blocking` parameter is set to False, the source generates items and attempts to send them to the output edge. If the edge is full or cannot accept the item, the source discards the item. The API documentation can be found in [Source](source.md). 
 
 **Basic attributes**
 
-- `state` - current state of the component
-- `inter_arrival_time`- time interval between two successive item generation
-- `flow_item_type` - this is the type of item the source should generate. Either "item" or "pallet".
-- `blocking` -  if True, waits for outgoing edge to accept item; if False, discards the item if the outgoing edge if full
-- `out_edge_selection`- edge selection policy as a function to select outgoing edge
+- `state` - Current state of the component.
+- `inter_arrival_time`- Time interval between two successive item generation.
+- `flow_item_type` - This is the type of item the source should generate. Either "item" or "pallet".
+- `blocking` -  If True, waits for outgoing edge to accept item; if False, discards the item if the outgoing edge if full.
+- `out_edge_selection`- Edge selection policy as a function to select outgoing edge.
 
 **Behavior**
 
 At the start of the simulation, the source waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an `int` or `float`).
 
-During a simulation run, the source generates items at discrete instants of time determined by the parameter `inter_arrival_time`. More details on how to configure parameter `inter_arrival_time` can be found [here](configuring_parameters.md/#delay-parameters). After the wait it produces a flow item based on the type mentioned in `flow_item_type`. It can be of two type namely "item" and "pallet". Item represents the smallest unit of discrete items that flow in the system. Pallets are type which can hold multiple items inside and can be used to pack items.
+During a simulation run, the source generates items at discrete instants of time determined by the parameter `inter_arrival_time`. More details on how to configure parameter `inter_arrival_time` can be found [here](configuring_parameters.md/#delay-parameters). After the wait it produces a flow item based on the type mentioned in `flow_item_type`. It can be of two type namely "item" and "pallet". Item represents the smallest unit of discrete items that flow in the system. Pallets represents the type of flow item that can hold multiple items inside and it can be used to pack items. The source can have multiple output edges. It chooses an output edge from `out_edges` list based on the `out_edge_selection` parameter. More details on the parameter `out_edge_selection` can be found [here](configuring_parameters.md/#edge-selection).
 
 
-After generating an item, the source behaves as follows:
+After generating an item and choosing an output edge, the source behaves as follows:
 
 1. If `blocking` is `True`, it waits with the processed item in a "BLOCKED_STATE" for the out edge to be available and pushes the item when output edge becomes available or has space.
 2. If `blocking` is `False`, it checks if there is space in the outgoing edge to accomodate the item. If the edge is full or unavailable, the item is discarded and the count of discarded item is recorded.
 
 
-The source can be connected to multiple outgoing edges. More details on the parameter `out_edge_selection` can be found [here](configuring_parameters.md/#edge-selection).
 
-User-provided function should return or yield an edge index. If the function depends on any of the node attributes, user can pass `None` to this parameter at the time of node creation and later initialize the parameter with the reference to the function. The source then waits for an amount of time determined using the parameter `inter_arrival_time` before attempting to generate the next item.
+
+
 
 **States**
 
@@ -120,7 +120,7 @@ SRC = Source(
     inter_arrival_time=0.4,     # Time between item generations (can be constant or function/generator)
     flow_item_type="item",      # Type of baseflowitem that the source should generate
     blocking=False,             # If True, waits for outgoing edge to accept item; if False, discards item if the outgoing edge is full
-    out_edge_selection=None     # Strategy or function to select outgoing edge (can be string or callable)
+    out_edge_selection=0        # Strategy or function to select outgoing edge (can be string or callable or genrator or a constant int)
 )
 
 
@@ -166,7 +166,7 @@ print(f"Source {SRC.id}, state times: {SRC.stats["time_spent_in_states"]}")
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
 **About**
-A machine is an active component that processes items flowing through the system. Each item incurs a `processing_delay` amount of time to get processed in the machine. A machine can have multiple `in_edges` and `out_edges`. A machine can process multiple items simultaneously. The parameter `work_capacity` indicates the maximum number of items that can be processed simulatanously inside the machine. If work_capacity is set of a number greater than 1 (eg 3), this represents a machine with a maximum of 3 worker threads that are capable of processing 3 worker threads simultaneously. The `processing_delay` can be defined as a constant or defined as a random variate implemented as a python function or a generator function. Machine has two modes of operation based on the parameter value specified in `blocking`. If it is set to `True`, the processed item is held in a blocked state and machine waits for the out edge to be available to accept the item and pushes the processed item to the chosen out edge once it is available. The other mode can be configured by setting `blocking` to `False`. In this mode , the machine checks if there is space available in the chosen outgoing edge and only if there is space the item is pushed. If the outgoing edge is unavailable or full, the item will be discarded and its count will be recorded. The API documentation can be found in [Machine](machine.md)
+A machine is an active component that processes items flowing through the system. Each item incurs a `processing_delay` amount of time to get processed in the machine. A machine can have multiple `in_edges` and `out_edges`. A machine can process multiple items simultaneously. The parameter `work_capacity` indicates the maximum number of items that can be processed simulatanously inside the machine. If work_capacity is set to a number greater than 1 (eg 3), this represents a machine with a maximum of 3 worker processes that are capable of processing 3 worker threads simultaneously. The `processing_delay` can be defined as a constant or defined as a random variate implemented as a python function or a generator function. Machine has two modes of operation based on the parameter value specified in `blocking`. If it is set to `True`, the processed item is held in a blocked state and machine waits for the out edge to be available to accept the item and pushes the processed item to the chosen out edge once it is available. The other mode can be configured by setting `blocking` to `False`. In this mode , the machine checks if there is space available in the chosen outgoing edge and only if there is space the item is pushed. If the outgoing edge is unavailable or full, the item will be discarded and its count will be recorded. The API documentation can be found in [Machine](machine.md)
 
 **Basic attributes**
 
@@ -222,19 +222,23 @@ MACHINE1 = Machine(
 The machine component reports the following key metrics. 
 
 1. Total number of items processed
-2. Time spent in each state 
+2. total time in PROCESSING_STATE (per thread)
+3. Total time spent in BLOCKED_STATE (per thread)
+4. Occupancy of the worker threads
+5. Total number if items discarded (when `blocking`= False)
 
 Consider a machine with `work_capacity`=`2`, `blocking`= `False` and and instance name as MACHINE1. Metrics of a component MACHINE1 can be accessed after completion of the simulation run as
 
 ```python
 
 
-print(f"Total number of items processed by worker thread 1 of {MACHINE1.id}={MACHINE1.stats[1]["num_items_processed"]}")
-print(f"Total number of items discarded by worker thread 1 of {MACHINE1.id}={MACHINE1.stats[1]["num_items_discarded"]}")
-print(f"Total number of items processed by worker thread 2 of {MACHINE1.id}={MACHINE1.stats[1]["num_items_processed"]}")
-print(f"Total number of items discarded by worker thread 2 of {MACHINE1.id}={MACHINE1.stats[1]["num_items_discarded"]}")
-print(f"Machine {MACHINE1.id}, worker1 state times: {MACHINE1.stats[1]["time_spent_in_states"]}")
-print(f"Machine {MACHINE1.id}, worker2 state times: {MACHINE1.stats[1]["time_spent_in_states"]}")
+print(f"Total number of items processed by worker thread 1 of {MACHINE1.id}={MACHINE1.stats["num_items_processed"]}")
+print(f"Total number of items discarded by worker thread 1 of {MACHINE1.id}={MACHINE1.stats["num_items_discarded"]}")
+print(f"Total number of items processed by worker thread 2 of {MACHINE1.id}={MACHINE1.stats["num_items_processed"]}")
+print(f"Total number of items discarded by worker thread 2 of {MACHINE1.id}={MACHINE1.stats["num_items_discarded"]}")
+print(f"Machine {MACHINE1.id},total time in BLOCKED_STATE (per thread) : {MACHINE1.per_thread_total_time_in_blocked_state}")
+print(f"Machine {MACHINE1.id},total time in PROCESSING_STATE (per thread) : {MACHINE1.per_thread_total_time_in_processing_state}")
+print(f"Worker occupancy, {MACHINE1.time_per_work_occupancy)})
 
 ```
 
