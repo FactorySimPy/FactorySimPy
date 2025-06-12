@@ -76,7 +76,7 @@ reflow_oven=Machine(env, "reflow_oven", work_capacity=1, blocking=True, processi
 inspection=Machine(env, "inspection",  work_capacity=1,blocking=True,  processing_delay=inspect_delay)
 packing=Machine(env, "packing",  work_capacity=1,blocking=True, processing_delay=package_delay)
 source=Source(env, "source", inter_arrival_time=source_delay_generator(), blocking=True, out_edge_selection="RANDOM")
-sink=Sink(env, "sink",)
+sink=Sink(env, "sink", )
 
 #edges
 buffer_loader=Buffer(env, "buffer_loader")

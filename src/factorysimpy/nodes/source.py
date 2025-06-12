@@ -121,52 +121,93 @@ class Source(Node):
         # if self.inter_arrival_time or self.out_edge_selection was initialized to None at the time of object creation 
         # user is expected to set it to valid form before starting the simulation
         
-        if isinstance(self.out_edge_selection, str):  
-            self.out_edge_selection = get_index_selector(self.out_edge_selection, self, self.env, edge_type="OUT")
+        # Initialize out_edge_selection
+        if isinstance(self.out_edge_selection, int):
+            assert self.out_edge_selection >= 0, "out_edge_selection must be a non-negative integer."
+            assert self.out_edge_selection < len(self.out_edges), f"out_edge_selection must be less than the number of out_edges ({len(self.out_edges)})"
+            self.out_edge_selection = self.out_edge_selection
 
-            #print(f"out_edge_selection is set to {self.out_edge_selection} for Source {self.id}, {type(self.out_edge_selection)={type(self.out_edge_selection)}")
+        elif self.out_edge_selection == "FIRST_AVAILABLE":
+            # If out_edge_selection is "FIRST_AVAILABLE", we process it inside class
+            self.out_edge_selection = self.out_edge_selection
+        
+        elif isinstance(self.out_edge_selection, str):  
+            self.out_edge_selection = get_index_selector(self.out_edge_selection, self, self.env, "OUT")
         elif callable(self.out_edge_selection):
             # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
             self.out_edge_selection = self.out_edge_selection
-        elif self.out_edge_selection is None:
-            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
+        elif hasattr(self.out_edge_selection, '__next__'):
+            # It's a generator
             self.out_edge_selection = self.out_edge_selection
+        
         else:
-            raise ValueError("out_edge_selection must be a string or a callable (function/generator)")
+            raise ValueError("out_edge_selection must be a None, string or a callable (function/generator)")  
         
 
         if self.inter_arrival_time is None:
             raise ValueError("inter_arrival_time should not be None.")
         if self.out_edge_selection is None:
             raise ValueError("out_edge_selection should not be None.")
+        
+    
 
     def _get_out_edge_index(self):
         
-        #Returns the next edge index from out_edge_selection, whether it's a generator or a callable.
-        event = self.env.event()
-        
-        #self.out_edge_selection = get_index_selector(self.out_edge_selection, self, self.env, edge_type="OUT")
-        if hasattr(self.out_edge_selection, '__next__'):
+            
+   
+        if isinstance(self.out_edge_selection, int):
+            return self.out_edge_selection
+        elif hasattr(self.out_edge_selection, '__next__'):
             # It's a generator
             val = next(self.out_edge_selection)
-            event.succeed(val)
-            return event
+            return val
+           
         elif callable(self.out_edge_selection):
             # It's a function (pass self and env if needed)
             #return self.out_edge_selection(self, self.env)
             val = self.out_edge_selection(self, self.env)
-            event.succeed(val)
-            return event
-        elif isinstance(self.out_edge_selection, (simpy.events.Event)):
-            #print("out_edge_selection is an event")
-            self.env.process(self.call_out_process(self.out_edge_selection,event))
-            return event
+            
+            return val
+        
         else:
             raise ValueError("out_edge_selection must be a generator or a callable.")    
                 
-    def  call_out_process(self, out_edge_selection,event):
-        val = yield out_edge_selection
-        event.succeed(val)
+ 
+
+    
+
+    
+   
+
+    def _push_item(self, item_to_push, out_edge):
+        """
+        It picks a processed item from the store and pushes it to the specified out_edge.
+        The out_edge can be a ConveyorBelt or Buffer.
+        Args:
+            item_to_push (BaseFlowItem Object): Item to be pushed.
+            out_edge (Edge Object): The edge to which the item will be pushed.
+
+
+        """
+       
+        if out_edge.__class__.__name__ == "ConveyorBelt":                 
+                put_token = out_edge.reserve_put()
+                pe = yield put_token
+                item_to_push.update_node_event(self.id, self.env, "exit")
+                
+                y=out_edge.put(pe, item_to_push)
+                if y:
+                    print(f"T={self.env.now:.2f}: {self.id} puts {item_to_push.id} item into {out_edge.id}  ")
+        elif out_edge.__class__.__name__ == "Buffer":
+                outstore = out_edge.inbuiltstore
+                put_token = outstore.reserve_put()
+                yield put_token
+                item_to_push.update_node_event(self.id, self.env, "exit")
+                y=outstore.put(put_token, item_to_push)
+                if y:
+                    print(f"T={self.env.now:.2f}: {self.id} puts item into {out_edge.id}")
+        else:
+                raise ValueError(f"Unsupported edge type: {out_edge.__class__.__name__}")
 
 
     
@@ -259,26 +300,99 @@ class Source(Node):
                 item.set_creation(self.id, self.env)
                 self.stats["num_item_generated"] +=1
                 #edgeindex_to_put = next(self.out_edge_selection)
-                out_index_event = self._get_out_edge_index()
-                #print("here")
-                edgeindex_to_put = yield out_index_event
-                #print(edgeindex_to_put)
-                out_edge = self.out_edges[edgeindex_to_put]
 
-                if not self.blocking:
-                    if out_edge.can_put():   
-                        yield self.env.process(self._push_item(item, out_edge))
+
+
+                if self.out_edge_selection == "FIRST_AVAILABLE":
+
+                    if self.blocking:
+
+                        blocking_start_time = self.env.now
+                    
+                        self.out_edge_events = [edge.reserve_put() if edge.__class__.__name__ == "ConveyorBelt" else edge.inbuiltstore.reserve_put() for edge in self.out_edges]
+                        triggered_out_edge_events = self.env.any_of(self.out_edge_events)
+                        yield triggered_out_edge_events  # Wait for any in_edge to be available
+
+
+                        # Find the first triggered event
+                        chosen_put_event = next((event for event in self.out_edge_events if event.triggered), None)
+                        self.out_edge_events.remove(chosen_put_event)  # Remove the chosen event from the list
+                        if chosen_put_event is None:
+                            raise ValueError(f"{self.id} - No in_edge available for processing!")
+                        
+                        #cancelling already triggered out_edge events
+                        for event in self.out_edge_events:
+                            if event.triggered:
+                                event.resourcename.reserve_put_cancel(event)
+
+                        #putting the item in the chosen out_edge
+                        item.timestamp_node_exit = self.env.now
+                        itemput = chosen_put_event.resourcename.put(chosen_put_event, item)  # put the item to the chosen out_edge
+                        #print(f"T={self.env.now:.2f}: {self.id} puts item {item.id} into {chosen_put_event.resourcename} {item.timestamp_creation} ")
+                
+                        if isinstance(itemput, simpy.events.Process):
+                            item_put_process = itemput
+                            yield item_put_process # Wait for the item to be available
+                        else:
+                            item = itemput
+
+                       
+
                     else:
-                        print(f"T={self.env.now:.2f}: {self.id}: Discarding {item.id} as no space in out_edge")
-                        item.set_destruction(self.id, self.env)
-                        self.stats["num_item_discarded"]+=1
-                else:  
-                    self.update_state("BLOCKED_STATE", self.env.now)
+                        out_edge_index_to_put = None
+                        for edge in self.out_edges:
+                            if edge.can_put():
+                                out_edge_to_put = edge
+                                break
+                        
+                        if out_edge_to_put is not None:
+                            blocking_start_time = self.env.now
+                            yield self.env.process(self._push_item(item, out_edge_to_put))  
+                      
+
+                            
+                        else:               
+                            print(f"T={ self.env.now:.2f}: {self.id} worker is discarding item {item.id} because out_edge {edge.id} is full.")
+                            self.stats["num_item_discarded"] += 1  # Decrement processed count if item is discarded
+
+
+                        
+                        
+                    
+
+
+                else:
+                    print(f"T={self.env.now:.2f}: {self.id} worker processed item: {item.id}")
+                    out_edge_index_to_put = self._get_out_edge_index()
+                    if out_edge_index_to_put is None:
+                        raise ValueError(f"{self.id} worker - No out_edge available for processing!")
+                    if out_edge_index_to_put < 0 or out_edge_index_to_put >= len(self.out_edges):
+                        raise IndexError(f"{self.id} worker - Invalid edge index {out_edge_index_to_put} for out_edges.")
+                    outedge_to_put = self.out_edges[out_edge_index_to_put]
+
+                    if self.blocking:
+                        blocking_start_time = self.env.now
+                        print(f"T={self.env.now:.2f}: {self.id} worker is in BLOCKED_STATE")
+                        yield self.env.process(self._push_item(item, outedge_to_put))
+                        
+                    else:
+                        # Check if the out_edge can accept the item
+                        if outedge_to_put.can_put():
+                            blocking_start_time = self.env.now
+                            yield self.env.process(self._push_item(item, outedge_to_put))
+                            
+                        else:
+                            print(f"T={self.env.now:.2f}: {self.id} worker is discarding item {item.id} because out_edge {outedge_to_put.id} is full.")
+                            self.stats["num_item_discarded"] += 1
+                # Release the worker thread after processing
+                    
+                
+
+
+
+                
+                
                
-                    
-                    yield self.env.process(self._push_item(item, out_edge))
-                    self.update_state("GENERATING_STATE", self.env.now)
-                    
                  
 
             else:

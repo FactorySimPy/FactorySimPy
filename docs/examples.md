@@ -6,7 +6,10 @@ In this section, we present examples that demonstrate how to use FactorySimPy
 
 ***Here's a simple example to connect a machine to an input buffer and output buffer and to simulate item flow through them.***
 
-In the example, the delays `inter_arrival_time`, `processing_delay`, etc are constant values and `out_edge_selection` and `out_edge_selection` uses the generator functions that are available in the package ("RANDOM"). The function name can be passed as a string. See [API](api_ref_main_page.md) for the details of all the available functions.
+The parameters `inter_arrival_time` and `processing_delay` can be specified as a constant value (`int` or `float`) or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution. If the function depends on any of the node attributes, users can pass `None` to this parameter at the time of node creation and later initialise the parameter with the reference to the function. 
+
+Shown below is a very simple example where the sources generate items and puts it to a machine through a buffer and the items processed in machine is moved to a sink using a second buffer. Here, the delays to be configured are `inter_arrival_time`, and `processing_delay` of source and machine.
+In the example, the delays `inter_arrival_time`, `processing_delay`, etc are specified as constant values. `in_edge_selection` is provided as a constant `0`  and `out_edge_selection` uses the generator function that is available in the package ("RANDOM"). The function name can be passed as a string. See [API](api_ref_main_page.md) for the details of all the available functions.
  
 ```python
 
@@ -23,7 +26,7 @@ from factorysimpy.nodes.sink import Sink
 env = simpy.Environment()
 
 # Initializing nodes
-SRC= Source(env, id="SRC",  inter_arrival_time= 0.8,blocking=False,out_edge_selection="RANDOM" )
+SRC= Source(env, id="SRC",  inter_arrival_time= 0.8,blocking=False,out_edge_selection=0 )
 MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4, processing_delay=1.1, in_edge_selection="RANDOM",out_edge_selection="RANDOM")
 SINK= Sink(env, id="SINK" )
 
@@ -43,10 +46,11 @@ env.run(until=10)
 
 ## Example with delay as random variates
 
-***Here's an example showing how to pass functions as parameters.*** 
+***Here's an example showing how to pass functions as delay parameters.*** 
 
+ The parameters `inter_arrival_time` and `processing_delay` can be specified as a constant value (`int` or `float`) or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution. If the function depends on any of the node attributes, users can pass `None` to this parameter at the time of node creation and later initialise the parameter with the reference to the function. 
 
-In the example, the delays `inter_arrival_time`, and `processing_delay` are specified as a python function and generator function instance respectively. inter_arrival is a python function that returns a value, processing_delay_generator is a generator functions that yields a value based on an attribute of the node
+Shown below is a very simple example where the sources generate items and puts it to a machine through a buffer and the items processed in machine is moved to a sink using a second buffer. This example shows how to pass a function as a parameter. Here, the delays to be configured are `inter_arrival_time`, and `processing_delay` of source and machine. These are specified as a reference to a python function and generator function instance respectively. inter_arrival is a python function that returns a value, processing_delay_generator is a generator functions that yields a value based on an attribute of the node.
 
 ```python
 
@@ -80,7 +84,7 @@ def processing_delay_generator(node,env):
 
 
 # Initializing nodes
-SRC= Source(env, id="SRC",  inter_arrival_time=inter_arrival(),blocking=False, )
+SRC= Source(env, id="SRC",  inter_arrival_time=inter_arrival(),blocking=False,out_edge_selction=0 )
 
 
 MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4,processing_delay=None,in_edge_selection="RANDOM",out_edge_selection="RANDOM")
@@ -109,7 +113,14 @@ env.run(until=10)
 
 ***Here's an example that shows how to interconnect a source to a machine using buffers and pass a python function or a generator instance as parameter.***
 
-Sources generate items and puts it into its outgoing buffer. Machine picks this item and processes it and puts it another buffer. It choses the in_edge and out_edge based on the values yielded from function specified in `in_edge_selection` parameter and `out_edge_selection` parameter. Generator function instances are passed as input to parameters in this example. Sink is used to remove the finished items from the respective buffers. 
+To choose an incoming edge to pull an item from, the nodes utilises the strategy specified in the parameter `in_edge_selection`.  Similarly, to select an outgoing edge, to push the item to, nodes uses the method specified in `out_edge_selection` parameter. These parameters can be a constant integer value (one of the edge indices), or one of the methods available in the package (passed as a string; listed below) or a Python function or a generator function instance provided by the user. User-provided function should return or yield an edge index. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initialise the parameter with the reference to the function. This is illustrated in the examples shown below. Various options available in the package for `in_edge_selection` and `out_edge_selection` include:
+
+- "RANDOM": Selects a random out edge.
+- "ROUND_ROBIN": Selects out edges in a round-robin manner.
+- "FIRST_AVAILABLE": Selects the first out edge that can accept an item.
+
+In the example below, the sources generate items and puts it into its outgoing buffer. Machine picks this item and processes it and puts it another buffer. It choses the input edge and output edge based on the values yielded from function specified in `in_edge_selection` parameter and `out_edge_selection` parameter. Generator function instances are passed as input to parameters in this example. Sink is used to remove the finished items from the respective buffers. 
+
 
 ```python
 
@@ -159,7 +170,7 @@ def source_out_edge_selector(node, env):
 
 
 # Initializing nodes
-SRC1= Source(env, id="SRC1",  inter_arrival_time=0.7,blocking=False )
+SRC1= Source(env, id="SRC1",  inter_arrival_time=0.7,blocking=False, out_edge_selection=0 )
 SRC2= Source(env, id="SRC2",  inter_arrival_time=0.4,blocking=False, out_edge_selection=None )
 MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4, processing_delay=None,in_edge_selection=None,out_edge_selection=None)
 SINK1= Sink(env, id="SINK1" )
@@ -241,15 +252,15 @@ env = simpy.Environment()
 def split_out_edge_selector(node):
    while True:
       proc=node.env.active_process
-      worker_index = node.worker_process_map[proc]
-      item_type = None
-      if worker_index is None:
+      item_in_process= node.worker_process_map[proc]
+     
+      if item_in_process is None:
          raise RuntimeError("Unknown calling process")
       
-      if node.item_in_process[worker_index].flow_item_type=="item" :
+      if item_in_process.flow_item_type=="item" :
             yield 0
         
-      elif node.pallet_in_process[worker_index].flow_item_type and len(node.pallet_in_process[worker_index].items) ==0:
+      elif item_in_process.flow_item_type=="pallet" and len(item_in_process.items) ==0:
         
             yield 1
       

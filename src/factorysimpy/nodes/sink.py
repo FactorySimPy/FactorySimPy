@@ -25,7 +25,7 @@ class Sink(Node):
           super().__init__( env, id, in_edges, None,   node_setup_time)
           self.state = "None"
        
-          
+          self.in_edge_events=[]
           self.in_edge_selection = in_edge_selection
           
           self.stats={"num_item_received": 0, "total_time_spent_in_state":{"COLLECTING_STATE":0.0}, "total_cycle_time":0.0}
@@ -43,8 +43,17 @@ class Sink(Node):
     def reset(self):
             
 
-            # Initialize in_edge_selection and out_edge_selection
-            if isinstance(self.in_edge_selection, str):  
+            # Initialize in_edge_selection
+            if isinstance(self.in_edge_selection, int):
+               assert self.in_edge_selection >= 0, "in_edge_selection must be a non-negative integer."
+               assert self.in_edge_selection < len(self.in_edges), f"in_edge_selection must be less than the number of in_edges ({len(self.in_edges)})"
+               self.in_edge_selection = self.in_edge_selection
+            
+            elif self.in_edge_selection == "FIRST_AVAILABLE":
+                # If in_edge_selection is "FIRST_AVAILABLE", we process it inside class
+                self.in_edge_selection = self.in_edge_selection
+
+            elif isinstance(self.in_edge_selection, str):  
                 self.in_edge_selection = get_index_selector(self.in_edge_selection, self, self.env, "IN")
                 
 
@@ -54,9 +63,7 @@ class Sink(Node):
             elif hasattr(self.in_edge_selection, '__next__'):
                 # It's a generator
                 self.in_edge_selection = self.in_edge_selection
-            elif self.in_edge_selection is None:
-                # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
-                self.in_edge_selection = self.in_edge_selection
+            
             else:
                 raise ValueError("in_edge_selection must be a None, string or a callable (function/generator)")
             
@@ -90,31 +97,28 @@ class Sink(Node):
         
     def _get_in_edge_index(self):
         
-        #Returns the next edge index from out_edge_selection, whether it's a generator or a callable.
-        event = self.env.event()
+      
+        
         
         #self.out_edge_selection = get_index_selector(self.out_edge_selection, self, self.env, edge_type="OUT")
-        if hasattr(self.in_edge_selection, '__next__'):
+        if isinstance(self.in_edge_selection, int):
+            return self.in_edge_selection
+        
+        elif hasattr(self.in_edge_selection, '__next__'):
             # It's a generator
             val = next(self.in_edge_selection)
-            event.succeed(val)
-            return event
+            
+            return val
         elif callable(self.in_edge_selection):
             # It's a function (pass self and env if needed)
             #return self.out_edge_selection(self, self.env)
             val = self.in_edge_selection(self, self.env)
-            event.succeed(val)
-            return event
-        elif isinstance(self.in_edge_selection, (simpy.events.Event)):
-            #print("out_edge_selection is an event")
-            self.env.process(self.call_in_process(self.in_edge_selection,event))
-            return event
+            
+            return val
+       
         else:
-            raise ValueError("in_edge_selection must be a generator or a callable.")    
-                
-    def  call_in_process(self, in_edge_selection,event):
-        val = yield in_edge_selection
-        event.succeed(val)
+            raise ValueError("in_edge_selection must be a generator or a callable.")  
+
     
     def _pull_item(self, in_edge):
         """
@@ -157,19 +161,49 @@ class Sink(Node):
 
         #self.update_state("COLLECTING_STATE",self.env.now)
         
+        if self.in_edge_selection == "FIRST_AVAILABLE":
+            
+            self.in_edge_events = [edge.reserve_get() if edge.__class__.__name__ == "ConveyorBelt" else edge.inbuiltstore.reserve_get() for edge in self.in_edges]
+            triggered_in_edge_events = self.env.any_of(self.in_edge_events)
+            yield triggered_in_edge_events  # Wait for any in_edge to be available
+
+
+
+            self.chosen_event = next((event for event in self.in_edge_events if event.triggered), None)
+            if self.chosen_event is None:
+                raise ValueError(f"{self.id} - No in_edge available for processing!")
+            
+            self.in_edge_events.remove(self.chosen_event)  # Remove the chosen event from the list
+            #cancelling already triggered out_edge events
+            for event in self.in_edge_events:
+                if event.triggered:
+                    event.resourcename.reserve_get_cancel(event)
+            
+            
+            item = self.chosen_event.resourcename.get(self.chosen_event)  # Get the item from the chosen in_edge
+            if isinstance(item, simpy.events.Process):
+                self.item_in_process = item
+                yield self.item_in_process # Wait for the item to be available
+            else:
+                self.item_in_process = item
+
+        else:
+            in_edge_index = self._get_in_edge_index()
+            if in_edge_index is None:
+                raise ValueError(f"{self.id} - No in_edge available for processing!")
+            if in_edge_index < 0 or in_edge_index >= len(self.in_edges):
+                raise IndexError(f"{self.id} - Invalid edge index {in_edge_index} for in_edges.")
+            in_edge_to_get = self.in_edges[in_edge_index]
+            
+            yield self.env.process(self._pull_item( in_edge_to_get))
+            
+        
+        if self.item_in_process is None:
+            raise ValueError(f"{self.id} - No item pulled from in_edge {in_edge_to_get.id}!")
+        
        
         
-        # Wait for the next item to process
-        edgeindex_to_get_event = self._get_in_edge_index()
-        edgeindex_to_get = yield edgeindex_to_get_event
         
-        #print(f"worker{i} - edgeindex_to_get: {edgeindex_to_get}")
-        if edgeindex_to_get is None :
-            raise ValueError(f"{self.id} wNo in_edge available for processing!")
-        if  edgeindex_to_get < 0 or edgeindex_to_get >= len(self.in_edges):
-            raise IndexError(f"{self.id}  Invalid edge index {edgeindex_to_get} for in_edges.")
-        in_edge = self.in_edges[edgeindex_to_get]
-        yield self.env.process(self._pull_item(in_edge))
                 
         self.stats["num_item_received"] += 1
         self.stats["total_cycle_time"] += self.env.now - self.item_in_process.timestamp_creation

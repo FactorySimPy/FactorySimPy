@@ -15,7 +15,7 @@ node_kwargs = {
     "node_setup_time": 0,
     "work_capacity": 1,
     "processing_delay": 0.8,
-    "in_edge_selection": "FIRST",
+    "in_edge_selection": "FIRST_AVAILABLE",
     "out_edge_selection": "FIRST_AVAILABLE"
 }
 
