@@ -82,7 +82,7 @@ The source component is responsible for generating items that enter and flow thr
 
 At the start of the simulation, the source waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an `int` or `float`).
 
-During a simulation run, the source generates items at discrete instants of time determined by the parameter `inter_arrival_time`. More details on how to configure parameter `inter_arrival_time` can be found [here](configuring_parameters.md). After the wait it produces a flow item based on the type mentioned in `flow_item_type`. It can be of two type namely "item" and "pallet". Item represents the smallest unit of discrete items that flow in the system. Pallets are type which can hold multiple items inside and can be used to pack items.
+During a simulation run, the source generates items at discrete instants of time determined by the parameter `inter_arrival_time`. More details on how to configure parameter `inter_arrival_time` can be found [here](configuring_parameters.md/#delay-parameters). After the wait it produces a flow item based on the type mentioned in `flow_item_type`. It can be of two type namely "item" and "pallet". Item represents the smallest unit of discrete items that flow in the system. Pallets are type which can hold multiple items inside and can be used to pack items.
 
 
 After generating an item, the source behaves as follows:
@@ -91,7 +91,7 @@ After generating an item, the source behaves as follows:
 2. If `blocking` is `False`, it checks if there is space in the outgoing edge to accomodate the item. If the edge is full or unavailable, the item is discarded and the count of discarded item is recorded.
 
 
-The source can be connected to multiple outgoing edges. More details on the parameter `out_edge_selection` can be found [here](configuring_parameters.md).
+The source can be connected to multiple outgoing edges. More details on the parameter `out_edge_selection` can be found [here](configuring_parameters.md/#edge-selection).
 
 User-provided function should return or yield an edge index. If the function depends on any of the node attributes, user can pass `None` to this parameter at the time of node creation and later initialize the parameter with the reference to the function. The source then waits for an amount of time determined using the parameter `inter_arrival_time` before attempting to generate the next item.
 
