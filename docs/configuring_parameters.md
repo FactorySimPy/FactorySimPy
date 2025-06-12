@@ -22,5 +22,5 @@ In case of "FIRST_AVAILABLE", always the edge with the least index value will be
 
 ### Examples
 
-- **[Example showing how to pass constant values to these parameters](examples.md/#a-simple-example)***
+- ***[Example showing how to pass constant values to these parameters](examples.md/#a-simple-example)***
 - ***[Example showing how to pass a custom function or generator function instance to these parameters](examples.md/#example-with-delay-as-random-variates)***
