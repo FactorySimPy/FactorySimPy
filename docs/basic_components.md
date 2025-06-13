@@ -82,7 +82,7 @@ The source is an active component that generates items that flow through the sys
 
 At the start of the simulation, the source waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an `int` or `float`).
 
-During a simulation run, the source generates items at discrete instants of time determined by the parameter `inter_arrival_time`. More details on how to configure parameter `inter_arrival_time` can be found [here](configuring_parameters.md/#delay-parameters). After the wait it produces a flow item based on the type mentioned in `flow_item_type`. It can be of two type namely "item" and "pallet". Item represents the smallest unit of discrete items that flow in the system. Pallets represents the type of flow item that can hold multiple items inside and it can be used to pack items. The source can have multiple output edges. It chooses an output edge from `out_edges` list based on the `out_edge_selection` parameter. More details on the parameter `out_edge_selection` can be found [here](configuring_parameters.md/#edge-selection).
+During a simulation run, the source generates items at discrete instants of time determined by the parameter `inter_arrival_time`. [More details on how to configure parameter `inter_arrival_time` can be found here](configuring_parameters.md/#delay-parameters). After the wait it produces a flow item based on the type mentioned in `flow_item_type`. It can be of two type namely "item" and "pallet". Item represents the smallest unit of discrete items that flow in the system. Pallets represents the type of flow item that can hold multiple items inside and it can be used to pack items. The source can have multiple output edges. It chooses an output edge from `out_edges` list based on the `out_edge_selection` parameter. [More details on the parameter `out_edge_selection` can be found here](configuring_parameters.md/#edge-selection).
 
 
 After generating an item and choosing an output edge, the source behaves as follows:
@@ -179,7 +179,7 @@ A machine is an active component that processes items flowing through the system
 
 **Behavior**
 
-At the start of the simulation, the machine waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an `int` or `float`).  Machine can process atmost `work_capacity` number of items in parallel. As soon as an item is input, a worker thread is reserved which remains busy for processing the item in `processing_delay` amount of time and at the end of this time the worker thread attempts to output the item to one of the `out_edges` selected using the `out_edge_selection` parameter. More details on how to configure the parameters `processing_delay`, `out_edge_selection` and `in_edge_selection` can be found [here](configuring_parameters.md). Multiple items can be in "PROCESSING_STATE" at a time. After processing the item, the worker thread behaves as follows:
+At the start of the simulation, the machine waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an `int` or `float`).  Machine can process atmost `work_capacity` number of items in parallel. As soon as an item is input, a worker thread is reserved which remains busy for processing the item in `processing_delay` amount of time and at the end of this time the worker thread attempts to output the item to one of the `out_edges` selected using the `out_edge_selection` parameter. [More details on how to configure the parameters `processing_delay`, `out_edge_selection` and `in_edge_selection` can be found here](configuring_parameters.md). Multiple items can be in "PROCESSING_STATE" at a time. After processing the item, the worker thread behaves as follows:
 
 1. If `blocking` is `True`, it waits with the processed item in a "BLOCKED_STATE" for the out edge to be available and pushes the item when output edge becomes available or has space.
 2. If `blocking` is `False`, it checks if there is space in the outgoing edge to accomodate the item. If the edge is full or unavailable, the item is discarded and the count of discarded item is recorded.
@@ -432,7 +432,7 @@ print(f"Split {SPLIT1.id}, worker1 state times: {SPLIT1.stats[1]['total_time_spe
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
 
- A Sink is a terminal node that collects flow items at the end. Once an item enters the sink, it is considered to have exited the system and cannot be retrieved or processed further. This sink can have multiple input edges and no output edges. It only has a single state "COLLECTING_STATE". The API documentation can be found in [Sink](sink.md)
+ A Sink is a terminal node that collects flow items at the end. Once an item enters the sink, it is considered to have exited the system and cannot be retrieved or processed further. The sink can have multiple input edges but no output edges. [More details on how to configure the parameter `out_edge_selection` can be found here](configuring_parameters.md) It only has a single state "COLLECTING_STATE". The API documentation can be found in [Sink](sink.md)
  
 
 **Usage**
