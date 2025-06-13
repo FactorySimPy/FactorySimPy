@@ -49,7 +49,7 @@ env.run(until=10)
 
 ***Here's an example showing how to pass functions as delay parameters.*** 
 
-Shown below is a very simple example where the sources generate items and puts it to a machine through a buffer and the items processed in machine is moved to a sink using a second buffer. This example shows how to pass a function as a parameter. Here, the delays to be configured are `inter_arrival_time`, and `processing_delay` of source and machine. These are specified as a reference to a python function and generator function instance respectively. inter_arrival is a python function that returns a value, processing_delay_generator is a generator functions that yields a value based on an attribute of the node.
+Shown below is a very simple example where the sources generate items and puts it to a machine through a buffer and the items processed in machine is moved to a sink using a another buffer. This example shows how to pass a function as a parameter. Here, the delays to be configured are `inter_arrival_time`, and `processing_delay` of source and machine. These are specified as a reference to a python function and generator function instance respectively. Here, inter_arrival is a python function that returns a value, processing_delay_generator is a generator functions that yields a value based on an attribute of the node.
 
 ```python
 
@@ -113,7 +113,7 @@ env.run(until=10)
 ***Here's an example that shows how to interconnect a source to a machine using buffers and pass a python function or a generator instance as parameter.***
 
 
-In the example below, the sources generate items and puts it into its output buffer. Machine picks this item and processes it and puts it another buffer. It choses the input edge and output edge based on the values yielded from function specified in `in_edge_selection` parameter and `out_edge_selection` parameter. Generator function instances are passed as input to parameters in this example. Sink is used to remove the finished items from the respective buffers. 
+In the example below, the sources generate items and puts it into its output buffer. Machine picks this item and processes it and puts it to another buffer. It choses the input edge and output edge based on the values yielded from function specified in `in_edge_selection` parameter and `out_edge_selection` parameter. Generator function instances are passed as input to parameters in this example. Sink is used to remove the finished items from the respective buffers. 
 
 
 ```python
