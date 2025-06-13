@@ -113,7 +113,7 @@ env.run(until=10)
 ***Here's an example that shows how to interconnect a source to a machine using buffers and pass a python function or a generator instance as parameter.***
 
 
-In the example below, the sources generate items and puts it into its outgoing buffer. Machine picks this item and processes it and puts it another buffer. It choses the input edge and output edge based on the values yielded from function specified in `in_edge_selection` parameter and `out_edge_selection` parameter. Generator function instances are passed as input to parameters in this example. Sink is used to remove the finished items from the respective buffers. 
+In the example below, the sources generate items and puts it into its output buffer. Machine picks this item and processes it and puts it another buffer. It choses the input edge and output edge based on the values yielded from function specified in `in_edge_selection` parameter and `out_edge_selection` parameter. Generator function instances are passed as input to parameters in this example. Sink is used to remove the finished items from the respective buffers. 
 
 
 ```python

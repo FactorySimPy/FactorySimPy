@@ -12,7 +12,7 @@ FactorySimPy is an open-source, light-weight Python library for modeling and dis
 The system is modeled as a graph consisting of two types of components: Nodes and Edges. Nodes represent active components that drive state changes—such as machines that introduce delays by performing operations like packing, unpacking, or modifying items. Edges, in contrast, represent passive components such as conveyor belts, human operators, warehouse robots, or transport vehicles that facilitate the movement of items between nodes.
 
 
-Each node maintains two lists: `in_edges` and `out_edges`, with references to incoming and outgoing edges, respectively. An edge connects exactly two nodes and holds reference to its `src_node` (source node) and `dest_node` (destination node). The graph supports both loops and self-loops. Edge can be uniquely associated with one source and one destination node or a source node to itself in the case of a self-loop.
+Each node maintains two lists: `in_edges` and `out_edges`, with references to input and output edges, respectively. An edge connects exactly two nodes and holds reference to its `src_node` (source node) and `dest_node` (destination node). The graph supports both loops and self-loops. Edge can be uniquely associated with one source and one destination node or a source node to itself in the case of a self-loop.
 State transitions in the simulation are triggered solely by the actions of the nodes, ensuring a clear separation between control (Nodes) and transport (Edges) within the model.
 
 
@@ -46,7 +46,7 @@ State transitions in the simulation are triggered solely by the actions of the n
 
 ## **Simple Example**
 
-A simple example simulating a machine that gets an item from a buffer and pushes it to one of its outgoing edges after processing it
+A simple example simulating a machine that gets an item from a buffer and pushes it to one of its output edges after processing it
 
 ```python
 

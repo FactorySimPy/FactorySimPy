@@ -1,7 +1,7 @@
 # Basic Components
 
 
-Node, Edge and BaseFlowItem are the 3 basic component types in the library. All the other components are derived from them. Nodes are the active, static elements in the system and are responsible for operations such as processing, splitting, or combining items. Every node maintains a list of `in_edges` and `out_edges`, which are references to edge objects that connect it to other nodes. Other parameters of Nodes are `id` (a unique name) and `node_setup_time` (initial delay in each node, which is be a constant value). Common node types include Machine, Split, Joint, Source, and Sink. Source can be used to generate items that flow in the system. Machines are the entities that modifies/processes an item. To multiplex the items that flow in the system, Splits can be used and to pack/join items from different incoming edges a Joint can be used. Sink is the terminal node in the system and the items that enter this node cannot be retrieved.
+Node, Edge and BaseFlowItem are the 3 basic component types in the library. All the other components are derived from them. Nodes are the active, static elements in the system and are responsible for operations such as processing, splitting, or combining items. Every node maintains a list of `in_edges` and `out_edges`, which are references to edge objects that connect it to other nodes. Other parameters of Nodes are `id` (a unique name) and `node_setup_time` (initial delay in each node, which is be a constant value). Common node types include Machine, Split, Joint, Source, and Sink. Source can be used to generate items that flow in the system. Machines are the entities that modifies/processes an item. To multiplex the items that flow in the system, Splits can be used and to pack/join items from different input edges a Joint can be used. Sink is the terminal node in the system and the items that enter this node cannot be retrieved.
 
 
 Edges are passive components that connect exactly two nodes (src_node and dest_node) and helps in transfering items between them. Edges are directed. Each edge has a unique identifier called `id`, and parameters `src_node` and `dest_node` to store the reference to the source node and destination node. Specific types of edges include Buffer, Conveyor, and Fleet. Buffers act as queues with a defined delay. Conveyors move items between nodes while preserving order and support both discrete (slotted belts) and continuous motion. Fleets represent systems like warehouse robots or human operators that transport items between nodes without preserving order.
@@ -56,8 +56,8 @@ Nodes represent active elements in the system. This is a basic type and is the b
 **Basic attributes**
 
 - `id` - unique identifier of the node
-- `in_edges`- list of all the incoming edges to the node
-- `out_edges` -  list of all the outgoing edges from the node
+- `in_edges`- list of all the input edges to the node
+- `out_edges` -  list of all the output edges from the node
 - `node_setup_time`- an initial delay to set up the node. 
 
 
@@ -75,8 +75,8 @@ The source is an active component that generates items that flow through the sys
 - `state` - Current state of the component.
 - `inter_arrival_time`- Time interval between two successive item generation.
 - `flow_item_type` - This is the type of item the source should generate. Either "item" or "pallet".
-- `blocking` -  If True, waits for outgoing edge to accept item; if False, discards the item if the outgoing edge if full.
-- `out_edge_selection`- Edge selection policy as a function to select outgoing edge.
+- `blocking` -  If True, waits for output edge to be available to accept item and pushes the item when it is available; if False, discards the item if the output edge if full.
+- `out_edge_selection`- Edge selection policy as a function to select output edge.
 
 **Behavior**
 
@@ -88,7 +88,7 @@ During a simulation run, the source generates items at discrete instants of time
 After generating an item and choosing an output edge, the source behaves as follows:
 
 1. If `blocking` is `True`, it waits with the processed item in a "BLOCKED_STATE" for the out edge to be available and pushes the item when output edge becomes available or has space.
-2. If `blocking` is `False`, it checks if there is space in the outgoing edge to accomodate the item. If the edge is full or unavailable, the item is discarded and the count of discarded item is recorded.
+2. If `blocking` is `False`, it checks if there is space in the output edge to accomodate the item. If the edge is full or unavailable, the item is discarded and the count of discarded item is recorded.
 
 
 
@@ -103,7 +103,7 @@ During its operation, the source transitions through the following states:
 
 2. "GENERATING_STATE": Active state where items are being created and pushed to the out_edge.
 
-3. "BLOCKED_STATE": The source is blocked, waiting for the outgoing edge to accept an item (only when `blocking` is `True`).
+3. "BLOCKED_STATE": The source is blocked, waiting for the output edge to be available to accept an item (only when `blocking` is `True`).
 
 **Usage**
 
@@ -119,8 +119,8 @@ SRC = Source(
     id="SRC2",                  # Unique identifier for the source node
     inter_arrival_time=0.4,     # Time between item generations (can be constant or function/generator)
     flow_item_type="item",      # Type of baseflowitem that the source should generate
-    blocking=False,             # If True, waits for outgoing edge to accept item; if False, discards item if the outgoing edge is full
-    out_edge_selection=0        # Strategy or function to select outgoing edge (can be string or callable or genrator or a constant int)
+    blocking=False,             # If True, waits for output edge to accept item; if False, discards item if the output edge is full
+    out_edge_selection=0        # Strategy or function to select output edge (can be string or callable or genrator or a constant int)
 )
 
 
@@ -167,14 +167,14 @@ print(f"Source {SRC.id}, state times: {SRC.stats["time_spent_in_states"]}")
 
 **About**
 
-A machine is an active component that processes items flowing through the system. Each item incurs a `processing_delay` amount of time to get processed in the machine. A machine can have multiple `in_edges` and `out_edges`. A machine can process multiple items simultaneously. The parameter `work_capacity` indicates the maximum number of items that can be processed simulatanously inside the machine. If work_capacity is set to a number greater than 1 (eg 3), this represents a machine with a maximum of 3 worker processes that are capable of processing 3 worker threads simultaneously. The `processing_delay` can be defined as a constant or defined as a random variate implemented as a python function or a generator function. Machine has two modes of operation based on the parameter value specified in `blocking`. If it is set to `True`, the processed item is held in a blocked state and machine waits for the out edge to be available to accept the item and pushes the processed item to the chosen out edge once it is available. The other mode can be configured by setting `blocking` to `False`. In this mode , the machine checks if there is space available in the chosen outgoing edge and only if there is space the item is pushed. If the outgoing edge is unavailable or full, the item will be discarded and its count will be recorded. The API documentation can be found in [Machine](machine.md)
+A machine is an active component that processes items flowing through the system. Each item incurs a `processing_delay` amount of time to get processed in the machine. A machine can have multiple `in_edges` and `out_edges`. A machine can process multiple items simultaneously. The parameter `work_capacity` indicates the maximum number of items that can be processed simulatanously inside the machine. If work_capacity is set to a number greater than 1 (eg 3), this represents a machine with a maximum of 3 worker processes that are capable of processing 3 worker threads simultaneously. The `processing_delay` can be defined as a constant or defined as a random variate implemented as a python function or a generator function. Machine has two modes of operation based on the parameter value specified in `blocking`. If it is set to `True`, the processed item is held in a blocked state and machine waits for the out edge to be available to accept the item and pushes the processed item to the chosen out edge once it is available. The other mode can be configured by setting `blocking` to `False`. In this mode , the machine checks if there is space available in the chosen output edge and only if there is space the item is pushed. If the output edge is unavailable or full, the item will be discarded and its count will be recorded. The API documentation can be found in [Machine](machine.md)
 
 **Basic attributes**
 
 - `work_capacity` - Maximum number of items that can be processed by the machine simulataneously.
 - `processing_delay`- Time taken to process an item.
 - `state` - This is the state per working thread. This is a dictionary where each key is a worker thread's ID (assigned in order of initialization), and the value is the current state of that worker.
-- `blocking`-  If True, waits for outgoing edge to accept item; if False, discards the item if the outgoing edge is full.
+- `blocking`-  If True, waits for output edge to be available to accept item and pushes the item when it is available; if False, discards the item if the output edge is full.
 - `in_edge_selection`- Edge selection policy as a function to select input edge.
 - `out_edge_selection`- Edge selection policy as a function to select output edge.
 
@@ -183,7 +183,7 @@ A machine is an active component that processes items flowing through the system
 At the start of the simulation, the machine waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an `int` or `float`).  Machine can process atmost `work_capacity` number of items in parallel. As soon as an item is input, a worker thread is reserved which remains busy for processing the item in `processing_delay` amount of time and at the end of this time the worker thread attempts to output the item to one of the `out_edges` selected using the `out_edge_selection` parameter. [More details on how to configure the parameters `processing_delay`, `out_edge_selection` and `in_edge_selection` can be found here](configuring_parameters.md). Multiple items can be in "PROCESSING_STATE" at a time. After processing the item, the worker thread behaves as follows:
 
 1. If `blocking` is `True`, it waits with the processed item in a "BLOCKED_STATE" for the out edge to be available and pushes the item when output edge becomes available or has space.
-2. If `blocking` is `False`, it checks if there is space in the outgoing edge to accomodate the item. If the edge is full or unavailable, the item is discarded and the count of discarded item is recorded.
+2. If `blocking` is `False`, it checks if there is space in the output edge to accomodate the item. If the edge is full or unavailable, the item is discarded and the count of discarded item is recorded.
 
 
  
@@ -193,11 +193,11 @@ At the start of the simulation, the machine waits for `node_setup_time`. This is
 
 1. "SETUP_STATE": Initialization or warm-up phase before item processing starts.
 
-2. "IDLE_STATE": When the machine doesnot have any item to process as the incoming edge is empty
+2. "IDLE_STATE": When the machine doesnot have any item to process as the input edge is empty
 
 3. "PROCESSING_STATE": Active state where items are being processed.
 
-4. "BLOCKED_STATE": The machine is blocked, when the incoming edge is full or unavilable .
+4. "BLOCKED_STATE": The machine is blocked, when the input edge is full or unavilable .
 
 **Usage**
 
@@ -212,9 +212,9 @@ MACHINE1 = Machine(
     id="MACHINE1",                    # Unique identifier for the machine node
     work_capacity=4,            # Max number of items that can be processed simultaneously
     processing_delay=1.2,       # Processing delay (constant or generator/function)
-    blocking=False,             # If True, waits for outgoing edge to accept item; if False, discards item if the outgoing edge is full
-    in_edge_selection="RANDOM",  # Policy or function to select incoming edge
-    out_edge_selection="RANDOM"  # Policy or function to select outgoing edge
+    blocking=False,             # If True, waits for output edge to accept item; if False, discards item if the output edge is full
+    in_edge_selection="RANDOM",  # Policy or function to select input edge
+    out_edge_selection="RANDOM"  # Policy or function to select output edge
 )
 ```
 
@@ -266,27 +266,27 @@ print(f"Worker occupancy, {MACHINE1.time_per_work_occupancy)})
 
 **About**
 
-The `Joint` component represents a node that combines or packs items from multiple incoming edges into a single pallet or box, and then pushes the packed pallet to an outgoing edge. It is useful for modeling operations such as packing, assembly, or combining flows from different sources. The number of items to be taken from each incoming edge can be specified, and the first incoming edge is expected to provide the pallet or container. A joint can process more than one item simultaneously and this number can be set using parameter `work_capacity`. Joint creates that many worker threads to mimic its actions. The API documentation can be found in [Joint](joint.md)
+The `Joint` component represents a node that combines or packs items from multiple input edges into a single pallet or box, and then pushes the packed pallet to an output edge. It is useful for modeling operations such as packing, assembly, or combining flows from different sources. The number of items to be taken from each input edge can be specified, and the first input edge is expected to provide the pallet or container. A joint can process more than one item simultaneously and this number can be set using parameter `work_capacity`. Joint creates that many worker threads to mimic its actions. The API documentation can be found in [Joint](joint.md)
 
 **Basic attributes**
 
 - `state` - current state of the component. This is a dictionary where each key is a worker thread's ID (assigned in order of initialization), and the value is the current state of that worker.
 - `processing_delay` - time taken to process and pack the items
 - `work_capacity` - maximum number of jobs or pallets that can be processed simultaneously
-- `blocking` - if True, waits for outgoing edge to accept the packed pallet; if False, discards the pallet if the outgoing edge is full
-- `target_quantity_of_each_item` - list specifying how many items to take from each incoming edge (first entry is always 1 for the pallet)
-- `out_edge_selection` - edge selection policy as a function to select outgoing edge
+- `blocking` - if True, waits for output edge to accept the packed pallet; if False, discards the pallet if the output edge is full
+- `target_quantity_of_each_item` - list specifying how many items to take from each input edge (first entry is always 1 for the pallet)
+- `out_edge_selection` - edge selection policy as a function to select output edge
 
 **Behavior**
  At the start of the simulation, the joint waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an `int` or `float`). Then it spawns `work_capacity` number of threads.
  Each worker thread then repeatedly:
 
-1. Pulls a pallet from the first incoming edge.
-2. Pulls the specified number of items from each of the other incoming edges and adds them to the pallet.
+1. Pulls a pallet from the first input edge.
+2. Pulls the specified number of items from each of the other input edges and adds them to the pallet.
 3. Waits for `processing_delay` to simulate packing/combining.
-4. Pushes the packed pallet to the outgoing edge, either waiting if `blocking` is True or discarding if the edge is full and `blocking` is False.
+4. Pushes the packed pallet to the output edge, either waiting if `blocking` is True or discarding if the edge is full and `blocking` is False.
 
-To select an outgoing edge, to push the item to, worker thread uses the method specified in `out_edge_selection` parameter. User can also provide a custom python function or a generator function instance to these parameters. User-provided function should return or yield an edge index. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initialise the parameter with the reference to the function. This is illustrated in the examples shown below. 
+To select an output edge, to push the item to, worker thread uses the method specified in `out_edge_selection` parameter. User can also provide a custom python function or a generator function instance to these parameters. User-provided function should return or yield an edge index. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initialise the parameter with the reference to the function. This is illustrated in the examples shown below. 
 Various options available in the package for `out_edge_selection` include:
 
 - "RANDOM": Selects a random out edge.
@@ -300,7 +300,7 @@ During its operation, the joint transitions through the following states:
 1. "SETUP_STATE": Initialization or warm-up phase before packing starts.
 2. "IDLE_STATE": Waiting to receive a pallet and items.
 3. "PROCESSING_STATE": Actively packing items into the pallet.
-4. "BLOCKED_STATE": Blocked, waiting for the outgoing edge to accept the packed pallet.
+4. "BLOCKED_STATE": Blocked, waiting for the output edge to accept the packed pallet.
 
 **Usage**
 
@@ -316,8 +316,8 @@ JOINT1 = Joint(
     target_quantity_of_each_item=[1, 2],  # 1 pallet from in_edges[0], 2 items from in_edges[1]
     work_capacity=1,                  # Number of pallets that can be packed simultaneously
     processing_delay=1.5,             # Packing delay (constant or generator/function)
-    blocking=True,                    # Wait for outgoing edge to accept pallet
-    out_edge_selection="RANDOM"        # Policy or function to select outgoing edge
+    blocking=True,                    # Wait for output edge to accept pallet
+    out_edge_selection="RANDOM"        # Policy or function to select output edge
 )
 ```
 
@@ -350,28 +350,28 @@ print(f"Joint {JOINT1.id}, worker1 state times: {JOINT1.stats[1]['total_time_spe
 
 **About**
 
-The `Split` component represents a node that unpacks or splits an incoming item (such as a pallet or batch) and sends its contents to multiple outgoing edges. It is useful for modeling operations such as unpacking, sorting, or distributing items from a container to different destinations.  A split can process more than one pallet or jobs simultaneously and this number can be set using parameter `work_capacity`. Split creates that many worker threads to mimic its actions. The incoming edge is selected according to the `in_edge_selection` policy, and the outgoing edge for each unpacked item is selected according to the `out_edge_selection` policy. The API documentation can be found in [Split](split.md)
+The `Split` component represents a node that unpacks or splits an input item (such as a pallet or batch) and sends its contents to multiple output edges. It is useful for modeling operations such as unpacking, sorting, or distributing items from a container to different destinations.  A split can process more than one pallet or jobs simultaneously and this number can be set using parameter `work_capacity`. Split creates that many worker threads to mimic its actions. The input edge is selected according to the `in_edge_selection` policy, and the output edge for each unpacked item is selected according to the `out_edge_selection` policy. The API documentation can be found in [Split](split.md)
 
 **Basic attributes**
 
 - `state` - current state of the component. This is a dictionary where each key is a worker thread's ID (assigned in order of initialization), and the value is the current state of that worker.
 - `processing_delay` - time taken to process and unpack the items
 - `work_capacity` - number of worker threads that can process items or jobs concurrently
-- `blocking` - if True, waits for outgoing edge to accept the item; if False, discards the items if the outgoing edge is full
-- `in_edge_selection` - edge selection policy as a function to select incoming edge
-- `out_edge_selection` - edge selection policy as a function to select outgoing edge
+- `blocking` - if True, waits for output edge to accept the item; if False, discards the items if the output edge is full
+- `in_edge_selection` - edge selection policy as a function to select input edge
+- `out_edge_selection` - edge selection policy as a function to select output edge
 
 **Behavior**
 
 At the start of the simulation, the split waits for `node_setup_time`. Each worker thread then repeatedly:
 
-1. Pulls a packed item (e.g., pallet) from the selected incoming edge.
+1. Pulls a packed item (e.g., pallet) from the selected input edge.
 2. Waits for `processing_delay` to simulate unpacking or splitting.
-3. Unpacks the items from the pallet and pushes each item to an outgoing edge, one by one, using the `out_edge_selection` policy.
-4. After all items are pushed, the empty container itself is pushed to an outgoing edge.
-5. If `blocking` is True, the split waits for the outgoing edge to accept each item; if `blocking` is False, items are discarded if the outgoing edge is full.
+3. Unpacks the items from the pallet and pushes each item to an output edge, one by one, using the `out_edge_selection` policy.
+4. After all items are pushed, the empty container itself is pushed to an output edge.
+5. If `blocking` is True, the split waits for the output edge to accept each item; if `blocking` is False, items are discarded if the output edge is full.
 
-To select an outgoing edge and incoming edge, worker thread uses the method specified in `out_edge_selection` and `in_edge_selection` parameters. User can also provide a custom python function or a generator function instance to these parameters. User-provided function should return or yield an edge index. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initialise the parameter with the reference to the function. This is illustrated in the examples shown below. 
+To select an output edge and input edge, worker thread uses the method specified in `out_edge_selection` and `in_edge_selection` parameters. User can also provide a custom python function or a generator function instance to these parameters. User-provided function should return or yield an edge index. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initialise the parameter with the reference to the function. This is illustrated in the examples shown below. 
 Various options available in the package for `in_edge_selection` and `out_edge_selection` include:
 
 - "RANDOM": Selects a random out edge.
@@ -386,7 +386,7 @@ During its operation, the split transitions through the following states:
 1. "SETUP_STATE": Initialization or warm-up phase before unpacking starts.
 2. "IDLE_STATE": Waiting to receive a container/item.
 3. "PROCESSING_STATE": Actively unpacking or splitting items.
-4. "BLOCKED_STATE": Blocked, waiting for the outgoing edge to accept the item.
+4. "BLOCKED_STATE": Blocked, waiting for the output edge to accept the item.
 
 **Usage**
 
@@ -401,9 +401,9 @@ SPLIT1 = Split(
     id="SPLIT1",                # Unique identifier for the split node
     work_capacity=1,            # Number of worker threads
     processing_delay=1.0,       # Unpacking delay (constant or generator/function)
-    blocking=True,              # Wait for outgoing edge to accept item
-    in_edge_selection="RANDOM",  # Policy or function to select incoming edge
-    out_edge_selection="ROUND_ROBIN"  # Policy or function to select outgoing edge
+    blocking=True,              # Wait for output edge to accept item
+    in_edge_selection="RANDOM",  # Policy or function to select input edge
+    out_edge_selection="ROUND_ROBIN"  # Policy or function to select output edge
 )
 ```
 
@@ -447,7 +447,7 @@ from factorysimpy.nodes.sink import Sink
 SINK = SINK(
     env,                        # Simulation environment
     id="SINK",                # Unique identifier for the  node
-    in_edge_selection="RANDOM",  # Policy or function to select incoming edge
+    in_edge_selection="RANDOM",  # Policy or function to select input edge
     
 )
 ```
