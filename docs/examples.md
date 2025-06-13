@@ -10,7 +10,7 @@ In this section, we present examples that demonstrate how to use FactorySimPy
 
 Shown below is a very simple example. Here, the delays to be configured are `inter_arrival_time`, and `processing_delay` of the source and the machine respectively. In this example, the delays `inter_arrival_time`, and `processing_delay`, are specified as constant values at the time of node initiation.
 
-Similarly `in_edge_selection` and  `out_edge_selection` can also be provided as a constant or use one of the generator functions available in the package or a reference to a user defined python function or generator function. Here, `out_edge_selection` is passed as `0`, a fixed index and  `out_edge_selection` uses the generator function that is available in the package ("RANDOM"). The function name can be passed as a string. See [API](api_ref_main_page.md) for the details of all the available functions.
+Similarly `in_edge_selection` and  `out_edge_selection` can also be provided as a constant or use one of the generator functions available in the package. Here, `out_edge_selection` is passed as `0`, a fixed index and  `out_edge_selection` uses the generator function that is available in the package ("RANDOM"). The function name can be passed as a string. See [API](api_ref_main_page.md) for the details of all the available functions.
  
 ```python
 
