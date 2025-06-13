@@ -209,6 +209,6 @@ class Sink(Node):
         self.stats["total_cycle_time"] += self.env.now - self.item_in_process.timestamp_creation
         self.item_in_process=None
         #print("fromsink", self.env.now - item.timestamp_creation)
-        #print(f"T={self.env.now:.2f}: {self.id } is got an {item} ")
+        print(f"T={self.env.now:.2f}: {self.id } is got an {item} ")
        
         

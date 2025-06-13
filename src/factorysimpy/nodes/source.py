@@ -312,10 +312,11 @@ class Source(Node):
                         self.out_edge_events = [edge.reserve_put() if edge.__class__.__name__ == "ConveyorBelt" else edge.inbuiltstore.reserve_put() for edge in self.out_edges]
                         triggered_out_edge_events = self.env.any_of(self.out_edge_events)
                         yield triggered_out_edge_events  # Wait for any in_edge to be available
-
+                        
 
                         # Find the first triggered event
                         chosen_put_event = next((event for event in self.out_edge_events if event.triggered), None)
+                        edge_index = self.out_edge_events.index(chosen_put_event)  # Get the index of the chosen event
                         self.out_edge_events.remove(chosen_put_event)  # Remove the chosen event from the list
                         if chosen_put_event is None:
                             raise ValueError(f"{self.id} - No in_edge available for processing!")
@@ -324,15 +325,17 @@ class Source(Node):
                         for event in self.out_edge_events:
                             if event.triggered:
                                 event.resourcename.reserve_put_cancel(event)
-
+                        #print(f"T={self.env.now:.2f}: {self.id} yielded 11111111from {self.out_edges[edge_index].id} ")
                         #putting the item in the chosen out_edge
                         item.timestamp_node_exit = self.env.now
                         itemput = chosen_put_event.resourcename.put(chosen_put_event, item)  # put the item to the chosen out_edge
+                        #print(f"T={self.env.now:.2f}: {self.id} placed 222222 from {self.out_edges[edge_index].id} ")
                         #print(f"T={self.env.now:.2f}: {self.id} puts item {item.id} into {chosen_put_event.resourcename} {item.timestamp_creation} ")
                 
                         if isinstance(itemput, simpy.events.Process):
-                            item_put_process = itemput
-                            yield item_put_process # Wait for the item to be available
+                            
+                            yield itemput # Wait for the item to be available
+                            #print("yaay")
                         else:
                             item = itemput
 

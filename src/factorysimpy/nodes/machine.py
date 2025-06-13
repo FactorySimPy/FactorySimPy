@@ -327,12 +327,14 @@ class Machine(Node):
         """
 
         if in_edge.__class__.__name__ == "ConveyorBelt":
+               
                 get_token = in_edge.reserve_get()
+                
                 gtoken = yield get_token
+                
                 pulled_item = yield in_edge.get(gtoken)
                 pulled_item.update_node_event(self.id, self.env, "entry")
-                
-              
+                              
                 if pulled_item is not None:
                     print(f"T={self.env.now:.2f}: {self.id} gets item {pulled_item.id} from {in_edge.id} ")
                     self.item_in_process= pulled_item  # Assign the pulled item to the item_in_process attribute
@@ -556,12 +558,14 @@ class Machine(Node):
                     
                     self.in_edge_events = [edge.reserve_get() if edge.__class__.__name__ == "ConveyorBelt" else edge.inbuiltstore.reserve_get() for edge in self.in_edges]
                     triggered_in_edge_events = self.env.any_of(self.in_edge_events)
-                    yield triggered_in_edge_events  # Wait for any in_edge to be available
+                    k= yield triggered_in_edge_events  # Wait for any in_edge to be available
+                   
 
 
 
                     self.chosen_event = next((event for event in self.in_edge_events if event.triggered), None)
                     edge_index = self.in_edge_events.index(self.chosen_event)  # Get the index of the chosen event
+                    print(f"T={self.env.now:.2f}: {self.id} yielded from {self.in_edges[edge_index].id} ")
                     if self.chosen_event is None:
                         raise ValueError(f"{self.id} - No in_edge available for processing!")
                     
@@ -573,6 +577,7 @@ class Machine(Node):
                     
                    
                     item = self.chosen_event.resourcename.get(self.chosen_event)  # Get the item from the chosen in_edge
+                    #item = self.chosen_event.resourcename.get(k[self.chosen_event])  # Get the item from the chosen in_edge
                     print(f"T={self.env.now:.2f}: {self.id} received item {item.id} from {self.in_edges[edge_index].id} ")
                     item.update_node_event(self.id, self.env, "entry")
                     if isinstance(item, simpy.events.Process):
