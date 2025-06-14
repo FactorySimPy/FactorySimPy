@@ -10,7 +10,7 @@ In this section, we present examples that demonstrate how to use FactorySimPy
 
 Shown below is a very simple example. Here, the delays to be configured are `inter_arrival_time`, and `processing_delay` of the source and the machine respectively. In this example, the delays `inter_arrival_time`, and `processing_delay`, are specified as constant values at the time of node initiation.
 
-Similarly `in_edge_selection` and  `out_edge_selection` can also be provided as a constant or use one of the generator functions available in the package. These functions can be passed as a string. See [API](api_ref_main_page.md) for the details of all the available functions.
+Similarly `in_edge_selection` and  `out_edge_selection` can also be provided as a constant or use one of the generator functions available in the package. These functions can be passed as a string. [See this page for details about edge selection policy](configuring_parameters.md) for the details of all the available functions.
  
 ```python
 
@@ -48,13 +48,13 @@ env.run(until=10)
 ## Example with delay as a reference to a function
 
 
-Shown below is a very simple example where the sources generate items and puts it to a machine through a buffer and the items processed in machine is moved to a sink using a another buffer. This example shows how to pass a function as a parameter. Here, the delays to be configured are `inter_arrival_time`, and `processing_delay` of source and machine. These are specified as a reference to a python function and generator function instance respectively. Here, inter_arrival is a python function that returns a value, processing_delay_generator is a generator functions that yields a value based on an attribute of the node.
-
+Shown below is a very simple example where the sources generate items and puts it to a machine through a buffer and the items processed in machine is moved to a sink using a another buffer. This example shows how to pass a function as a parameter.
 
 ### Delay as python function
 
  ***Here's an example showing how to pass python functions as delay parameters.*** 
 
+ Here, the delays to be configured are `inter_arrival_time`, and `processing_delay` of source and machine. These are specified as a reference to a python function. 
 
 
 ```python
@@ -124,6 +124,7 @@ env.run(until=10)
 ***Here's an example showing how to pass python generator functions as delay parameters.*** 
 
 
+ Here, the delays to be configured are `inter_arrival_time`, and `processing_delay` of source and machine. These are specified as a reference to a python generator function instance. 
 ```python
 
 
