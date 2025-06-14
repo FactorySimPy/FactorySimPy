@@ -1,6 +1,6 @@
 import random
 
-def get_index_selector(sel_type, node, env, edge_type="OUT"):
+def get_edge_selector(sel_type, node, env, edge_type=None):
     """
     Returns a generator that yields selected indices from the node's edge list.
 
@@ -21,10 +21,11 @@ def get_index_selector(sel_type, node, env, edge_type="OUT"):
   
     """
     edge_type = edge_type.lower()
+    assert edge_type in ["in", "out"], "edge_type must be either 'in' or 'out'."
     strategies = {
-        "RANDOM": Random,
+        "RANDOM": Random_edge_selector,
         
-        "ROUND_ROBIN": RoundRobin,
+        "ROUND_ROBIN": RoundRobin_edge_selector,
        
     }
 
@@ -36,13 +37,13 @@ def get_index_selector(sel_type, node, env, edge_type="OUT"):
     
     return strategies[sel_type](node, env, edge_type)
 
-def Random(node, env, edge_type):
+def Random_edge_selector(node, env, edge_type):
     while True:
     
         edges = getattr(node, f"{edge_type}_edges")
         yield random.randint(0, len(edges) - 1)
 
-def RoundRobin(node, env, edge_type):
+def RoundRobin_edge_selector(node, env, edge_type):
     i = 0
     while True:
         edges = getattr(node, f"{edge_type}_edges")

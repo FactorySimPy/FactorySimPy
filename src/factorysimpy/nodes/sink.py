@@ -2,7 +2,7 @@
 from factorysimpy.nodes.node import Node
 import simpy
 
-from factorysimpy.utils.utils import get_index_selector
+from factorysimpy.utils.utils import get_edge_selector
 class Sink(Node):
     """
     
@@ -54,7 +54,7 @@ class Sink(Node):
                 self.in_edge_selection = self.in_edge_selection
 
             elif isinstance(self.in_edge_selection, str):  
-                self.in_edge_selection = get_index_selector(self.in_edge_selection, self, self.env, "IN")
+                self.in_edge_selection = get_edge_selector(self.in_edge_selection, self, self.env, "IN")
                 
 
             elif callable(self.in_edge_selection):
@@ -207,8 +207,9 @@ class Sink(Node):
                 
         self.stats["num_item_received"] += 1
         self.stats["total_cycle_time"] += self.env.now - self.item_in_process.timestamp_creation
-        self.item_in_process=None
+        
         #print("fromsink", self.env.now - item.timestamp_creation)
-        print(f"T={self.env.now:.2f}: {self.id } is got an {item} ")
+        print(f"T={self.env.now:.2f}: {self.id } got an {self.item_in_process} ")
+        self.item_in_process=None
        
         

@@ -45,18 +45,24 @@ env.run(until=10)
 
 ```
 
-## Example with delay as random variates
+## Example with delay as a reference to a function
 
-***Here's an example showing how to pass functions as delay parameters.*** 
 
 Shown below is a very simple example where the sources generate items and puts it to a machine through a buffer and the items processed in machine is moved to a sink using a another buffer. This example shows how to pass a function as a parameter. Here, the delays to be configured are `inter_arrival_time`, and `processing_delay` of source and machine. These are specified as a reference to a python function and generator function instance respectively. Here, inter_arrival is a python function that returns a value, processing_delay_generator is a generator functions that yields a value based on an attribute of the node.
+
+
+### Delay as python function
+
+ ***Here's an example showing how to pass python functions as delay parameters.*** 
+
+
 
 ```python
 
 
 #   System layout 
 #   SRC ──> BUF1 ──> MACHINE1 ──> BUF2 ──> SINK
-
+import random
 import factorysimpy
 from factorysimpy.nodes.machine import Machine
 from factorysimpy.edges.buffer import Buffer
@@ -65,32 +71,34 @@ from factorysimpy.nodes.sink import Sink
 
 env = simpy.Environment()
 
-def inter_arrival(loc=4.0, scale=5.0, size=1):
-        delay = scipy.stats.expon.rvs(loc=0.0,scale=0.5,size=1)
-        return delay[0]
+env = simpy.Environment()
 
-def processing_delay_generator(node,env):
-    while True:
-        if Node.stats["total_time_spent_in_states"]["PROCESSING_STATE"]>7:
-         yield 1
-        else:
-         yield 1.6
-
-
-
+#let the inter arrival time of the source be a value sampled from a gaussian distribution with mean = 2, std deviation is = 0.5
+#Gaussian distribution as a python function 
+def generate_gaussian_distribution(mean=0, std_dev=1):
+   
+    return random.gauss(mu=mean,sigma= std_dev)
+       
+#let the processing delay of the machine be a value function of the duration of the time spent by the machine in processing state
+#if the time spent in processing state is greater than 7, the processing delay has to take one value in index 0 of the return_vals
+#if the time spent in processing state is less than or equal to 7, the processing delay has to take the value in index 1
+#This behaviour as a python function 
+def generate_process_delay(node,env, return_vals):
+      if node.stats["total_time_spent_in_states"]["PROCESSING_STATE"]>7:
+        return return_vals[0]
+      else:
+        return return_vals[1]
 
 
 
 
 # Initializing nodes
-SRC= Source(env, id="SRC",  inter_arrival_time=inter_arrival(),blocking=False,out_edge_selction=0 )
-
-
-MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4,processing_delay=None,in_edge_selection="RANDOM",out_edge_selection="RANDOM")
-process_delay_gen1=processing_delay_generator(MACHINE1,env)
-MACHINE1.processing_delay=process_delay_gen1
-
+SRC= Source(env, id="SRC",  inter_arrival_time=generate_gaussian_distribution(1,0.25),blocking=False,out_edge_selection=0 )
+MACHINE1 = Machine(env, id="MACHINE1",work_capacity=1,processing_delay=None,in_edge_selection="RANDOM",out_edge_selection="RANDOM")
+processing_delay_func=generate_process_delay(MACHINE1,env,[0.9,1.2])
+MACHINE1.processing_delay = processing_delay_func
 SINK= Sink(env, id="SINK" )
+
 
 
 # Initializing edges
@@ -108,13 +116,85 @@ BUF2.connect(MACHINE1,SINK)
 env.run(until=10)
 ```
 
+
+
+
+
+### Delay as generator function
+***Here's an example showing how to pass python generator functions as delay parameters.*** 
+
+
+```python
+
+
+#   System layout 
+#   SRC ──> BUF1 ──> MACHINE1 ──> BUF2 ──> SINK
+import random
+import factorysimpy
+from factorysimpy.nodes.machine import Machine
+from factorysimpy.edges.buffer import Buffer
+from factorysimpy.nodes.source import Source
+from factorysimpy.nodes.sink import Sink
+
+env = simpy.Environment()
+
+#let the inter arrival time of the source be a value sampled from a gaussian distribution with mean = 2, std deviation is = 0.5
+#Gaussian distribution as a generator function 
+def generate_gaussian_distribution(mean=0, std_dev=1):
+   while True:
+        yield random.gauss(mu=mean,sigma= std_dev)
+       
+#let the processing delay of the machine be a value function of the duration of the time spent by the machine in processing state
+#if the time spent in processing state is greater than 7, the processing delay has to take one value in index 0 of the return_vals
+#if the time spent in processing state is less than or equal to 7, the processing delay has to take the value in index 1
+#This behaviour as a generator function 
+def generate_process_delay(node,env, return_vals):
+   while True:
+      if node.stats["total_time_spent_in_states"]["PROCESSING_STATE"]>7:
+        yield return_vals[0]
+      else:
+        yield  return_vals[1]
+
+
+
+
+# Initializing nodes
+SRC= Source(env, id="SRC",  inter_arrival_time=generate_gaussian_distribution(1,0.25),blocking=False,out_edge_selection=0 )
+MACHINE1 = Machine(env, id="MACHINE1",work_capacity=1,processing_delay=None,in_edge_selection="RANDOM",out_edge_selection="RANDOM")
+processing_delay_func=generate_process_delay(MACHINE1,env,[0.9,1.2])
+MACHINE1.processing_delay = processing_delay_func
+SINK= Sink(env, id="SINK" )
+
+
+
+# Initializing edges
+BUF1 = Buffer(env, id="BUF1", store_capacity=4, delay=0.5)
+BUF2 = Buffer(env, id="BUF2", store_capacity=4, delay=0.5)
+
+
+# Adding connections
+BUF1.connect(SRC,MACHINE1)
+BUF2.connect(MACHINE1,SINK)
+
+
+
+
+env.run(until=10)
+```
+
+
+
+
 ## Example with a custom edge selction policy as a function
 
+
+
+
+In the example below, the sources generate items and puts it into its output buffer. Machine picks this item and processes it and puts it to another buffer. It choses the input edge and output edge based on the values yielded from function specified in `in_edge_selection` parameter and `out_edge_selection` parameter. 
+
+### Edge selection as generator function
+
 ***Here's an example that shows how to interconnect a source to a machine using buffers and pass a python function or a generator instance as parameter.***
-
-
-In the example below, the sources generate items and puts it into its output buffer. Machine picks this item and processes it and puts it to another buffer. It choses the input edge and output edge based on the values yielded from function specified in `in_edge_selection` parameter and `out_edge_selection` parameter. Generator function instances are passed as input to parameters in this example. Sink is used to remove the finished items from the respective buffers. 
-
 
 ```python
 
@@ -136,6 +216,10 @@ from factorysimpy.nodes.sink import Sink
 
 env = simpy.Environment()
 
+#let the out_edge_selection of the source be a generator function that yields 1 or 0 based on the current time
+# This generator function will yield 1 if the current time is even, and 0 if it is odd.
+# This will simulate a scenario where the source alternates between two output edges based on the time.
+#out_edge_selection as a generator function for machine
 def machine_out_edge_selector(env):
    while True:
       if env.now%2==0:
@@ -143,13 +227,21 @@ def machine_out_edge_selector(env):
       else:
          yield 0
 
+#let the in_edge_selection of the machine be a generator function that yields the index of the edge to be selected
+# This generator function will yield the index of the edge to be selected based on the current time.
+# The index will be incremented every time the generator is called, and will wrap around when it reaches the number of edges.
+#in_edge_selection as a generator function for machine
 def machine_in_edge_selector(node):
    num_edges= len(node.in_edges)
+   i=0
    while True:
          yield i
          yield i
          i = (i + 1) % num_edges
 
+#let the out_edge_selection of the source be a generator function that yields 1 or 0 based on the current time
+# This generator function will yield 1 if the current time is even, and 0 if it is odd.
+#out_edge_selection as a generator function for source
 def source_out_edge_selector(node, env):
 
    while True:
@@ -166,18 +258,18 @@ def source_out_edge_selector(node, env):
 # Initializing nodes
 SRC1= Source(env, id="SRC1",  inter_arrival_time=0.7,blocking=False, out_edge_selection="FIRST_AVAILABLE" )
 SRC2= Source(env, id="SRC2",  inter_arrival_time=0.4,blocking=False, out_edge_selection=None )
-MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4, processing_delay=None,in_edge_selection=None,out_edge_selection=None)
+MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4, processing_delay=1,in_edge_selection=None,out_edge_selection=None)
 SINK1= Sink(env, id="SINK1", in_edge_selection="RANDOM" )
 SINK2= Sink(env, id="SINK2", in_edge_selection="RANDOM"  )
-SINK3= Sink(env, id="SINK3",, in_edge_selection="FIRST_AVAILABLE"  )
+SINK3= Sink(env, id="SINK3", in_edge_selection="FIRST_AVAILABLE"  )
 
 #initialising out_edge_selection for source
-source_out_edge_func = source_out_edge_selector(SRC,env)
-SRC.out_edge_selection = source_out_edge_func
+source_out_edge_func = source_out_edge_selector(SRC2,env)
+SRC2.out_edge_selection = source_out_edge_func
 
 #initialising in_edge_selection parameter
 machine_in_edge_func = machine_in_edge_selector(MACHINE1)
-MACHINE1.in_edge_selection = in_edge_func
+MACHINE1.in_edge_selection = machine_in_edge_func
 
 #initialising in_edge_selection parameter for machine
 machine_out_edge_func = machine_out_edge_selector(env)

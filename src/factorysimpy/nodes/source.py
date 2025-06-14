@@ -5,7 +5,7 @@ import simpy
 from factorysimpy.nodes.node import Node
 from factorysimpy.helper.item import Item
 from factorysimpy.helper.pallet import Pallet
-from factorysimpy.utils.utils import get_index_selector
+from factorysimpy.utils.utils import get_edge_selector
 
 
 
@@ -132,7 +132,7 @@ class Source(Node):
             self.out_edge_selection = self.out_edge_selection
         
         elif isinstance(self.out_edge_selection, str):  
-            self.out_edge_selection = get_index_selector(self.out_edge_selection, self, self.env, "OUT")
+            self.out_edge_selection = get_edge_selector(self.out_edge_selection, self, self.env, "OUT")
         elif callable(self.out_edge_selection):
             # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
             self.out_edge_selection = self.out_edge_selection
