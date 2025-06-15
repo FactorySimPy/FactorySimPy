@@ -193,6 +193,105 @@ env.run(until=10)
 
 In the example below, the sources generate items and puts it into its output buffer. Machine picks this item and processes it and puts it to another buffer. It choses the input edge and output edge based on the values yielded from function specified in `in_edge_selection` parameter and `out_edge_selection` parameter. 
 
+
+
+### Edge selection as python function
+
+***An example that shows how to interconnect a source to a machine using buffers and pass a python function as parameter.***
+
+Consider the case when the edge selection parameters are to be modelled python function. Here is an example that shows how to pass such a python function instance as a parameter. Let us consider a case where the `in_edge_selection` is dependant on the values sampled from a uniform distribution [0,1], if the sampled value is less than 0.5, then always index 1 is returned and if the sampled value is greater than 0.5 then index 0 is returned. `out_edge_selection` is dependant on the values sampled from a gaussian distribution with mean 4 and standard deviation 1 , if the value is greater than 3, then edge 0 is selected otherwise edge 1 is selected. Edge selection parameters of SRC1, and all the  SINKs are provided with options that are implemented within the package. [See this page for details about edge selection policy.s](configuring_parameters.md)
+
+```python
+
+
+#  System layout 
+
+#   SRC1 ──> BUFFER1 ──┐
+#                      │
+#   SRC2 ──> BUFFER2 ──┴─> MACHINE1 ──┬─> BUFFER3 ──> SINK1
+#      │                              │
+#      └─> BUFFER5 ──> SINK3          └─> BUFFER4 ──> SINK2
+#                                         
+
+import factorysimpy
+from factorysimpy.nodes.machine import Machine
+from factorysimpy.edges.buffer import Buffer
+from factorysimpy.nodes.source import Source
+from factorysimpy.nodes.sink import Sink
+
+env = simpy.Environment()
+
+#let the in_edge_selection of the machine be a function that yields 1 or 0 based on the value sampled from uniform distribution [0,1]
+# This  function will yield 1 if value 0.5, and 0 if it is otherwise.
+#in_edge_selection as a  function for machine
+def machine_in_edge_selector():
+   if random.random()<0.5:
+      return 1
+   else:
+      return 0
+
+#let the out_edge_selection of the machine be a function that yields the index of the edge to be selected
+# This  function will yield the index of the edge to be selected based on the value sampled from a gaussian dostribution with mean=4 and sigma=1
+# it will return 1 is the sampled value is >3, else it will return 0
+#out_edge_selection as a function for machine
+
+def machine_out_edge_selector(mean=4, std_dev=1):
+   if random.gauss(mu=mean,sigma= std_dev) >3:
+      return 1
+   else:
+      return 0
+
+#let the out_edge_selection of the source 2 be a generator function that yields 1 or 0 based on the current time
+# This generator function will yield 1 if the current time is even, and 0 if it is odd.
+#out_edge_selection as a function for source
+def source_out_edge_selector(env):
+      if env.now%2==0:
+         return 1
+      else:
+         return 0
+    
+
+
+
+
+
+# Initializing nodes
+SRC1= Source(env, id="SRC1",  inter_arrival_time=0.7,blocking=False, out_edge_selection="FIRST_AVAILABLE" )
+SRC2= Source(env, id="SRC2",  inter_arrival_time=0.4,blocking=False, out_edge_selection=source_out_edge_selection(env) )
+MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4, processing_delay=1,in_edge_selection=machine_in_edge_selection(),out_edge_selection=machine_in_edge_selection(4,1))
+SINK1= Sink(env, id="SINK1", in_edge_selection="RANDOM" )
+SINK2= Sink(env, id="SINK2", in_edge_selection="RANDOM"  )
+SINK3= Sink(env, id="SINK3", in_edge_selection="FIRST_AVAILABLE"  )
+
+
+
+
+
+
+
+# Initializing edges
+# Initializing edges
+BUF1 = Buffer(env, id="BUF1", store_capacity=4, delay=0.5)
+BUF2 = Buffer(env, id="BUF2", store_capacity=4, delay=0.5)
+BUF3 = Buffer(env, id="BUF3", store_capacity=4, delay=0.5)
+BUF4 = Buffer(env, id="BUF4", store_capacity=4, delay=0.5)
+BUF5 = Buffer(env, id="BUF5", store_capacity=4, delay=0.5)
+
+
+
+
+# Adding connections
+BUF1.connect(SRC1,MACHINE1)
+BUF2.connect(SRC2,MACHINE1)
+BUF3.connect(MACHINE1,SINK1)
+BUF4.connect(MACHINE1,SINK2)
+BUF5.connect(SRC2,SINK3)
+
+
+env.run(until=10)
+```
+
+
 ### Edge selection as generator function
 
 ***An example that shows how to interconnect a source to a machine using buffers and pass a python function or a generator instance as parameter.***
