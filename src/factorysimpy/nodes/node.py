@@ -58,13 +58,16 @@ class Node:
         """
         if hasattr(delay, '__next__'):
             # Generator instance
-            return next(delay)
+            val = next(delay)
         elif callable(delay):
             # Function
-            return delay()
+            val = delay()
         else:
             # int or float
-            return delay
+            val = delay
+
+        assert val >= 0, "Delay must be non-negative"
+        return val
     
     def update_state(self, new_state: str, current_time: float):
         """

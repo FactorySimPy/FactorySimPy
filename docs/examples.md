@@ -10,7 +10,7 @@ In this section, we present examples that demonstrate how to use FactorySimPy
 
 Shown below is a very simple example. Here, the delays to be configured are `inter_arrival_time`, and `processing_delay` of the source and the machine respectively. In this example, the delays `inter_arrival_time`, and `processing_delay`, are specified as constant values at the time of node initiation.
 
-Similarly `in_edge_selection` and  `out_edge_selection` can also be provided as a constant or use one of the generator functions available in the package. These functions can be passed as a string. [See this page for details about edge selection policy.](configuring_parameters.md)
+Similarly `in_edge_selection` and  `out_edge_selection` can also be provided as a constant or use one of the generator functions available in the package. These functions can be passed as a string. [See this page for details about edge selection policy.s](configuring_parameters.md)
 
 ```python
 
@@ -52,9 +52,9 @@ Shown below is a very simple example where the sources generate items and puts i
 
 ### Delay as python function
 
- ***Here's an example showing how to pass python functions as delay parameters.*** 
+ ***An example showing how to pass python functions as delay parameters.*** 
 
- Here, the delays to be configured are `inter_arrival_time`, and `processing_delay` of source and machine. These are specified as a reference to a python function. 
+ In this examples the delays to be configured are `inter_arrival_time`, and `processing_delay` of source and machine. These are specified as a reference to a python function. Let the inter arrival time of the source be a value sampled from a gaussian distribution with mean = 1, std deviation is = 0.25 and the processing delay of the machine be a value function of the duration of the time spent by the machine in processing state.
 
 
 ```python
@@ -73,7 +73,7 @@ env = simpy.Environment()
 
 env = simpy.Environment()
 
-#let the inter arrival time of the source be a value sampled from a gaussian distribution with mean = 2, std deviation is = 0.5
+#let the inter arrival time of the source be a value sampled from a gaussian distribution with mean = 1, std deviation is = 0.25
 #Gaussian distribution as a python function 
 def generate_gaussian_distribution(mean=0, std_dev=1):
    
@@ -121,10 +121,10 @@ env.run(until=10)
 
 
 ### Delay as generator function
-***Here's an example showing how to pass python generator functions as delay parameters.*** 
+***An example showing how to pass python generator functions as delay parameters.*** 
 
 
- Here, the delays to be configured are `inter_arrival_time`, and `processing_delay` of source and machine. These are specified as a reference to a python generator function instance. 
+  In this example (same as above), the delays to be configured are `inter_arrival_time`, and `processing_delay` of source and machine. These are specified as a reference to a python generator function instance. Let the inter arrival time of the source be a value sampled from a gaussian distribution with mean = 1, std deviation is = 0.25 and the processing delay of the machine be a value function of the duration of the time spent by the machine in processing state. Generator functions are created for the two cases and supplied as parameters.
 ```python
 
 
