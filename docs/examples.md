@@ -195,8 +195,9 @@ In the example below, the sources generate items and puts it into its output buf
 
 ### Edge selection as generator function
 
-***Here's an example that shows how to interconnect a source to a machine using buffers and pass a python function or a generator instance as parameter.***
+***An example that shows how to interconnect a source to a machine using buffers and pass a python function or a generator instance as parameter.***
 
+Consider the case when the edge selection parameters are to be modelled as a generator function that depends on the node object or the current time of the simulation environment. Here is an example that shows how to pass such a generator function instance as a parameter.
 ```python
 
 
