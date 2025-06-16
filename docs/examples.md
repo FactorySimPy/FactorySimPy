@@ -191,7 +191,7 @@ env.run(until=10)
 
 
 
-In the example below, there are multiple sources that generates items and puts it into their output buffer. Machine chooses one of its `in_edges` and picks an item and processes it and chooses an output edge and puts the item there. It choses the input edge and output edge based on the values yielded from function specified in `in_edge_selection` parameter and `out_edge_selection` parameter. 
+In the example below, there are multiple sources that generates items and puts it into their output buffers. The machine chooses one of its `in_edges` and picks an item and processes it and chooses an output edge and puts the item there. It choses the input edge and output edge based on the values yielded from function specified in `in_edge_selection` parameter and `out_edge_selection` parameter. 
 
 
 
@@ -199,7 +199,7 @@ In the example below, there are multiple sources that generates items and puts i
 
 ***An example that shows how to interconnect a source to a machine using buffers and pass a python function as parameter.***
 
-Consider the case when the edge selection parameters are to be modelled as a python function. Here is an example that shows how to pass a python function instance as a parameter. Let us consider a case where the `in_edge_selection` is dependant on the values sampled from a uniform distribution [0,1], if the sampled value is less than 0.5, then always index 1 is returned and if the sampled value is greater than 0.5 then index 0 is returned. `out_edge_selection` is dependant on the values sampled from a gaussian distribution with mean 4 and standard deviation 1 , if the value is greater than 3, then edge 0 is selected otherwise edge 1 is selected. Edge selection parameters of SRC1, and all the  SINKs are provided with options that are implemented within the package. [See this page for details about edge selection policy.s](configuring_parameters.md)
+Consider the case when the edge selection parameters are to be modelled as a python function. Here is an example that shows how to pass a python function instance as a parameter. Let us consider a case where the `in_edge_selection` is dependant on the values sampled from a uniform distribution [0,1], if the sampled value is less than 0.5, then always index 1 is returned and if the sampled value is greater than 0.5 then index 0 is returned. `out_edge_selection` is dependant on the values sampled from a gaussian distribution with mean 4 and standard deviation 1 , if the value is greater than 3, then edge 0 is selected otherwise edge 1 is selected. Edge selection parameters of SRC1, and all the  SINKs are provided with options that are implemented within the package. [See this page for details about edge selection policy.](configuring_parameters.md)
 
 ```python
 
