@@ -6,7 +6,7 @@ def get_edge_selector(sel_type, node, env, edge_type=None):
 
     Args:
     
-        sel_type (str): The selection strategy. One of: 'RANDOM', 'FIRST', 'LAST', 'ROUND_ROBIN', 'FIRST_AVAILABLE'.
+        sel_type (str): The selection strategy. One of: 'RANDOM', 'ROUND_ROBIN'.
         node (object): The node object containing in_edges or out_edges.
         env (simpy.Environment): The simulation environment.
         edge_type (str, optional): Whether to select from 'out_edges' or 'in_edges'. Default is 'OUT'.

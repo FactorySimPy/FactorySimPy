@@ -113,30 +113,47 @@ class Machine(Node):
             
             self.state = "SETUP_STATE"  # Reset state to SETUP_STATE
             
-            # Initialize in_edge_selection
+            # setting the edge_selection and processing_delay parameters
+            # Initialize in_edges and out_edges. This can be initialized only in the reset method, as the edges can be added later.
+            
+            #checking if parameter is int and if so it should belong to a valid range
             if isinstance(self.in_edge_selection, int):
                 assert 0 <= self.in_edge_selection < len(self.in_edges), f"in_edge_selection must be in range 0 to {len(self.in_edges)-1}"
-            # Already an int, use as is
+            
+            #checking if parameter is "FIRST_AVAILABLE". If so it is handled in the class logic.
             elif self.in_edge_selection == "FIRST_AVAILABLE":
                 # Special handling in class logic, use as is
                 pass
+            #checking if in_edge_selection is a string, then it is converted to a generator using get_edge_selector function. 
+            # Names of the methods are passed as strings. These methods are inbuilt and available.
             elif isinstance(self.in_edge_selection, str):
                 self.in_edge_selection = get_edge_selector(self.in_edge_selection, self, self.env, "IN")
+
+            #checking if in_edge_selection is a callable or a generator. If so, it is used as is.
+            # it is treated in get_in_edge_index method
             elif callable(self.in_edge_selection) or hasattr(self.in_edge_selection, '__next__'):
                 # Use as is (function or generator)
                 pass
+            # If in_edge_selection is not one of the above types, raise an error.
             else:
                 raise ValueError("in_edge_selection must be None, string, int, or a callable (function/generator)")
             
+
             # Initialize out_edge_selection
+            #checking if parameter is int and if so it should belong to a valid range
             if isinstance(self.out_edge_selection, int):
                 assert 0 <= self.out_edge_selection < len(self.out_edges), f"out_edge_selection must be in range 0 to {len(self.out_edges)-1}"
-                # Already an int, use as is
+            #checking if parameter is "FIRST_AVAILABLE". If so it is handled in the class logic.
             elif self.out_edge_selection == "FIRST_AVAILABLE":
                 # Special handling in class logic, use as is
                 pass
+            #checking if out_edge_selection is a string, then it is converted to a generator using get_edge_selector function.
+            # Names of the methods are passed as strings. These methods are inbuilt and available.
             elif isinstance(self.out_edge_selection, str):
                 self.out_edge_selection = get_edge_selector(self.out_edge_selection, self, self.env, "OUT")
+            
+            #checking if out_edge_selection is a callable or a generator. If so, it is used as is.
+            # it is treated in get_out_edge_index method
             elif callable(self.out_edge_selection) or hasattr(self.out_edge_selection, '__next__'):
                 # Use as is (function or generator)
                 pass
@@ -145,7 +162,7 @@ class Machine(Node):
  
 
             
-
+            # If it is initialise as None and missed to initialise it to a valid function before simulation
             if self.processing_delay is None:
                 raise ValueError("Processing delay cannot be None.")
             if self.in_edge_selection is None:
@@ -220,35 +237,41 @@ class Machine(Node):
     def _get_out_edge_index(self):
         
          
-   
+        # if it is a constant integer, use the value as is
         if isinstance(self.out_edge_selection, int):
             val = self.out_edge_selection
+        # if it is a generator, get the next value from the generator
         elif hasattr(self.out_edge_selection, '__next__'):
             # It's a generator
-            val = next(self.out_edge_selection)          
+            val = next(self.out_edge_selection)     
+        # if it is a function return the value returned by the function     
         elif callable(self.out_edge_selection):
             # It's a function (pass self and env if needed)
             #return self.out_edge_selection(self, self.env)
-            val = self.out_edge_selection(self, self.env)       
+            val = self.out_edge_selection()       
         else:
             raise ValueError("out_edge_selection must be a generator or a callable.")   
+        # Check if the value is within the valid range of out_edges
         assert 0<= val < len(self.in_edges), f"{self.id} - Invalid edge index. {val} is not in range. Range must be between {0} and  {len(self.out_edges)-1} for out_edges." 
         return val   
  
 
     def _get_in_edge_index(self):
-         
+
+        # if it is a constant integer, use the value as is 
         if isinstance(self.in_edge_selection, int):
             val = self.in_edge_selection
+        # if it is a generator, get the next value from the generator
         elif hasattr(self.in_edge_selection, '__next__'):
             # It's a generator
             val = next(self.in_edge_selection)    
+        # if it is a function return the value returned by the function
         elif callable(self.in_edge_selection):
-            # It's a function (pass self and env if needed)
-            #return self.out_edge_selection(self, self.env)
-            val = self.in_edge_selection(self, self.env)   
+          
+            val = self.in_edge_selection()   
         else:
             raise ValueError("in_edge_selection must be a generator or a callable.")    
+        # Check if the value is within the valid range of in_edges
         assert 0<=val < len(self.in_edges), f"{self.id} - Invalid edge index. {val} is not in range. Range must be between {0} and  {len(self.in_edges)-1} for in_edges."
         return val
                   
@@ -530,17 +553,13 @@ class Machine(Node):
 
     def behaviour(self):
         #Machine behavior that creates workers based on the effective capacity."""
-        i=0
+        # Reset the machine state and edge selection parameters and processing delay parameter
         self.reset()
+
+        #checking of the machine has atleast 1 in_edge and 1 out_edge
         assert self.in_edges is not None and len(self.in_edges) >= 1, f"Machine '{self.id}' must have atleast 1 in_edge."
         assert self.out_edges is not None and len(self.out_edges) >= 1, f"Machine '{self.id}' must have atleast 1 out_edge."
 
-        #get edge
-        #do reserve_get
-        #get item from edge
-        #get processing time
-        #resource request
-        #worker thread process
 
         while True:
             #print(f"T={self.env.now:.2f}: {self.id} worker{i} started processing")
@@ -552,15 +571,26 @@ class Machine(Node):
 
             else:
                 
+                #updating the working occupancy of the machine-- 
+                # done to account the time of an iteration incase there is no change is worker occupancy
+            
                 self._update_worker_occupancy(action="UPDATE")
+
+                #getting the number of threads in PROCESSING_STATE and BLOCKED_STATE to change the state of the machine if required
                 numthreads_PROCESSING, numthreads_BLOCKED = self._count_worker_state()
+
+                # if numthreads_PROCESSING == 0 and numthreads_BLOCKED == 0, then the state is IDLE_STATE
+                if numthreads_PROCESSING == 0 and numthreads_BLOCKED == 0:
+                    self.update_state("IDLE_STATE", self.env.now)
+                # if there is atleast one thread that is PROCESSING, then the state is PROCESSING_STATE, then the state is updated to PROCESSING_STATE
                 if numthreads_PROCESSING >0:
                     self.update_state("PROCESSING_STATE", self.env.now)
+                # if all threads are in blocked state, then the state is BLOCKED_STATE, then the state is updated to BLOCKED_STATE
                 if numthreads_BLOCKED == self.work_capacity:
                     self.update_state("BLOCKED_STATE", self.env.now)
                             
                 
-                print(f"T={self.env.now:.2f}: {self.id} is in {self.state}, creating workers")
+                print(f"T={self.env.now:.2f}: {self.id} is in {self.state}")
                 # Create workers based on work_capacity
                 
                 #in_edge_selection is "FIRST_AVAILABLE"--->     yield in a list, select one with min. index value and cancel other and pull item
