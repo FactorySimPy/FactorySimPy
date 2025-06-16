@@ -77,7 +77,8 @@ class Machine(Node):
         self.blocking = blocking
         self.per_thread_total_time_in_blocked_state = 0.0
         self.per_thread_total_time_in_processing_state = 0.0
-        self.worker_process_map = {}
+        
+        self.worker_thread_list = []  # List to keep track of worker threads
         
         self.item_in_process= None
         self.num_workers = 0  # Number of worker threads currently processing
@@ -412,21 +413,21 @@ class Machine(Node):
     def _count_worker_state(self):
         """
         Counts and returns the number of threads in "PROCESSING_STATE" and "BLOCKED_STATE"
-        using self.worker_process_map.
+        using self.worker_thread_list.
     
         Returns:
             num_threads_PROCESSING (int): Number of threads in "PROCESSING_STATE"
             num_threads_BLOCKED (int): Number of threads in "BLOCKED_STATE"
         """
-        if not self.worker_process_map:
+        if not self.worker_thread_list:
             num_threads_PROCESSING = 0
             num_threads_BLOCKED = 0
         else:
             num_threads_PROCESSING = sum(
-                proc["state"] == "PROCESSING_STATE" for proc in self.worker_process_map.values()
+                proc.thread_state == "PROCESSING_STATE" for proc in self.worker_thread_list
             )
             num_threads_BLOCKED = sum(
-                proc["state"] == "BLOCKED_STATE" for proc in self.worker_process_map.values()
+                proc.thread_state == "BLOCKED_STATE" for proc in self.worker_thread_list
             )
     
         assert 0 <= num_threads_BLOCKED <= self.work_capacity \
@@ -541,10 +542,10 @@ class Machine(Node):
             # Release the worker thread after processing
         
             yield self.worker_thread.release(req_token)  # Release the worker thread
-            #print(self.env.active_process, self.worker_process_map)
-            if self.worker_process_map[self.env.active_process]:
-                #print("deleting")
-                del self.worker_process_map[self.env.active_process]
+      
+            #delete the worker thread from the worker_thread_list
+            if self.env.active_process in self.worker_thread_list:
+                self.worker_thread_list.remove(self.env.active_process)
             self._update_worker_occupancy(action="REMOVE")  # Update worker occupancy after processing
                 
 
@@ -663,13 +664,13 @@ class Machine(Node):
                 print(f"T={self.env.now:.2f}: {self.id} worker started processing item {self.item_in_process.id} ")
                 #spawn a worker process
                 proc = self.env.process(self.worker(self.item_in_process, next_processing_time, worker_thread_req))  # Start the worker process
-                self.worker_process_map[proc] = {
-                    "item":self.item_in_process,# Map the process to the item being processed. to be utilised by out_edge_selection from node as 
-                    "state":"PROCESSING_STATE", #state of the process
-                }
+                proc.thread_state="PROCESSING_STATE" # Set the thread state to PROCESSING_STATE
+                proc.item_to_put = self.item_in_process # Set the item to be put by the worker process
+                self.worker_thread_list.append(proc)  # Add the worker process to the worker_thread_list
+             
                 #initialise item into none
                 self.item_in_process=None
-                #node.worker_process_map[node.env.active_process] will return the item being processed by the active process.
+            
                 
 
                 

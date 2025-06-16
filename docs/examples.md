@@ -440,7 +440,7 @@ env = simpy.Environment()
 def split_out_edge_selector(node):
    while True:
       proc=node.env.active_process
-      item_in_process= node.worker_process_map[proc]
+      item_in_process= proc.item_to_put
      
       if item_in_process is None:
          raise RuntimeError("Unknown calling process")
