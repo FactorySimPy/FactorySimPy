@@ -257,7 +257,7 @@ print(f"Worker occupancy, {MACHINE1.time_per_work_occupancy)})
 
 - ***[A simple example with all parameters passed as constants](examples.md/#a-simple-example)***
 
-- ***[Example with `processing_delay` passed as function  that generates random variates from a chosen distribution](examples.md/#delay-as-python-function***
+- ***[Example with `processing_delay` passed as function  that generates random variates from a chosen distribution](examples.md/#delay-as-python-function)***
 
 - ***[Example with `processing_delay` passed as a generator function instance](examples.md/#delay-as-generator-function)***
 
