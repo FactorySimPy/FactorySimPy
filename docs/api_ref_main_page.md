@@ -2,6 +2,8 @@
 
 Click on the links below to navigate to its API documentation:
 
+[Here's a link to the repo](https://github.com/FactorySimPy/FactorySimPy)
+
 Node classes
 
 - [Node](nodes.md)
