@@ -191,15 +191,17 @@ At the start of the simulation, the machine waits for `node_setup_time`. This is
  
  **States**
  
- During its operation, machine transitions through the following states:
+ During its operation, machine transitions through many states depending on the action of the machine and the worker threads. Machine transitions through the following states:
 
 1. "SETUP_STATE": Initialization or warm-up phase before item processing starts.
 
-2. "IDLE_STATE": When the machine doesnot have any item to process as the input edge is empty
+2. "IDLE_STATE": When the machine doesnot have any worker thread that is currently getting processed or are in blocked state
 
-3. "PROCESSING_STATE": Active state where items are being processed.
+3. "PROCESSING_STATE": Active state where items are being processed. If atleast one thread is in processing state, then the machine is in "PROCESSING_STATE"
 
-4. "BLOCKED_STATE": The machine is blocked, when the input edge is full or unavilable .
+4. "BLOCKED_STATE": The machine is blocked, only when all its worker_threads are in "BOCKED_STATE"
+
+The worker threadS also transitions through "PROCESSING_STATE", where it is actively processing items and "BLOCKED_STATE", when it is finished processing but waiting for an output edge to push the item to.
 
 **Usage**
 
