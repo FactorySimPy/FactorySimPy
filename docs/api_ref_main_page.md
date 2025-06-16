@@ -6,12 +6,12 @@ Click on the links below to navigate to its API documentation:
 
 Node classes
 
-- [Node](nodes.md)
-- [Machine](machine.md)
-- [Source](source.md)
-- [Split](split.md)
-- [Joint](joint.md)
-- [Sink](sink.md)
+- [Node](nodes.md)[source code](https://github.com/FactorySimPy/FactorySimPy/blob/main/src/factorysimpy/nodes/node.py)
+- [Machine](machine.md)[source code](https://github.com/FactorySimPy/FactorySimPy/blob/main/src/factorysimpy/nodes/machine.py)
+- [Source](source.md)[source code](https://github.com/FactorySimPy/FactorySimPy/blob/main/src/factorysimpy/nodes/source.py)
+- [Split](split.md)[source code](https://github.com/FactorySimPy/FactorySimPy/blob/main/src/factorysimpy/nodes/split.py)
+- [Joint](joint.md)[source code](https://github.com/FactorySimPy/FactorySimPy/blob/main/src/factorysimpy/nodes/joint.py)
+- [Sink](sink.md)[source code](https://github.com/FactorySimPy/FactorySimPy/blob/main/src/factorysimpy/nodes/sink.py)
 
 Edge classes
 
