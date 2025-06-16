@@ -48,7 +48,7 @@ env.run(until=10)
 ## Example with delay as a reference to a function
 
 
-Shown below is a very simple example where the sources generate items and puts it to a machine through a buffer and the items processed in machine is moved to a sink using a another buffer. This example shows how to pass a function as a parameter.
+Shown below is a very simple example where the source generates items and puts it to a machine through a buffer and the items processed in machine is moved to a sink using another buffer. This example shows how to pass a function as a parameter.
 
 ### Delay as python function
 
@@ -191,7 +191,7 @@ env.run(until=10)
 
 
 
-In the example below, the sources generate items and puts it into its output buffer. Machine picks this item and processes it and puts it to another buffer. It choses the input edge and output edge based on the values yielded from function specified in `in_edge_selection` parameter and `out_edge_selection` parameter. 
+In the example below, there are multiple sources that generates items and puts it into their output buffer. Machine chooses one of its `in_edges` and picks an item and processes it and chooses an output edge and puts the item there. It choses the input edge and output edge based on the values yielded from function specified in `in_edge_selection` parameter and `out_edge_selection` parameter. 
 
 
 
