@@ -212,7 +212,7 @@ Consider the case when the edge selection parameters are to be modelled as a pyt
 #      │                              │
 #      └─> BUFFER5 ──> SINK3          └─> BUFFER4 ──> SINK2
 #                                         
-
+import random
 import factorysimpy
 from factorysimpy.nodes.machine import Machine
 from factorysimpy.edges.buffer import Buffer
@@ -257,8 +257,8 @@ def source_out_edge_selector(env):
 
 # Initializing nodes
 SRC1= Source(env, id="SRC1",  inter_arrival_time=0.7,blocking=False, out_edge_selection="FIRST_AVAILABLE" )
-SRC2= Source(env, id="SRC2",  inter_arrival_time=0.4,blocking=False, out_edge_selection=source_out_edge_selection(env) )
-MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4, processing_delay=1,in_edge_selection=machine_in_edge_selection(),out_edge_selection=machine_in_edge_selection(4,1))
+SRC2= Source(env, id="SRC2",  inter_arrival_time=0.4,blocking=False, out_edge_selection=source_out_edge_selector(env) )
+MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4, processing_delay=1,in_edge_selection=machine_in_edge_selector(),out_edge_selection=machine_out_edge_selector(4,1))
 SINK1= Sink(env, id="SINK1", in_edge_selection="RANDOM" )
 SINK2= Sink(env, id="SINK2", in_edge_selection="RANDOM"  )
 SINK3= Sink(env, id="SINK3", in_edge_selection="FIRST_AVAILABLE"  )
@@ -308,6 +308,7 @@ Consider the case when the edge selection parameters are to be modelled as a gen
 #      │                              │
 #      └─> BUFFER5 ──> SINK3          └─> BUFFER4 ──> SINK2
 #                                         
+
 
 import factorysimpy
 from factorysimpy.nodes.machine import Machine
