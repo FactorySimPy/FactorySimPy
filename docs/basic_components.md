@@ -191,7 +191,7 @@ At the start of the simulation, the machine waits for `node_setup_time`. This is
  
  **States**
  
- During its operation, machine transitions through many states depending on the action of the machine and the worker threads. Machine transitions through the following states:
+ During its operation, machine changes states depending on the action of the machine and the state of the worker threads. The machine transitions through the following states:
 
 1. "SETUP_STATE": Initialization or warm-up phase before item processing starts.
 
@@ -201,7 +201,7 @@ At the start of the simulation, the machine waits for `node_setup_time`. This is
 
 4. "BLOCKED_STATE": The machine is blocked, only when all its worker_threads are in "BOCKED_STATE"
 
-The worker threadS also transitions through "PROCESSING_STATE", where it is actively processing items and "BLOCKED_STATE", when it is finished processing but waiting for an output edge to push the item to.
+The worker threads also transitions through "PROCESSING_STATE", where it is actively processing items and "BLOCKED_STATE", when it is finished processing but waiting for an output edge to push the item to.
 
 **Usage**
 
