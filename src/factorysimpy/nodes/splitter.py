@@ -2,7 +2,8 @@
 import simpy
 from factorysimpy.nodes.node import Node
 
-from factorysimpy.utils.utils import get_index_selector
+from factorysimpy.utils.utils import get_edge_selector
+
 
 
 
@@ -112,7 +113,7 @@ class Splitter(Node):
 
             # Initialize in_edge_selection and out_edge_selection
             if isinstance(self.in_edge_selection, str):  
-                self.in_edge_selection = get_index_selector(self.in_edge_selection, self, self.env, "IN")
+                self.in_edge_selection = get_edge_selector(self.in_edge_selection, self, self.env, "IN")
                 
 
             elif callable(self.in_edge_selection):
@@ -129,7 +130,7 @@ class Splitter(Node):
             
             
             if isinstance(self.out_edge_selection, str):  
-                self.out_edge_selection = get_index_selector(self.out_edge_selection, self, self.env, "OUT")
+                self.out_edge_selection = get_edge_selector(self.out_edge_selection, self, self.env, "OUT")
             elif callable(self.out_edge_selection):
                 # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
                 self.out_edge_selection = self.out_edge_selection

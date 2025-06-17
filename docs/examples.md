@@ -408,7 +408,7 @@ env.run(until=10)
 ***An example to understand how to simulate packing and unpacking of items using SPLITTER and COMBINER***
 
 Consider a system which has to pack 5 base items of `flow_item_type`="item" in to an entity of `flow_item_type`="pallet". And in the same example
-the method to unpack these packed items using a SPLITTER is also shown.
+the method to unpack these packed items using a SPLITTER is also shown. There are two sources, SRC1 (producing "items") and SRC2 (producing "pallets"). These flow items are combined inside combiner and are pushed to a buffer. Splitter takes the items from the combiner and splits it into items and pallets and pushes it into sinks. Out_edge_selection of the splitter is a generator function that depends on the type of the item. It chooses index 0, incase the flow item is of type "item" and 1 if it is type "pallet".
 
 
 ```python
@@ -436,6 +436,8 @@ from factorysimpy.nodes.splitter import Splitter
 
 env = simpy.Environment()
 
+
+#generator function for  out edge selection of splitter
 
 def splitter_out_edge_selector(node):
    while True:
