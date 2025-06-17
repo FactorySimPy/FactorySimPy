@@ -439,7 +439,11 @@ print(f"splitter{SPLITTER11.id}, worker1 state times: {SPLITTER11.stats[1]['tota
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
 
- A Sink is a terminal node that collects flow items at the end. Once an item enters the sink, it is considered to have exited the system and cannot be retrieved or processed further. The sink can have multiple input edges but no output edges. [More details on how to configure the parameter `out_edge_selection` can be found here](configuring_parameters.md) It only has a single state "COLLECTING_STATE". The API documentation can be found in [Sink](sink.md)
+ A Sink is a terminal node that collects flow items at the end. Once an item enters the sink, it is considered to have exited the system and cannot be retrieved or processed further. The sink can have multiple input edges but no output edges. [More details on how to configure the parameter `out_edge_selection` can be found here](configuring_parameters.md). It only has a single state "COLLECTING_STATE". The API documentation can be found in [Sink](sink.md)
+ 
+
+ **Behavior**
+ During a simulation run, sink waits for an item to be available at one of its input edges and accepts that item, records the statistics and destructs that item.
  
 
 **Usage**
@@ -452,9 +456,7 @@ from factorysimpy.nodes.sink import Sink
 
 SINK = SINK(
     env,                        # Simulation environment
-    id="SINK",                # Unique identifier for the  node
-    in_edge_selection="RANDOM",  # Policy or function to select input edge
-    
+    id="SINK",                # Unique identifier for the  node    
 )
 ```
 
@@ -484,7 +486,7 @@ print(f"Total number of items received: {sink.stats}")
 <hr style="height:3px;border:none;color: grey;background-color:grey; " />
 
 
-Edges represent passive elements in the system. This is the basis for the components like Buffer, Conveyor, Fleet, etc. Every edge has a unique identifier named `id` and maintains references to a source node `src_node` and a destination node `dest_node`. Edge acts as a conntction between these two nodes and facilitates the movement of items between the nodes. 
+Edges represent passive elements in the system. This is the basis for the components like Buffer, Conveyor, Fleet, etc. Every edge has a unique identifier named `id` and maintains references to a source node `src_node` and a destination node `dest_node`. There can only be one source node and one destination node for an edge. Edge acts as a conntction between these two nodes and facilitates the movement of items between the nodes. 
 
 
 

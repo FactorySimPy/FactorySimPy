@@ -24,6 +24,7 @@ class Sink(Node):
         
           super().__init__( env, id, in_edges, None,   node_setup_time)
           self.state = "COLLECTING_STATE"
+          self.in_edge_events=[]
           self.stats={"num_item_received": 0, "last_state_change_time":0.0, "total_time_spent_in_states":{"COLLECTING_STATE":0.0}, "total_cycle_time":0.0}
           self.item_in_process = None
           # Start behavior process
@@ -62,14 +63,16 @@ class Sink(Node):
 
       assert self.in_edges is not None and len(self.in_edges) >= 1, f"Sink '{self.id}' must have atleast 1 in_edge."
       assert self.out_edges is None , f"Sink '{self.id}' must not have an out_edge."
-      
+
       self.reset()
       while True:
         #yield self.env.timeout(1)
         #print("sink")
 
-        self.update_state("COLLECTING_STATE",self.env.now)     
-        self.in_edge_events = [edge.reserve_get() if edge.__class__.__name__ == "ConveyorBelt" else edge.inbuiltstore.reserve_get() for edge in self.in_edges]
+        self.update_state("COLLECTING_STATE",self.env.now)   
+        if not self.in_edge_events:  
+            self.in_edge_events = [edge.reserve_get() if edge.__class__.__name__ == "ConveyorBelt" else edge.inbuiltstore.reserve_get() for edge in self.in_edges]
+        
         triggered_in_edge_events = self.env.any_of(self.in_edge_events)
         yield triggered_in_edge_events  # Wait for any in_edge to be available
 
@@ -81,9 +84,9 @@ class Sink(Node):
         
         self.in_edge_events.remove(self.chosen_event)  # Remove the chosen event from the list
         #cancelling already triggered out_edge events
-        for event in self.in_edge_events:
-            if event.triggered:
-                event.resourcename.reserve_get_cancel(event)
+        # for event in self.in_edge_events:
+        #     if event.triggered:
+        #         event.resourcename.reserve_get_cancel(event)
         
         
         item = self.chosen_event.resourcename.get(self.chosen_event)  # Get the item from the chosen in_edge
