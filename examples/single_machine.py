@@ -21,7 +21,7 @@ src= Source(env, id="Source-1",  inter_arrival_time=0.9,blocking=True, out_edge_
 #src= Source(env, id="Source-1",  inter_arrival_time=0.2,blocking=True,out_edge_selection=0 )
 m1 = Machine(env, id="M1",node_setup_time=0,work_capacity=4, processing_delay=1,in_edge_selection="FIRST_AVAILABLE",out_edge_selection="FIRST_AVAILABLE")
 
-sink= Sink(env, id="Sink-1", in_edge_selection="FIRST_AVAILABLE" )
+sink= Sink(env, id="Sink-1")
 
 # Initializing edges
 buffer1 = Buffer(env, id="Buffer-1", store_capacity=4, delay=0, mode="LIFO")

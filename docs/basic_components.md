@@ -1,7 +1,7 @@
 # Basic Components
 
 
-Node, Edge and BaseFlowItem are the 3 basic component types in the library. All the other components are derived from them. Nodes are the active, static elements in the system and are responsible for operations such as processing, splitting, or combining items. Every node maintains a list of `in_edges` and `out_edges`, which are references to edge objects that connect it to other nodes. Other parameters of Nodes are `id` (a unique name) and `node_setup_time` (initial delay in each node, which is be a constant value). Common node types include Machine, Split, Joint, Source, and Sink. Source can be used to generate items that flow in the system. Machines are the entities that modifies/processes an item. To multiplex the items that flow in the system, Splits can be used and to pack/join items from different input edges a Joint can be used. Sink is the terminal node in the system and the items that enter this node cannot be retrieved.
+Node, Edge and BaseFlowItem are the 3 basic component types in the library. All the other components are derived from them. Nodes are the active, static elements in the system and are responsible for operations such as processing, splitting, or combining items. Every node maintains a list of `in_edges` and `out_edges`, which are references to edge objects that connect it to other nodes. Other parameters of Nodes are `id` (a unique name) and `node_setup_time` (initial delay in each node, which is be a constant value). Common node types include Machine, Split, Combiner, Source, and Sink. Source can be used to generate items that flow in the system. Machines are the entities that modifies/processes an item. To multiplex the items that flow in the system, Splits can be used and to pack/join items from different input edges a Combiner can be used. Sink is the terminal node in the system and the items that enter this node cannot be retrieved.
 
 
 Edges are passive components that connect exactly two nodes (src_node and dest_node) and helps in transfering items between them. Edges are directed. Each edge has a unique identifier called `id`, and parameters `src_node` and `dest_node` to store the reference to the source node and destination node. Specific types of edges include Buffer, Conveyor, and Fleet. Buffers act as queues with a defined delay. Conveyors move items between nodes while preserving order and support both discrete (slotted belts) and continuous motion. Fleets represent systems like warehouse robots or human operators that transport items between nodes without preserving order.
@@ -12,7 +12,7 @@ Pallets represents enitities that can hold multiple base items that belong to `f
 
 **Rules for interconnection**
 
-1. Node represent static entities that are active. Components like machine, source, sink, split, joints, etc are derived from node.
+1. Node represent static entities that are active. Components like machine, source, sink, split, combiners, etc are derived from node.
 2. Edge is directed and connects one node to another. Conveyor, buffer and fleet are the entities that are of type Edge.
 3. Items are discrete parts that flow in the system through the directed edges from one node to another. 
 3. Each node has two lists `in_edges` and `out_edges` that points to a list with references of the edges that comes in and go out of the node.
@@ -20,8 +20,8 @@ Pallets represents enitities that can hold multiple base items that belong to `f
 5. An edge can have the same node in both `src_node` and `dest_node`. Self loops are allowed.
 6. Nodes are the active elements whose activites initiates state changes in the system.
 7. Edges are the passive elements and state change occurs due to actions initiated by nodes.
-8. To multiplex the output from a machine node into multiple streams, a split must be connected to the machine using an edge.
-9. To join multiple streams and to feed as input to a machine , a joint must be connected to the machine using an edge.
+8. To multiplex the output from a machine node into multiple streams, a splittermust be connected to the machine using an edge.
+9. To join multiple streams and to feed as input to a machine , a Combiner must be connected to the machine using an edge.
 
 
 
@@ -51,7 +51,7 @@ Pallets represents enitities that can hold multiple base items that belong to `f
 
 
 
-Nodes represent active elements in the system. This is a basic type and is the basis for the active components like Machine, Split, Sink, Source, Joint, etc. Every node has a unique identifier named `id` and maintains two lists named `in_edges` and `out_edges`. Every node has a `node_setup_time` that can be specified as a constant delay (integer of float). Activities that takesplace in a node create state changes in the system. The API documentation can be found in [Node](nodes.md)
+Nodes represent active elements in the system. This is a basic type and is the basis for the active components like Machine, Split, Sink, Source, Combiner, etc. Every node has a unique identifier named `id` and maintains two lists named `in_edges` and `out_edges`. Every node has a `node_setup_time` that can be specified as a constant delay (integer of float). Activities that takesplace in a node create state changes in the system. The API documentation can be found in [Node](nodes.md)
 
 **Basic attributes**
 
@@ -267,12 +267,12 @@ print(f"Worker occupancy, {MACHINE1.time_per_work_occupancy)})
 
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
-### Joint
+### Combiner
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
 **About**
 
-The `Joint` component represents a node that combines or packs items from multiple input edges into a single pallet or box, and then pushes the packed pallet to an output edge. It is useful for modeling operations such as packing, assembly, or combining flows from different sources. The number of items to be taken from each input edge can be specified, and the first input edge is expected to provide the pallet or container. A joint can process more than one item simultaneously and this number can be set using parameter `work_capacity`. Joint creates that many worker threads to mimic its actions. The API documentation can be found in [Joint](joint.md)
+The `Combiner` component represents a node that combines or packs items from multiple input edges into a single pallet or box, and then pushes the packed pallet to an output edge. It is useful for modeling operations such as packing, assembly, or combining flows from different sources. The number of items to be taken from each input edge can be specified, and the first input edge is expected to provide the pallet or container. A Combiner can process more than one item simultaneously and this number can be set using parameter `work_capacity`. Combiner creates that many worker threads to mimic its actions. The API documentation can be found in [Combiner](combiner.md)
 
 **Basic attributes**
 
@@ -284,7 +284,7 @@ The `Joint` component represents a node that combines or packs items from multip
 - `out_edge_selection` - edge selection policy as a function to select output edge
 
 **Behavior**
- At the start of the simulation, the joint waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an `int` or `float`). Then it spawns `work_capacity` number of threads.
+ At the start of the simulation, the Combiner waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an `int` or `float`). Then it spawns `work_capacity` number of threads.
  Each worker thread then repeatedly:
 
 1. Pulls a pallet from the first input edge.
@@ -301,7 +301,7 @@ Various options available in the package for `out_edge_selection` include:
 
 **States**
 
-During its operation, the joint transitions through the following states:
+During its operation, the Combiner transitions through the following states:
 
 1. "SETUP_STATE": Initialization or warm-up phase before packing starts.
 2. "IDLE_STATE": Waiting to receive a pallet and items.
@@ -310,15 +310,15 @@ During its operation, the joint transitions through the following states:
 
 **Usage**
 
-A joint can be initialized as below:
+A Combiner can be initialized as below:
 
 ```python
 import factorysimpy
-from factorysimpy.nodes.joint import Joint
+from factorysimpy.nodes.combiner import Combiner
 
-JOINT1 = Joint(
+COMBINER1 = Combiner(
     env,                              # Simulation environment
-    id="JOINT1",                      # Unique identifier for the joint node
+    id="COMBINER1",                      # Unique identifier for the Combiner node
     target_quantity_of_each_item=[1, 2],  # 1 pallet from in_edges[0], 2 items from in_edges[1]
     work_capacity=1,                  # Number of pallets that can be packed simultaneously
     processing_delay=1.5,             # Packing delay (constant or generator/function)
@@ -330,7 +330,7 @@ JOINT1 = Joint(
 
 **Statistics collected**
 
-The joint component reports the following key metrics:
+The Combiner component reports the following key metrics:
 
 1. Total number of pallets packed and pushed
 2. Number of pallets/items discarded (non-blocking mode)
@@ -339,24 +339,24 @@ The joint component reports the following key metrics:
 After the simulation run, metrics can be accessed as:
 
 ```python
-print(f"Total number of pallets processed by worker 1 of {JOINT1.id} = {JOINT1.stats[1]['num_item_processed']}")
-print(f"Total number of pallets discarded by worker 1 of {JOINT1.id} = {JOINT1.stats[1]['num_item_discarded']}")
-print(f"Joint {JOINT1.id}, worker1 state times: {JOINT1.stats[1]['total_time_spent_in_states']}")
+print(f"Total number of pallets processed by worker 1 of {COMBINER1.id} = {COMBINER1.stats[1]['num_item_processed']}")
+print(f"Total number of pallets discarded by worker 1 of {COMBINER1.id} = {COMBINER1.stats[1]['num_item_discarded']}")
+print(f"Combiner {COMBINER1.id}, worker1 state times: {COMBINER1.stats[1]['total_time_spent_in_states']}")
 ```
 
 **Examples**
 
-- ***[An example of a joint node combining items from two sources](examples.md/#example-to-illustrate-the-use-of-the-components-split-and-joint)***
+- ***[An example of a Combiner node combining items from two sources](examples.md/#example-to-illustrate-the-use-of-the-components-split-and-Combiner)***
 
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
-### Split
+### Splitter
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
 
 **About**
 
-The `Split` component represents a node that unpacks or splits an input item (such as a pallet or batch) and sends its contents to multiple output edges. It is useful for modeling operations such as unpacking, sorting, or distributing items from a container to different destinations.  A split can process more than one pallet or jobs simultaneously and this number can be set using parameter `work_capacity`. Split creates that many worker threads to mimic its actions. The input edge is selected according to the `in_edge_selection` policy, and the output edge for each unpacked item is selected according to the `out_edge_selection` policy. The API documentation can be found in [Split](split.md)
+The `Splitter` component represents a node that unpacks or splits an input item (such as a pallet or batch) and sends its contents to multiple output edges. It is useful for modeling operations such as unpacking, sorting, or distributing items from a container to different destinations.  A Splitter can process more than one pallet or jobs simultaneously and this number can be set using parameter `work_capacity`. Splitter creates that many worker threads to mimic its actions. The input edge is selected according to the `in_edge_selection` policy, and the output edge for each unpacked item is selected according to the `out_edge_selection` policy. The API documentation can be found in [Splitter](splitter.md)
 
 **Basic attributes**
 
@@ -369,13 +369,13 @@ The `Split` component represents a node that unpacks or splits an input item (su
 
 **Behavior**
 
-At the start of the simulation, the split waits for `node_setup_time`. Each worker thread then repeatedly:
+At the start of the simulation, the splitter waits for `node_setup_time`. Each worker thread then repeatedly:
 
 1. Pulls a packed item (e.g., pallet) from the selected input edge.
 2. Waits for `processing_delay` to simulate unpacking or splitting.
 3. Unpacks the items from the pallet and pushes each item to an output edge, one by one, using the `out_edge_selection` policy.
 4. After all items are pushed, the empty container itself is pushed to an output edge.
-5. If `blocking` is True, the split waits for the output edge to accept each item; if `blocking` is False, items are discarded if the output edge is full.
+5. If `blocking` is True, the splitter waits for the output edge to accept each item; if `blocking` is False, items are discarded if the output edge is full.
 
 To select an output edge and input edge, worker thread uses the method specified in `out_edge_selection` and `in_edge_selection` parameters. User can also provide a custom python function or a generator function instance to these parameters. User-provided function should return or yield an edge index. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initialise the parameter with the reference to the function. This is illustrated in the examples shown below. 
 Various options available in the package for `in_edge_selection` and `out_edge_selection` include:
@@ -387,7 +387,7 @@ Various options available in the package for `in_edge_selection` and `out_edge_s
 
 **States**
 
-During its operation, the split transitions through the following states:
+During its operation, the splitter transitions through the following states:
 
 1. "SETUP_STATE": Initialization or warm-up phase before unpacking starts.
 2. "IDLE_STATE": Waiting to receive a container/item.
@@ -396,15 +396,15 @@ During its operation, the split transitions through the following states:
 
 **Usage**
 
-A split can be initialized as below:
+A splitter can be initialized as below:
 
 ```python
 import factorysimpy
-from factorysimpy.nodes.split import Split
+from factorysimpy.nodes.splitter import Splitter
 
-SPLIT1 = Split(
+SPLITTER11 = Split(
     env,                        # Simulation environment
-    id="SPLIT1",                # Unique identifier for the split node
+    id="SPLITTER11",                # Unique identifier for the splitternode
     work_capacity=1,            # Number of worker threads
     processing_delay=1.0,       # Unpacking delay (constant or generator/function)
     blocking=True,              # Wait for output edge to accept item
@@ -415,7 +415,7 @@ SPLIT1 = Split(
 
 **Statistics collected**
 
-The split component reports the following key metrics:
+The splittercomponent reports the following key metrics:
 
 1. Total number of items unpacked and pushed
 2. Number of items discarded (non-blocking mode)
@@ -424,14 +424,14 @@ The split component reports the following key metrics:
 After the simulation run, metrics can be accessed as:
 
 ```python
-print(f"Total number of items processed by worker 1 of {SPLIT1.id} = {SPLIT1.stats[1]['num_item_processed']}")
-print(f"Total number of items discarded by worker 1 of {SPLIT1.id} = {SPLIT1.stats[1]['num_item_discarded']}")
-print(f"Split {SPLIT1.id}, worker1 state times: {SPLIT1.stats[1]['total_time_spent_in_states']}")
+print(f"Total number of items processed by worker 1 of {SPLITTER11.id} = {SPLITTER11.stats[1]['num_item_processed']}")
+print(f"Total number of items discarded by worker 1 of {SPLITTER11.id} = {SPLITTER11.stats[1]['num_item_discarded']}")
+print(f"splitter{SPLITTER11.id}, worker1 state times: {SPLITTER11.stats[1]['total_time_spent_in_states']}")
 ```
 
 **Examples**
 
-- ***[An example of a split node unpacking a pallet and distributing items to multiple destinations](examples.md/#example-to-illustrate-the-use-of-the-components-split-and-joint)***
+- ***[An example of a splitternode unpacking a pallet and distributing items to multiple destinations](examples.md/#example-to-illustrate-the-use-of-the-components-splitter-and-Combiner)***
 
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
@@ -444,7 +444,7 @@ print(f"Split {SPLIT1.id}, worker1 state times: {SPLIT1.stats[1]['total_time_spe
 
 **Usage**
 
-A split can be initialized as below:
+A splittercan be initialized as below:
 
 ```python
 import factorysimpy

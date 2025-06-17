@@ -1,4 +1,4 @@
-::: factorysimpy.nodes.split
+::: factorysimpy.nodes.combiner
     options:
       show_root_heading: false
       show_source: false

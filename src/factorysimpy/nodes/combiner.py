@@ -2,21 +2,21 @@ import simpy
 from factorysimpy.nodes.node import Node
 from factorysimpy.utils.utils import get_index_selector
 
-class Joint(Node):     
+class Combiner(Node):     
     """
-        Joint class representing a processing node in a factory simulation.
-        Inherits from the Node class.This joint can have multiple input edges and a multiple output edges.
+        Combiner class representing a processing node in a factory simulation.
+        Inherits from the Node class.The combiner can have multiple input edges and a multiple output edges.
         It gets items from the input edges and packs them into a pallet or box and pushes it to the output edge.  
 
         Parameters:
             state (str): Current state of the node. One of :
                     
-                - SETUP_STATE: Initial setup phase before Joint starts to operate.
+                - SETUP_STATE: Initial setup phase before combiner starts to operate.
                 - IDLE_STATE: Worker threads waiting to receive items.
                 - PROCESSING_STATE: Actively processing items.
                 - BLOCKED_STATE: When all the worker threads are waiting to push the processed item but the out going edge is full.
             
-            blocking (bool): If True, the source waits until it can put an item into the out edge. If False, it discards the item if the out edge is full and cannot accept the item that is being pushed by the joint.
+            blocking (bool): If True, the source waits until it can put an item into the out edge. If False, it discards the item if the out edge is full and cannot accept the item that is being pushed by the combiner.
             work_capacity (int): Maximum number of items that can be processed simultaneously.
             processing_delay (None, int, float, Generator, Callable): Delay for processing items. Can be:
                 
@@ -38,20 +38,20 @@ class Joint(Node):
                 
 
         Behavior:
-            The joint node represents components that joints together or packs items from multiple in_edges. It can have multiple incoming edges
+            The combiner node represents components that joints together or packs items from multiple in_edges. It can have multiple incoming edges
             and multiple outgoing edge. User can specify a list in_edges and the number of quantity that has to be packed from each of the in_edges
             as a list. The first item corresponds to the pallet used to put these packed items and the corresponding entry in the 
             `target_quantity_of_each_item` list is 1. Edge to which packed item is pushed is decided using the method specified
-            in the parameter `out_edge_selection`. Joint will transition through the states- `SETUP_STATE`, `PROCESSING_STATE`, `IDLE_STATE` and 
-            `BLOCKED_STATE`. The joint has a blocking behavior if `blocking`=`True` and gets blocked when all its worker threads have processed items and the out edge is full and 
-            cannot accept the item that is being pushed by the joint. It waits until the out edge becomes available to push the item. If `blocking`=`False`, 
-            it will discard the item if the out edge is full and cannot accept the item that is being pushed by the joint.
+            in the parameter `out_edge_selection`. Combiner will transition through the states- `SETUP_STATE`, `PROCESSING_STATE`, `IDLE_STATE` and 
+            `BLOCKED_STATE`. The combiner has a blocking behavior if `blocking`=`True` and gets blocked when all its worker threads have processed items and the out edge is full and 
+            cannot accept the item that is being pushed by the combiner. It waits until the out edge becomes available to push the item. If `blocking`=`False`, 
+            it will discard the item if the out edge is full and cannot accept the item that is being pushed by the combiner.
 
         Raises:
-            AssertionError: If the Joint has no input or atleast 1 output edge.
+            AssertionError: If the combiner has no input or atleast 1 output edge.
             
         Output performance metrics:
-            The key performance metrics of the joint node is captured in `stats` attribute (dict) during a simulation run. 
+            The key performance metrics of the combiner node is captured in `stats` attribute (dict) during a simulation run. 
                 
                 last_state_change_time    : Time when the state was last changed.
                 num_item_processed        : Total number of items that is put into pallets.
@@ -163,24 +163,24 @@ class Joint(Node):
             self.in_edges = []
         
         if len(self.in_edges) >= 2:
-            raise ValueError(f"Joint '{self.name}' already has 2 in_edges. Cannot add more.")
+            raise ValueError(f"Combiner '{self.name}' already has 2 in_edges. Cannot add more.")
         
         if edge not in self.in_edges:
             self.in_edges.append(edge)
         else:
-            raise ValueError(f"Edge already exists in Joint '{self.name}' in_edges.")
+            raise ValueError(f"Edge already exists in Combiner '{self.name}' in_edges.")
 
     def add_out_edges(self, edge):
         if self.out_edges is None:
             self.out_edges = []
 
         if len(self.out_edges) >= 1:
-            raise ValueError(f"Joint '{self.name}' already has 1 out_edge. Cannot add more.")
+            raise ValueError(f"Combiner '{self.name}' already has 1 out_edge. Cannot add more.")
 
         if edge not in self.out_edges:
             self.out_edges.append(edge)
         else:
-            raise ValueError(f"Edge already exists in Joint '{self.name}' out_edges.")
+            raise ValueError(f"Edge already exists in Combiner '{self.name}' out_edges.")
         
     def _push_item(self, i, out_edge):
         """
@@ -362,13 +362,13 @@ class Joint(Node):
                  # Pull_items will take the items and push it to next component.
     def behaviour(self):
         #Combiner behavior that creates workers based on the effective capacity.
-        self.reset()  # Reset the joint to ensure proper initialization
+        self.reset()  # Reset the Combiner to ensure proper initialization
 
 
-        assert self.in_edges is not None and len(self.in_edges) == 2, f"Joint '{self.name}' must have exactly 2 in_edges."
-        assert self.out_edges is not None and len(self.out_edges) == 1, f"Joint '{self.name}' must have exactly 1 out_edge."
+        assert self.in_edges is not None and len(self.in_edges) == 2, f"Combiner '{self.name}' must have exactly 2 in_edges."
+        assert self.out_edges is not None and len(self.out_edges) == 1, f"Combiner '{self.name}' must have exactly 1 out_edge."
         assert len(self.target_quantity_of_each_item) == len(self.in_edges), \
-            f"Joint '{self.name}' target_quantity_of_each_item must match the number of in_edges."
+            f"Combiner '{self.name}' target_quantity_of_each_item must match the number of in_edges."
         
         
         for i in range(self.work_capacity):

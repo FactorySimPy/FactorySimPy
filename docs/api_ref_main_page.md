@@ -9,8 +9,8 @@ Node classes
 - [Node](nodes.md)[ (source code)](https://github.com/FactorySimPy/FactorySimPy/blob/main/src/factorysimpy/nodes/node.py)
 - [Machine](machine.md)[ (source code)](https://github.com/FactorySimPy/FactorySimPy/blob/main/src/factorysimpy/nodes/machine.py)
 - [Source](source.md)[ (source code)](https://github.com/FactorySimPy/FactorySimPy/blob/main/src/factorysimpy/nodes/source.py)
-- [Split](split.md)[ (source code)](https://github.com/FactorySimPy/FactorySimPy/blob/main/src/factorysimpy/nodes/split.py)
-- [Joint](joint.md)[ (source code)](https://github.com/FactorySimPy/FactorySimPy/blob/main/src/factorysimpy/nodes/joint.py)
+- [Splitter](splitter.md)[ (source code)](https://github.com/FactorySimPy/FactorySimPy/blob/main/src/factorysimpy/nodes/splitter.py)
+- [Combiner](combiner.md)[ (source code)](https://github.com/FactorySimPy/FactorySimPy/blob/main/src/factorysimpy/nodes/combiner.py)
 - [Sink](sink.md)[  (source code)](https://github.com/FactorySimPy/FactorySimPy/blob/main/src/factorysimpy/nodes/sink.py)
 
 Edge classes

@@ -2,7 +2,7 @@
 # Discrete event Simulation for Manufacturing
 ## FactorySimPy
 
-FactorySimPy is an open-source, light-weight Python library for modeling and discrete-event simulation (DES) of manufacturing systems. It provides a well-defined set of canonical components commonly found in a manufacturing setting—such as machines with configurable processing delays, joints that packs/joins items from multiple inputs, buffers that operate as queues holding items that wait, etc. These components come with pre-built behavior that is easily configurable, enabling users to rapidly construct simulation models. To use the library, users define the structure of the system and specify the parameters for each component. The modular design allows users to extend functionality by subclassing existing components, making the library extensible and reusable. Built on top of SimPy 4, FactorySimPy supports both "as fast as possible" and real-time simulation modes. It is currently designed for discrete-item flow systems where the model structure remains fixed during the simulation. Future development plans include extending support to material flows.
+FactorySimPy is an open-source, light-weight Python library for modeling and discrete-event simulation (DES) of manufacturing systems. It provides a well-defined set of canonical components commonly found in a manufacturing setting—such as machines with configurable processing delays, combiners that packs/joins items from multiple inputs, buffers that operate as queues holding items that wait, etc. These components come with pre-built behavior that is easily configurable, enabling users to rapidly construct simulation models. To use the library, users define the structure of the system and specify the parameters for each component. The modular design allows users to extend functionality by subclassing existing components, making the library extensible and reusable. Built on top of SimPy 4, FactorySimPy supports both "as fast as possible" and real-time simulation modes. It is currently designed for discrete-item flow systems where the model structure remains fixed during the simulation. Future development plans include extending support to material flows.
 
 
 
@@ -22,8 +22,8 @@ State transitions in the simulation are triggered solely by the actions of the n
 ```
 ├── Node(Base Class for components that processes items)
     ├── Machine     # Processes items 
-    ├── Joint      # Merges multiple flows into one
-    ├── Split       # Splits a flow into multiple branches.
+    ├── Combiner     # Merges multiple flows into one
+    ├── Splitter       # Splits a flow into multiple branches.
     ├── Sink        # Consumes items
     ├── Source       # generates items
   
