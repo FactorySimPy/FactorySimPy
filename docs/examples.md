@@ -403,12 +403,12 @@ BUF5.connect(SRC2,SINK3)
 env.run(until=10)
 ```
 
-## Example to illustrate the use of the components split and joint
+## Example to illustrate the use of the components splitter and combiner
 
-***An example to understand how to simulate packing and unpacking of items using split and joint***
+***An example to understand how to simulate packing and unpacking of items using SPLITTER and COMBINER***
 
 Consider a system which has to pack 5 base items of `flow_item_type`="item" in to an entity of `flow_item_type`="pallet". And in the same example
-the method to unpack these packed items using a split is also shown.
+the method to unpack these packed items using a SPLITTER is also shown.
 
 
 ```python
@@ -419,7 +419,7 @@ the method to unpack these packed items using a split is also shown.
 
 #   SRC1 ──> BUFFER1 ──┐
 #                      │
-#   SRC2 ──> BUFFER2 ──┴─> JOINT1 ──> BUFFER3 ──>SPLIT1 ──┬─> BUFFER4 ──> SINK1
+#   SRC2 ──> BUFFER2 ──┴─> COMBINER1 ──> BUFFER3 ──>SPLITTER1 ──┬─> BUFFER4 ──> SINK1
 #                                                         │
 #                                                         └─> BUFFER5 ──> SINK2
 # 
@@ -430,14 +430,14 @@ from factorysimpy.nodes.machine import Machine
 from factorysimpy.edges.buffer import Buffer
 from factorysimpy.nodes.source import Source
 from factorysimpy.nodes.sink import Sink
-from factorysimpy.nodes.joint import Joint
-from factorysimpy.nodes.split import Split
+from factorysimpy.nodes.combiner import Combiner
+from factorysimpy.nodes.splitter import Splitter
 
 
 env = simpy.Environment()
 
 
-def split_out_edge_selector(node):
+def splitter_out_edge_selector(node):
    while True:
       proc=node.env.active_process
       item_in_process= proc.item_to_put
@@ -461,18 +461,18 @@ SRC1= Source(env, id="SRC1", flow_item_type = "pallet", inter_arrival_time= 0.8,
 
 SRC2= Source(env, id="SRC2", flow_item_type = "item",  inter_arrival_time= 0.8,blocking=False,out_edge_selection="RANDOM" )
 
-JOINT1 = Joint(env, id="JOINT1", target_quantity_of_each_item=[1,5], work_capacity=1, processing_delay=1.1, blocking= False, out_edge_selection="RANDOM" )
+COMBINER1 = Combiner(env, id="COMBINER1", target_quantity_of_each_item=[1,5], work_capacity=1, processing_delay=1.1, blocking= False, out_edge_selection="RANDOM" )
 
-SPLIT1 = Split(env, id="SPLIT1",work_capacity=1, processing_delay=1.1, in_edge_selection="RANDOM",out_edge_selection=None )
+SPLITTER1 = Splitter(env, id="SPLITTER1",work_capacity=1, processing_delay=1.1, in_edge_selection="RANDOM",out_edge_selection=None )
 
 
 SINK1= Sink(env, id="SINK1" )
 SINK2= Sink(env, id="SINK2" )
 
 
-#initialising in_edge_selection parameter for split
-split_out_edge_func = split_out_edge_selector(SPLIT1)
-SPLIT1.out_edge_selection = split_out_edge_func
+#initialising in_edge_selection parameter for SPLITTER
+splitter_out_edge_func = splitter_out_edge_selector(SPLITTER1)
+splitter.out_edge_selection = splitter_out_edge_func
 
 # Initializing edges
 BUF1 = Buffer(env, id="BUF1", store_capacity=2, delay=0.5, mode = "FIFO")
@@ -483,11 +483,11 @@ BUF5 = Buffer(env, id="BUF5", store_capacity=2, delay=0, mode = "FIFO")
 
 
 # Adding connections
-BUF1.connect(SRC1,JOINT1)
-BUF2.connect(SRC2,JOINT1)
-BUF3.connect(JOINT1,SPLIT1)
-BUF4.connect(SPLIT1,SINK1)
-BUF5.connect(SPLIT1,SINK2)
+BUF1.connect(SRC1,COMBINER1)
+BUF2.connect(SRC2,COMBINER1)
+BUF3.connect(COMBINER1,SPLITTER1)
+BUF4.connect(SPLITTER1,SINK1)
+BUF5.connect(SPLITTER1,SINK2)
 
 
 env.run(until=10)

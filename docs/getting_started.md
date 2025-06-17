@@ -31,7 +31,7 @@ FactorySimPy lets you simulate typical manufacturing scenarios using ready-made 
 
 - **Machine** is a node with configurable processing delay
 
-- **Split** and **Joint** are nodes for splitting an item or joining multiple items.
+- **Splitter ** and **Combiner** are nodes for splitting an item or joining multiple items.
 
 - **Buffer**, **Conveyor** and **Fleet** are entities of type edge for aiding in item transfer from one node to another
 
@@ -86,7 +86,7 @@ env.run(until=10)
 ```
 FactorySimPy/
 ├─ src/factorysimpy/
-│  ├─ nodes/     # Processor, Source, Sink, Split, Join
+│  ├─ nodes/     # Processor, Source, Sink, Combiner, Splitter
 │  ├─ edges/     # Buffer, Conveyor, Fleet
 │  ├─ base/      # SimPy extensions
 │  ├─ constructs/      # constructs to simplify model creation

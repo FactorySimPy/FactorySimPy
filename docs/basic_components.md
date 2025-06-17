@@ -346,7 +346,7 @@ print(f"Combiner {COMBINER1.id}, worker1 state times: {COMBINER1.stats[1]['total
 
 **Examples**
 
-- ***[An example of a Combiner node combining items from two sources](examples.md/#example-to-illustrate-the-use-of-the-components-split-and-Combiner)***
+- ***[An example of a Combiner node combining items from two sources](examples.md/#example-to-illustrate-the-use-of-the-components-splitter-and-combiner)***
 
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
@@ -431,7 +431,7 @@ print(f"splitter{SPLITTER11.id}, worker1 state times: {SPLITTER11.stats[1]['tota
 
 **Examples**
 
-- ***[An example of a splitternode unpacking a pallet and distributing items to multiple destinations](examples.md/#example-to-illustrate-the-use-of-the-components-splitter-and-Combiner)***
+- ***[An example of a splitternode unpacking a pallet and distributing items to multiple destinations](examples.md/#example-to-illustrate-the-use-of-the-components-splitter-and-combiner)***
 
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
