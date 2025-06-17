@@ -496,13 +496,13 @@ class Machine(Node):
                     out_edge_index_to_put = None
                     for edge in self.out_edges:
                         if edge.can_put():
-                            out_edge_to_put = edge
+                            out_edge_index_to_put = edge
                             break
                     
-                    if out_edge_to_put is not None:
+                    if out_edge_index_to_put is not None:
                          blocking_start_time = self.env.now
-                         yield self.env.process(self._push_item(item, out_edge_to_put))  
-                         print(f"T={self.env.now:.2f}: {self.id} worker puts item {item.id} into {out_edge_to_put.id} ")
+                         yield self.env.process(self._push_item(item, out_edge_index_to_put))  
+                         print(f"T={self.env.now:.2f}: {self.id} worker puts item {item.id} into {out_edge_index_to_put.id} ")
                          self._update_avg_time_spent_in_blocked(self.env.now - blocking_start_time)
 
                         

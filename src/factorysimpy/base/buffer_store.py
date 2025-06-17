@@ -1,5 +1,5 @@
 #%%writefile genReservablePriorityReqFilterStore.py
-# @title General ReservablePriorityReqFilterStore
+
 
 import simpy, inspect
 from simpy.resources.store import FilterStore
@@ -53,7 +53,8 @@ class BufferStore(FilterStore):
         self.reserve_get_queue = []  # Queue for managing reserve_get reservations
         self.reservations_get = []   # List of successful get reservations
         self.reserved_events = []     # Maintains events corresponding to reserved items to preserve item order
-     
+        self.reserved_items=[]
+        self.unreserved_items=[]
         self.time_averaged_num_of_items_in_store = 0.0  # Time-averaged number of items in the buffer
         self._last_level_change_time = self.env.now
         self._last_num_items = 0
@@ -171,7 +172,15 @@ class BufferStore(FilterStore):
 
 
 
-    
+    def is_batch_filter(self, func):
+        """Returns True if the filter is likely meant to be applied to a list of items."""
+        sig = inspect.signature(func)
+        params = list(sig.parameters.values())
+
+        # A safe assumption: if the first argument is named 'items' or 'lst', it's likely a batch
+        if len(params) == 1 and params[0].name in {"items", "lst", "collection"}:
+            return True
+        return False
 
 
 
@@ -252,10 +261,13 @@ class BufferStore(FilterStore):
         delta_position = len(self.reserved_events)
        
         #shifting the item
-        item_to_shift = self.items.pop(event_in_index)
-        self.items.insert(delta_position-1, item_to_shift)
+        item_to_shift = self.reserved_items.pop(event_in_index)
+        self.unreserved_items.insert(delta_position-1, item_to_shift)
+        #print(f"T={self.env.now:.2f} placed {item_to_shift.name} back {[i.name for i in self.items]}")
+
         #deleting the event
         self.reserved_events.pop(event_in_index)#if t is removed, then a waiting event can be succeeded, if any
+
         self._trigger_reserve_get(None)
         return True
 
@@ -292,7 +304,7 @@ class BufferStore(FilterStore):
         event.priority_to_get = priority
 
         # Check if 'filter' is provided, if not, assign a default filter
-        if self.mode is "LIFO":
+        if self.mode == "LIFO":
             #print(f"T={self.env.now} filter is None so making it true for all items")
             #filter = lambda item: True  # Default filter that accepts all items
             #print([(x.timestamp_node_exit, x.id) for x in self.items],self.trigger_delay)
@@ -303,7 +315,7 @@ class BufferStore(FilterStore):
                     default=None
                 )
             event.filter = filter
-        elif self.mode is "FIFO":
+        elif self.mode == "FIFO":
             #print(f"T={self.env.now} filter is not None ")
             filter = lambda items: min(
                     [x for x in items if self.env.now >=  (x.timestamp_node_exit+self.trigger_delay)],
@@ -386,20 +398,28 @@ class BufferStore(FilterStore):
             #       #print(f"T={self.env.now:.2f} at reserve_get num_events = {len(self.reserved_events)}")
             #       break
 
-            
+            if self.is_batch_filter(event.filter):
                 # Apply the filter to the list
                 #selected_item = event.filter(self.items)
-            unreserved_items = self.items[len(self.reserved_events):]  # Get unreserved items
-            selected_item = event.filter(unreserved_items)
-            #print("its here", event.filter, self.trigger_delay)
-            if selected_item is not None:
-                self.reservations_get.append(event)
-                self.reserved_events.append(event)  # Maintain order by associating event with item
-                #self.reserved_items.append(selected_item)  # Store the reserved item
-                #self.unreserved_items.remove(selected_item)  # Remove from unreserved items
-                event.succeed()
+                selected_item = event.filter(self.unreserved_items)
+                #print("its here", event.filter, self.trigger_delay)
+                if selected_item is not None:
+                    self.reservations_get.append(event)
+                    self.reserved_events.append(event)  # Maintain order by associating event with item
+                    self.reserved_items.append(selected_item)  # Store the reserved item
+                    self.unreserved_items.remove(selected_item)  # Remove from unreserved items
+                    event.succeed()
 
-            
+            else:
+                for item in self.items:
+                    if event.filter(item):
+                        self.reservations_get.append(event)
+                        self.reserved_events.append(event)  # Maintain order by associating event with item
+                        self.reserved_items.append(item)  # Store the reserved item
+                        self.unreserved_items.remove(item)  # Remove from unreserved items
+                        event.succeed()
+
+                        break
 
 
 
@@ -499,11 +519,14 @@ class BufferStore(FilterStore):
         assigned_item = None
         # Identify the corresponding item in the reserved events list
         item_index = self.reserved_events.index(reserved_event)
-        self.reservations_get.remove(reserved_event)
+        
 
         # Retrieve the assigned item and remove it from storage
-        assigned_item = self.items.pop(item_index)
-        self.reserved_events.pop(item_index)
+        assigned_item = self.reserved_items.pop(item_index)# from reseved_items list get item. it is only there in unreserved_items list
+        
+        self.items.remove(assigned_item)  # Remove the item from the store
+        self.reservations_get.remove(reserved_event)
+        self.reserved_events.pop(item_index)  # Remove the event from reserved events
 
         if assigned_item is None:
             raise ValueError(f"Reserved item for {get_event} not found in store.")
@@ -626,6 +649,6 @@ class BufferStore(FilterStore):
             item.put_time=self.env.now
             #print(f"Time is {self.env.now}")
             self.items.append(item)
-            #self.unreserved_items.append(item)  # Add to unreserved items
+            self.unreserved_items.append(item)  # Add to unreserved items
             return True  # Successfully added item
 

@@ -6,16 +6,16 @@ def connect_chain(env, count, node_cls, edge_cls,
     edges = []
 
     for i in range(count):
-        i=i+1
+        print(i)
         kwargs = node_kwargs_list[i] if node_kwargs_list else node_kwargs or {}
-        node_name = f"{prefix}_{i}"
+        node_name = f"{prefix}_{i+1}"
         node = node_cls(env=env, id=node_name, **kwargs)
         nodes.append(node)
 
     for i in range(count + 1):
-        i=i+1
+    
         kwargs = edge_kwargs_list[i] if edge_kwargs_list else edge_kwargs or {}
-        edge_name = f"{edge_prefix}_{i}"
+        edge_name = f"{edge_prefix}_{i+1}"
         edge = edge_cls(env=env, id=edge_name, **kwargs)
         edges.append(edge)
 
@@ -53,6 +53,10 @@ def connect_chain_with_source_sink(env, count, node_cls, edge_cls,
         #edges.append(None)
     else:
         sink = None
+
+    #print([i.id for i in nodes])
+    #print([i.id for i in edges])
+
     return nodes, edges, source, sink
 
 
