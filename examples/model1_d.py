@@ -19,10 +19,10 @@ env = simpy.Environment()
 
 
 # Initializing nodes
-SRC1= Source(env, id="SRC1",  inter_arrival_time=0.2,blocking=True, out_edge_selection=0 )
-SRC2= Source(env, id="SRC2",  inter_arrival_time=1,blocking=True, out_edge_selection=0)
+SRC1= Source(env, id="SRC1",  inter_arrival_time=0.4,blocking=True, out_edge_selection=0 )
+SRC2= Source(env, id="SRC2",  inter_arrival_time=0.4,blocking=True, out_edge_selection=0)
 #src= Source(env, id="Source-1",  inter_arrival_time=0.2,blocking=True,out_edge_selection=0 )
-MACHINE1 = Machine(env, id="MACHINE1",node_setup_time=0,work_capacity=2,blocking=True, processing_delay=1,in_edge_selection=0,out_edge_selection=0)
+MACHINE1 = Machine(env, id="MACHINE1",node_setup_time=0,work_capacity=2,blocking=True, processing_delay=1,in_edge_selection="ROUND_ROBIN",out_edge_selection=0)
 
 SINK= Sink(env, id="SINK")
 
