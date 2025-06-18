@@ -10,20 +10,17 @@ from factorysimpy.nodes.source import Source
 from factorysimpy.nodes.sink import Sink
 import random
 
-#SRC ──> BUF1 ──> MACHINE1 ──┬─> BUF2 ──> MACHINE2 ──> BUF4 ──> SINK1
-#                            └─> BUF3 ──> MACHINE3 ──> BUF5 ──> SINK2
+#SRC ──> BUF1 ──> MACHINE1 ──┬─> BUF2 ──> MACHINE2 ──> BUF4 ──> SINK
+#                            └─> BUF3 ──> MACHINE3 ──> BUF5 ──> SINK
 
 
 
 env = simpy.Environment()
 
-def generate_gaussian_distribution(mean=0, std_dev=1):
-   
-    return random.gauss(mu=mean,sigma= std_dev)
 
 
 # Initializing nodes
-SRC= Source(env, id="SRC",  inter_arrival_time=generate_gaussian_distribution(0.4,0.02),blocking=True, out_edge_selection=0 )
+SRC= Source(env, id="SRC",  inter_arrival_time=0.46,blocking=True, out_edge_selection=0 )
 
 #src= Source(env, id="Source-1",  inter_arrival_time=0.2,blocking=True,out_edge_selection=0 )
 MACHINE1 = Machine(env, id="MACHINE1",node_setup_time=0,work_capacity=2,blocking=True, processing_delay=0.9,in_edge_selection=0,out_edge_selection="ROUND_ROBIN")
@@ -52,14 +49,37 @@ env.run(until=100)
 print("Simulation completed.")
 # Print statistics
 
-print(f"Machine {MACHINE1.id} state times: {MACHINE1.stats}")
+print(f"Machine1 {MACHINE1.id} state times: {MACHINE1.stats}")
 
 print(f"Time-average number of items in  {BUFFER1.id} is {BUFFER1.stats['time_averaged_num_of_items_in_buffer']}")
 print(f"Time-average number of items in  {BUFFER2.id} is {BUFFER2.stats['time_averaged_num_of_items_in_buffer']}")
+print(f"Time-average number of items in  {BUFFER3.id} is {BUFFER3.stats['time_averaged_num_of_items_in_buffer']}")
 
 
 print(f"Sink {SINK.id} received {SINK.stats['num_item_received']} items.")
 
-print(MACHINE1.time_per_work_occupancy)
-print("per_thread_total_time_in_processing_state", MACHINE1.per_thread_total_time_in_processing_state)
-print("per_thread_total_time_in_blocked_state",MACHINE1.per_thread_total_time_in_blocked_state)
+print(f"Throuphput:{SINK.stats['num_item_received']/env.now}")
+tot_cycletime = SINK.stats["total_cycle_time"]
+tot_items = SINK.stats["num_item_received"]
+print(f"Cycletime, {tot_cycletime/tot_items if tot_items > 0 else 0}")
+
+
+print(f"Sink {SINK.id} received {SINK.stats['num_item_received']} items.")
+
+print("MAchine1",MACHINE1.time_per_work_occupancy)
+print("per_thread_total_time_in_processing_state:MACHINE1", MACHINE1.per_thread_total_time_in_processing_state)
+print("per_thread_total_time_in_blocked_state:MACHINE1",MACHINE1.per_thread_total_time_in_blocked_state)
+
+print(f"Machine1 {MACHINE1.id} state times: {MACHINE1.stats}")
+
+print("MAchine2",MACHINE2.time_per_work_occupancy)
+print("per_thread_total_time_in_processing_state:Machine2", MACHINE2.per_thread_total_time_in_processing_state)
+print("per_thread_total_time_in_blocked_state:MAchine2",MACHINE2.per_thread_total_time_in_blocked_state)
+
+print(f"Machine2 {MACHINE2.id} state times: {MACHINE2.stats}")
+
+print("MACHINE3",MACHINE1.time_per_work_occupancy)
+print("per_thread_total_time_in_processing_state:MACHINE3", MACHINE1.per_thread_total_time_in_processing_state)
+print("per_thread_total_time_in_blocked_state:MACHINE3",MACHINE1.per_thread_total_time_in_blocked_state)
+
+print(f"Machine3 {MACHINE3.id} state times: {MACHINE3.stats}")

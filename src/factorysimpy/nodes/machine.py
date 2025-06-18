@@ -437,7 +437,20 @@ class Machine(Node):
             f"T={self.env.now:.2f} {self.id} has more threads than work_capacity is created. num_threads_PROCESSING={num_threads_PROCESSING}, num_threads_BLOCKED={num_threads_BLOCKED}, work_capacity={self.work_capacity}"
         return num_threads_PROCESSING, num_threads_BLOCKED
           
-                
+    def check_thread_state_and_update_machine_state(self):
+        numthreads_PROCESSING, numthreads_BLOCKED = self._count_worker_state()
+
+        # if numthreads_PROCESSING == 0 and numthreads_BLOCKED == 0, then the state is IDLE_STATE
+        if numthreads_PROCESSING == 0 and numthreads_BLOCKED == 0:
+            self.update_state("IDLE_STATE", self.env.now)
+        # if there is atleast one thread that is PROCESSING, then the state is PROCESSING_STATE, then the state is updated to PROCESSING_STATE
+        if numthreads_PROCESSING >0:
+            self.update_state("PROCESSING_STATE", self.env.now)
+        # if all threads are in blocked state, then the state is BLOCKED_STATE, then the state is updated to BLOCKED_STATE
+        if numthreads_BLOCKED == self.work_capacity:
+            print(f"T={self.env.now:.2f}: {self.id} is in BLOCKED_STATE!!!!!!!!!!!")
+            self.update_state("BLOCKED_STATE", self.env.now)
+            
 
 
     def worker(self,item,processing_delay,req_token,):
@@ -453,10 +466,12 @@ class Machine(Node):
             if self.out_edge_selection == "FIRST_AVAILABLE":
                 # if blocking yield reserve_put on all out_edges and take the one with min index and cancel others and push item
                 if self.blocking:
-
+                    self.env.active_process.thread_state = "BLOCKED_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
+                    self.check_thread_state_and_update_machine_state()
                     blocking_start_time = self.env.now
                 
-                    self.out_edge_events = [edge.reserve_put() if edge.__class__.__name__ == "ConveyorBelt" else edge.inbuiltstore.reserve_put() for edge in self.out_edges]
+                    #self.out_edge_events = [edge.reserve_put() if edge.__class__.__name__ == "ConveyorBelt" else edge.inbuiltstore.reserve_put() for edge in self.out_edges]
+                    self.out_edge_events = [self.out_edges[i].inbuiltstore.reserve_put() for i in range(len(self.out_edges)-1,-1,-1)]
                     triggered_out_edge_events = self.env.any_of(self.out_edge_events)
                     ev = yield triggered_out_edge_events  # Wait for any in_edge to be available
                     
@@ -467,6 +482,7 @@ class Machine(Node):
                     # Find the first triggered event
                     chosen_put_event = next((event for event in self.out_edge_events if event.triggered), None)
                     edge_index = self.out_edge_events.index(chosen_put_event)
+                    
                     #self.out_edge_events.remove(chosen_put_event)  # Remove the chosen event from the list
                     if chosen_put_event is None:
                         raise ValueError(f"{self.id} - No in_edge available for processing!")
@@ -491,9 +507,10 @@ class Machine(Node):
                         yield self.item_in_process # Wait for the item to be available
                     else:
                         self.item_in_process = item
-
+                    self.env.active_process.thread_state = "PROCESSING_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
+                    self.check_thread_state_and_update_machine_state()
                     self._update_avg_time_spent_in_blocked(self.env.now - blocking_start_time)
-                #inot blocking, check can_put on all, if all fails, then the item is discarded
+                #not blocking, check can_put on all, if all fails, then the item is discarded
                 else:
                     out_edge_index_to_put = None
                     for edge in self.out_edges:
@@ -503,8 +520,12 @@ class Machine(Node):
                     
                     if out_edge_index_to_put is not None:
                          blocking_start_time = self.env.now
+                         self.env.active_process.thread_state = "BLOCKED_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
+                         self.check_thread_state_and_update_machine_state()
                          yield self.env.process(self._push_item(item, out_edge_index_to_put))  
                          print(f"T={self.env.now:.2f}: {self.id} worker puts item {item.id} into {out_edge_index_to_put.id} ")
+                         self.env.active_process.thread_state = "PROCESSING_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
+                         self.check_thread_state_and_update_machine_state()
                          self._update_avg_time_spent_in_blocked(self.env.now - blocking_start_time)
 
                         
@@ -525,6 +546,8 @@ class Machine(Node):
                 assert 0<=out_edge_index_to_put < len(self.out_edges), f"{self.id} - Invalid edge index. {out_edge_index_to_put} is not in range. Range must be between {0} and  {len(self.out_edges)-1} for in_edges."
                 outedge_to_put = self.out_edges[out_edge_index_to_put]
                 #push the item if not blocking
+                self.env.active_process.thread_state = "BLOCKED_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
+                self.check_thread_state_and_update_machine_state()
                 if self.blocking:
                     blocking_start_time = self.env.now
                     print(f"T={self.env.now:.2f}: {self.id} worker is in BLOCKED_STATE")
@@ -543,7 +566,8 @@ class Machine(Node):
                         print(f"T={self.env.now:.2f}: {self.id} worker is discarding item {item.id} because out_edge {outedge_to_put.id} is full.")
                         self.stats["num_item_discarded"] += 1
             # Release the worker thread after processing
-        
+            self.env.active_process.thread_state = "PROCESSING_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
+            self.check_thread_state_and_update_machine_state()
             yield self.worker_thread.release(req_token)  # Release the worker thread
       
             #delete the worker thread from the worker_thread_list
@@ -552,7 +576,7 @@ class Machine(Node):
             self._update_worker_occupancy(action="REMOVE")  # Update worker occupancy after processing
                 
 
- 
+    
                 
 
     def behaviour(self):
@@ -589,9 +613,11 @@ class Machine(Node):
                     self.update_state("IDLE_STATE", self.env.now)
                 # if there is atleast one thread that is PROCESSING, then the state is PROCESSING_STATE, then the state is updated to PROCESSING_STATE
                 if numthreads_PROCESSING >0:
+                    print(f"T={self.env.now:.2f}: {self.id} is in just processing_STATE!!!!!!!!!!!")
                     self.update_state("PROCESSING_STATE", self.env.now)
                 # if all threads are in blocked state, then the state is BLOCKED_STATE, then the state is updated to BLOCKED_STATE
                 if numthreads_BLOCKED == self.work_capacity:
+                    print(f"T={self.env.now:.2f}: {self.id} is in BLOCKED_STATE!!!!!!!!!!!")
                     self.update_state("BLOCKED_STATE", self.env.now)
 
                 
@@ -609,7 +635,8 @@ class Machine(Node):
                 #in_edge_selection is "FIRST_AVAILABLE"--->     yield in a list, select one with min. index value and cancel other and pull item
                 if self.in_edge_selection == "FIRST_AVAILABLE":
                     
-                    self.in_edge_events = [edge.reserve_get() if edge.__class__.__name__ == "ConveyorBelt" else edge.inbuiltstore.reserve_get() for edge in self.in_edges]
+                    #self.in_edge_events = [edge.reserve_get() if edge.__class__.__name__ == "ConveyorBelt" else edge.inbuiltstore.reserve_get() for edge in self.in_edges]
+                    self.in_edge_events = [self.in_edges[i].inbuiltstore.reserve_get() for i in range(len(self.in_edges)-1,-1,-1)]
                     triggered_in_edge_events = self.env.any_of(self.in_edge_events)
                     ev= yield triggered_in_edge_events  # Wait for any in_edge to be available
                     #print(triggered_in_edge_events,)
@@ -620,10 +647,16 @@ class Machine(Node):
                     
                    
 
-
-
+                    
+                    #trigered_indices = [len(self.in_edges)-i for i in range(len(self.in_edge_events)) if self.in_edge_events[i].triggered]
+                    #print(trigered_indices)
+                    #if not trigered_indices:
+                    #    raise ValueError(f"{self.id} - No in_edge available for processing!")
+                    #edge_index = min(trigered_indices)  # Get the index of the first triggered event
                     self.chosen_event = next((event for event in self.in_edge_events if event.triggered), None)
+                    #self.chosen_event = self.in_edge_events[edge_index]  # Get the first triggered event
                     edge_index = self.in_edge_events.index(self.chosen_event)  # Get the index of the chosen event
+                    #print("!!!!!!",edge_index)
                     print(f"T={self.env.now:.2f}: {self.id} yielded from {self.in_edges[edge_index].id} ")
                     if self.chosen_event is None:
                         raise ValueError(f"{self.id} - No in_edge available for processing!")

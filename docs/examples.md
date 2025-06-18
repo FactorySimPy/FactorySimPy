@@ -235,8 +235,8 @@ def machine_in_edge_selector():
 # it will return 1 is the sampled value is >3, else it will return 0
 #out_edge_selection as a function for machine
 
-def machine_out_edge_selector(mean=4, std_dev=1):
-   if random.gauss(mu=mean,sigma= std_dev) >3:
+def machine_out_edge_selector():
+   if random.gauss(mu=4,sigma= 1) >3:
       return 1
    else:
       return 0
@@ -258,7 +258,7 @@ def source_out_edge_selector(env):
 # Initializing nodes
 SRC1= Source(env, id="SRC1",  inter_arrival_time=0.7,blocking=False, out_edge_selection="FIRST_AVAILABLE" )
 SRC2= Source(env, id="SRC2",  inter_arrival_time=0.4,blocking=False, out_edge_selection=source_out_edge_selector(env) )
-MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4, processing_delay=1,in_edge_selection=machine_in_edge_selector(),out_edge_selection=machine_out_edge_selector(4,1))
+MACHINE1 = Machine(env, id="MACHINE1",work_capacity=4, processing_delay=1,in_edge_selection=machine_in_edge_selector,out_edge_selection=machine_out_edge_selector)
 SINK1= Sink(env, id="SINK1", in_edge_selection="RANDOM" )
 SINK2= Sink(env, id="SINK2", in_edge_selection="RANDOM"  )
 SINK3= Sink(env, id="SINK3", in_edge_selection="FIRST_AVAILABLE"  )
@@ -322,7 +322,7 @@ env = simpy.Environment()
 # This generator function will yield 1 if the current time is even, and 0 if it is odd.
 # This will simulate a scenario where the source alternates between two output edges based on the time.
 #out_edge_selection as a generator function for machine
-def machine_out_edge_selector(env):
+def machine_out_edge_selector(node, env):
    while True:
       if env.now%2==0:
          yield 1
@@ -333,7 +333,7 @@ def machine_out_edge_selector(env):
 # This generator function will yield the index of the edge to be selected based on the current time.
 # The index will be incremented every time the generator is called, and will wrap around when it reaches the number of edges.
 #in_edge_selection as a generator function for machine
-def machine_in_edge_selector(node):
+def machine_in_edge_selector(node,env):
    num_edges= len(node.in_edges)
    i=0
    while True:
@@ -370,11 +370,11 @@ source_out_edge_func = source_out_edge_selector(SRC2,env)
 SRC2.out_edge_selection = source_out_edge_func
 
 #initialising in_edge_selection parameter
-machine_in_edge_func = machine_in_edge_selector(MACHINE1)
+machine_in_edge_func = machine_in_edge_selector(MACHINE1,env)
 MACHINE1.in_edge_selection = machine_in_edge_func
 
 #initialising in_edge_selection parameter for machine
-machine_out_edge_func = machine_out_edge_selector(env)
+machine_out_edge_func = machine_out_edge_selector(MACHINE1,env)
 MACHINE1.out_edge_selection = machine_out_edge_func
 
 

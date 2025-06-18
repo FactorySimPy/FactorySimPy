@@ -309,7 +309,8 @@ class Source(Node):
 
                         blocking_start_time = self.env.now
                     
-                        self.out_edge_events = [edge.reserve_put() if edge.__class__.__name__ == "ConveyorBelt" else edge.inbuiltstore.reserve_put() for edge in self.out_edges]
+                        #self.out_edge_events = [edge.reserve_put() if edge.__class__.__name__ == "ConveyorBelt" else edge.inbuiltstore.reserve_put() for edge in self.out_edges]
+                        self.out_edge_events = [self.out_edges[i].inbuiltstore.reserve_put() for i in range(len(self.out_edges)-1,-1,-1)]
                         triggered_out_edge_events = self.env.any_of(self.out_edge_events)
                         yield triggered_out_edge_events  # Wait for any in_edge to be available
                         
