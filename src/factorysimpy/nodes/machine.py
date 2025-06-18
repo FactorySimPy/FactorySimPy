@@ -134,7 +134,7 @@ class Machine(Node):
             # it is treated in get_in_edge_index method
             elif callable(self.in_edge_selection) or hasattr(self.in_edge_selection, '__next__'):
                 # Use as is (function or generator)
-                pass
+                self.in_edge_selection = self.in_edge_selection
             # If in_edge_selection is not one of the above types, raise an error.
             else:
                 raise ValueError("in_edge_selection must be None, string, int, or a callable (function/generator)")
@@ -471,25 +471,26 @@ class Machine(Node):
                     blocking_start_time = self.env.now
                 
                     #self.out_edge_events = [edge.reserve_put() if edge.__class__.__name__ == "ConveyorBelt" else edge.inbuiltstore.reserve_put() for edge in self.out_edges]
-                    self.out_edge_events = [self.out_edges[i].inbuiltstore.reserve_put() for i in range(len(self.out_edges)-1,-1,-1)]
-                    triggered_out_edge_events = self.env.any_of(self.out_edge_events)
-                    ev = yield triggered_out_edge_events  # Wait for any in_edge to be available
+                    out_edge_events = [self.out_edges[i].inbuiltstore.reserve_put() for i in range(len(self.out_edges)-1,-1,-1)]
+                    #print(self.env.now,len(self.out_edge_events),self.out_edges)
+                    triggered_out_edge_events = self.env.any_of(out_edge_events)
+                    yield triggered_out_edge_events  # Wait for any in_edge to be available
                     
-                    for i in ev:
-                        if i.triggered:
-                            ev_to_process = i
+                    # for i in ev:
+                    #     if i.triggered:
+                    #         ev_to_process = i
 
                     # Find the first triggered event
-                    chosen_put_event = next((event for event in self.out_edge_events if event.triggered), None)
-                    edge_index = self.out_edge_events.index(chosen_put_event)
+                    chosen_put_event = next((event for event in out_edge_events if event.triggered), None)
+                    
                     
                     #self.out_edge_events.remove(chosen_put_event)  # Remove the chosen event from the list
                     if chosen_put_event is None:
-                        raise ValueError(f"{self.id} - No in_edge available for processing!")
-                    
-                    self.out_edge_events.remove(chosen_put_event)  # Remove the chosen event from the list
+                        raise ValueError(f"{self.env.now},{self.id} - No out_edge available for processing{[edge.id for edge in self.out_edges]}!")
+                    edge_index = out_edge_events.index(chosen_put_event)
+                    out_edge_events.remove(chosen_put_event)  # Remove the chosen event from the list
                     #cancelling already triggered out_edge events
-                    for event in self.out_edge_events:
+                    for event in out_edge_events:
                         if event.triggered:
                             event.resourcename.reserve_put_cancel(event)
 

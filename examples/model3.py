@@ -63,7 +63,7 @@ BUF5.connect(SRC2,SINK3)
 
 
 
-env.run(until=10)
+env.run(until=100)
 print("Simulation completed.")
 # Print statistics
 print(f"Source generated {SRC1.stats['num_item_generated']}")
@@ -72,12 +72,20 @@ print(f"Machine {MACHINE1.id} state times: {MACHINE1.stats}")
 
 print(f"Time-average number of items in  {BUF1.id} is {BUF1.stats['time_averaged_num_of_items_in_buffer']}")
 print(f"Time-average number of items in  {BUF2.id} is {BUF2.stats['time_averaged_num_of_items_in_buffer']}")
+print(f"Time-average number of items in  {BUF3.id} is {BUF3.stats['time_averaged_num_of_items_in_buffer']}")
+print(f"Time-average number of items in  {BUF4.id} is {BUF4.stats['time_averaged_num_of_items_in_buffer']}")
+print(f"Time-average number of items in  {BUF5.id} is {BUF5.stats['time_averaged_num_of_items_in_buffer']}")
 
 
 print(f"Sink {SINK1.id} received {SINK1.stats['num_item_received']} items.")
 print(f"Sink {SINK2.id} received {SINK2.stats['num_item_received']} items.")
 print(f"Sink {SINK3.id} received {SINK3.stats['num_item_received']} items.")
 
+
+tot_cycletime = SINK1.stats["total_cycle_time"]+ SINK2.stats["total_cycle_time"] 
+tot_items = SINK1.stats["num_item_received"]+SINK2.stats["num_item_received"]
+print(f"Cycletime, {tot_cycletime/tot_items if tot_items > 0 else 0}")
+print(f"Throuphput:{tot_items/env.now}")
 
 print(MACHINE1.time_per_work_occupancy)
 print("per_thread_total_time_in_processing_state", MACHINE1.per_thread_total_time_in_processing_state)

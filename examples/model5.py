@@ -95,9 +95,22 @@ machines, buffers = connect_nodes_with_buffers(nodes, edges, src, sink)
 
 env.run(until=100)
 
+print(f"sink {sink.id} received {sink.stats['num_item_received']} items.")
 
-print(f"Sink {sink.id} received {sink.stats['num_item_received']} items.")
+print(f"Throuphput:{sink.stats['num_item_received']/env.now}")
+tot_cycletime = sink.stats["total_cycle_time"]
+tot_items = sink.stats["num_item_received"]
+print(f"Cycletime, {tot_cycletime/tot_items if tot_items > 0 else 0}")
 
 # Print statistics
 print(f"Source {src.id} generated {src.stats['num_item_generated']} items.")
 print(f"Throughput of system: {sink.stats['num_item_received'] / env.now:.2f} items per time unit.")
+
+
+for machine in machines[1:-1]:
+    print("\n" )
+    print(f"Machine {machine.id} state times: {machine.stats}")
+    print(machine.time_per_work_occupancy)
+    print("per_thread_total_time_in_processing_state", machine.per_thread_total_time_in_processing_state)
+    print("per_thread_total_time_in_blocked_state", machine.per_thread_total_time_in_blocked_state)
+    print("total_time_in_processing_state", machine.stats["num_item_processed"])

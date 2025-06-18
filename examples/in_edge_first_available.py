@@ -16,7 +16,7 @@ def setup_machine_with_ten_buffers_sources(env_for_test):
     # create sources 
     SRC1= Source(env_for_test, id="SRC1", inter_arrival_time=0.5, blocking=True, out_edge_selection=0)
     SRC2= Source(env_for_test, id="SRC2", inter_arrival_time=0.5, blocking=True, out_edge_selection=0)
-    SRC3= Source(env_for_test, id="SRC3", inter_arrival_time=0.5 blocking=True, out_edge_selection=0)
+    SRC3= Source(env_for_test, id="SRC3", inter_arrival_time=0.5, blocking=True, out_edge_selection=0)
     SRC4= Source(env_for_test, id="SRC4", inter_arrival_time=0.5, blocking=True, out_edge_selection=0)
     SRC5= Source(env_for_test, id="SRC5", inter_arrival_time=0.3, blocking=True, out_edge_selection=0)# first arriving
     SRC6= Source(env_for_test, id="SRC6", inter_arrival_time=0.5, blocking=True, out_edge_selection=0)

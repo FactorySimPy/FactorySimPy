@@ -165,7 +165,7 @@ class Source(Node):
         elif callable(self.out_edge_selection):
             # It's a function (pass self and env if needed)
             #return self.out_edge_selection(self, self.env)
-            val = self.out_edge_selection(self, self.env)
+            val = self.out_edge_selection()
             
             return val
         
@@ -260,7 +260,25 @@ class Source(Node):
         else:
                 raise ValueError(f"Unsupported edge type: {out_edge.__class__.__name__}")
 
+    def update_state(self, new_state: str, current_time: float):
+        """
+        Update node state and track the time spent in the previous state.
+        
+        Args:
+            i (int): The index of the worker thread to update the state for.
+            new_state (str): The new state to transition to. Must be one of "SETUP_STATE", "GENERATING_STATE", "BLOCKED_STATE".
+            current_time (float): The current simulation time.
 
+        """
+        
+        if self.state is not None and self.stats["last_state_change_time"] is not None:
+            elapsed = current_time - self.stats["last_state_change_time"]
+
+            self.stats["total_time_spent_in_states"][self.state] = (
+                self.stats["total_time_spent_in_states"].get(self.state, 0.0) + elapsed
+            )
+        self.state = new_state
+        self.stats["last_state_change_time"] = current_time
     
     def behaviour(self):
         
@@ -297,7 +315,7 @@ class Source(Node):
                     item = Item(f'item_{self.id+"_"+str(i)}')
                 else:
                     item = Pallet(f'pallet_{self.id+"_"+str(i)}')
-                item.set_creation(self.id, self.env)
+                #item.set_creation(self.id, self.env)
                 self.stats["num_item_generated"] +=1
                 #edgeindex_to_put = next(self.out_edge_selection)
 
@@ -306,7 +324,8 @@ class Source(Node):
                 if self.out_edge_selection == "FIRST_AVAILABLE":
 
                     if self.blocking:
-
+                        self.update_state("BLOCKED_STATE", self.env.now)
+                        #print(self.env.now,"GEttingbloccccccked")
                         blocking_start_time = self.env.now
                     
                         #self.out_edge_events = [edge.reserve_put() if edge.__class__.__name__ == "ConveyorBelt" else edge.inbuiltstore.reserve_put() for edge in self.out_edges]
@@ -328,6 +347,7 @@ class Source(Node):
                                 event.resourcename.reserve_put_cancel(event)
                         #print(f"T={self.env.now:.2f}: {self.id} yielded 11111111from {self.out_edges[edge_index].id} ")
                         #putting the item in the chosen out_edge
+                        item.set_creation(self.id, self.env)
                         item.timestamp_node_exit = self.env.now
                         itemput = chosen_put_event.resourcename.put(chosen_put_event, item)  # put the item to the chosen out_edge
                         #print(f"T={self.env.now:.2f}: {self.id} placed 222222 from {self.out_edges[edge_index].id} ")
@@ -340,7 +360,8 @@ class Source(Node):
                         else:
                             item1 = itemput
                             print(f"T={self.env.now:.2f} {self.id} {item.id} pushed to buffer {self.out_edges[edge_index].id} ")
-
+                        self.update_state("GENERATING_STATE", self.env.now)  # Update state back to GENERATING_STATE
+                        #print(self.env.now,"releases")
                        
 
                     else:
@@ -352,8 +373,11 @@ class Source(Node):
                         
                         if out_edge_to_put is not None:
                             blocking_start_time = self.env.now
+                            self.update_state("BLOCKED_STATE", self.env.now)
+                            item.set_creation(self.id, self.env)
+                            item.timestamp_node_exit = self.env.now
                             yield self.env.process(self._push_item(item, out_edge_to_put))  
-                      
+                            self.update_state("GENERATING_STATE", self.env.now)  # Update state back to GENERATING_STATE
 
                             
                         else:               
@@ -378,12 +402,16 @@ class Source(Node):
                     if self.blocking:
                         blocking_start_time = self.env.now
                         print(f"T={self.env.now:.2f}: {self.id} is in BLOCKED_STATE")
+                        item.set_creation(self.id, self.env)
+                        item.timestamp_node_exit = self.env.now
                         yield self.env.process(self._push_item(item, outedge_to_put))
                         
                     else:
                         # Check if the out_edge can accept the item
                         if outedge_to_put.can_put():
                             blocking_start_time = self.env.now
+                            item.set_creation(self.id, self.env)
+                            item.timestamp_node_exit = self.env.now
                             yield self.env.process(self._push_item(item, outedge_to_put))
                             
                         else:
