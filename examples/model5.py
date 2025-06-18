@@ -10,6 +10,9 @@ from factorysimpy.constructs.chain import connect_chain_with_source_sink, connec
 
 env = simpy.Environment()
 
+#   SRC ──> BUFFER1 ───> MACHINE1 ───> BUFFER2 ──> MACHINE2 ───> BUFFER3 ──> MACHINE3 ───> BUFFER4 ──> SINK
+
+
 
 
 node_kwargs_list = [ {
@@ -17,6 +20,7 @@ node_kwargs_list = [ {
     "node_setup_time": 0,
     "work_capacity": 1,
     "processing_delay": 5,
+    "blocking": True,
     "in_edge_selection": "FIRST_AVAILABLE",
     "out_edge_selection": "FIRST_AVAILABLE"
 },{
@@ -24,6 +28,7 @@ node_kwargs_list = [ {
     "node_setup_time": 0,
     "work_capacity": 1,
     "processing_delay": 6,
+    "blocking": True,
     "in_edge_selection": "FIRST_AVAILABLE",
     "out_edge_selection": "FIRST_AVAILABLE"
 },{
@@ -31,6 +36,7 @@ node_kwargs_list = [ {
     "node_setup_time": 0,
     "work_capacity": 1,
     "processing_delay": 7,
+    "blocking": True,
     "in_edge_selection": "FIRST_AVAILABLE",
     "out_edge_selection": "FIRST_AVAILABLE"
 }, {
@@ -38,6 +44,7 @@ node_kwargs_list = [ {
     "node_setup_time": 0,
     "work_capacity": 1,
     "processing_delay": 7,
+    "blocking": True,
     "in_edge_selection": "FIRST_AVAILABLE",
     "out_edge_selection": "FIRST_AVAILABLE"
 }

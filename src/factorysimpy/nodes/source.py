@@ -337,7 +337,8 @@ class Source(Node):
                             yield itemput # Wait for the item to be available
                             #print("yaay")
                         else:
-                            item = itemput
+                            item1 = itemput
+                            print(f"T={self.env.now:.2f} {self.id} {item.id} pushed to buffer {self.out_edges[edge_index].id} ")
 
                        
 
@@ -355,7 +356,7 @@ class Source(Node):
 
                             
                         else:               
-                            print(f"T={ self.env.now:.2f}: {self.id} worker is discarding item {item.id} because out_edge {edge.id} is full.")
+                            print(f"T={ self.env.now:.2f}: {self.id} is discarding item {item.id} because out_edge {edge.id} is full.")
                             self.stats["num_item_discarded"] += 1  # Decrement processed count if item is discarded
 
 
@@ -365,17 +366,17 @@ class Source(Node):
 
 
                 else:
-                    print(f"T={self.env.now:.2f}: {self.id} worker processed item: {item.id}")
+                    print(f"T={self.env.now:.2f}: {self.id} processed item: {item.id}")
                     out_edge_index_to_put = self._get_out_edge_index()
                     if out_edge_index_to_put is None:
-                        raise ValueError(f"{self.id} worker - No out_edge available for processing!")
+                        raise ValueError(f"{self.id} - No out_edge available for processing!")
                     if out_edge_index_to_put < 0 or out_edge_index_to_put >= len(self.out_edges):
-                        raise IndexError(f"{self.id} worker - Invalid edge index {out_edge_index_to_put} for out_edges.")
+                        raise IndexError(f"{self.id}  - Invalid edge index {out_edge_index_to_put} for out_edges.")
                     outedge_to_put = self.out_edges[out_edge_index_to_put]
 
                     if self.blocking:
                         blocking_start_time = self.env.now
-                        print(f"T={self.env.now:.2f}: {self.id} worker is in BLOCKED_STATE")
+                        print(f"T={self.env.now:.2f}: {self.id} is in BLOCKED_STATE")
                         yield self.env.process(self._push_item(item, outedge_to_put))
                         
                     else:
@@ -385,9 +386,9 @@ class Source(Node):
                             yield self.env.process(self._push_item(item, outedge_to_put))
                             
                         else:
-                            print(f"T={self.env.now:.2f}: {self.id} worker is discarding item {item.id} because out_edge {outedge_to_put.id} is full.")
+                            print(f"T={self.env.now:.2f}: {self.id} is discarding item {item.id} because out_edge {outedge_to_put.id} is full.")
                             self.stats["num_item_discarded"] += 1
-                # Release the worker thread after processing
+               
                     
                 
 
