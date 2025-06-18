@@ -75,15 +75,16 @@ env = simpy.Environment()
 
 #let the inter arrival time of the source be a value sampled from a gaussian distribution with mean = 1, std deviation is = 0.25
 #Gaussian distribution as a python function 
-def generate_gaussian_distribution(mean=0, std_dev=1):
+def generate_gaussian_distribution():
    
-    return random.gauss(mu=mean,sigma= std_dev)
+    return random.gauss(mu=1,sigma= 0.25)
        
 #let the processing delay of the machine be a value function of the duration of the time spent by the machine in processing state
 #if the time spent in processing state is greater than 7, the processing delay has to take one value in index 0 of the return_vals
 #if the time spent in processing state is less than or equal to 7, the processing delay has to take the value in index 1
 #This behaviour as a python function 
-def generate_process_delay(node,env, return_vals):
+def generate_process_delay():
+      return_vals=[0.9,1.2]
       if node.stats["total_time_spent_in_states"]["PROCESSING_STATE"]>7:
         return return_vals[0]
       else:
@@ -93,10 +94,9 @@ def generate_process_delay(node,env, return_vals):
 
 
 # Initializing nodes
-SRC= Source(env, id="SRC",  inter_arrival_time=generate_gaussian_distribution(1,0.25),blocking=False,out_edge_selection=0 )
-MACHINE1 = Machine(env, id="MACHINE1",work_capacity=1,processing_delay=None,in_edge_selection="RANDOM",out_edge_selection="RANDOM")
-processing_delay_func=generate_process_delay(MACHINE1,env,[0.9,1.2])
-MACHINE1.processing_delay = processing_delay_func
+SRC= Source(env, id="SRC",  inter_arrival_time=generate_gaussian_distribution,blocking=False,out_edge_selection=0 )
+MACHINE1 = Machine(env, id="MACHINE1",work_capacity=1,processing_delay=generate_process_delay,in_edge_selection="RANDOM",out_edge_selection="RANDOM")
+
 SINK= Sink(env, id="SINK" )
 
 
@@ -141,15 +141,16 @@ env = simpy.Environment()
 
 #let the inter arrival time of the source be a value sampled from a gaussian distribution with mean = 2, std deviation is = 0.5
 #Gaussian distribution as a generator function 
-def generate_gaussian_distribution(mean=0, std_dev=1):
+def generate_gaussian_distribution():
    while True:
-        yield random.gauss(mu=mean,sigma= std_dev)
+        yield random.gauss(mu=2,sigma= 0.5)
        
 #let the processing delay of the machine be a value function of the duration of the time spent by the machine in processing state
 #if the time spent in processing state is greater than 7, the processing delay has to take one value in index 0 of the return_vals
 #if the time spent in processing state is less than or equal to 7, the processing delay has to take the value in index 1
 #This behaviour as a generator function 
-def generate_process_delay(node,env, return_vals):
+def generate_process_delay(node,env):
+   return_vals=[0.9,1.2]
    while True:
       if node.stats["total_time_spent_in_states"]["PROCESSING_STATE"]>7:
         yield return_vals[0]
@@ -160,9 +161,9 @@ def generate_process_delay(node,env, return_vals):
 
 
 # Initializing nodes
-SRC= Source(env, id="SRC",  inter_arrival_time=generate_gaussian_distribution(1,0.25),blocking=False,out_edge_selection=0 )
+SRC= Source(env, id="SRC",  inter_arrival_time=generate_gaussian_distribution,blocking=False,out_edge_selection=0 )
 MACHINE1 = Machine(env, id="MACHINE1",work_capacity=1,processing_delay=None,in_edge_selection="RANDOM",out_edge_selection="RANDOM")
-processing_delay_func=generate_process_delay(MACHINE1,env,[0.9,1.2])
+processing_delay_func=generate_process_delay(MACHINE1,env)
 MACHINE1.processing_delay = processing_delay_func
 SINK= Sink(env, id="SINK" )
 
