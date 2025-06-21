@@ -216,6 +216,25 @@ class Machine(Node):
             self.in_edges.append(edge)
         else:
             raise ValueError(f"Edge already exists in Machine '{self.id}' in_edges.")
+        
+    def update_final_state_time(self, simulation_end_time):
+        duration = simulation_end_time- self.stats["last_state_change_time"]
+        # updating the time of per thread states
+        for procs in self.worker_thread_list:
+            if procs.thread_state == "PROCESSING_STATE":
+                self._update_avg_time_spent_in_processing(duration)
+            elif procs.thread_state == "BLOCKED_STATE":
+                self._update_avg_time_spent_in_blocked(duration)
+        #checking threadstates and updating the machine state
+        if self.state is not None and self.stats["last_state_change_time"] is not None:
+            duration = simulation_end_time- self.stats["last_state_change_time"]
+            self.stats["total_time_spent_in_states"][self.state] = (
+                self.stats["total_time_spent_in_states"].get(self.state, 0.0) + duration
+            )
+        #updating the time vs no. of worker thread list
+        #num worker thread is the index of the list and time spent by that many worker threads is the value)
+        self._update_worker_occupancy("UPDATE")
+                
 
     def add_out_edges(self, edge):
         """
@@ -447,25 +466,27 @@ class Machine(Node):
         if numthreads_PROCESSING >0:
             self.update_state("PROCESSING_STATE", self.env.now)
         # if all threads are in blocked state, then the state is BLOCKED_STATE, then the state is updated to BLOCKED_STATE
-        if numthreads_BLOCKED == self.work_capacity:
-            print(f"T={self.env.now:.2f}: {self.id} is in BLOCKED_STATE!!!!!!!!!!!")
+        #if numthreads_BLOCKED == self.work_capacity:
+        if numthreads_BLOCKED ==len(self.worker_thread.users):
+            print(f"T={self.env.now:.2f}: {self.id} is in BLOCKED_STATE")
             self.update_state("BLOCKED_STATE", self.env.now)
             
 
 
     def worker(self,item,processing_delay,req_token,):
         #Worker process that processes items with resource and reserve handling."""
-        
-            
+            self.check_thread_state_and_update_machine_state()  # Check and update the machine state based on worker states
+            processing_start_time = self.env.now
             #wait for processing_delay amount of time
             yield self.env.timeout(processing_delay)
             self.stats["num_item_processed"] += 1
-            self._update_avg_time_spent_in_processing(processing_delay)
+            self._update_avg_time_spent_in_processing(self.env.now - processing_start_time)  # Update the average time spent in processing
           
                #out_edge_selection is "FIRST_AVAILABLE"---> 
             if self.out_edge_selection == "FIRST_AVAILABLE":
                 # if blocking yield reserve_put on all out_edges and take the one with min index and cancel others and push item
                 if self.blocking:
+                    self.check_thread_state_and_update_machine_state()
                     self.env.active_process.thread_state = "BLOCKED_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
                     self.check_thread_state_and_update_machine_state()
                     blocking_start_time = self.env.now
@@ -476,11 +497,6 @@ class Machine(Node):
                     triggered_out_edge_events = self.env.any_of(out_edge_events)
                     yield triggered_out_edge_events  # Wait for any in_edge to be available
                     
-                    # for i in ev:
-                    #     if i.triggered:
-                    #         ev_to_process = i
-
-                    # Find the first triggered event
                     chosen_put_event = next((event for event in out_edge_events if event.triggered), None)
                     
                     
@@ -495,22 +511,21 @@ class Machine(Node):
                             event.resourcename.reserve_put_cancel(event)
 
                     #putting the item in the chosen out_edge
+                    
                     item.update_node_event(self.id, self.env, "exit")
-                    if self.out_edges[edge_index].__class__.__name__ == "ConveyorBelt":
-                        itemput = chosen_put_event.resourcename.put(ev[i], item)  # Get the item from the chosen in_edge
-                    elif self.out_edges[edge_index].__class__.__name__ == "Buffer":
+                    if self.out_edges[edge_index].__class__.__name__ == "Buffer":
                         itemput = chosen_put_event.resourcename.put(chosen_put_event, item)  # Get the item from the chosen in_edge
                     else:
                         raise ValueError(f"Unsupported edge type: {self.out_edges[edge_index].__class__.__name__}")
                         #print(f"T={self.env.now:.2f}: {self.id} puts item {item.id} into {self.out_edges[edge_index].id} ")
-                    if isinstance(itemput, simpy.events.Process):
-                        self.item_in_process = itemput
-                        yield self.item_in_process # Wait for the item to be available
-                    else:
-                        self.item_in_process = item
-                    self.env.active_process.thread_state = "PROCESSING_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
                     self.check_thread_state_and_update_machine_state()
                     self._update_avg_time_spent_in_blocked(self.env.now - blocking_start_time)
+                    self.env.active_process.thread_state = "PROCESSING_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
+                    c=self.worker_thread_list.index(self.env.active_process)
+                    if c>=0:
+                        assert self.worker_thread_list[c].thread_state == "PROCESSING_STATE", f"{self.id} - Worker thread {c} is not in PROCESSED_STATE after processing item {self.worker_thread_list[c].thread_state}."
+                    self.check_thread_state_and_update_machine_state()
+                    
                 #not blocking, check can_put on all, if all fails, then the item is discarded
                 else:
                     out_edge_index_to_put = None
@@ -521,10 +536,12 @@ class Machine(Node):
                     
                     if out_edge_index_to_put is not None:
                          blocking_start_time = self.env.now
+                         self.check_thread_state_and_update_machine_state()
                          self.env.active_process.thread_state = "BLOCKED_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
                          self.check_thread_state_and_update_machine_state()
                          yield self.env.process(self._push_item(item, out_edge_index_to_put))  
                          print(f"T={self.env.now:.2f}: {self.id} worker puts item {item.id} into {out_edge_index_to_put.id} ")
+                         self.check_thread_state_and_update_machine_state()
                          self.env.active_process.thread_state = "PROCESSING_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
                          self.check_thread_state_and_update_machine_state()
                          self._update_avg_time_spent_in_blocked(self.env.now - blocking_start_time)
@@ -575,7 +592,7 @@ class Machine(Node):
             if self.env.active_process in self.worker_thread_list:
                 self.worker_thread_list.remove(self.env.active_process)
             self._update_worker_occupancy(action="REMOVE")  # Update worker occupancy after processing
-                
+            self.check_thread_state_and_update_machine_state()    
 
     
                 
@@ -599,91 +616,60 @@ class Machine(Node):
                 self.update_state("IDLE_STATE", self.env.now)
 
             else:
-                #print("hi")
+               
                 
                 #updating the working occupancy of the machine-- 
                 # done to account the time of an iteration incase there is no change is worker occupancy
             
                 self._update_worker_occupancy(action="UPDATE")
-
-                #getting the number of threads in PROCESSING_STATE and BLOCKED_STATE to change the state of the machine if required
-                numthreads_PROCESSING, numthreads_BLOCKED = self._count_worker_state()
-
-                # if numthreads_PROCESSING == 0 and numthreads_BLOCKED == 0, then the state is IDLE_STATE
-                if numthreads_PROCESSING == 0 and numthreads_BLOCKED == 0:
-                    self.update_state("IDLE_STATE", self.env.now)
-                # if there is atleast one thread that is PROCESSING, then the state is PROCESSING_STATE, then the state is updated to PROCESSING_STATE
-                if numthreads_PROCESSING >0:
-                    print(f"T={self.env.now:.2f}: {self.id} is in just processing_STATE!!!!!!!!!!!")
-                    self.update_state("PROCESSING_STATE", self.env.now)
-                # if all threads are in blocked state, then the state is BLOCKED_STATE, then the state is updated to BLOCKED_STATE
-                if numthreads_BLOCKED == self.work_capacity:
-                    print(f"T={self.env.now:.2f}: {self.id} is in BLOCKED_STATE!!!!!!!!!!!")
-                    self.update_state("BLOCKED_STATE", self.env.now)
-
-                
-                            
-                
+                self.check_thread_state_and_update_machine_state()               
                 print(f"T={self.env.now:.2f}: {self.id} is in {self.state}")
-                # Create workers based on work_capacity
-                worker_thread_req = self.worker_thread.request()  # Request a worker thread
-                yield worker_thread_req
                 
-                #print(f"{self.env.now:.2f}--yielded {i}, {len(self.worker_thread.users)}")
-                
-                #update occupancy
-                self._update_worker_occupancy(action="ADD")
                 #in_edge_selection is "FIRST_AVAILABLE"--->     yield in a list, select one with min. index value and cancel other and pull item
                 if self.in_edge_selection == "FIRST_AVAILABLE":
                     
-                    #self.in_edge_events = [edge.reserve_get() if edge.__class__.__name__ == "ConveyorBelt" else edge.inbuiltstore.reserve_get() for edge in self.in_edges]
+                    
                     self.in_edge_events = [self.in_edges[i].inbuiltstore.reserve_get() for i in range(len(self.in_edges)-1,-1,-1)]
                     triggered_in_edge_events = self.env.any_of(self.in_edge_events)
-                    ev= yield triggered_in_edge_events  # Wait for any in_edge to be available
-                    #print(triggered_in_edge_events,)
+                    yield triggered_in_edge_events  # Wait for any in_edge to be available
                     
-                    for i in ev:
-                        if i.triggered:
-                            ev_to_process = i
-                    
-                   
-
-                    
-                    #trigered_indices = [len(self.in_edges)-i for i in range(len(self.in_edge_events)) if self.in_edge_events[i].triggered]
-                    #print(trigered_indices)
-                    #if not trigered_indices:
-                    #    raise ValueError(f"{self.id} - No in_edge available for processing!")
-                    #edge_index = min(trigered_indices)  # Get the index of the first triggered event
+                    # Find the first triggered event           
                     self.chosen_event = next((event for event in self.in_edge_events if event.triggered), None)
-                    #self.chosen_event = self.in_edge_events[edge_index]  # Get the first triggered event
-                    edge_index = self.in_edge_events.index(self.chosen_event)  # Get the index of the chosen event
-                    #print("!!!!!!",edge_index)
-                    print(f"T={self.env.now:.2f}: {self.id} yielded from {self.in_edges[edge_index].id} ")
                     if self.chosen_event is None:
                         raise ValueError(f"{self.id} - No in_edge available for processing!")
+                    # Find the index of the chosen event in the in_edge_events list
+                    edge_index = self.in_edge_events.index(self.chosen_event)  # Get the index of the chosen event
+
+                    #print("!!!!!!",edge_index)
+                    print(f"T={self.env.now:.2f}: {self.id} yielded from {self.in_edges[edge_index].id} ")
+                    
                     
                     self.in_edge_events.remove(self.chosen_event)  # Remove the chosen event from the list
-                    #cancelling already triggered out_edge events
+                    #cancelling already triggered in_edge events other than chosen events
                     for event in self.in_edge_events:
                         if event.triggered:
                             event.resourcename.reserve_get_cancel(event)
 
-                    #if self.edge_index[]
                     
-                    if self.in_edges[edge_index].__class__.__name__ == "ConveyorBelt":
-                        item = self.chosen_event.resourcename.get(ev[i])  # Get the item from the chosen in_edge
-                    elif self.in_edges[edge_index].__class__.__name__ == "Buffer":
-                        item = self.chosen_event.resourcename.get(self.chosen_event)  # Get the item from the chosen in_edge
+
+                    # Create workers based on work_capacity
+                    worker_thread_req = self.worker_thread.request()  # Request a worker thread
+                    yield worker_thread_req
+                    
+                    
+                    
+                    #update occupancy
+                    self._update_worker_occupancy(action="ADD")
+                    
+                    if self.in_edges[edge_index].__class__.__name__ == "Buffer":
+                        self.item_in_process = self.chosen_event.resourcename.get(self.chosen_event)  # Get the item from the chosen in_edge
+                        self.item_in_process.update_node_event(self.id, self.env, "entry")
                     else:
                         raise ValueError(f"Unsupported edge type: {self.in_edges[edge_index].__class__.__name__}")
                     #print(f"T={self.env.now:.2f}: {self.id} received item {item.id} from {self.in_edges[edge_index].id} ")
                     
-                    if isinstance(item, simpy.events.Process):
-                        
-                        self.item_in_process = yield item# Wait for the item to be available
-                    else:
-                        self.item_in_process = item
-                    self.item_in_process.update_node_event(self.id, self.env, "entry")
+                    
+                    
                 #in_edge_selection is not "FIRST_AVAILABLE"---> use get_in_edge_index and pull item
                 else:
                     in_edge_index = self._get_in_edge_index()
@@ -692,9 +678,37 @@ class Machine(Node):
                     #print("IN", in_edge_index)
                     in_edge_to_get = self.in_edges[in_edge_index]
                     
-                    yield self.env.process(self._pull_item( in_edge_to_get))
+                    #yield self.env.process(self._pull_item( in_edge_to_get))
+
+                   
                     
-                    print(f"T={self.env.now:.2f}: {self.id} received item {self.item_in_process.id} from {in_edge_to_get.id} ")
+                    
+
+                    if in_edge_to_get.__class__.__name__ == "Buffer":
+                        outstore = in_edge_to_get.inbuiltstore
+                        get_token = outstore.reserve_get()
+                        yield get_token
+                         # Create workers based on work_capacity
+                        worker_thread_req = self.worker_thread.request()  # Request a worker thread
+                        yield worker_thread_req
+                        #update occupancy
+                        self._update_worker_occupancy(action="ADD")
+                        
+                        
+                        self.item_in_process =outstore.get(get_token)
+                        
+                        if self.item_in_process  is not None:
+                            self.item_in_process .update_node_event(self.id, self.env, "entry")
+                            print(f"T={self.env.now:.2f}: {self.id} gets item {self.item_in_process .id} from {in_edge_to_get.id} ")
+                        else:
+                            raise ValueError(f"T={self.env.now:.2f}: {self.id} - No item pulled from in_edge {in_edge_to_get.id}!")
+                    else:
+                        raise ValueError(f"Unsupported edge type: {in_edge_to_get.__class__.__name__}")
+
+
+
+                    
+                    
               
                 if self.item_in_process is None:
                     raise ValueError(f"{self.id} - No item pulled from in_edge {in_edge_to_get.id}!")
@@ -714,7 +728,7 @@ class Machine(Node):
                 proc.thread_state="PROCESSING_STATE" # Set the thread state to PROCESSING_STATE
                 proc.item_to_put = self.item_in_process # Set the item to be put by the worker process
                 self.worker_thread_list.append(proc)  # Add the worker process to the worker_thread_list
-             
+                self.check_thread_state_and_update_machine_state()  # Check and update the machine state based on worker states
                 #initialise item into none
                 self.item_in_process=None
             

@@ -17,7 +17,7 @@ env = simpy.Environment()
 
 SRC = Source(env, id="SRC", inter_arrival_time=0.2, blocking=True, out_edge_selection="FIRST_AVAILABLE")
 SRC2 = Source(env, id="SRC2", inter_arrival_time=0.2, blocking=True, out_edge_selection="FIRST_AVAILABLE")
-MACHINE1 = Machine(env, id="MACHINE1", work_capacity=1, blocking=True, processing_delay=0.5, in_edge_selection="RANDOM", out_edge_selection=0)
+MACHINE1 = Machine(env, id="MACHINE1", work_capacity=1, blocking=True, processing_delay=0.5, in_edge_selection="RANDOM", out_edge_selection="FIRST_AVAILABLE")
 SINK = Sink(env, id="SINK")
 
 # Initializing edges
@@ -29,7 +29,7 @@ BUFFER1.connect(SRC, MACHINE1)
 BUFFER2.connect(MACHINE1, SINK)
 BUFFER3.connect(SRC2, MACHINE1)
 
-env.run(until=2)
+env.run(until=100)
 
 print(f"SINK {SINK.id} received {SINK.stats['num_item_received']} items.")
 
