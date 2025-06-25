@@ -7,8 +7,11 @@ def connect_chain(env, count, node_cls, edge_cls,
 
     for i in range(count):
         print(i)
-        kwargs = node_kwargs_list[i] if node_kwargs_list else node_kwargs or {}
+        kwargs = node_kwargs_list[i] if node_kwargs_list else node_kwargs or {"processing_delay": 0.8,"blocking": True}
         node_name = f"{prefix}_{i+1}"
+        if "id" in kwargs:
+            node_name = kwargs["id"]
+            del kwargs["id"]
         node = node_cls(env=env, id=node_name, **kwargs)
         nodes.append(node)
 
@@ -16,6 +19,9 @@ def connect_chain(env, count, node_cls, edge_cls,
     
         kwargs = edge_kwargs_list[i] if edge_kwargs_list else edge_kwargs or {}
         edge_name = f"{edge_prefix}_{i+1}"
+        if "id" in kwargs:
+            edge_name = kwargs["id"]
+            del kwargs["id"]
         edge = edge_cls(env=env, id=edge_name, **kwargs)
         edges.append(edge)
 
@@ -35,8 +41,12 @@ def connect_chain_with_source_sink(env, count, node_cls, edge_cls,
                                     node_kwargs_list, edge_kwargs_list,
                                     prefix, edge_prefix)
     if source_cls:
-        source_kwargs = source_kwargs or {}
-        source = source_cls(env=env, id=f"Source", **source_kwargs)
+        source_kwargs = source_kwargs or {"inter_arrival_time": 1, "blocking": True, }
+        src_name ="Source"
+        if "id" in source_kwargs:
+            src_name = source_kwargs["id"]
+            del source_kwargs["id"]
+        source = source_cls(env=env, id=src_name, **source_kwargs)
         #source.out_edge = edges[0]
         #nodes[0].in_edge = edges[0]
         nodes.insert(0, source)
@@ -46,7 +56,11 @@ def connect_chain_with_source_sink(env, count, node_cls, edge_cls,
 
     if sink_cls:
         sink_kwargs = sink_kwargs or {}
-        sink = sink_cls(env=env,  **sink_kwargs)
+        sink_name = "Sink"
+        if "id" in sink_kwargs:
+            sink_name = sink_kwargs["id"]
+            del sink_kwargs["id"]
+        sink = sink_cls(env=env, id=sink_name, **sink_kwargs)
         #sink.in_edge = edges[-1]
         #nodes[-1].out_edge = edges[-1]
         nodes.append(sink)

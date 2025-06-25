@@ -67,7 +67,7 @@ class Machine(Node):
                 
     """
 
-    def __init__(self, env, id, in_edges=None, out_edges=None,node_setup_time=0, work_capacity=1,processing_delay=0,blocking=False,in_edge_selection="FIRST_AVAILABLE",out_edge_selection="FIRST_AVAILABLE"):
+    def __init__(self, env, id, in_edges=None, out_edges=None,node_setup_time=0, work_capacity=1,processing_delay=0,blocking=True,in_edge_selection="FIRST_AVAILABLE",out_edge_selection="FIRST_AVAILABLE"):
         super().__init__(env, id,in_edges, out_edges, node_setup_time)
         
         self.state = "SETUP_STATE"  # Initial state of the machine
@@ -86,7 +86,7 @@ class Machine(Node):
         self.worker_thread = simpy.Resource(env, capacity=self.work_capacity)  # Resource for worker threads
         self.time_per_work_occupancy = [0.0 for _ in range(work_capacity+1)]  # Time spent by each worker thread
         self.stats={"total_time_spent_in_states": {"SETUP_STATE": 0.0, "IDLE_STATE":0.0, "PROCESSING_STATE": 0.0,"BLOCKED_STATE":0.0 },
-                    "last_state_change_time": None, "num_item_processed": 0, "num_item_discarded": 0,}
+                    "last_state_change_time": None, "num_item_processed": 0, "num_item_discarded": 0,"processing_delay":[]}
        
      
         
@@ -458,18 +458,24 @@ class Machine(Node):
           
     def check_thread_state_and_update_machine_state(self):
         numthreads_PROCESSING, numthreads_BLOCKED = self._count_worker_state()
+        #print(f"T={self.env.now:.2f}: {self.id} - numthreads_PROCESSING={numthreads_PROCESSING}, numthreads_BLOCKED={numthreads_BLOCKED}, work_capacity={self.work_capacity}")
 
         # if numthreads_PROCESSING == 0 and numthreads_BLOCKED == 0, then the state is IDLE_STATE
-        if numthreads_PROCESSING == 0 and numthreads_BLOCKED == 0:
+        if numthreads_PROCESSING == 0 and numthreads_BLOCKED == 0 :
+            #print(f"T={self.env.now:.2f}: idle")
             self.update_state("IDLE_STATE", self.env.now)
         # if there is atleast one thread that is PROCESSING, then the state is PROCESSING_STATE, then the state is updated to PROCESSING_STATE
-        if numthreads_PROCESSING >0:
+        elif numthreads_PROCESSING >0 :
             self.update_state("PROCESSING_STATE", self.env.now)
         # if all threads are in blocked state, then the state is BLOCKED_STATE, then the state is updated to BLOCKED_STATE
         #if numthreads_BLOCKED == self.work_capacity:
-        if numthreads_BLOCKED ==len(self.worker_thread.users):
+        elif numthreads_BLOCKED ==len(self.worker_thread.users):
+            #print(self.env.now, numthreads_BLOCKED,len(self.worker_thread.users))
             print(f"T={self.env.now:.2f}: {self.id} is in BLOCKED_STATE")
             self.update_state("BLOCKED_STATE", self.env.now)
+        
+        else:
+            raise ValueError(f"{self.id} - Invalid worker thread state. numthreads_PROCESSING={numthreads_PROCESSING}, numthreads_BLOCKED={numthreads_BLOCKED}, work_capacity={self.work_capacity}")
             
 
 
@@ -722,6 +728,9 @@ class Machine(Node):
                 # self._update_worker_occupancy(action="ADD")
                 #get processing_time
                 next_processing_time = self.get_delay(self.processing_delay)
+                #print("!!!!!!!!!!!!!!!!!!EGKEKHRTUOYO!!!!!!!!!!!!!!!!!!!!!!!!!", next_processing_time)
+
+                self.stats["processing_delay"].append(next_processing_time)  # Update the processing delay in stats
                 print(f"T={self.env.now:.2f}: {self.id} worker started processing item {self.item_in_process.id} ")
                 #spawn a worker process
                 proc = self.env.process(self.worker(self.item_in_process, next_processing_time, worker_thread_req))  # Start the worker process
