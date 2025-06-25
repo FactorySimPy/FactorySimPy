@@ -469,7 +469,7 @@ class Machine(Node):
             self.update_state("PROCESSING_STATE", self.env.now)
         # if all threads are in blocked state, then the state is BLOCKED_STATE, then the state is updated to BLOCKED_STATE
         #if numthreads_BLOCKED == self.work_capacity:
-        elif numthreads_BLOCKED ==len(self.worker_thread.users):
+        elif numthreads_BLOCKED ==len(self.worker_thread_list):
             #print(self.env.now, numthreads_BLOCKED,len(self.worker_thread.users))
             print(f"T={self.env.now:.2f}: {self.id} is in BLOCKED_STATE")
             self.update_state("BLOCKED_STATE", self.env.now)
