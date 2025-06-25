@@ -86,7 +86,7 @@ class Buffer(Edge):
         assert self.dest_node is not None , f"Buffer '{self.id}' must have atleast 1 dest_node."
         
     
-    def _stats_collector(self, sample_interval=3):
+    def _stats_collector(self, sample_interval=1):
         """
         Periodically sample the number of items in the buffer and compute the time-averaged value.
         """
