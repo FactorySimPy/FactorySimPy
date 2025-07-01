@@ -86,7 +86,7 @@ class Machine(Node):
         self.worker_thread = simpy.Resource(env, capacity=self.work_capacity)  # Resource for worker threads
         self.time_per_work_occupancy = [0.0 for _ in range(work_capacity+1)]  # Time spent by each worker thread
         self.stats={"total_time_spent_in_states": {"SETUP_STATE": 0.0, "IDLE_STATE":0.0, "PROCESSING_STATE": 0.0,"BLOCKED_STATE":0.0 },
-                    "last_state_change_time": None, "num_item_processed": 0, "num_item_discarded": 0,"processing_delay":[]}
+                    "last_state_change_time": None, "num_item_processed": 0, "num_item_discarded": 0,"processing_delay":[], "in_edge_selection":[],"out_edge_selection":[]}
        
      
         
@@ -274,6 +274,7 @@ class Machine(Node):
         # Check if the value is within the valid range of out_edges
         #print(f"OUT: {val} {len(self.out_edges)}")
         assert 0<= val < len(self.out_edges), f"{self.id} - Invalid edge index. {val} is not in range. Range must be between {0} and  {len(self.out_edges)-1} for out_edges." 
+        self.stats["out_edge_selection"].append(val)
         return val   
  
 
@@ -293,7 +294,9 @@ class Machine(Node):
         else:
             raise ValueError("in_edge_selection must be a generator or a callable.")    
         # Check if the value is within the valid range of in_edges
+        #print( val )
         assert 0<=val < len(self.in_edges), f"{self.id} - Invalid edge index. {val} is not in range. Range must be between {0} and  {len(self.in_edges)-1} for in_edges."
+        self.stats["in_edge_selection"].append(val)
         return val
                   
    
@@ -468,13 +471,17 @@ class Machine(Node):
         elif numthreads_PROCESSING >0 :
             self.update_state("PROCESSING_STATE", self.env.now)
         # if all threads are in blocked state, then the state is BLOCKED_STATE, then the state is updated to BLOCKED_STATE
-        #if numthreads_BLOCKED == self.work_capacity:
+        #elif numthreads_BLOCKED == self.work_capacity:
         elif numthreads_BLOCKED ==len(self.worker_thread_list):
             #print(self.env.now, numthreads_BLOCKED,len(self.worker_thread.users))
             print(f"T={self.env.now:.2f}: {self.id} is in BLOCKED_STATE")
             self.update_state("BLOCKED_STATE", self.env.now)
+
+     
         
         else:
+            print("goingtofail")
+            print(numthreads_BLOCKED, numthreads_PROCESSING, self.work_capacity, len(self.worker_thread.users), len(self.worker_thread_list) )
             raise ValueError(f"{self.id} - Invalid worker thread state. numthreads_PROCESSING={numthreads_PROCESSING}, numthreads_BLOCKED={numthreads_BLOCKED}, work_capacity={self.work_capacity}")
             
 
@@ -498,7 +505,8 @@ class Machine(Node):
                     blocking_start_time = self.env.now
                 
                     #self.out_edge_events = [edge.reserve_put() if edge.__class__.__name__ == "ConveyorBelt" else edge.inbuiltstore.reserve_put() for edge in self.out_edges]
-                    out_edge_events = [self.out_edges[i].inbuiltstore.reserve_put() for i in range(len(self.out_edges)-1,-1,-1)]
+                    #out_edge_events = [self.out_edges[i].inbuiltstore.reserve_put() for i in range(len(self.out_edges)-1,-1,-1)]
+                    out_edge_events= [edge.inbuiltstore.reserve_put() for edge in self.out_edges]  # Filter out None events
                     #print(self.env.now,len(self.out_edge_events),self.out_edges)
                     triggered_out_edge_events = self.env.any_of(out_edge_events)
                     yield triggered_out_edge_events  # Wait for any in_edge to be available
@@ -510,20 +518,24 @@ class Machine(Node):
                     if chosen_put_event is None:
                         raise ValueError(f"{self.env.now},{self.id} - No out_edge available for processing{[edge.id for edge in self.out_edges]}!")
                     edge_index = out_edge_events.index(chosen_put_event)
-                    out_edge_events.remove(chosen_put_event)  # Remove the chosen event from the list
+                    self.stats["out_edge_selection"].append(edge_index)  # Store the index of the chosen out_edge
+                    #out_edge_events.remove(chosen_put_event)  # Remove the chosen event from the list
                     #cancelling already triggered out_edge events
                     for event in out_edge_events:
-                        if event.triggered:
+                        #if event.triggered and event is not chosen_put_event:
+                        if event is not chosen_put_event:
                             event.resourcename.reserve_put_cancel(event)
+                    #out_edge_events=[]
 
                     #putting the item in the chosen out_edge
                     
                     item.update_node_event(self.id, self.env, "exit")
                     if self.out_edges[edge_index].__class__.__name__ == "Buffer":
                         itemput = chosen_put_event.resourcename.put(chosen_put_event, item)  # Get the item from the chosen in_edge
+
                     else:
                         raise ValueError(f"Unsupported edge type: {self.out_edges[edge_index].__class__.__name__}")
-                        #print(f"T={self.env.now:.2f}: {self.id} puts item {item.id} into {self.out_edges[edge_index].id} ")
+                    print(f"T={self.env.now:.2f}: {self.id} puts item {item.id} into {self.out_edges[edge_index].id} ")
                     self.check_thread_state_and_update_machine_state()
                     self._update_avg_time_spent_in_blocked(self.env.now - blocking_start_time)
                     self.env.active_process.thread_state = "PROCESSING_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
@@ -575,8 +587,14 @@ class Machine(Node):
                 if self.blocking:
                     blocking_start_time = self.env.now
                     print(f"T={self.env.now:.2f}: {self.id} worker is in BLOCKED_STATE")
-                    yield self.env.process(self._push_item(item, outedge_to_put))
-                    print(f"T={self.env.now:.2f}: {self.id} worker puts item {item.id} into {outedge_to_put.id} ")
+                    #yield self.env.process(self._push_item(item, outedge_to_put))
+                    put_event=outedge_to_put.inbuiltstore.reserve_put()
+                    yield put_event
+                    print(f"T={self.env.now:.2f}: {self.id} yielded and worker is putting item {item.id} into {outedge_to_put.id} " )
+                    item.update_node_event(self.id, self.env, "exit")
+                    y=outedge_to_put.inbuiltstore.put(put_event, item)
+                    if y:
+                     print(f"T={self.env.now:.2f}: {self.id} worker puts item {item.id} into {outedge_to_put.id} ")
                     self._update_avg_time_spent_in_blocked(self.env.now - blocking_start_time)
                 #check can_put and only if it succeeds push the item if not blocking
                 else:
@@ -627,48 +645,80 @@ class Machine(Node):
                 #updating the working occupancy of the machine-- 
                 # done to account the time of an iteration incase there is no change is worker occupancy
             
-                self._update_worker_occupancy(action="UPDATE")
+                #self._update_worker_occupancy(action="UPDATE")
                 self.check_thread_state_and_update_machine_state()               
                 print(f"T={self.env.now:.2f}: {self.id} is in {self.state}")
                 
                 #in_edge_selection is "FIRST_AVAILABLE"--->     yield in a list, select one with min. index value and cancel other and pull item
                 if self.in_edge_selection == "FIRST_AVAILABLE":
                     
-                    
-                    self.in_edge_events = [self.in_edges[i].inbuiltstore.reserve_get() for i in range(len(self.in_edges)-1,-1,-1)]
+                    #if not self.in_edge_events:
+                    self.in_edge_events=  [edge.inbuiltstore.reserve_get() for edge in self.in_edges]
+
+                    # for i in self.in_edges:
+                    #     if len(i.inbuiltstore.items):
+
+                    #        print( f"T={self.env.now:.2f}: {self.id} in {i.id} item entry time - {[item.timestamp_node_exit for item in i.inbuiltstore.items] } and no. of reservations {len(i.inbuiltstore.reservations_get)} ") # Update the timestamp of items in the inbuilt store 
+                    #        #if len(i.inbuiltstore.reservations_get):
+                                                     
+                    #     else:
+                    #         print(f"T={self.env.now:.2f}: {self.id} in {i.id} is empty")
+                    #self.in_edge_events = [self.in_edges[i].inbuiltstore.reserve_get() for i in range(len(self.in_edges)-1,-1,-1)]
+                    print(f"T={self.env.now:.2f}: {self.id} waiting for in_edge events to be triggered")
+                    #print(f"T={self.env.now:.2f}: {self.id} in_edge_events: {[event.resourcename for event in self.in_edge_events]}")  # Debugging line to check in_edge_events
                     triggered_in_edge_events = self.env.any_of(self.in_edge_events)
-                    yield triggered_in_edge_events  # Wait for any in_edge to be available
                     
+                    yield triggered_in_edge_events  # Wait for any in_edge to be available
+                    trig_count = [1 if event.triggered else 0 for event in self.in_edge_events]
+                    #print(f"T={self.env.now:.2f}: {self.id} no of trigerred events {sum(trig_count)} , {trig_count}, in_edge_events triggered")
                     # Find the first triggered event           
                     self.chosen_event = next((event for event in self.in_edge_events if event.triggered), None)
                     if self.chosen_event is None:
                         raise ValueError(f"{self.id} - No in_edge available for processing!")
                     # Find the index of the chosen event in the in_edge_events list
+                    for i in range(len(self.in_edges)):
+                        if self.chosen_event.resourcename == self.in_edges[i].inbuiltstore:
+                            edge_index_to_print=i
+                            
                     edge_index = self.in_edge_events.index(self.chosen_event)  # Get the index of the chosen event
-
+                    assert edge_index == edge_index_to_print, f"{self.id} - Edge index mismatch. {edge_index} != {edge_index_to_print}. Check the in_edge_events and in_edges."
+                    
                     #print("!!!!!!",edge_index)
+                    self.stats["in_edge_selection"].append(edge_index)
+                    
                     print(f"T={self.env.now:.2f}: {self.id} yielded from {self.in_edges[edge_index].id} ")
                     
                     
-                    self.in_edge_events.remove(self.chosen_event)  # Remove the chosen event from the list
+                    #self.in_edge_events.remove(self.chosen_event)  # Remove the chosen event from the list
                     #cancelling already triggered in_edge events other than chosen events
+                    
                     for event in self.in_edge_events:
-                        if event.triggered:
-                            event.resourcename.reserve_get_cancel(event)
+                        event_cancelled = False
+                        #if event.triggered and event is not self.chosen_event:
+                        if  event is not self.chosen_event:
+                            #print(f"T={self.env.now:.2f}: {self.id} cancelling  in_edge events  ")
+                            event_cancelled = event.resourcename.reserve_get_cancel(event)
+                            if not event_cancelled:
+                                raise ValueError(f"{self.id} - Failed to cancel reserve_get for event {event}.")
+                            
+                        #self.in_edge_events=[]
 
                     
 
                     # Create workers based on work_capacity
                     worker_thread_req = self.worker_thread.request()  # Request a worker thread
+                    print(f"T={self.env.now:.2f}: {self.id} requested worker thread for processing item from {self.in_edges[edge_index].id} ")
                     yield worker_thread_req
-                    
+                    print(f"T={self.env.now:.2f}: {self.id} got worker thread for processing item from {self.in_edges[edge_index].id} ")
                     
                     
                     #update occupancy
                     self._update_worker_occupancy(action="ADD")
                     
                     if self.in_edges[edge_index].__class__.__name__ == "Buffer":
-                        self.item_in_process = self.chosen_event.resourcename.get(self.chosen_event)  # Get the item from the chosen in_edge
+                        self.item_in_process=self.in_edges[edge_index].inbuiltstore.get(self.chosen_event)  # Get the item from the chosen in_edge
+                        #print("getting getting getting getting  item from in_edge", self.chosen_event.resourcename)
+                        #self.item_in_process = self.chosen_event.resourcename.get(self.chosen_event)  # Get the item from the chosen in_edge
                         self.item_in_process.update_node_event(self.id, self.env, "entry")
                     else:
                         raise ValueError(f"Unsupported edge type: {self.in_edges[edge_index].__class__.__name__}")
@@ -678,9 +728,11 @@ class Machine(Node):
                     
                 #in_edge_selection is not "FIRST_AVAILABLE"---> use get_in_edge_index and pull item
                 else:
+                    #print("not_first_available")
                     in_edge_index = self._get_in_edge_index()
+                    #print(self.id, in_edge_index)
                     
-                    assert 0<=in_edge_index < len(self.in_edges), f"{self.id} - Invalid edge index. {in_edge_index} is not in range. Range must be between {0} and  {len(self.in_edges)-1} for in_edges."
+                    assert type(in_edge_index)==int and 0<=in_edge_index < len(self.in_edges), f"{self.id} - Invalid edge index. {in_edge_index} is not in range. Range must be between {0} and  {len(self.in_edges)-1} for in_edges."
                     #print("IN", in_edge_index)
                     in_edge_to_get = self.in_edges[in_edge_index]
                     

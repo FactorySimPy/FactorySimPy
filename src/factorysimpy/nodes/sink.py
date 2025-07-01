@@ -33,7 +33,15 @@ class Sink(Node):
     def reset(self):
         self.state = "COLLECTING_STATE"
             
-
+    def update_final_state_time(self, simulation_end_time):
+        duration = simulation_end_time- self.stats["last_state_change_time"]
+        
+        #checking threadstates and updating the machine state
+        if self.state is not None and self.stats["last_state_change_time"] is not None:
+            duration = simulation_end_time- self.stats["last_state_change_time"]
+            self.stats["total_time_spent_in_states"][self.state] = (
+                self.stats["total_time_spent_in_states"].get(self.state, 0.0) + duration
+            )
            
          
 
@@ -70,8 +78,11 @@ class Sink(Node):
         #print("sink")
 
         self.update_state("COLLECTING_STATE",self.env.now)   
-        if not self.in_edge_events:  
-            self.in_edge_events = [edge.reserve_get() if edge.__class__.__name__ == "ConveyorBelt" else edge.inbuiltstore.reserve_get() for edge in self.in_edges]
+        
+
+        
+
+        self.in_edge_events = [edge.inbuiltstore.reserve_get() for edge in self.in_edges]
         
         triggered_in_edge_events = self.env.any_of(self.in_edge_events)
         yield triggered_in_edge_events  # Wait for any in_edge to be available
@@ -84,9 +95,10 @@ class Sink(Node):
         
         self.in_edge_events.remove(self.chosen_event)  # Remove the chosen event from the list
         #cancelling already triggered out_edge events
-        # for event in self.in_edge_events:
+        for event in self.in_edge_events:
         #     if event.triggered:
-        #         event.resourcename.reserve_get_cancel(event)
+               event.resourcename.reserve_get_cancel(event)
+        
         
         
         item = self.chosen_event.resourcename.get(self.chosen_event)  # Get the item from the chosen in_edge

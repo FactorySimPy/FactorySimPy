@@ -55,7 +55,7 @@ class Buffer(Edge):
           self.stats = {
             "last_state_change_time": None,
             "time_averaged_num_of_items_in_buffer": 0,
-            "total_time_spent_in_states":{"IDLE_STATE": 0.0, "RELEASING_STATE": 0.0, "BLOCKED_STATE": 0.0}
+            "total_time_spent_in_states":{"IDLE_STATE": 0.0, "RELEASING_STATE": 0.0, "BLOCKED_STATE": 0.0},"time_averaged_num_of_items_in_buffer_list": []
         }
           
          
@@ -86,7 +86,7 @@ class Buffer(Edge):
         assert self.dest_node is not None , f"Buffer '{self.id}' must have atleast 1 dest_node."
         
     
-    def _stats_collector(self, sample_interval=1):
+    def _stats_collector(self, sample_interval=3):
         """
         Periodically sample the number of items in the buffer and compute the time-averaged value.
         """
@@ -96,6 +96,7 @@ class Buffer(Edge):
             yield self.env.timeout(sample_interval)
             #print(self.stats["time_averaged_num_of_items_in_buffer"])
             self.stats["time_averaged_num_of_items_in_buffer"] = self.inbuiltstore.time_averaged_num_of_items_in_store
+            self.stats["time_averaged_num_of_items_in_buffer_list"].append(self.inbuiltstore.time_averaged_num_of_items_in_store)
 
     def can_put(self):
         """

@@ -146,7 +146,9 @@ class Edge:
             dest.in_edges = []
         if self not in dest.in_edges:
             dest.in_edges.append(self)
-        print(f"T={self.env.now:.2f}Connected edge '{self.id}' from '{src.id}' to '{dest.id}'  ")
+        print(f"T={self.env.now:.2f}: Connected edge '{self.id}' from '{src.id}' to '{dest.id}'  ")
 
-        print(self.id,self.src_node.id,[i.id for i in self.src_node.out_edges])
-        print(self.id,self.dest_node.id, [i.id for i in self.dest_node.in_edges])
+        #print(self.id,self.src_node.id,[i.id for i in self.src_node.out_edges])
+        #print(self.dest_node)
+        #print("here10000",self.id,self.dest_node.id, [(type(i),i) for i in self.dest_node.in_edges])
+        #print(self.id,self.dest_node.id, [(i, i.id) for i in self.dest_node.in_edges])

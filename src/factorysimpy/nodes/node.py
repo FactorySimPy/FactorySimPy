@@ -65,8 +65,8 @@ class Node:
         else:
             # int or float
             val = delay
-
-        assert val >= 0, "Delay must be non-negative"
+        #print(self.id)
+        assert val >= 0, f"{self.id}- Delay must be non-negative"
         return val
     
     def update_state(self, new_state: str, current_time: float):

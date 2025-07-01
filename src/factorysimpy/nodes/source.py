@@ -279,6 +279,17 @@ class Source(Node):
             )
         self.state = new_state
         self.stats["last_state_change_time"] = current_time
+
+    def update_final_state_time(self, simulation_end_time):
+        duration = simulation_end_time- self.stats["last_state_change_time"]
+        
+        #checking threadstates and updating the machine state
+        if self.state is not None and self.stats["last_state_change_time"] is not None:
+            duration = simulation_end_time- self.stats["last_state_change_time"]
+            self.stats["total_time_spent_in_states"][self.state] = (
+                self.stats["total_time_spent_in_states"].get(self.state, 0.0) + duration
+            )
+        
     
     def behaviour(self):
         
@@ -329,7 +340,7 @@ class Source(Node):
                         blocking_start_time = self.env.now
                     
                         #self.out_edge_events = [edge.reserve_put() if edge.__class__.__name__ == "ConveyorBelt" else edge.inbuiltstore.reserve_put() for edge in self.out_edges]
-                        self.out_edge_events = [self.out_edges[i].inbuiltstore.reserve_put() for i in range(len(self.out_edges)-1,-1,-1)]
+                        self.out_edge_events = [edge.inbuiltstore.reserve_put() for edge in self.out_edges]
                         triggered_out_edge_events = self.env.any_of(self.out_edge_events)
                         yield triggered_out_edge_events  # Wait for any in_edge to be available
                         
@@ -343,8 +354,8 @@ class Source(Node):
                         
                         #cancelling already triggered out_edge events
                         for event in self.out_edge_events:
-                            if event.triggered:
-                                event.resourcename.reserve_put_cancel(event)
+                            
+                            event.resourcename.reserve_put_cancel(event)
                         #print(f"T={self.env.now:.2f}: {self.id} yielded 11111111from {self.out_edges[edge_index].id} ")
                         #putting the item in the chosen out_edge
                         item.set_creation(self.id, self.env)
@@ -359,9 +370,9 @@ class Source(Node):
                             #print("yaay")
                         else:
                             item1 = itemput
-                            print(f"T={self.env.now:.2f} {self.id} {item.id} pushed to buffer {self.out_edges[edge_index].id} ")
+                            print(f"T={self.env.now:.2f}: {self.id} {item.id} pushed to buffer {self.out_edges[edge_index].id} ")
                         
-                        print(f"T={self.env.now:.2f}: {self.id} BLOCKED to generated after {self.env.now - blocking_start_time:.2f} seconds")
+                        #print(f"T={self.env.now:.2f}: {self.id} BLOCKED to generated after {self.env.now - blocking_start_time:.2f} seconds")
                         self.update_state("GENERATING_STATE", self.env.now)  # Update state back to GENERATING_STATE
                         #print(self.env.now,"releases")
                        
@@ -379,7 +390,7 @@ class Source(Node):
                             item.set_creation(self.id, self.env)
                             item.timestamp_node_exit = self.env.now
                             yield self.env.process(self._push_item(item, out_edge_to_put))  
-                            print(f"T={self.env.now:.2f}: {self.id} BLOCKED to generated after {self.env.now - blocking_start_time:.2f} seconds")
+                            #print(f"T={self.env.now:.2f}: {self.id} BLOCKED to generated after {self.env.now - blocking_start_time:.2f} seconds")
                             self.update_state("GENERATING_STATE", self.env.now)  # Update state back to GENERATING_STATE
 
                             
@@ -394,7 +405,7 @@ class Source(Node):
 
 
                 else:
-                    print(f"T={self.env.now:.2f}: {self.id} processed item: {item.id}")
+                    print(f"T={self.env.now:.2f}: {self.id} generated item: {item.id}")
                     out_edge_index_to_put = self._get_out_edge_index()
                     if out_edge_index_to_put is None:
                         raise ValueError(f"{self.id} - No out_edge available for processing!")
@@ -409,7 +420,7 @@ class Source(Node):
                         item.set_creation(self.id, self.env)
                         item.timestamp_node_exit = self.env.now
                         yield self.env.process(self._push_item(item, outedge_to_put))
-                        print(f"T={self.env.now:.2f}: {self.id} BLOCKED to generated after {self.env.now - blocking_start_time:.2f} seconds")
+                        #print(f"T={self.env.now:.2f}: {self.id} BLOCKED to generated after {self.env.now - blocking_start_time:.2f} seconds")
                         self.update_state("GENERATING_STATE", self.env.now)  # Update state back to GENERATING_STATE
                         
                     else:
