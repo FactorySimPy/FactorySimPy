@@ -199,7 +199,7 @@ class Source(Node):
                 if y:
                     print(f"T={self.env.now:.2f}: {self.id} puts {item_to_push.id} item into {out_edge.id}  ")
         elif out_edge.__class__.__name__ == "Buffer":
-                outstore = out_edge.inbuiltstore
+                outstore = out_edge
                 put_token = outstore.reserve_put()
                 yield put_token
                 item_to_push.update_node_event(self.id, self.env, "exit")
@@ -250,7 +250,7 @@ class Source(Node):
                     print(f"T={self.env.now:.2f}: {self.id} puts {item.id} item into {out_edge.id}  ")
                 
         elif out_edge.__class__.__name__ == "Buffer":
-                outstore = out_edge.inbuiltstore
+                outstore = out_edge
                 put_token = outstore.reserve_put()
                 yield put_token
                 item.timestamp_node_exit = self.env.now
@@ -340,7 +340,7 @@ class Source(Node):
                         blocking_start_time = self.env.now
                     
                         #self.out_edge_events = [edge.reserve_put() if edge.__class__.__name__ == "ConveyorBelt" else edge.inbuiltstore.reserve_put() for edge in self.out_edges]
-                        self.out_edge_events = [edge.inbuiltstore.reserve_put() for edge in self.out_edges]
+                        self.out_edge_events = [edge.reserve_put() for edge in self.out_edges]
                         triggered_out_edge_events = self.env.any_of(self.out_edge_events)
                         yield triggered_out_edge_events  # Wait for any in_edge to be available
                         
@@ -360,7 +360,9 @@ class Source(Node):
                         #putting the item in the chosen out_edge
                         item.set_creation(self.id, self.env)
                         item.timestamp_node_exit = self.env.now
-                        itemput = chosen_put_event.resourcename.put(chosen_put_event, item)  # put the item to the chosen out_edge
+                        #print(chosen_put_event.requesting_process, self)
+                        itemput=self.out_edges[edge_index].put(chosen_put_event, item)
+                        #itemput = chosen_put_event.resourcename.put(chosen_put_event, item)  # put the item to the chosen out_edge
                         #print(f"T={self.env.now:.2f}: {self.id} placed 222222 from {self.out_edges[edge_index].id} ")
                         #print(f"T={self.env.now:.2f}: {self.id} puts item {item.id} into {chosen_put_event.resourcename} {item.timestamp_creation} ")
                 

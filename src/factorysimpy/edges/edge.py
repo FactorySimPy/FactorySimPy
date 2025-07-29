@@ -29,17 +29,25 @@ class Edge:
     
 
 
-    def __init__(self, env, id):
+    def __init__(self, env, id, capacity):
         self.env = env
         self.id = id
         self.src_node = None
         self.dest_node = None
+        self.capacity = capacity
         
          # Type checks
         if not isinstance(env, simpy.Environment):
             raise TypeError("env must be a simpy.Environment instance")
         if not isinstance(id, str):
             raise TypeError("id must be a string")
+        if not isinstance(self.capacity, int) or self.capacity <= 0:
+            raise ValueError("capacity must be a positive integer")
+        
+        assert self.src_node is None, f"Edge '{self.id}' must have a source node."
+        assert self.dest_node is None, f"Edge '{self.id}' must have a destination node."
+        assert self.id is not None, "Edge id cannot be None."
+        assert self.capacity is not None, "Edge capacity cannot be None."
         
 
 
@@ -79,13 +87,16 @@ class Edge:
         """
         if hasattr(delay, '__next__'):
             # Generator instance
-            return next(delay)
+            val = next(delay)
         elif callable(delay):
             # Function
-            return delay()
+            val = delay()
         else:
             # int or float
-            return delay
+            val = delay
+
+        assert val >= 0, "Delay must be non-negative"
+        return val
 
 
     def update_state(self, new_state: str, current_time: float):
@@ -148,7 +159,22 @@ class Edge:
             dest.in_edges.append(self)
         print(f"T={self.env.now:.2f}: Connected edge '{self.id}' from '{src.id}' to '{dest.id}'  ")
 
-        #print(self.id,self.src_node.id,[i.id for i in self.src_node.out_edges])
-        #print(self.dest_node)
-        #print("here10000",self.id,self.dest_node.id, [(type(i),i) for i in self.dest_node.in_edges])
-        #print(self.id,self.dest_node.id, [(i, i.id) for i in self.dest_node.in_edges])
+        
+    
+    def get_occupancy(self):
+        #Override this method in subclasses
+        raise NotImplementedError("This method should be implemented in subclasses.")
+    
+    def get_ready_items(self):
+        
+        #Override this method in subclasses
+        raise NotImplementedError("This method should be implemented in subclasses.")
+    
+    def can_put(self):
+
+        raise NotImplementedError("This method should be implemented in subclasses.")
+    
+    def can_get(self):
+        #Override this method in subclasses
+        raise NotImplementedError("This method should be implemented in subclasses.")
+    

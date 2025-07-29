@@ -199,7 +199,7 @@ At the start of the simulation, the machine waits for `node_setup_time`. This is
 
 3. "PROCESSING_STATE": Active state where items are being processed. If atleast one thread is in processing state, then the machine is in "PROCESSING_STATE"
 
-4. "BLOCKED_STATE": The machine is blocked, only when all its worker_threads are in "BOCKED_STATE"
+4. "BLOCKED_STATE": The machine is blocked, only when all the worker_threads that are currently active and processing items are in "BOCKED_STATE" as they are waiting for the out edge to be available to accept the processed item. 
 
 The worker threads also transitions through "PROCESSING_STATE", where it is actively processing items and "BLOCKED_STATE", when it is finished processing but waiting for an output edge to push the item to.
 

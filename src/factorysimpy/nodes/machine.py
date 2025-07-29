@@ -321,7 +321,7 @@ class Machine(Node):
                 if y:
                     print(f"T={self.env.now:.2f}: {self.id} puts {item_to_push.id} item into {out_edge.id}  ")
         elif out_edge.__class__.__name__ == "Buffer":
-                outstore = out_edge.inbuiltstore
+                outstore = out_edge
                 put_token = outstore.reserve_put()
                 yield put_token
                 item_to_push.update_node_event(self.id, self.env, "exit")
@@ -357,7 +357,7 @@ class Machine(Node):
                     raise ValueError(f"{self.id} - No item pulled from in_edge {in_edge.id}!")
                 
         elif in_edge.__class__.__name__ == "Buffer":
-                outstore = in_edge.inbuiltstore
+                outstore = in_edge
                 get_token = outstore.reserve_get()
                 yield get_token
                 pulled_item =outstore.get(get_token)
@@ -506,7 +506,7 @@ class Machine(Node):
                 
                     #self.out_edge_events = [edge.reserve_put() if edge.__class__.__name__ == "ConveyorBelt" else edge.inbuiltstore.reserve_put() for edge in self.out_edges]
                     #out_edge_events = [self.out_edges[i].inbuiltstore.reserve_put() for i in range(len(self.out_edges)-1,-1,-1)]
-                    out_edge_events= [edge.inbuiltstore.reserve_put() for edge in self.out_edges]  # Filter out None events
+                    out_edge_events= [edge.reserve_put() for edge in self.out_edges]  # Filter out None events
                     #print(self.env.now,len(self.out_edge_events),self.out_edges)
                     triggered_out_edge_events = self.env.any_of(out_edge_events)
                     yield triggered_out_edge_events  # Wait for any in_edge to be available
@@ -531,7 +531,8 @@ class Machine(Node):
                     
                     item.update_node_event(self.id, self.env, "exit")
                     if self.out_edges[edge_index].__class__.__name__ == "Buffer":
-                        itemput = chosen_put_event.resourcename.put(chosen_put_event, item)  # Get the item from the chosen in_edge
+                        itemput=self.out_edges[edge_index].put(chosen_put_event, item)
+                        #itemput = chosen_put_event.resourcename.put(chosen_put_event, item)  # Get the item from the chosen in_edge
 
                     else:
                         raise ValueError(f"Unsupported edge type: {self.out_edges[edge_index].__class__.__name__}")
@@ -588,11 +589,11 @@ class Machine(Node):
                     blocking_start_time = self.env.now
                     print(f"T={self.env.now:.2f}: {self.id} worker is in BLOCKED_STATE")
                     #yield self.env.process(self._push_item(item, outedge_to_put))
-                    put_event=outedge_to_put.inbuiltstore.reserve_put()
+                    put_event=outedge_to_put.reserve_put()
                     yield put_event
                     print(f"T={self.env.now:.2f}: {self.id} yielded and worker is putting item {item.id} into {outedge_to_put.id} " )
                     item.update_node_event(self.id, self.env, "exit")
-                    y=outedge_to_put.inbuiltstore.put(put_event, item)
+                    y=outedge_to_put.put(put_event, item)
                     if y:
                      print(f"T={self.env.now:.2f}: {self.id} worker puts item {item.id} into {outedge_to_put.id} ")
                     self._update_avg_time_spent_in_blocked(self.env.now - blocking_start_time)
@@ -653,7 +654,7 @@ class Machine(Node):
                 if self.in_edge_selection == "FIRST_AVAILABLE":
                     
                     #if not self.in_edge_events:
-                    self.in_edge_events=  [edge.inbuiltstore.reserve_get() for edge in self.in_edges]
+                    self.in_edge_events=  [edge.reserve_get() for edge in self.in_edges]
 
                     # for i in self.in_edges:
                     #     if len(i.inbuiltstore.items):
@@ -676,7 +677,9 @@ class Machine(Node):
                     if self.chosen_event is None:
                         raise ValueError(f"{self.id} - No in_edge available for processing!")
                     # Find the index of the chosen event in the in_edge_events list
+                    edge_index_to_print = None
                     for i in range(len(self.in_edges)):
+                        print(self.chosen_event.resourcename, self.in_edges[i])
                         if self.chosen_event.resourcename == self.in_edges[i].inbuiltstore:
                             edge_index_to_print=i
                             
@@ -716,7 +719,7 @@ class Machine(Node):
                     self._update_worker_occupancy(action="ADD")
                     
                     if self.in_edges[edge_index].__class__.__name__ == "Buffer":
-                        self.item_in_process=self.in_edges[edge_index].inbuiltstore.get(self.chosen_event)  # Get the item from the chosen in_edge
+                        self.item_in_process=self.in_edges[edge_index].get(self.chosen_event)  # Get the item from the chosen in_edge
                         #print("getting getting getting getting  item from in_edge", self.chosen_event.resourcename)
                         #self.item_in_process = self.chosen_event.resourcename.get(self.chosen_event)  # Get the item from the chosen in_edge
                         self.item_in_process.update_node_event(self.id, self.env, "entry")
@@ -743,7 +746,7 @@ class Machine(Node):
                     
 
                     if in_edge_to_get.__class__.__name__ == "Buffer":
-                        outstore = in_edge_to_get.inbuiltstore
+                        outstore = in_edge_to_get
                         get_token = outstore.reserve_get()
                         yield get_token
                          # Create workers based on work_capacity

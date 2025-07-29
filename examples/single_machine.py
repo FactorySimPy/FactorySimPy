@@ -4,7 +4,7 @@ import scipy.stats
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from factorysimpy.nodes.machine import Machine
-from factorysimpy.edges.buffer import Buffer
+from factorysimpy.edges.buffer_1 import Buffer
 from factorysimpy.nodes.source import Source
 from factorysimpy.nodes.sink import Sink
 
@@ -24,8 +24,8 @@ m1 = Machine(env, id="M1",node_setup_time=0,work_capacity=4, processing_delay=1,
 sink= Sink(env, id="Sink-1")
 
 # Initializing edges
-buffer1 = Buffer(env, id="Buffer-1", store_capacity=4, delay=0, mode="LIFO")
-buffer2 = Buffer(env, id="Buffer-2", store_capacity=4, delay=0, mode="FIFO")
+buffer1 = Buffer(env, id="Buffer-1", capacity=4, delay=0, mode="LIFO")
+buffer2 = Buffer(env, id="Buffer-2", capacity=4, delay=0, mode="FIFO")
 
 # Adding connections
 buffer1.connect(src,m1)
