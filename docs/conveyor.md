@@ -1,6 +1,6 @@
 
 
-::: factorysimpy.edges.conveyor
+::: factorysimpy.edges.slotted_conveyor
     options:
       show_root_heading: false
       show_source: false
