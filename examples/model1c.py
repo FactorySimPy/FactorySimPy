@@ -19,10 +19,10 @@ env = simpy.Environment()
 
 
 # Initializing nodes
-SRC= Source(env, id="SRC",  inter_arrival_time=0.2,blocking=True, out_edge_selection=0 )
+SRC= Source(env, id="SRC",  inter_arrival_time=1,blocking=True, out_edge_selection=0 )
 
 #src= Source(env, id="Source-1",  inter_arrival_time=0.2,blocking=True,out_edge_selection=0 )
-MACHINE1 = Machine(env, id="MACHINE1",node_setup_time=0,work_capacity=1,blocking=True, processing_delay=0.5,in_edge_selection=0,out_edge_selection="ROUND_ROBIN")
+MACHINE1 = Machine(env, id="MACHINE1",node_setup_time=0,work_capacity=1,blocking=True, processing_delay=0.2,in_edge_selection=0,out_edge_selection="ROUND_ROBIN")
 SINK= Sink(env, id="SINK")
 
 # Initializing edges
@@ -125,4 +125,4 @@ stats_list=[metric, model]
 stats_rows = list(zip(*stats_list))
 # Create DataFrame and save to CSV
 stats_df = pd.DataFrame(stats_rows, columns=["Metric", "Model"])
-stats_df.to_csv("machine_model1_stats_ref.csv", index=False)
+stats_df.to_csv("machine_model1b_stats_ref.csv", index=False)

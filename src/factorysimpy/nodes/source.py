@@ -246,6 +246,7 @@ class Source(Node):
                 put_token = out_edge.reserve_put()
 
                 pe = yield put_token
+                item.set_creation(self.id, self.env)
                 item.timestamp_node_exit = self.env.now
                 y=out_edge.put(pe, item)
                 if y:
@@ -255,6 +256,8 @@ class Source(Node):
                 outstore = out_edge
                 put_token = outstore.reserve_put()
                 yield put_token
+                item.set_creation(self.id, self.env)
+                            
                 item.timestamp_node_exit = self.env.now
                 y=outstore.put(put_token, item)
                 if y:
@@ -391,8 +394,7 @@ class Source(Node):
                         if out_edge_to_put is not None:
                             blocking_start_time = self.env.now
                             self.update_state("BLOCKED_STATE", self.env.now)
-                            item.set_creation(self.id, self.env)
-                            item.timestamp_node_exit = self.env.now
+                            
                             yield self.env.process(self._push_item(item, out_edge_to_put))  
                             #print(f"T={self.env.now:.2f}: {self.id} BLOCKED to generated after {self.env.now - blocking_start_time:.2f} seconds")
                             self.update_state("GENERATING_STATE", self.env.now)  # Update state back to GENERATING_STATE
@@ -421,8 +423,7 @@ class Source(Node):
                         blocking_start_time = self.env.now
                         print(f"T={self.env.now:.2f}: {self.id} is in BLOCKED_STATE")
                         self.update_state("BLOCKED_STATE", self.env.now)
-                        item.set_creation(self.id, self.env)
-                        item.timestamp_node_exit = self.env.now
+                        
                         yield self.env.process(self._push_item(item, outedge_to_put))
                         #print(f"T={self.env.now:.2f}: {self.id} BLOCKED to generated after {self.env.now - blocking_start_time:.2f} seconds")
                         self.update_state("GENERATING_STATE", self.env.now)  # Update state back to GENERATING_STATE
@@ -431,8 +432,7 @@ class Source(Node):
                         # Check if the out_edge can accept the item
                         if outedge_to_put.can_put():
                             blocking_start_time = self.env.now
-                            item.set_creation(self.id, self.env)
-                            item.timestamp_node_exit = self.env.now
+                            
                             yield self.env.process(self._push_item(item, outedge_to_put))
                             
                         else:

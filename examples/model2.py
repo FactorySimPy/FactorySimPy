@@ -22,9 +22,9 @@ env = simpy.Environment()
 SRC= Source(env, id="SRC",  inter_arrival_time=0.46,blocking=True, out_edge_selection=0 )
 
 #src= Source(env, id="Source-1",  inter_arrival_time=0.2,blocking=True,out_edge_selection=0 )
-MACHINE1 = Machine(env, id="MACHINE1",node_setup_time=0,work_capacity=2,blocking=True, processing_delay=0.9,in_edge_selection=0,out_edge_selection="ROUND_ROBIN")
+MACHINE1 = Machine(env, id="MACHINE1",node_setup_time=0,work_capacity=1,blocking=True, processing_delay=0.9,in_edge_selection="FIRST_AVAILABLE",out_edge_selection="ROUND_ROBIN")
 MACHINE2 = Machine(env, id="MACHINE2",node_setup_time=0,work_capacity=1,blocking=True, processing_delay=3.2,in_edge_selection="RANDOM",out_edge_selection="FIRST_AVAILABLE")
-MACHINE3 = Machine(env, id="MACHINE3",node_setup_time=0,work_capacity=1,blocking=True, processing_delay=2.54,in_edge_selection="RANDOM",out_edge_selection=0)
+MACHINE3 = Machine(env, id="MACHINE3",node_setup_time=0,work_capacity=1,blocking=True, processing_delay=2.54,in_edge_selection="RANDOM",out_edge_selection="FIRST_AVAILABLE")
 SINK= Sink(env, id="SINK")
 
 # Initializing edges
@@ -43,7 +43,7 @@ BUFFER4.connect(MACHINE2,SINK)
 BUFFER5.connect(MACHINE3,SINK)
 
 
-time=25
+time=100
 env.run(until=time)
 SRC.update_final_state_time(time)
 MACHINE1.update_final_state_time(time)
@@ -99,3 +99,57 @@ print("per_thread_total_time_in_processing_state:MACHINE3", MACHINE3.per_thread_
 print("per_thread_total_time_in_blocked_state:MACHINE3",MACHINE3.per_thread_total_time_in_blocked_state)
 
 print(f"Machine3 {MACHINE3.id} state times: {MACHINE3.stats}")
+
+machines =[MACHINE1,MACHINE2, MACHINE3]
+
+metric=[]
+model=[]
+metric.append("Simulation time (sec)")
+model.append(env.now)
+metric.append("Cycle time (sec)")
+model.append(tot_cycletime/tot_items if tot_items > 0 else 0) 
+metric.append("Throughput (items/sec)")
+model.append(SINK.stats['num_item_received'] / env.now) 
+
+metric.append("Utilization")
+model.append("---")
+
+for machine in machines:
+    print("\n" )
+    print(f"Machine {machine.id} state times: {machine.stats['total_time_spent_in_states']}")
+    for i in machine.stats['total_time_spent_in_states']:
+        metric.append(f"{machine.id} - {i}")
+        model.append(machine.stats['total_time_spent_in_states'][i])
+    if machine.time_per_work_occupancy:
+        for i in range(len(machine.time_per_work_occupancy)):
+            metric.append(f"{machine.id}- with {i} worker threads")
+            model.append(machine.time_per_work_occupancy[i])
+    print(machine.time_per_work_occupancy)
+    #print(machine.stats['in_edge_selection'],machine.stats['out_edge_selection'])
+    print("per_thread_total_time_in_processing_state", machine.per_thread_total_time_in_processing_state)
+    print("per_thread_total_time_in_blocked_state", machine.per_thread_total_time_in_blocked_state)
+    print("total_items_processed", machine.stats["num_item_processed"])
+
+buffers = [BUFFER1, BUFFER2, BUFFER3, BUFFER4, BUFFER5  ]
+
+metric.append("Time avg content in buffers  ")
+model.append("---")
+for buf in buffers:
+    metric.append(buf.id)
+    print(f"Time-average number of items in  {buf.id} is {buf.stats['time_averaged_num_of_items_in_buffer']}")
+    model.append(buf.stats['time_averaged_num_of_items_in_buffer'])
+
+
+
+print(f"SRC {SRC.id} state times: {SRC.stats}")
+
+import pandas as pd
+
+
+
+
+stats_list=[metric, model]
+stats_rows = list(zip(*stats_list))
+# Create DataFrame and save to CSV
+stats_df = pd.DataFrame(stats_rows, columns=["Metric", "Model"])
+stats_df.to_csv("machine_model2_stats_ref.csv", index=False)
