@@ -25,13 +25,12 @@ jobs:
           path: .cache 
           restore-keys: |
             mkdocs-material-
-      - run: pip install mkdocs-material mkdocstrings[python]
+      - run: pip install mkdocs-material==8.4.0 mkdocstrings[python]
       
 
        # NEW: Clean any previous site artifacts
       - name: Clean build
-        run: |
-         mkdocs build --clean --verbose
+        run: mkdocs build --clean --verbose
 
       # FINAL STEP: Force deploy with clean build
       - name: Deploy to GitHub Pages
