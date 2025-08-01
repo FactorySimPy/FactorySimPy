@@ -21,9 +21,9 @@ MACHINE1 = Machine(env, id="MACHINE1", work_capacity=1, blocking=True, processin
 SINK = Sink(env, id="SINK")
 
 # Initializing edges
-BUFFER1 = Buffer(env, id="BUFFER1", store_capacity=1, delay=0)
-BUFFER2 = Buffer(env, id="BUFFER2", store_capacity=1, delay=0)
-BUFFER3 = Buffer(env, id="BUFFER3", store_capacity=1, delay=0)
+BUFFER1 = Buffer(env, id="BUFFER1", capacity=1, delay=0)
+BUFFER2 = Buffer(env, id="BUFFER2", capacity=1, delay=0)
+BUFFER3 = Buffer(env, id="BUFFER3", capacity=1, delay=0)
 # Adding connections
 BUFFER1.connect(SRC, MACHINE1)
 BUFFER2.connect(MACHINE1, SINK)

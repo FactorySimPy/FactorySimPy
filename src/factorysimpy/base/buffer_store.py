@@ -65,8 +65,8 @@ class BufferStore(Store):
         interval = now - self._last_level_change_time
         self._weighted_sum += self._last_num_items * interval
         self._last_level_change_time = now
-        self._last_num_items = len(self.items)
-        # Optionally, update stats in real time
+        self._last_num_items = len(self.items)+len(self.ready_items)
+        
         total_time = now
         self.time_averaged_num_of_items_in_store = (
             self._weighted_sum / total_time if total_time > 0 else 0.0
@@ -449,7 +449,7 @@ class BufferStore(Store):
         if item is None:
           raise RuntimeError(f"No item found in the store for {get_event.requesting_process} and get request failed")
         else:
-          self._update_time_averaged_level()
+          #self._update_time_averaged_level()
           return item
 
     def _trigger_get(self, get_event):
@@ -505,7 +505,7 @@ class BufferStore(Store):
             self.ready_items.remove(assigned_item)
         except ValueError:
             raise ValueError(f"Item {assigned_item} not in ready_items.")
-
+        self._update_time_averaged_level()
         return assigned_item
 
     def _do_get1(self, get_event):
@@ -592,7 +592,7 @@ class BufferStore(Store):
 
           raise RuntimeError(f"No matching put_event found in the reservations and put failed for{item}")
         else:
-          self._update_time_averaged_level()
+          #self._update_time_averaged_level()
           return proceed
 
     def _trigger_put(self,put_event, item):
@@ -656,6 +656,7 @@ class BufferStore(Store):
         # Add the item if space is available
         if len(self.items)+len(self.ready_items) < self.capacity:
             self.items.append(item)
+            self._update_time_averaged_level()
             self.env.process(self.move_to_ready_items(item))
             return True  # Successfully added item
         
@@ -677,7 +678,7 @@ class BufferStore(Store):
                 self.ready_items.append(item_to_put[0])
                 self._trigger_reserve_get(None)
                 self._trigger_reserve_put(None)
-                print(f"T={self.env.now:.2f} moving item {item[0].id, item[1]} to ready_items. Total items in buffer is {len(self.items)+len(self.ready_items)}"   )
+                #print(f"T={self.env.now:.2f} bufferstore is moving item {item[0].id, item[1]} to ready_items. Total items in buffer is {len(self.items)+len(self.ready_items)}"   )
             else:
                 raise RuntimeError("Total number of items in the store exceeds capacity. Cannot move item to ready_items.")
             

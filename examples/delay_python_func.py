@@ -44,8 +44,8 @@ SINK= Sink(env, id="SINK" )
 
 
 # Initializing edges
-BUF1 = Buffer(env, id="BUF1", store_capacity=4, delay=0.5)
-BUF2 = Buffer(env, id="BUF2", store_capacity=4, delay=0.5)
+BUF1 = Buffer(env, id="BUF1", capacity=4, delay=0.5)
+BUF2 = Buffer(env, id="BUF2", capacity=4, delay=0.5)
 
 
 # Adding connections

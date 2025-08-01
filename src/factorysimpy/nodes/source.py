@@ -122,27 +122,29 @@ class Source(Node):
         # user is expected to set it to valid form before starting the simulation
         
         # Initialize out_edge_selection
-        if isinstance(self.out_edge_selection, int):
-            assert self.out_edge_selection >= 0, "out_edge_selection must be a non-negative integer."
-            assert self.out_edge_selection < len(self.out_edges), f"out_edge_selection must be less than the number of out_edges ({len(self.out_edges)})"
-            self.out_edge_selection = self.out_edge_selection
 
+        # Initialize out_edge_selection
+        #checking if parameter is int and if so it should belong to a valid range
+        if isinstance(self.out_edge_selection, int):
+            assert 0 <= self.out_edge_selection < len(self.out_edges), f"out_edge_selection must be in range 0 to {len(self.out_edges)-1}"
+        #checking if parameter is "FIRST_AVAILABLE". If so it is handled in the class logic.
         elif self.out_edge_selection == "FIRST_AVAILABLE":
-            # If out_edge_selection is "FIRST_AVAILABLE", we process it inside class
-            self.out_edge_selection = self.out_edge_selection
-        
-        elif isinstance(self.out_edge_selection, str):  
+            # Special handling in class logic, use as is
+            pass
+        #checking if out_edge_selection is a string, then it is converted to a generator using get_edge_selector function.
+        # Names of the methods are passed as strings. These methods are inbuilt and available.
+        elif isinstance(self.out_edge_selection, str):
             self.out_edge_selection = get_edge_selector(self.out_edge_selection, self, self.env, "OUT")
-        elif callable(self.out_edge_selection):
-            # Optionally, you can check if it's a generator function by calling and checking for __iter__ or __next__
-            self.out_edge_selection = self.out_edge_selection
-        elif hasattr(self.out_edge_selection, '__next__'):
-            # It's a generator
-            self.out_edge_selection = self.out_edge_selection
         
+        #checking if out_edge_selection is a callable or a generator. If so, it is used as is.
+        # it is treated in get_out_edge_index method
+        elif callable(self.out_edge_selection) or hasattr(self.out_edge_selection, '__next__'):
+            # Use as is (function or generator)
+            pass
         else:
-            raise ValueError("out_edge_selection must be a None, string or a callable (function/generator)")  
-        
+            raise ValueError("out_edge_selection must be None, string, int, or a callable (function/generator)")
+
+       
 
         if self.inter_arrival_time is None:
             raise ValueError("inter_arrival_time should not be None.")

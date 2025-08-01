@@ -86,13 +86,13 @@ class Buffer(Edge):
             raise ValueError("delay must be None, int, float, generator, or callable.")
             
           #self.behavior =  self.env.process(self.behaviour())
-          self.stats_collector = self.env.process(self._stats_collector(sample_interval=3))
+          #self.stats_collector = self.env.process(self._stats_collector(sample_interval=0.4))
     def initial_test(self):
         assert self.src_node is not None , f"Buffer '{self.id}' must have atleast 1 src_node."
         assert self.dest_node is not None , f"Buffer '{self.id}' must have atleast 1 dest_node."
         
     
-    def _stats_collector(self, sample_interval=1):
+    def _stats_collector1(self, sample_interval=1):
         """
         Periodically sample the number of items in the buffer and compute the time-averaged value.
         """
@@ -102,6 +102,15 @@ class Buffer(Edge):
             yield self.env.timeout(sample_interval)
             #print(self.stats["time_averaged_num_of_items_in_buffer"])
             self.stats["time_averaged_num_of_items_in_buffer"] = self.inbuiltstore.time_averaged_num_of_items_in_store
+    
+    def _buffer_stats_collector(self):
+        """
+        Periodically sample the number of items in the buffer and compute the time-averaged value.
+        """
+        self.initial_test()
+
+        
+        self.stats["time_averaged_num_of_items_in_buffer"] = self.inbuiltstore.time_averaged_num_of_items_in_store
 
     def can_put(self):
         """
@@ -145,8 +154,11 @@ class Buffer(Edge):
     
     def put(self, event, item):
        delay=self.get_delay(self.delay)
-       #print(f"Putting item {item.id} with delay {delay} at time {self.env.now}")
-       return self.inbuiltstore.put(event, (item,delay))
+       print(f"Putting item {item.id} with delay {delay} at time {self.env.now}, tot item in buffer is {len(self.inbuiltstore.items)+len(self.inbuiltstore.ready_items)}")
+       
+       proceed=self.inbuiltstore.put(event, (item,delay))
+       self._buffer_stats_collector()
+       return proceed
     
     def get(self, event):
         """
@@ -162,7 +174,9 @@ class Buffer(Edge):
         item : object
             The item retrieved from the buffer.
         """
-        return self.inbuiltstore.get(event)
+        item = self.inbuiltstore.get(event)
+        self._buffer_stats_collector()
+        return item
     
     def reserve_get_cancel(self,event):
         """

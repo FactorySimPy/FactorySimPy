@@ -492,7 +492,7 @@ class Machine(Node):
             processing_start_time = self.env.now
             #wait for processing_delay amount of time
             yield self.env.timeout(processing_delay)
-            self.stats["num_item_processed"] += 1
+            #self.stats["num_item_processed"] += 1
             self._update_avg_time_spent_in_processing(self.env.now - processing_start_time)  # Update the average time spent in processing
           
                #out_edge_selection is "FIRST_AVAILABLE"---> 
@@ -531,6 +531,7 @@ class Machine(Node):
                     
                     item.update_node_event(self.id, self.env, "exit")
                     if self.out_edges[edge_index].__class__.__name__ == "Buffer":
+                        self.stats["num_item_processed"] += 1
                         itemput=self.out_edges[edge_index].put(chosen_put_event, item)
                         #itemput = chosen_put_event.resourcename.put(chosen_put_event, item)  # Get the item from the chosen in_edge
 
@@ -558,7 +559,8 @@ class Machine(Node):
                          self.check_thread_state_and_update_machine_state()
                          self.env.active_process.thread_state = "BLOCKED_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
                          self.check_thread_state_and_update_machine_state()
-                         yield self.env.process(self._push_item(item, out_edge_index_to_put))  
+                         yield self.env.process(self._push_item(item, out_edge_index_to_put)) 
+                         self.stats["num_item_processed"] += 1 
                          print(f"T={self.env.now:.2f}: {self.id} worker puts item {item.id} into {out_edge_index_to_put.id} ")
                          self.check_thread_state_and_update_machine_state()
                          self.env.active_process.thread_state = "PROCESSING_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
@@ -593,6 +595,7 @@ class Machine(Node):
                     yield put_event
                     print(f"T={self.env.now:.2f}: {self.id} yielded and worker is putting item {item.id} into {outedge_to_put.id} " )
                     item.update_node_event(self.id, self.env, "exit")
+                    self.stats["num_item_processed"] += 1
                     y=outedge_to_put.put(put_event, item)
                     if y:
                      print(f"T={self.env.now:.2f}: {self.id} worker puts item {item.id} into {outedge_to_put.id} ")
@@ -603,6 +606,7 @@ class Machine(Node):
                     if outedge_to_put.can_put():
                         blocking_start_time = self.env.now
                         yield self.env.process(self._push_item(item, outedge_to_put))
+                        self.stats["num_item_processed"] += 1
                         print(f"T={self.env.now:.2f}: {self.id} worker puts item {item.id} into {outedge_to_put.id} ")
                         self._update_avg_time_spent_in_blocked(self.env.now - blocking_start_time)
                     else:
