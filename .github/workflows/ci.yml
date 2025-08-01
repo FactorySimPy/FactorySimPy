@@ -30,7 +30,8 @@ jobs:
 
        # NEW: Clean any previous site artifacts
       - name: Clean build
-        run: mkdocs build --clean
+        run: |
+         mkdocs build --clean --verbose
 
       # FINAL STEP: Force deploy with clean build
       - name: Deploy to GitHub Pages

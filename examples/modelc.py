@@ -23,7 +23,7 @@ SINK= Sink(env, id="SINK")
 BUFFER1.connect(SRC,MACHINE1)
 BUFFER2.connect(MACHINE1,SINK)
 
-time=2
+time=19
 env.run(until=time)
 SRC.update_final_state_time(time)
 MACHINE1.update_final_state_time(time)
