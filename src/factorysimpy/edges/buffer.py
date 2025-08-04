@@ -111,6 +111,19 @@ class Buffer(Edge):
 
         
         self.stats["time_averaged_num_of_items_in_buffer"] = self.inbuiltstore.time_averaged_num_of_items_in_store
+    
+    def update_final_buffer_avg_content(self, simulation_end_time):
+        now = simulation_end_time
+        interval = now - self.inbuiltstore._last_level_change_time
+        self.inbuiltstore._weighted_sum += self.inbuiltstore._last_num_items * interval
+        self.inbuiltstore._last_level_change_time = now
+        self.inbuiltstore._last_num_items = len(self.inbuiltstore.items)+len(self.inbuiltstore.ready_items)
+        
+        total_time = now
+        self.inbuiltstore.time_averaged_num_of_items_in_store = (
+            self.inbuiltstore._weighted_sum / total_time if total_time > 0 else 0.0
+        )
+        self._buffer_stats_collector()
 
     def can_put(self):
         """
