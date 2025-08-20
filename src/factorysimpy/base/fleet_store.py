@@ -36,18 +36,22 @@ class FleetStore(Store):
            reservations_get (list):List of successful get reservations
         """
 
-    def __init__(self, env, capacity=float('inf'),delay=1):
+    def __init__(self, env, capacity=float('inf'),delay=1, transit_delay=0):
         """
         Initializes a reservable store with priority-based reservations.
 
         Args:
-         
-            capacity (int, optional): The maximum number of items the store can hold.
-                                      Defaults to infinity.
+         env (simpy.Environment): The simulation environment.
+         capacity (int, optional): target quantity of items after which the fleet will be activated
+                                   Defaults to infinity.
+         delay (int, float, optional): Delay after which fleet activates to move items incase the target capacity is not reached.
+         transit_delay (int, float, optional): Time to move the items after which the item becomes available.
+                                                     Can be a constant, generator, or callable. Defaults to 0.
         """
         super().__init__(env, capacity)
         self.env = env
         self.delay = delay
+        self.transit_delay = transit_delay
         self.reserve_put_queue = []  # Queue for managing reserve_put reservations
         self.reservations_put = []   # List of successful put reservations
         self.reserve_get_queue = []  # Queue for managing reserve_get reservations
@@ -692,7 +696,8 @@ class FleetStore(Store):
         # Move items to the ready_items list
         if items:
             
-
+            print(f"T={self.env.now:.2f}: Moving items to ready_items.")
+            yield self.env.timeout(self.transit_delay)  # Simulate delay before moving items
             for item in items:
                 
                 item_index = self.items.index(item)

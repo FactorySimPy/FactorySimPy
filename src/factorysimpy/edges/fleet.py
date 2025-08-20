@@ -14,7 +14,7 @@ class Fleet(Edge):
         delay (int, float): Delay after which fleet activates to move items incase the target capacity is not reached. It Can be
         
             - int or float: Used as a constant delay.
-           
+        transit_delay (int, float): time to move the items after which the item becomes available (can be a constant, generator, or callable)
 
      Behavior:
             The Fleet is a type of edge represents components that moves multiple items simulataneaously between nodes.
@@ -35,12 +35,13 @@ class Fleet(Edge):
             total_time_spent_in_states                  : Dictionary with total time spent in each state.
     """
 
-    def __init__(self, env, id,  capacity=1, delay=1):
+    def __init__(self, env, id,  capacity=1, delay=1, transit_delay=0):
           super().__init__( env, id, capacity)
           self.state = "IDLE_STATE"
           
           self.delay = delay
           self.capacity =  capacity
+          self.transit_delay = transit_delay
           self.stats = {
             "last_state_change_time": None,
             "time_averaged_num_of_items_in_fleet": 0,
@@ -54,7 +55,7 @@ class Fleet(Edge):
           
           # Initialize the fleet store
 
-          self.inbuiltstore = FleetStore(env, capacity=self.capacity,  delay=self.delay)
+          self.inbuiltstore = FleetStore(env, capacity=self.capacity,  delay=self.delay, transit_delay=self.transit_delay)
           
     
           

@@ -590,7 +590,13 @@ print(f"Buffer {BUF1.id} state times: {BUF1.stats['total_time_spent_in_states']}
 
 **About**
 
-The `fleet` component represents an AGV that moves multiple items simulataneously between nodes in the system. It acts as an edge. User can specify parameters `capacity` that specifies the target quantity of items required to activate the fleet or can also specify a parameter called `delay` and after `delay` amount of time, the items that are available (if any) will be available to the destination node.
+The `fleet` component represents an AGV that moves multiple items simulataneously between nodes in the system. It acts as an edge. The fleet is activated when either of two conditions is met:
+
+- Capacity condition – the number of stored items reaches capacity.
+
+- Delay condition – the specified delay time elapses after the first item arrives, even if capacity is not met.
+
+When activated, the fleet incurs `transit_delay` amount of time and makes its stored items available to the destination node.
 
 The API documentation can be found in [Fleet](fleet.md)
 
@@ -598,8 +604,8 @@ The API documentation can be found in [Fleet](fleet.md)
 
 - `state` - current state of the fleet 
 - `capacity` - target quantity of items after which the fleet will be activated
-- `mode` - mode of operation of the fleet. Either "FIFO" or "LIFO".
-- `delay` - time after which an item becomes available for retrieval (can be a constant, generator, or callable)
+- `delay` - Maximum waiting time before the fleet is triggered. (can be a constant, generator, or callable)
+- `transit_delay` - time to move the items after which the item becomes available (can be a constant, generator, or callable)
 
 **Behavior**
 
@@ -632,6 +638,7 @@ FLEET1 = Fleet(
     id="FLEET1",           # Unique identifier for the fleet
     capacity=10,   # target capacity of items required to activate the fleet
     delay=2.0,           # Delay after which fleet activates the movement of items incase the target capacity is not reached. (can be int, float, generator, or callable)
+    transit_delay=0 # time to move the items fromone node to another 
 
 )
 ```
