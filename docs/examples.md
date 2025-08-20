@@ -45,6 +45,60 @@ env.run(until=10)
 
 ```
 
+
+
+## A simple example with fleet
+
+***Here's a simple example to use fleet***
+
+ 
+
+Shown below is a very simple example. Here, the delays to be configured are `inter_arrival_time`, and `processing_delay` of the source and the machine respectively. In this example, the delays `inter_arrival_time`, and `processing_delay`, are specified as constant values at the time of node initiation.
+
+Similarly `in_edge_selection` and  `out_edge_selection` can also be provided as a constant or use one of the generator functions available in the package. These functions can be passed as a string. [See this page for details about edge selection policy.](configuring_parameters.md)
+
+```python
+
+#   System layout 
+#   SRC ──> FLEET1 ──> MACHINE1 ──> BUF2 ──> SINK
+
+import factorysimpy
+from factorysimpy.nodes.machine import Machine
+from factorysimpy.edges.buffer import Buffer
+from factorysimpy.edges.fleet import Fleet
+from factorysimpy.nodes.source import Source
+from factorysimpy.nodes.sink import Sink
+
+
+env = simpy.Environment()
+
+
+
+# Initializing nodes
+SRC= Source(env, id="SRC",  inter_arrival_time=0.2,blocking=True, out_edge_selection=0 )
+
+#src= Source(env, id="Source-1",  inter_arrival_time=0.2,blocking=True,out_edge_selection=0 )
+MACHINE1 = Machine(env, id="MACHINE1",node_setup_time=0,work_capacity=1,blocking=True, processing_delay=0.5,in_edge_selection=0,out_edge_selection="ROUND_ROBIN")
+SINK= Sink(env, id="SINK")
+
+# Initializing edges
+FLEET1 = Fleet(env, id="FLEET1", capacity=3, delay=1, transit_delay=1.4)
+
+BUFFER2 = Buffer(env, id="BUFFER2", capacity=5, delay=0, mode="FIFO")
+
+# Adding connections
+FLEET1.connect(SRC,MACHINE1)
+BUFFER2.connect(MACHINE1,SINK)
+
+
+
+time=10
+env.run(until=time)
+
+
+```
+
+
 ## Example with delay as a reference to a function
 
 
