@@ -200,7 +200,7 @@ class Source(Node):
                 y=out_edge.put(pe, item_to_push)
                 if y:
                     print(f"T={self.env.now:.2f}: {self.id} puts {item_to_push.id} item into {out_edge.id}  ")
-        elif out_edge.__class__.__name__ == "Buffer":
+        elif out_edge.__class__.__name__ in ["Buffer", "Fleet"]:
                 outstore = out_edge
                 put_token = outstore.reserve_put()
                 yield put_token
@@ -252,7 +252,7 @@ class Source(Node):
                 if y:
                     print(f"T={self.env.now:.2f}: {self.id} puts {item.id} item into {out_edge.id}  ")
                 
-        elif out_edge.__class__.__name__ == "Buffer":
+        elif out_edge.__class__.__name__ in ["Buffer", "Fleet"]:
                 outstore = out_edge
                 put_token = outstore.reserve_put()
                 yield put_token

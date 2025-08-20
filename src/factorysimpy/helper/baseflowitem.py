@@ -33,6 +33,7 @@ class BaseFlowItem:
         """
         if event_type == "entry":
             self.timestamp_node_entry = env.now
+            #print(f"T={self.timestamp_node_entry:.2f}: {self.id} entered node {node_id}")
             self.current_node_id = node_id
         elif event_type == "exit":
             self.timestamp_node_exit = env.now
@@ -43,8 +44,9 @@ class BaseFlowItem:
                     self.stats[self.current_node_id] += time_spent
                 else:
                     self.stats[self.current_node_id] = time_spent
-            self.current_node_id = None
-            self.timestamp_node_entry = None
+            #self.current_node_id = None
+            #self.timestamp_node_entry = None
+            
 
     def __repr__(self):
         return f"Item({self.id})"

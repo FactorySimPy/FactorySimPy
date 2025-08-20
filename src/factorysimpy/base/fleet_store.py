@@ -5,7 +5,7 @@
 import simpy
 from simpy.resources.store import Store
 
-class BufferStore(Store):
+class FleetStore(Store):
     """
         This is a class that is derived from SimPy's Store class and has extra capabilities
         that makes it a priority-based reservable store for processes to reserve space
@@ -36,7 +36,7 @@ class BufferStore(Store):
            reservations_get (list):List of successful get reservations
         """
 
-    def __init__(self, env, capacity=float('inf'),mode='FIFO'):
+    def __init__(self, env, capacity=float('inf'),delay=1):
         """
         Initializes a reservable store with priority-based reservations.
 
@@ -47,7 +47,7 @@ class BufferStore(Store):
         """
         super().__init__(env, capacity)
         self.env = env
-        self.mode=mode
+        self.delay = delay
         self.reserve_put_queue = []  # Queue for managing reserve_put reservations
         self.reservations_put = []   # List of successful put reservations
         self.reserve_get_queue = []  # Queue for managing reserve_get reservations
@@ -59,6 +59,9 @@ class BufferStore(Store):
         self._last_num_items = 0
         self._weighted_sum = 0.0
         self.time_averaged_num_of_items_in_store = 0.0  # Time-averaged number of items in the store
+        self.activate_fleet= self.env.event()  # Event to activate the fleet when items are available
+        
+        self.env.process(self.fleet_activation_process())  # Start the fleet activation process
 
     def _update_time_averaged_level(self):
         now = self.env.now
@@ -71,6 +74,22 @@ class BufferStore(Store):
         self.time_averaged_num_of_items_in_store = (
             self._weighted_sum / total_time if total_time > 0 else 0.0
         )
+
+    def fleet_activation_process(self,):
+        """
+        Process to activate the fleet when items are available but not equivalent to self.capacity(level not achieved).
+        This process waits for the activate_fleet event to be triggered.
+        """
+        while True:
+            yield  self.env.timeout(self.delay)  or self.activate_fleet
+            print(f"T={self.env.now:.2f}: Fleet activation process triggered.")
+            
+            if self.items:
+                print(f"T={self.env.now:.2f}: Fleet activated with {len(self.items)} items ready.")
+                self.move_to_ready_items(self.items)
+                #self.env.process(self.move_to_ready_items(self.items))
+                if self.activate_fleet.triggered:
+                    self.activate_fleet = self.env.event()  # Reset the event for next activation
 
     def reserve_put(self, priority=0):
         """
@@ -237,12 +256,10 @@ class BufferStore(Store):
                 raise RuntimeError(f"Item {item!r} not found in ready_items during cancel.")
 
             # 6) Compute new insertion index
-            if self.mode == "FIFO":
+            # "FIFO":
                 # one slot before the remaining reserved block
-                insert_idx = len(self.ready_items) - len(self.reserved_events) - 1
-            else:  # LIFO
-                # top of stack
-                insert_idx = len(self.ready_items)
+            insert_idx = len(self.ready_items) - len(self.reserved_events) - 1
+            
 
             # 7) Re‑insert it
             self.ready_items.insert(insert_idx, item)
@@ -402,10 +419,10 @@ class BufferStore(Store):
             but do NOT remove it yet—we just record the exact item.
             """
             j = len(self.reserved_events)
-            if self.mode == "FIFO":
-                item = self.ready_items[j]
-            else:  # LIFO
-                item = self.ready_items[-1 - j]
+            #if self.mode == "FIFO":
+            item = self.ready_items[j]
+            #else:  # LIFO
+            #   item = self.ready_items[-1 - j]
 
             # record the reservation
             self.reserved_events.append(event)
@@ -574,8 +591,9 @@ class BufferStore(Store):
             RuntimeError: If no reservations are available in the reservations_put
             RuntimeError: If proceed is False after put operation
         """
+        
         proceed = False
-
+       
         if self.reservations_put:
           proceed = self._trigger_put(put_event,item)
         else:
@@ -654,34 +672,77 @@ class BufferStore(Store):
         self.reservations_put.remove(reserved_event)
 
         # Add the item if space is available
-        if len(self.items)+len(self.ready_items) < self.capacity:
+        if len(self.items) + len(self.ready_items) < self.capacity:
+           
             self.items.append(item)
             self._update_time_averaged_level()
-            self.env.process(self.move_to_ready_items(item))
+            self._trigger_reserve_get(None)
+            if len(self.items) + len(self.ready_items) == self.capacity:
+                #self.activate_fleet = self.env.event()
+                if not self.activate_fleet.triggered:
+                    self.activate_fleet.succeed()  # Trigger fleet activation if capacity is reached
             return True  # Successfully added item
-        
-    def move_to_ready_items(self,item):
+
+    def move_to_ready_items(self, items):
         """
         Move items from the store to the ready_items list after a put operation.
         This method is called as a process to ensure that items are moved asynchronously.
         """
 
         # Move items to the ready_items list
-        if self.items:
-            
-            yield self.env.timeout(item[1])
-            
-            item_index = self.items.index(item)
-            item_to_put = self.items.pop(item_index)  # Remove the first item
-            #print(item_to_put, item)
-            if len(self.ready_items)+ len(self.items) < self.capacity:
-                self.ready_items.append(item_to_put[0])
-                self._trigger_reserve_get(None)
-                self._trigger_reserve_put(None)
-                #print(f"T={self.env.now:.2f} bufferstore is moving item {item[0].id, item[1]} to ready_items. Total items in buffer is {len(self.items)+len(self.ready_items)}"   )
-            else:
-                raise RuntimeError("Total number of items in the store exceeds capacity. Cannot move item to ready_items.")
+        if items:
             
 
+            for item in items:
+                
+                item_index = self.items.index(item)
+                item_to_put = self.items.pop(item_index)  # Remove the first item
+               
+                if len(self.ready_items) < self.capacity:
+                    self.ready_items.append(item_to_put)
+                    self._trigger_reserve_get(None)
+                    self._trigger_reserve_put(None)
+                    #print(f"T={self.env.now:.2f} bufferstore is moving item {item[0].id, item[1]} to ready_items. Total items in buffer is {len(self.items)+len(self.ready_items)}"   )
+                else:
+                    raise RuntimeError("Total number of items in the store exceeds capacity. Cannot move item to ready_items.")
+            print(f"T={self.env.now:.2f}: Fleetstore moved items to ready_items.")
+                
 
-        
+# import simpy
+
+# class Item():
+#     """
+#     A simple class to represent an item with an ID and a timestamp.
+#     """
+#     def __init__(self, id):
+#         self.id = id
+#         self.time_stamp_creation = None  # This can be set when the item is created or put into the store
+
+# env=simpy.Environment()
+# store = Fleetstore(env, capacity=4, delay=3)
+
+# def src(env):
+    
+#     for i in range(15):
+#         item = Item(i)
+#         put_event=store.reserve_put()
+#         yield put_event
+#         store.put(put_event,item)
+#         print(f"T={env.now:.2f}: Item {item.id} put into store. Total items in store: {len(store.items) + len(store.ready_items)}")
+
+# def dest(env):
+#     while True:
+#         print(f"T={env.now:.2f}: Waiting for items to retrieve from store.")
+#         get_event = store.reserve_get()
+#         yield get_event
+#         item = store.get(get_event)
+#         print(f"T={env.now:.2f}: Item {item.id} retrieved from store. Total items in store: {len(store.items) + len(store.ready_items)}")
+
+# src_process = env.process(src(env))
+# dest_process = env.process(dest(env))
+# env.run(until=20)
+
+# # Check the final state of the store
+# print(f"Final items in store: {len(store.items) + len(store.ready_items)}")
+# print(f"Ready items: {store.ready_items}")
+# print(f"Items in store: {store.items}")

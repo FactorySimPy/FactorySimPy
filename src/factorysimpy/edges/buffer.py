@@ -9,7 +9,7 @@ from factorysimpy.base.buffer_store import BufferStore
 
 
 
-from factorysimpy.base.reservable_priority_req_filter_store import ReservablePriorityReqFilterStore  # Import your class
+#from factorysimpy.base.reservable_priority_req_filter_store import ReservablePriorityReqFilterStore  # Import your class
 
 
 
@@ -167,7 +167,7 @@ class Buffer(Edge):
     
     def put(self, event, item):
        delay=self.get_delay(self.delay)
-       print(f"Putting item {item.id} with delay {delay} at time {self.env.now}, tot item in buffer is {len(self.inbuiltstore.items)+len(self.inbuiltstore.ready_items)}")
+       print(f"T={self.env.now:.2f}: {self.id} is putting item {item.id} with delay {delay} at time {self.env.now}, total item in buffer is {len(self.inbuiltstore.items)+len(self.inbuiltstore.ready_items)}")
        
        proceed=self.inbuiltstore.put(event, (item,delay))
        self._buffer_stats_collector()

@@ -27,6 +27,7 @@ class Sink(Node):
           self.in_edge_events=[]
           self.stats={"num_item_received": 0, "last_state_change_time":0.0, "total_time_spent_in_states":{"COLLECTING_STATE":0.0}, "total_cycle_time":0.0}
           self.item_in_process = None
+          self.buffertime=0
           # Start behavior process
           self.env.process(self.behaviour())
 
@@ -121,6 +122,9 @@ class Sink(Node):
         self.stats["total_cycle_time"] += self.env.now - self.item_in_process.timestamp_creation
         
         #print("fromsink", self.env.now - item.timestamp_creation)
+        #print(self.item_in_process.timestamp_node_entry)
+        self.buffertime+=(self.item_in_process.timestamp_node_entry- self.item_in_process.timestamp_creation)
+        #print(f"buffertime={item.timestamp_node_entry- item.timestamp_creation})
         print(f"T={self.env.now:.2f}: {self.id } got an {self.item_in_process} ")
         self.item_in_process=None
        

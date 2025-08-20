@@ -458,6 +458,33 @@ class Machine(Node):
             and 0 <= num_threads_BLOCKED + num_threads_PROCESSING <= self.work_capacity, \
             f"T={self.env.now:.2f} {self.id} has more threads than work_capacity is created. num_threads_PROCESSING={num_threads_PROCESSING}, num_threads_BLOCKED={num_threads_BLOCKED}, work_capacity={self.work_capacity}"
         return num_threads_PROCESSING, num_threads_BLOCKED
+    
+    # --- DEBUG TRACE ----------------------------------------------------------
+    def _dbg(self, msg):
+        # tiny helper so we can switch it off easily
+        print(f"{self.env.now:5.2f}  {self.id}: {msg}")
+    # -------------------------------------------------------------------------
+
+    def check_thread_state_and_update_machine_state_flexsim(self):
+        n_proc, n_blocked = self._count_worker_state()
+
+        if n_proc == 0 and n_blocked == 0:
+            new_state = "IDLE_STATE"
+        elif n_proc == 0 and n_blocked == len(self.worker_thread_list):
+            new_state = "BLOCKED_STATE"
+        else:
+            new_state = "PROCESSING_STATE"
+
+        # <<< TRACE every change >>> ------------------------------------------
+        if new_state != getattr(self, "current_state", None):
+            self._dbg( f"→ {new_state}   (proc={n_proc}, blk={n_blocked}, "
+                    f"active={len(self.worker_thread_list)})")
+        # ---------------------------------------------------------------------
+
+        if new_state != getattr(self, "current_state", None):
+            self.update_state(new_state, self.env.now)
+            self.current_state = new_state
+
           
     def check_thread_state_and_update_machine_state(self):
         numthreads_PROCESSING, numthreads_BLOCKED = self._count_worker_state()
@@ -468,11 +495,12 @@ class Machine(Node):
             #print(f"T={self.env.now:.2f}: idle")
             self.update_state("IDLE_STATE", self.env.now)
         # if there is atleast one thread that is PROCESSING, then the state is PROCESSING_STATE, then the state is updated to PROCESSING_STATE
-        elif numthreads_PROCESSING >0 :
+        elif numthreads_PROCESSING >0:
             self.update_state("PROCESSING_STATE", self.env.now)
         # if all threads are in blocked state, then the state is BLOCKED_STATE, then the state is updated to BLOCKED_STATE
         #elif numthreads_BLOCKED == self.work_capacity:
         elif numthreads_BLOCKED ==len(self.worker_thread_list):
+        #elif numthreads_BLOCKED >=1:
             #print(self.env.now, numthreads_BLOCKED,len(self.worker_thread.users))
             print(f"T={self.env.now:.2f}: {self.id} is in BLOCKED_STATE")
             self.update_state("BLOCKED_STATE", self.env.now)
@@ -483,8 +511,23 @@ class Machine(Node):
             print("goingtofail")
             print(numthreads_BLOCKED, numthreads_PROCESSING, self.work_capacity, len(self.worker_thread.users), len(self.worker_thread_list) )
             raise ValueError(f"{self.id} - Invalid worker thread state. numthreads_PROCESSING={numthreads_PROCESSING}, numthreads_BLOCKED={numthreads_BLOCKED}, work_capacity={self.work_capacity}")
-            
+    def check_thread_state_and_update_machine_state1(self):
+        
+        n_proc, n_blocked = self._count_worker_state()  # per-slot counts
 
+        if n_proc == 0 and n_blocked == 0:
+            s = "IDLE_STATE"
+        elif n_blocked > 0:
+            s = "BLOCKED_STATE"
+        elif n_proc > 0 and n_blocked==0:                       # ≥1 slot still processing
+            s = "PROCESSING_STATE"
+
+        if s != getattr(self, "current_state", None):
+            self.update_state(s, self.env.now)
+            self.current_state = s
+        
+
+        
 
     def worker(self,item,processing_delay,req_token,):
         #Worker process that processes items with resource and reserve handling."""
@@ -538,13 +581,14 @@ class Machine(Node):
                     else:
                         raise ValueError(f"Unsupported edge type: {self.out_edges[edge_index].__class__.__name__}")
                     print(f"T={self.env.now:.2f}: {self.id} puts item {item.id} into {self.out_edges[edge_index].id} ")
-                    self.check_thread_state_and_update_machine_state()
+                    
                     self._update_avg_time_spent_in_blocked(self.env.now - blocking_start_time)
-                    self.env.active_process.thread_state = "PROCESSING_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
-                    c=self.worker_thread_list.index(self.env.active_process)
-                    if c>=0:
-                        assert self.worker_thread_list[c].thread_state == "PROCESSING_STATE", f"{self.id} - Worker thread {c} is not in PROCESSED_STATE after processing item {self.worker_thread_list[c].thread_state}."
-                    self.check_thread_state_and_update_machine_state()
+                    #self.env.active_process.thread_state = "PROCESSING_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
+                    #self.check_thread_state_and_update_machine_state()
+                    # c=self.worker_thread_list.index(self.env.active_process)
+                    # if c>=0:
+                    #     assert self.worker_thread_list[c].thread_state == "PROCESSING_STATE", f"{self.id} - Worker thread {c} is not in PROCESSED_STATE after processing item {self.worker_thread_list[c].thread_state}."
+                    #self.check_thread_state_and_update_machine_state()
                     
                 #not blocking, check can_put on all, if all fails, then the item is discarded
                 else:
@@ -562,10 +606,11 @@ class Machine(Node):
                          yield self.env.process(self._push_item(item, out_edge_index_to_put)) 
                          self.stats["num_item_processed"] += 1 
                          print(f"T={self.env.now:.2f}: {self.id} worker puts item {item.id} into {out_edge_index_to_put.id} ")
-                         self.check_thread_state_and_update_machine_state()
-                         self.env.active_process.thread_state = "PROCESSING_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
-                         self.check_thread_state_and_update_machine_state()
+                         #self.check_thread_state_and_update_machine_state()
+                         #self.env.active_process.thread_state = "PROCESSING_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
+                         
                          self._update_avg_time_spent_in_blocked(self.env.now - blocking_start_time)
+                         #self.check_thread_state_and_update_machine_state()
 
                         
                     else:               
@@ -600,6 +645,7 @@ class Machine(Node):
                     if y:
                      print(f"T={self.env.now:.2f}: {self.id} worker puts item {item.id} into {outedge_to_put.id} ")
                     self._update_avg_time_spent_in_blocked(self.env.now - blocking_start_time)
+                    #self.check_thread_state_and_update_machine_state()  # Check and update the machine state after blocking
                 #check can_put and only if it succeeds push the item if not blocking
                 else:
                     # Check if the out_edge can accept the item
@@ -613,8 +659,8 @@ class Machine(Node):
                         print(f"T={self.env.now:.2f}: {self.id} worker is discarding item {item.id} because out_edge {outedge_to_put.id} is full.")
                         self.stats["num_item_discarded"] += 1
             # Release the worker thread after processing
-            self.env.active_process.thread_state = "PROCESSING_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
-            self.check_thread_state_and_update_machine_state()
+            #self.env.active_process.thread_state = "PROCESSING_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
+            #self.check_thread_state_and_update_machine_state()
             yield self.worker_thread.release(req_token)  # Release the worker thread
       
             #delete the worker thread from the worker_thread_list
@@ -749,7 +795,7 @@ class Machine(Node):
                     
                     
 
-                    if in_edge_to_get.__class__.__name__ == "Buffer":
+                    if in_edge_to_get.__class__.__name__ in ["Buffer", "Fleet"]:
                         outstore = in_edge_to_get
                         get_token = outstore.reserve_get()
                         yield get_token
@@ -763,6 +809,7 @@ class Machine(Node):
                         self.item_in_process =outstore.get(get_token)
                         
                         if self.item_in_process  is not None:
+                            #print(self.item_in_process)
                             self.item_in_process .update_node_event(self.id, self.env, "entry")
                             print(f"T={self.env.now:.2f}: {self.id} gets item {self.item_in_process .id} from {in_edge_to_get.id} ")
                         else:
