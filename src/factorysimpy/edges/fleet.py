@@ -5,35 +5,33 @@ from factorysimpy.base.fleet_store import FleetStore
 
 class Fleet(Edge):
     """
-    Fleet class representing a FIFO queue.
+    Fleet class representing an AGV (Automated Guided Vehicle) or a group of transporters.
     Inherits from the Edge class. This fleet can have a single input edge and a single output edge.
 
     Attributes:
         state (str): The current state of the fleet.
-        store_capacity (int): The capacity of the fleet's internal storage.
-        delay (int, float): Delay after which the item becomes available. It can be
+        capacity (int): The capacity of the fleet's internal storage.
+        delay (int, float): Delay after which fleet activates to move items incase the target capacity is not reached. It Can be
         
             - int or float: Used as a constant delay.
            
 
      Behavior:
-            The Buffer is a type of edge represents components that holds the items that are waiting to be accepted by the destination node. Items that are added in buffer becomes available
-            for use after `delay` amount of time. It operates in two modes- 
-            1. `FIFO`: It prioritizes items in the order they were added, with the oldest items being available for the destination node first.
-            2. `LIFO`: It prioritizes items in the reverse order of their arrival, items that newly added are available to use by the destination node first
-            Incoming edges can use reserve_get and reserve_put calls on the store in the buffer to reserve an item or space and after yielding 
+            The Fleet is a type of edge represents components that moves multiple items simulataneaously between nodes.
+            User can specify a parameter `capacity` to specify how many items can be moved at once.
+            Incoming edges can use reserve_get and reserve_put calls on the store in the fleet to reserve an item or space and after yielding
             the requests, an item can be put and obtained by using put and get methods.
 
     
 
     Raises:
-        AssertionError: If the buffer does not have at least one source node or one destination node.
+        AssertionError: If the fleet does not have at least one source node or one destination node.
 
     Output performance metrics:
-        The key performance metrics of the buffer edge are captured in the `stats` attribute (dict) during a simulation run. 
+        The key performance metrics of the fleet edge are captured in the `stats` attribute (dict) during a simulation run. 
             
             last_state_change_time                      : Time when the state was last changed.
-            time_averaged_num_of_items_in_fleet        : Time-averaged number of items available in the buffer.
+            time_averaged_num_of_items_in_fleet        : Time-averaged number of items available in the fleet.
             total_time_spent_in_states                  : Dictionary with total time spent in each state.
     """
 
@@ -51,8 +49,7 @@ class Fleet(Edge):
           
          
           
-        #   if self.mode not in ["FIFO", "LIFO"]:
-        #     raise ValueError("Invalid mode. Choose either 'FIFO' or 'LIFO'.")
+       
           
           
           # Initialize the fleet store
@@ -73,14 +70,14 @@ class Fleet(Edge):
           #self.behavior =  self.env.process(self.behaviour())
           #self.stats_collector = self.env.process(self._stats_collector(sample_interval=0.4))
     def initial_test(self):
-        assert self.src_node is not None , f"Buffer '{self.id}' must have atleast 1 src_node."
-        assert self.dest_node is not None , f"Buffer '{self.id}' must have atleast 1 dest_node."
-        
+        assert self.src_node is not None , f"Fleet '{self.id}' must have atleast 1 src_node."
+        assert self.dest_node is not None , f"Fleet '{self.id}' must have atleast 1 dest_node."
+
 
 
     def _fleet_stats_collector(self):
         """
-        Periodically sample the number of items in the buffer and compute the time-averaged value.
+        Periodically sample the number of items in the fleet and compute the time-averaged value.
         """
         self.initial_test()
 
@@ -107,23 +104,23 @@ class Fleet(Edge):
         Returns
         -------
         bool
-            True if the buffer can accept an item, False otherwise.
+            True if the fleet can accept an item, False otherwise.
         """
-        # Check if the buffer has space for new items
+        # Check if the fleet has space for new items
         if  len(self.inbuiltstore.items)+len(self.inbuiltstore.ready_items)== self.capacity:
             return False
-        # return True if the number of items in the buffer is less than the store capacity minus the number of reservations
-        # reservations_put is the number of items that are already reserved to be put in the buffer
+        # return True if the number of items in the fleet is less than the store capacity minus the number of reservations
+        # reservations_put is the number of items that are already reserved to be put in the fleet
         return (self.capacity-len(self.inbuiltstore.items)-len(self.inbuiltstore.ready_items)) >len(self.inbuiltstore.reservations_put)
     
     def can_get(self):
         """
-        Check if the buffer can accept an item.
+        Check if the fleet can accept an item.
         
         Returns
         -------
         bool
-            True if the buffer can give an item, False otherwise.
+            True if the fleet can give an item, False otherwise.
         """
         if not self.inbuiltstore.ready_items:
             return False
@@ -160,7 +157,7 @@ class Fleet(Edge):
         Returns
         -------
         item : object
-            The item retrieved from the buffer.
+            The item retrieved from the fleet.
         """
         item = self.inbuiltstore.get(event)
         self._fleet_stats_collector()
@@ -198,7 +195,7 @@ class Fleet(Edge):
 
     def behaviour(self):
       
-      #Simulates the buffer behavior, checking the state of the buffer and processing items.
+      #Simulates the fleet behavior, checking the state of the fleet and processing items.
       
       assert self.src_node is not None , f"Fleet '{self.id}' must have atleast 1 src_node."
       assert self.dest_node is not None , f"Fleet '{self.id}' must have atleast 1 dest_node."

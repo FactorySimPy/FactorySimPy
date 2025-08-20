@@ -22,7 +22,7 @@ class Buffer(Edge):
 
     Attributes:
         state (str): The current state of the buffer.
-        store_capacity (int): The capacity of the buffer's internal storage.
+        capacity (int): The capacity of the buffer's internal storage.
         mode (str): Mode of operation for the buffer, It can be
             - "FIFO" (First In First Out) 
             - "LIFO" (Last In First Out).
