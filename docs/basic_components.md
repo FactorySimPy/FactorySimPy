@@ -609,7 +609,8 @@ The API documentation can be found in [Fleet](fleet.md)
 
 **Behavior**
 
-- When an item is put into the fleet, it is stored internally and becomes available for retrieval after the specified `delay` or after a target quantity of items is available in fleet.
+- When an item is put into the fleet, it is stored internally and becomes available for retrieval after the specified `delay` or after a target quantity (`capacity`) of items is available in fleet.
+- Once triggered the items will be available for the destination node after `transit_delay` amount of time.
 - The fleet has methods to check if it can accept new items using can_put method and if it can provide items to the next node using 
   can_get method.
 - Incoming edges can use reserve_get and reserve_put calls on the store in the fleet to reserve an item or space and after yielding 
@@ -638,7 +639,7 @@ FLEET1 = Fleet(
     id="FLEET1",           # Unique identifier for the fleet
     capacity=10,   # target capacity of items required to activate the fleet
     delay=2.0,           # Delay after which fleet activates the movement of items incase the target capacity is not reached. (can be int, float, generator, or callable)
-    transit_delay=0 # time to move the items fromone node to another 
+    transit_delay=0 # time to move the items from one node to another 
 
 )
 ```
