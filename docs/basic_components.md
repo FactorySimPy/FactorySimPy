@@ -509,7 +509,7 @@ The API documentation can be found in [Buffer](buffer.md)
 **Basic attributes**
 
 - `state` - current state of the buffer 
-- `store_capacity` - maximum number of items the buffer can hold
+- `capacity` - maximum number of items the buffer can hold
 - `mode` - mode of operation of the buffer. Either "FIFO" or "LIFO".
 - `delay` - time after which an item becomes available for retrieval (can be a constant, generator, or callable)
 
@@ -543,7 +543,7 @@ from factorysimpy.edges.buffer import Buffer
 BUF1 = Buffer(
     env,                 # Simulation environment
     id="BUF1",           # Unique identifier for the buffer
-    store_capacity=10,   # Maximum number of items in the buffer
+    capacity=10,   # Maximum number of items in the buffer
     delay=2.0,           # Delay before items become available (can be int, float, generator, or callable)
     mode="FIFO"          # "FIFO" or "LIFO"
 )
@@ -574,6 +574,99 @@ print(f"Buffer {BUF1.id} state times: {BUF1.stats['total_time_spent_in_states']}
 
 
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
+
+
+
+
+
+
+
+
+<hr style="height:2px;border:none;color:blue; background-color:grey;" />
+
+### Fleet
+<hr style="height:2px;border:none;color:blue; background-color:grey;" />
+
+
+**About**
+
+The `fleet` component represents an AGV that moves multiple items simulataneously between nodes in the system. It acts as an edge. User can specify parameters `capacity` that specifies the target quantity of items required to activate the fleet or can also specify a parameter called `delay` and after `delay` amount of time, the items that are available (if any) will be available to the destination node.
+
+The API documentation can be found in [Fleet](fleet.md)
+
+**Basic attributes**
+
+- `state` - current state of the fleet 
+- `capacity` - target quantity of items after which the fleet will be activated
+- `mode` - mode of operation of the fleet. Either "FIFO" or "LIFO".
+- `delay` - time after which an item becomes available for retrieval (can be a constant, generator, or callable)
+
+**Behavior**
+
+- When an item is put into the fleet, it is stored internally and becomes available for retrieval after the specified `delay` or after a target quantity of items is available in fleet.
+- The fleet has methods to check if it can accept new items using can_put method and if it can provide items to the next node using 
+  can_get method.
+- Incoming edges can use reserve_get and reserve_put calls on the store in the fleet to reserve an item or space and after yielding 
+ the requests, an item can be put and obtained by using put and get methods. 
+
+**States**
+
+
+- The fleet transitions between states such as "IDLE_STATE" (waiting for items), "RELEASING_STATE" (releasing items), and "BLOCKED_STATE" (cannot accept or release items due to capacity or downstream constraints).
+
+1. "EMPTY_STATE"  - when there is no items in the fleet
+2. "RELEASING_STATE"- When there is items in the fleet
+
+
+
+**Usage**
+
+A fleet can be initialized as below:
+
+```python
+import factorysimpy
+from factorysimpy.edges.fleet import Fleet
+
+FLEET1 = Fleet(
+    env,                 # Simulation environment
+    id="FLEET1",           # Unique identifier for the fleet
+    capacity=10,   # target capacity of items required to activate the fleet
+    delay=2.0,           # Delay after which fleet activates the movement of items incase the target capacity is not reached. (can be int, float, generator, or callable)
+
+)
+```
+
+**Statistics collected**
+
+The fleet component reports the following key metrics:
+
+1. Time when the state was last changed (`last_state_change_time`)
+2. Time-averaged number of items in the fleet (`time_averaged_num_of_items_in_fleet`)
+3. Total time spent in each state (`total_time_spent_in_states`)
+
+After the simulation run, metrics can be accessed as:
+
+```python
+print(f"fleet {FLEET1.id} last state change: {FLEET1.stats['last_state_change_time']}")
+print(f"fleet {FLEET1.id} time-averaged number of items: {FLEET1.stats['time_averaged_num_of_items_in_fleet']}")
+print(f"Fleet {FLEET1.id} state times: {FLEET1.stats['total_time_spent_in_states']}")
+```
+
+**Examples**
+
+- ***[A simple example with a fleet between a source and a machine](examples.md/#a-simple-example-with-fleet)***
+
+
+
+
+
+<hr style="height:2px;border:none;color:blue; background-color:grey;" />
+
+
+
+
+
+
 
 ### Conveyor
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
