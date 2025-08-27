@@ -52,7 +52,7 @@ class ConveyorBelt(Edge):
         state (str): state of the conveyor belt.
         length (float): Length of the item.
         speed (float): Speed of the conveyor belt.
-        accumulation (int): Whether the belt supports accumulation (1 for yes, 0 for no).
+        accumulating (bool): Whether the belt supports accumulation (1 for yes, 0 for no).
         belt (BeltStore): The belt store object.
     """
     def __init__(self, env, id, capacity, speed,length,accumulating):

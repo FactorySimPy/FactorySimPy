@@ -692,7 +692,7 @@ There are two variants of conveyor available:
 - `state` - current state of the fleet 
 - `capacity` - target quantity of items after which the fleet will be activated
 - `delay` - time interval between two successive movements on the belt (can be a constant, generator, or callable)
-- `accumulation` - Whether the belt supports accumulation (1 for yes, 0 for no)
+- `accumulating` - Whether the belt supports accumulation (1 for yes, 0 for no)
 
 
 
@@ -710,7 +710,7 @@ During a simulation run, the Conveyor gets an item and as soon as it gets an ite
 
 4. "STALLED_NONACCUMULATING_STATE: a belt (configured to be non-accumulating) becomes stalled when it has an item that is ready to be taken by the destination node.
 
-Conveyors can be either `accumulating` or `non-accumulating:
+Conveyors can be either `accumulating` or `non-accumulating`:
 
 1. A `non-accumulating` type conveyor will allow `src_node` to push items into the conveyor only once, if it is in a stalled state
 
@@ -734,7 +734,7 @@ The component reports the following key metrics:
 - `capacity` - target quantity of items after which the fleet will be activated
 - `length` - Length of the item.
 - `speed` - speed of the conveyor belt (can be a constant, generator, or callable)
-- `accumulation` - Whether the belt supports accumulation (1 for yes, 0 for no)
+- `accumulating` - Whether the belt supports accumulation (1 for yes, 0 for no)
 
 
 
@@ -755,7 +755,7 @@ During a simulation run, the Conveyor gets an item and as soon as it gets an ite
 
 4. "STALLED_NONACCUMULATING_STATE: a belt (configured to be non-accumulating) becomes stalled when it has an item that is ready to be taken by the destination node.
 
-Conveyors can be either `accumulating` or `non-accumulating:
+Conveyors can be either `accumulating` or `non-accumulating`:
 
 1. A `non-accumulating` type conveyor will allow `src_node` to push items into the conveyor only once, if it is in a stalled state
 
