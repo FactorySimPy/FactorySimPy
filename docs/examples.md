@@ -518,9 +518,9 @@ SRC1= Source(env, id="SRC1", flow_item_type = "pallet", inter_arrival_time= 0.8,
 
 SRC2= Source(env, id="SRC2", flow_item_type = "item",  inter_arrival_time= 0.8,blocking=False,out_edge_selection="RANDOM" )
 
-COMBINER1 = Combiner(env, id="COMBINER1", target_quantity_of_each_item=[1,5], work_capacity=1, processing_delay=1.1, blocking= False, out_edge_selection="RANDOM" )
+COMBINER1 = Combiner(env, id="COMBINER1", target_quantity_of_each_item=[1,5], processing_delay=1.1, blocking= False, out_edge_selection="RANDOM" )
 
-SPLITTER1 = Splitter(env, id="SPLITTER1",work_capacity=1, processing_delay=1.1, in_edge_selection="RANDOM",out_edge_selection=None )
+SPLITTER1 = Splitter(env, id="SPLITTER1", processing_delay=1.1, in_edge_selection="RANDOM",out_edge_selection=None )
 
 
 SINK1= Sink(env, id="SINK1" )

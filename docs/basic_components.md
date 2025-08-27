@@ -272,20 +272,19 @@ print(f"Worker occupancy, {MACHINE1.time_per_work_occupancy)})
 
 **About**
 
-The `Combiner` component represents a node that combines or packs items from multiple input edges into a single pallet or box, and then pushes the packed pallet to an output edge. It is useful for modeling operations such as packing, assembly, or combining flows from different sources. The number of items to be taken from each input edge can be specified, and the first input edge is expected to provide the pallet or container. A Combiner can process more than one item simultaneously and this number can be set using parameter `work_capacity`. Combiner creates that many worker threads to mimic its actions. The API documentation can be found in [Combiner](combiner.md)
+The `Combiner` component represents a node that combines or packs items from multiple input edges into a single pallet or box, and then pushes the packed pallet to an output edge. It is useful for modeling operations such as packing, assembly, or combining flows from different sources. The number of items to be taken from each input edge can be specified, and the first input edge is expected to provide the pallet or container. A Combiner can process only one pallet at a time. The API documentation can be found in [Combiner](combiner.md)
 
 **Basic attributes**
 
 - `state` - current state of the component. This is a dictionary where each key is a worker thread's ID (assigned in order of initialization), and the value is the current state of that worker.
 - `processing_delay` - time taken to process and pack the items
-- `work_capacity` - maximum number of jobs or pallets that can be processed simultaneously
 - `blocking` - if True, waits for output edge to accept the packed pallet; if False, discards the pallet if the output edge is full
 - `target_quantity_of_each_item` - list specifying how many items to take from each input edge (first entry is always 1 for the pallet)
 - `out_edge_selection` - edge selection policy as a function to select output edge
 
 **Behavior**
  At the start of the simulation, the Combiner waits for `node_setup_time`. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an `int` or `float`). Then it spawns `work_capacity` number of threads.
- Each worker thread then repeatedly:
+ The process then repeatedly:
 
 1. Pulls a pallet from the first input edge.
 2. Pulls the specified number of items from each of the other input edges and adds them to the pallet.
@@ -320,7 +319,6 @@ COMBINER1 = Combiner(
     env,                              # Simulation environment
     id="COMBINER1",                      # Unique identifier for the Combiner node
     target_quantity_of_each_item=[1, 2],  # 1 pallet from in_edges[0], 2 items from in_edges[1]
-    work_capacity=1,                  # Number of pallets that can be packed simultaneously
     processing_delay=1.5,             # Packing delay (constant or generator/function)
     blocking=True,                    # Wait for output edge to accept pallet
     out_edge_selection="RANDOM"        # Policy or function to select output edge
@@ -356,20 +354,19 @@ print(f"Combiner {COMBINER1.id}, worker1 state times: {COMBINER1.stats[1]['total
 
 **About**
 
-The `Splitter` component represents a node that unpacks or splits an input item (such as a pallet or batch) and sends its contents to multiple output edges. It is useful for modeling operations such as unpacking, sorting, or distributing items from a container to different destinations.  A Splitter can process more than one pallet or jobs simultaneously and this number can be set using parameter `work_capacity`. Splitter creates that many worker threads to mimic its actions. The input edge is selected according to the `in_edge_selection` policy, and the output edge for each unpacked item is selected according to the `out_edge_selection` policy. The API documentation can be found in [Splitter](splitter.md)
+The `Splitter` component represents a node that unpacks or splits an input item (such as a pallet or batch) and sends its contents to multiple output edges. It is useful for modeling operations such as unpacking, sorting, etc.  A Splitter can process more only one pallet at a time. The input edge is selected according to the `in_edge_selection` policy, and the output edge for each unpacked item is selected according to the `out_edge_selection` policy. The API documentation can be found in [Splitter](splitter.md)
 
 **Basic attributes**
 
 - `state` - current state of the component. This is a dictionary where each key is a worker thread's ID (assigned in order of initialization), and the value is the current state of that worker.
 - `processing_delay` - time taken to process and unpack the items
-- `work_capacity` - number of worker threads that can process items or jobs concurrently
 - `blocking` - if True, waits for output edge to accept the item; if False, discards the items if the output edge is full
 - `in_edge_selection` - edge selection policy as a function to select input edge
 - `out_edge_selection` - edge selection policy as a function to select output edge
 
 **Behavior**
 
-At the start of the simulation, the splitter waits for `node_setup_time`. Each worker thread then repeatedly:
+At the start of the simulation, the splitter waits for `node_setup_time`. Process then repeatedly:
 
 1. Pulls a packed item (e.g., pallet) from the selected input edge.
 2. Waits for `processing_delay` to simulate unpacking or splitting.
@@ -405,7 +402,6 @@ from factorysimpy.nodes.splitter import Splitter
 SPLITTER11 = Split(
     env,                        # Simulation environment
     id="SPLITTER11",                # Unique identifier for the splitternode
-    work_capacity=1,            # Number of worker threads
     processing_delay=1.0,       # Unpacking delay (constant or generator/function)
     blocking=True,              # Wait for output edge to accept item
     in_edge_selection="RANDOM",  # Policy or function to select input edge
@@ -573,7 +569,7 @@ print(f"Buffer {BUF1.id} state times: {BUF1.stats['total_time_spent_in_states']}
 
 
 
-<hr style="height:2px;border:none;color:blue; background-color:grey;" />
+
 
 
 
@@ -683,15 +679,22 @@ Conveyor connects two nodes and moves items from one end to the other. The API d
 There are two variants of conveyor available:
 
 
-**Slotted-type**: This variant moves items from one end to the other at fixed interval. There is a constant delay between two movements. The `capacity` of slotted-type conveyor is the number of slots available in it and cn hold up to `capacity` number of items at a time.
 
-**Constant speed conveyors**: This variant moves items at a constant speed. It can only be used to move discrete items. It also has a `capacity` to specify the maximum number of items that it can hold at any given time.
 
-Conveyors can be either `blocking` or `non-blocking`:
 
-1. A `blocking` type conveyor is also known as `non-accumulating` conveyor, such conveyor will not allow `src_node` to push items into the conveyor, if it is in a blocked state
 
-2. A `non-blocking`(`accumulating`) conveyor allows src_node to push items until its capacity is reached when when it is in blocked state.
+
+
+**Slotted-type**: This variant moves items from one end to the other at fixed interval. There is a constant delay between two successive movements. The `capacity` of slotted-type conveyor is the number of slots available in it and can hold up to `capacity` number of items at a time.
+
+**Basic attributes**
+
+- `state` - current state of the fleet 
+- `capacity` - target quantity of items after which the fleet will be activated
+- `delay` - time interval between two successive movements on the belt (can be a constant, generator, or callable)
+- `accumulation` - Whether the belt supports accumulation (1 for yes, 0 for no)
+
+
 
 **Behavior**
 
@@ -703,9 +706,60 @@ During a simulation run, the Conveyor gets an item and as soon as it gets an ite
 
 2. "MOVING_STATE": state when the belt is moving.
 
-3. "BLOCKED_STATE": IT is blocked, waiting for the dest_node to taken an item ouy.
+3. "STALLED_ACCUMULATING_STATE": a belt (configured to be accumulating) becomes stalled when it has an item that is ready to be taken by the destination node.
+
+4. "STALLED_NONACCUMULATING_STATE: a belt (configured to be non-accumulating) becomes stalled when it has an item that is ready to be taken by the destination node.
+
+Conveyors can be either `accumulating` or `non-accumulating:
+
+1. A `non-accumulating` type conveyor will allow `src_node` to push items into the conveyor only once, if it is in a stalled state
+
+2. A `accumulating` conveyor allows src_node to push items until its capacity is reached when when it is in stalled state.
+
+**Monitoring and Reporting**
+The component reports the following key metrics:
+
+1. Time averaged number of items 
+3. Time spent in each state 
 
 
+
+**Constant speed conveyors**: This variant moves items at a constant speed. It can only be used to move discrete items. It also has a `capacity` to specify the maximum number of items that it can hold at any given time.
+
+
+
+**Basic attributes**
+
+- `state` - current state of the fleet 
+- `capacity` - target quantity of items after which the fleet will be activated
+- `length` - Length of the item.
+- `speed` - speed of the conveyor belt (can be a constant, generator, or callable)
+- `accumulation` - Whether the belt supports accumulation (1 for yes, 0 for no)
+
+
+
+
+
+
+**Behavior**
+
+
+During a simulation run, the Conveyor gets an item and as soon as it gets an item it starts moving and after moving it waits delay amount of time before the next move. It moves until the first item reaches the other end of the belt. If item is not taken out by a dest_npde, then conveyor will be in "BLOCKED_STATE". During its operation, the source transitions through the following states:
+
+
+1. "SETUP_STATE": Initialization or warm-up phase.
+
+2. "MOVING_STATE": state when the belt is moving.
+
+3. "STALLED_ACCUMULATING_STATE": a belt (configured to be accumulating) becomes stalled when it has an item that is ready to be taken by the destination node.
+
+4. "STALLED_NONACCUMULATING_STATE: a belt (configured to be non-accumulating) becomes stalled when it has an item that is ready to be taken by the destination node.
+
+Conveyors can be either `accumulating` or `non-accumulating:
+
+1. A `non-accumulating` type conveyor will allow `src_node` to push items into the conveyor only once, if it is in a stalled state
+
+2. A `accumulating` conveyor allows src_node to push items until its capacity is reached when when it is in stalled state.
 
 **Monitoring and Reporting**
 The component reports the following key metrics:

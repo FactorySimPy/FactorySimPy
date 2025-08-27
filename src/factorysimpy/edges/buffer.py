@@ -108,7 +108,8 @@ class Buffer(Edge):
         Periodically sample the number of items in the buffer and compute the time-averaged value.
         """
         self.initial_test()
-
+        
+        self.inbuiltstore._update_time_averaged_level()
         
         self.stats["time_averaged_num_of_items_in_buffer"] = self.inbuiltstore.time_averaged_num_of_items_in_store
     

@@ -729,9 +729,21 @@ class Machine(Node):
                     # Find the index of the chosen event in the in_edge_events list
                     edge_index_to_print = None
                     for i in range(len(self.in_edges)):
-                        print(self.chosen_event.resourcename, self.in_edges[i])
-                        if self.chosen_event.resourcename == self.in_edges[i].inbuiltstore:
-                            edge_index_to_print=i
+                        #print(self.chosen_event.resourcename, self.in_edges[i])
+                        if self.in_edges[i].__class__.__name__ == "Buffer" or self.in_edges[i].__class__.__name__ == "Fleet":
+                            if self.chosen_event.resourcename == self.in_edges[i].inbuiltstore :
+                        
+                                edge_index_to_print=i
+                        elif self.in_edges[i].__class__.__name__ == "ConveyorBelt":
+
+                            print(self.chosen_event.resourcename, self.in_edges[i].belt)
+                            #if self.chosen_event.resourcename == self.in_edges[i].out_buf:
+                            if self.chosen_event.resourcename == self.in_edges[i].belt:
+                                
+                                edge_index_to_print=i
+                        else:
+                            raise ValueError(f"Unsupported edge type: {self.in_edges[i].__class__.__name__}")
+
                             
                     edge_index = self.in_edge_events.index(self.chosen_event)  # Get the index of the chosen event
                     assert edge_index == edge_index_to_print, f"{self.id} - Edge index mismatch. {edge_index} != {edge_index_to_print}. Check the in_edge_events and in_edges."
@@ -767,8 +779,8 @@ class Machine(Node):
                     
                     #update occupancy
                     self._update_worker_occupancy(action="ADD")
-                    
-                    if self.in_edges[edge_index].__class__.__name__ == "Buffer":
+
+                    if self.in_edges[edge_index].__class__.__name__ in ["Buffer", "Fleet", "ConveyorBelt"]:
                         self.item_in_process=self.in_edges[edge_index].get(self.chosen_event)  # Get the item from the chosen in_edge
                         #print("getting getting getting getting  item from in_edge", self.chosen_event.resourcename)
                         #self.item_in_process = self.chosen_event.resourcename.get(self.chosen_event)  # Get the item from the chosen in_edge
@@ -795,7 +807,7 @@ class Machine(Node):
                     
                     
 
-                    if in_edge_to_get.__class__.__name__ in ["Buffer", "Fleet"]:
+                    if in_edge_to_get.__class__.__name__ in ["Buffer", "Fleet", "ConveyorBelt"]:
                         outstore = in_edge_to_get
                         get_token = outstore.reserve_get()
                         yield get_token

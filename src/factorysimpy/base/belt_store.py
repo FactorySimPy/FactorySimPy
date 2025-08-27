@@ -5,7 +5,7 @@
 import simpy
 from simpy.resources.store import Store
 
-class BufferStore(Store):
+class BeltStore(Store):
     """
         This is a class that is derived from SimPy's Store class and has extra capabilities
         that makes it a priority-based reservable store for processes to reserve space
@@ -36,7 +36,7 @@ class BufferStore(Store):
            reservations_get (list):List of successful get reservations
         """
 
-    def __init__(self, env, capacity=float('inf'),mode='FIFO'):
+    def __init__(self, env, capacity=float('inf'),mode='FIFO', speed=1):
         """
         Initializes a reservable store with priority-based reservations.
 
@@ -48,6 +48,7 @@ class BufferStore(Store):
         super().__init__(env, capacity)
         self.env = env
         self.mode=mode
+        self.speed = speed  # Speed of the conveyor belt (units per time)
         self.reserve_put_queue = []  # Queue for managing reserve_put reservations
         self.reservations_put = []   # List of successful put reservations
         self.reserve_get_queue = []  # Queue for managing reserve_get reservations
@@ -59,6 +60,12 @@ class BufferStore(Store):
         self._last_num_items = 0
         self._weighted_sum = 0.0
         self.time_averaged_num_of_items_in_store = 0.0  # Time-averaged number of items in the store
+        # Process tracking for interrupt functionality
+        self.active_move_processes = {}  # Dictionary to track active move_to_ready_items processes
+        self.resume_event = self.env.event()  # Event to signal when to resume processes
+        self.noaccumulation_mode_on = False # to control if the belt is in noaccumulation mode
+        self.one_item_inserted = False # to control insertion of only one item in noaccumulation mode
+        self.ready_item_event= self.env.event()
 
     def _update_time_averaged_level(self):
         now = self.env.now
@@ -70,9 +77,7 @@ class BufferStore(Store):
         total_time = now
         self.time_averaged_num_of_items_in_store = (
             self._weighted_sum / total_time if total_time > 0 else 0.0
-
         )
-        #print("!!!!!", self.time_averaged_num_of_items_in_store)
 
     def reserve_put(self, priority=0):
         """
@@ -158,19 +163,40 @@ class BufferStore(Store):
 
         """
         # Check if there's enough space to reserve
-        if len(self.reservations_put) + len(self.items) +len(self.ready_items) < self.capacity:
-            self.reservations_put.append(event)  # Add reservation
-            event.succeed()
-            # Log the success of the reservation
-            #print(f"At time={self.env.now:.2f}, Process {self.env.active_process} "
-                 # f"reserved space. Total reservations: {len(self.reservations_put)}")
+        if self.items:
+            if len(self.reservations_put) + len(self.items) +len(self.ready_items) < self.capacity:
+                if not self.noaccumulation_mode_on or (self.noaccumulation_mode_on and self.one_item_inserted==False):
+                    if self.env.now>= self.items[-1][0].conveyor_entry_time + self.items[-1][0].length/self.speed:
+                        #print(f"At time={self.env.now:.2f}, Process {self.env.active_process} "
+                        # f"reserved space. Total reservations: {len(self.reservations_put)}")
+                        self.reservations_put.append(event)
+                        event.succeed()
+                        if self.noaccumulation_mode_on:
+                           self.one_item_inserted=True
+        else:
+           
+            if len(self.reservations_put) + len(self.items) +len(self.ready_items) < self.capacity:
+                self.reservations_put.append(event)  # Add reservation
+                event.succeed()
+                # Log the success of the reservation
+                #print(f"At time={self.env.now:.2f}, Process {self.env.active_process} "
+                    # f"reserved space. Total reservations: {len(self.reservations_put)}")
 
-            # Mark the event as successful
+                # Mark the event as successful
 
-        #else:
-            #print(f"At {self.env.now:.2f}, Reservation failed for {self.env.active_process} "
-             #     f"on {self}. Store is full.")
-
+            #else:
+                #print(f"At {self.env.now:.2f}, Reservation failed for {self.env.active_process} "
+                #     f"on {self}. Store is full.")
+    def _add_trigger_event(self, item):
+        """Trigger get events after a delay time after put event."""
+        event=self.env.event()
+        self.delay=item[0].length/self.speed
+        #print(f"created Added event suceeded{self.delay}")
+        event.callbacks.append(self._trigger_reserve_put)# after putting an item, an event is created and will be triggered ater delay amount of time to allow waiting get calls to succeed in a stalled belt
+        #event.callbacks.append(self._trigger_put)# this may not be needed
+        yield self.env.timeout(self.delay)
+        #print(f"{self.env.now}Added event suceed        ed")
+        event.succeed()
 
     def reserve_put_cancel(self, put_event_to_cancel):
       """
@@ -394,6 +420,9 @@ class BufferStore(Store):
             # Successful reservation; add to reservations list
             self.reservations_get.append(event)
             event.succeed()  # Immediately succeed the event
+            if self.noaccumulation_mode_on==True:
+                self.one_item_inserted=False
+                self._trigger_reserve_get(event)
 
             #reserving the item to preserved item order by adding the reserve_get event to a list(the index position of event= index position of reserved item)
             
@@ -659,32 +688,395 @@ class BufferStore(Store):
         if len(self.items)+len(self.ready_items) < self.capacity:
             self.items.append(item)
             self._update_time_averaged_level()
-            self.env.process(self.move_to_ready_items(item))
+            #self.env.process(self.move_to_ready_items(item))
+            #self.env.process(self._add_trigger_event(item))
+            # Start the move process and track it
+            move_process = self.env.process(self.move_to_ready_items(item))
+            item_id = item[0].id if hasattr(item[0], 'id') else str(id(item))
+            self.active_move_processes[item_id] = {
+                'process': move_process,
+                'item': item,
+                'start_time': self.env.now
+            }
+            
+            # Handle selective interruption for new items during no accumulation mode
+            if self.noaccumulation_mode_on:
+                self.handle_new_item_during_interruption(item)
+            
             return True  # Successfully added item
         
-    def move_to_ready_items(self,item):
+        
+    def move_to_ready_items(self, item):
         """
         Move items from the store to the ready_items list after a put operation.
         This method is called as a process to ensure that items are moved asynchronously.
+        Handles interrupts when state changes to stalled and resumes when state changes back.
+        Movement is split into two phases:
+        1. First phase: item[0].length/self.speed time (time for item to fully enter belt)
+        2. Second phase: remaining time (time for item to reach exit)
         """
-
-        # Move items to the ready_items list
-        if self.items:
-            
-            yield self.env.timeout(item[1])
-            
-            item_index = self.items.index(item)
-            item_to_put = self.items.pop(item_index)  # Remove the first item
-            #print(item_to_put, item)
-            if len(self.ready_items)+ len(self.items) < self.capacity:
-                self.ready_items.append(item_to_put[0])
-                #self._update_time_averaged_level()
-                self._trigger_reserve_get(None)
-                self._trigger_reserve_put(None)
-                #print(f"T={self.env.now:.2f} bufferstore is moving item {item[0].id, item[1]} to ready_items. Total items in buffer is {len(self.items)+len(self.ready_items)}"   )
-            else:
-                raise RuntimeError("Total number of items in the store exceeds capacity. Cannot move item to ready_items.")
-            
-
-
+        item_id = item[0].id if hasattr(item[0], 'id') else str(id(item))
+        event=self.env.event()
+        #self.delay=item[0].length/self.speed
+        #print(f"created Added event suceeded{self.delay}")
+        event.callbacks.append(self._trigger_reserve_put)# after putting an item, an event is created and will be triggered ater delay amount of time to allow waiting get calls to succeed in a stalled belt
+        #event.callbacks.append(self._trigger_put)# this may not be needed
+       
+        #print(f"{self.env.now}Added event suceed        ed")
         
+        # Calculate the two phases of movement
+        phase1_time = item[0].length / self.speed  # Time for item to fully enter belt
+        phase2_time = item[1] - phase1_time        # Remaining time to reach exit
+        
+        try:
+            # Move items to the ready_items list
+            if self.items:
+                print(f"T={self.env.now:.2f} beltstore received an item {item[0].id, item[1]} . Item started moving in belt")
+                
+                # Phase 1: Item entering the belt (length/speed time)
+                remaining_phase1_time = phase1_time
+                print(f"T={self.env.now:.2f} Item {item_id} starting Phase 1 (entering belt): {phase1_time:.2f} time")
+                
+                while remaining_phase1_time > 0:
+                    try:
+                        start_time = self.env.now
+                        yield self.env.timeout(remaining_phase1_time)
+                        # If we reach here, phase 1 completed without interruption
+                        event.succeed()
+                        remaining_phase1_time = 0
+                        break
+                    except simpy.Interrupt as interrupt:
+                        # Calculate how much time has passed
+                        elapsed_time = self.env.now - start_time
+                        remaining_phase1_time -= elapsed_time
+                        
+                        print(f"T={self.env.now:.2f} Move process Phase 1 for item {item_id} interrupted: {interrupt.cause}")
+                        print(f"T={self.env.now:.2f} Remaining Phase 1 time for item {item_id}: {remaining_phase1_time:.2f}")
+                        
+                        # Wait for resume signal
+                        print(f"T={self.env.now:.2f} Item {item_id} waiting for resume signal (Phase 1)...")
+                        yield self.resume_event
+                        print(f"T={self.env.now:.2f} Item {item_id} resuming Phase 1 movement with {remaining_phase1_time:.2f} time remaining")
+                
+                print(f"T={self.env.now:.2f} Item {item_id} completed Phase 1 (fully entered belt)")
+                
+                # Phase 2: Item moving through the belt to exit
+                remaining_phase2_time = phase2_time
+                print(f"T={self.env.now:.2f} Item {item_id} starting Phase 2 (moving to exit): {phase2_time:.2f} time")
+                
+                while remaining_phase2_time > 0:
+                    try:
+                        start_time = self.env.now
+                        yield self.env.timeout(remaining_phase2_time)
+                        # If we reach here, phase 2 completed without interruption
+                        remaining_phase2_time = 0
+                        break
+                    except simpy.Interrupt as interrupt:
+                        # Calculate how much time has passed
+                        elapsed_time = self.env.now - start_time
+                        remaining_phase2_time -= elapsed_time
+                        
+                        print(f"T={self.env.now:.2f} Move process Phase 2 for item {item_id} interrupted: {interrupt.cause}")
+                        print(f"T={self.env.now:.2f} Remaining Phase 2 time for item {item_id}: {remaining_phase2_time:.2f}")
+                        
+                        # Wait for resume signal
+                        print(f"T={self.env.now:.2f} Item {item_id} waiting for resume signal (Phase 2)...")
+                        yield self.resume_event
+                        print(f"T={self.env.now:.2f} Item {item_id} resuming Phase 2 movement with {remaining_phase2_time:.2f} time remaining")
+                
+                print(f"T={self.env.now:.2f} Item {item_id} completed Phase 2 (reached exit)")
+                print(f"T={self.env.now:.2f} bufferstore finished moving item {item[0].id, item[1]} going to ready_items")
+                
+                item_index = self.items.index(item)
+                item_to_put = self.items.pop(item_index)  # Remove the item
+                
+                if len(self.ready_items) + len(self.items) < self.capacity:
+                    self.ready_items.append(item_to_put[0])
+                    self.ready_item_event.succeed()  # Notify that a new item is ready
+                    print(f"T={self.env.now:.2f} bufferstore finished moving item {item[0].id, item[1]} moved to ready_items")
+                    self._trigger_reserve_get(None)
+                    self._trigger_reserve_put(None)
+                else:
+                    raise RuntimeError("Total number of items in the store exceeds capacity. Cannot move item to ready_items.")
+            
+            
+            
+        
+        finally:
+            # Clean up the process tracking when done
+            if item_id in self.active_move_processes:
+                del self.active_move_processes[item_id]
+                print(f"T={self.env.now:.2f} Removed tracking for completed move process of item {item_id}")
+
+    def interrupt_all_move_processes(self, reason="External interrupt"):
+        """
+        Interrupt all active move_to_ready_items processes.
+        
+        Args:
+            reason (str): Reason for the interrupt
+        """
+        print(f"T={self.env.now:.2f} BufferStore interrupting {len(self.active_move_processes)} move processes - {reason}")
+        
+        for item_id, process_info in self.active_move_processes.items():
+            process = process_info['process']
+            if process and not process.processed:
+                try:
+                    process.interrupt(reason)
+                    print(f"T={self.env.now:.2f} Interrupted move process for item {item_id}")
+                except RuntimeError:
+                    # Process might already be finished
+                    pass
+    
+    def resume_all_move_processes(self):
+        """
+        Resume all interrupted move_to_ready_items processes.
+        """
+        print(f"T={self.env.now:.2f} BufferStore resuming move processes")
+        
+        # Create a new resume event and trigger it
+        old_resume_event = self.resume_event
+        self.resume_event = self.env.event()
+        old_resume_event.succeed()
+    
+    def _get_belt_pattern(self):
+        """
+        Generate a pattern string representing the current belt occupancy.
+        Returns a string where '*' represents an item and '_' represents empty space.
+        """
+        # Create a representation of the belt with capacity positions
+        belt_positions = ['_'] * self.capacity
+        
+        # Mark positions with items
+        # Items in self.items are still moving, items in ready_items are at the end
+        num_moving_items = len(self.items)
+        num_ready_items = len(self.ready_items)
+        
+        # Place moving items based on their current position on the belt
+        for i, item in enumerate(self.items):
+            if i < self.capacity:
+                # Calculate position based on time since entry and belt speed
+                if hasattr(item[0], 'conveyor_entry_time'):
+                    time_on_belt = self.env.now - item[0].conveyor_entry_time
+                    # Assuming each position takes 1 time unit to traverse
+                    position = int(time_on_belt * self.speed)
+                    if 0 <= position < self.capacity:
+                        belt_positions[position] = '*'
+                else:
+                    raise AttributeError("Item does not have 'conveyor_entry_time' attribute.")
+        
+        # Place ready items at the end of the belt
+        for i in range(num_ready_items):
+            pos = self.capacity - 1 - i
+            if pos >= 0:
+                belt_positions[pos] = '*'
+        
+        return ''.join(belt_positions)
+    
+    def selective_interrupt(self, reason="Selective interrupt"):
+        """
+        Perform selective interruption based on belt occupancy patterns and mode.
+        
+        When noaccumulation_mode_on=True (STALLED_NONACCUMULATING_STATE):
+        - Interrupt all items immediately
+        
+        When noaccumulation_mode_on=False (STALLED_ACCUMULATING_STATE):
+        - Use pattern-based interruption with delays based on item positions
+        
+        Pattern-based rules for accumulating mode:
+        - For patterns like '_****', interrupt all items.
+        - For patterns like '_*_*_', interrupt item in second last position after 1 delay,
+          and second item after 2 delays.
+        - For patterns like '*___*', interrupt first item and second item after 3 delays.
+        - For patterns like '**__*', interrupt first item, second after 2 delays,
+          and third after 2 delays.
+        
+        Args:
+            reason (str): Reason for the interrupt
+        """
+        if not self.items:
+            print(f"T={self.env.now:.2f} No items on belt to interrupt")
+            return
+        
+        # If noaccumulation_mode_on is True (STALLED_NONACCUMULATING_STATE), interrupt all items immediately
+        if self.noaccumulation_mode_on:
+            print(f"T={self.env.now:.2f} No accumulation mode: interrupting all items immediately")
+            for i, item in enumerate(self.items):
+                item_id = item[0].id if hasattr(item[0], 'id') else str(id(item))
+                self._interrupt_specific_item(item_id, f"{reason} - immediate (no accumulation)")
+            return
+        
+        # For accumulating mode (STALLED_ACCUMULATING_STATE), use pattern-based interruption
+        print(f"T={self.env.now:.2f} Accumulating mode: using pattern-based interruption")
+        
+        # Get current belt pattern
+        pattern = self._get_belt_pattern()
+        print(f"T={self.env.now:.2f} Current belt pattern: {pattern}")
+        
+        # Analyze pattern and determine interruption strategy
+        interruption_plan = self._analyze_pattern_for_interruption(pattern)
+        
+        if not interruption_plan:
+            print(f"T={self.env.now:.2f} No interruption needed for current pattern")
+            return
+        
+        print(f"T={self.env.now:.2f} Executing selective interruption plan: {interruption_plan}")
+        
+        # Execute the interruption plan
+        self._execute_interruption_plan(interruption_plan, reason)
+
+    def _analyze_pattern_for_interruption(self, pattern):
+        """
+        Analyze the belt pattern and determine which items to interrupt and when.
+        
+        Args:
+            pattern (str): Belt pattern string with '*' for items and '_' for empty spaces
+            
+        Returns:
+            list: List of dictionaries with interruption instructions
+                  [{'item_index': int, 'delay': float}, ...]
+        """
+        interruption_plan = []
+        
+        # Find all item positions
+        item_positions = [i for i, char in enumerate(pattern) if char == '*']
+        
+        if not item_positions:
+            return interruption_plan
+        
+        # Check for consecutive items pattern (like '_****' or '**__*')
+        if self._has_consecutive_items(pattern):
+            # Rule: Interrupt all items in consecutive blocks
+            for i, pos in enumerate(item_positions):
+                interruption_plan.append({'item_index': i, 'delay': 0})
+        else:
+            # Rule: Interrupt items with delays based on gaps
+            interruption_plan = self._calculate_gap_based_interruptions(pattern, item_positions)
+        
+        return interruption_plan
+
+    def _has_consecutive_items(self, pattern):
+        """
+        Check if the pattern has consecutive items (no gaps between items).
+        """
+        item_positions = [i for i, char in enumerate(pattern) if char == '*']
+        
+        if len(item_positions) <= 1:
+            return True
+        
+        # Check if positions are consecutive
+        for i in range(1, len(item_positions)):
+            if item_positions[i] - item_positions[i-1] > 1:
+                return False
+        
+        return True
+
+    def _calculate_gap_based_interruptions(self, pattern, item_positions):
+        """
+        Calculate interruption delays based on gaps between items.
+        
+        For patterns with gaps:
+        - First item: interrupt immediately
+        - Subsequent items: delay = number of empty spaces before this item from the previous item
+        """
+        interruption_plan = []
+        
+        if not item_positions:
+            return interruption_plan
+        
+        # First item always interrupted immediately
+        interruption_plan.append({'item_index': 0, 'delay': 0})
+        
+        # Calculate delays for subsequent items
+        for i in range(1, len(item_positions)):
+            prev_pos = item_positions[i-1]
+            curr_pos = item_positions[i]
+            gap_size = curr_pos - prev_pos - 1  # Number of empty spaces between items
+            
+            # Delay is based on gap size
+            delay = max(gap_size, 1)  # Minimum delay of 1
+            interruption_plan.append({'item_index': i, 'delay': delay})
+        
+        return interruption_plan
+
+    def _execute_interruption_plan(self, interruption_plan, reason):
+        """
+        Execute the interruption plan by interrupting items with specified delays.
+        
+        Args:
+            interruption_plan (list): List of interruption instructions
+            reason (str): Reason for interruption
+        """
+        for instruction in interruption_plan:
+            item_index = instruction['item_index']
+            delay = instruction['delay']
+            
+            if item_index < len(self.items):
+                item = self.items[item_index]
+                item_id = item[0].id if hasattr(item[0], 'id') else str(id(item))
+                
+                if delay > 0:
+                    # Schedule delayed interruption
+                    self.env.process(self._delayed_interrupt(item_id, delay, reason))
+                else:
+                    # Immediate interruption
+                    self._interrupt_specific_item(item_id, reason)
+
+    def _delayed_interrupt(self, item_id, delay, reason):
+        """
+        Process to handle delayed interruption of a specific item.
+        
+        Args:
+            item_id: ID of the item to interrupt
+            delay (float): Delay before interruption
+            reason (str): Reason for interruption
+        """
+        try:
+            yield self.env.timeout(delay)
+            self._interrupt_specific_item(item_id, f"{reason} (delayed by {delay})")
+        except simpy.Interrupt:
+            print(f"T={self.env.now:.2f} Delayed interrupt process for item {item_id} was itself interrupted")
+
+    def _interrupt_specific_item(self, item_id, reason):
+        """
+        Interrupt a specific item's move process.
+        
+        Args:
+            item_id: ID of the item to interrupt
+            reason (str): Reason for interruption
+        """
+        if item_id in self.active_move_processes:
+            process_info = self.active_move_processes[item_id]
+            process = process_info['process']
+            
+            if process and not process.processed:
+                try:
+                    process.interrupt(reason)
+                    print(f"T={self.env.now:.2f} Selectively interrupted item {item_id}: {reason}")
+                except RuntimeError:
+                    print(f"T={self.env.now:.2f} Could not interrupt item {item_id} - process may be finished")
+            else:
+                print(f"T={self.env.now:.2f} Item {item_id} process already finished")
+        else:
+            print(f"T={self.env.now:.2f} Item {item_id} not found in active processes")
+
+    def handle_new_item_during_interruption(self, item):
+        """
+        Handle new items arriving during selective interruption.
+        
+        For new items, the delay before interruption is: capacity - num_items
+        
+        Args:
+            item: The new item being added
+        """
+        if self.noaccumulation_mode_on:
+            num_items = len(self.items) + len(self.ready_items)
+            delay_before_interrupt = max(self.capacity - num_items, 0)
+            
+            item_id = item[0].id if hasattr(item[0], 'id') else str(id(item))
+            
+            if delay_before_interrupt > 0:
+                print(f"T={self.env.now:.2f} New item {item_id} will be interrupted after {delay_before_interrupt} time units")
+                self.env.process(self._delayed_interrupt(item_id, delay_before_interrupt, "New item during interruption"))
+            else:
+                print(f"T={self.env.now:.2f} New item {item_id} interrupted immediately")
+                self._interrupt_specific_item(item_id, "New item during interruption")

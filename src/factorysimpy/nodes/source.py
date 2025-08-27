@@ -240,19 +240,19 @@ class Source(Node):
    
     
     def _push_item(self, item, out_edge):
-        if out_edge.__class__.__name__ == "ConveyorBelt":
+        if out_edge.__class__.__name__ == "ConveyorBelt1":
 
                             
                 put_token = out_edge.reserve_put()
 
-                pe = yield put_token
+                yield put_token
                 item.set_creation(self.id, self.env)
                 item.timestamp_node_exit = self.env.now
-                y=out_edge.put(pe, item)
+                y=out_edge.put(put_token, item)
                 if y:
                     print(f"T={self.env.now:.2f}: {self.id} puts {item.id} item into {out_edge.id}  ")
                 
-        elif out_edge.__class__.__name__ in ["Buffer", "Fleet"]:
+        elif out_edge.__class__.__name__ in ["Buffer", "Fleet", "ConveyorBelt"]:
                 outstore = out_edge
                 put_token = outstore.reserve_put()
                 yield put_token
@@ -329,8 +329,10 @@ class Source(Node):
                 i+=1
                 if self.flow_item_type == "item":
                     item = Item(f'item_{self.id+"_"+str(i)}')
+                    item.length = 1.0
                 else:
                     item = Pallet(f'pallet_{self.id+"_"+str(i)}')
+                    item.length = 1.0
                 #item.set_creation(self.id, self.env)
                 self.stats["num_item_generated"] +=1
                 #edgeindex_to_put = next(self.out_edge_selection)

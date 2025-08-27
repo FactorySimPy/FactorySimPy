@@ -30,7 +30,7 @@ MACHINE2 = Machine(env, id="MACHINE2",work_capacity=1,blocking=True, processing_
 MACHINE3 = Machine(env, id="MACHINE3",work_capacity=1,blocking=True, processing_delay=0.5,in_edge_selection="FIRST_AVAILABLE",out_edge_selection="FIRST_AVAILABLE")
 
 
-MACHINE4 = Machine(env, id="MACHINE4",work_capacity=1,blocking=True, processing_delay=0.5,in_edge_selection="FIRST_AVAILABLE",out_edge_selection="FIRST_AVAILABLE")
+MACHINE4 = Machine(env, id="MACHINE4",work_capacity=1,blocking=True, processing_delay=0.5,in_edge_selection="ROUND_ROBIN",out_edge_selection="FIRST_AVAILABLE")
 MACHINE5 = Machine(env, id="MACHINE5",work_capacity=1,blocking=True, processing_delay=0.5,in_edge_selection="FIRST_AVAILABLE",out_edge_selection="FIRST_AVAILABLE")
 
 SINK= Sink(env, id="SINK")
@@ -44,7 +44,7 @@ BUF4 = Buffer(env, id="BUF4", capacity=1, delay=0)
 BUF5 = Buffer(env, id="BUF5", capacity=1, delay=0)
 BUF6 = Buffer(env, id="BUF6", capacity=1, delay=0)
 BUF7 = Buffer(env, id="BUF7", capacity=1, delay=0)
-BUF8 = Buffer(env, id="BUF8", capacity=1, delay=0)
+BUF8 = Buffer(env, id="BUF8", capacity=1, delay=3)
 
 
 # Adding connections
