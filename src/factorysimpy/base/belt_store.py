@@ -792,7 +792,10 @@ class BeltStore(Store):
                 
                 if len(self.ready_items) + len(self.items) < self.capacity:
                     self.ready_items.append(item_to_put[0])
-                    self.ready_item_event.succeed()  # Notify that a new item is ready
+                    print(len(self.ready_items)+len(self.items))
+                   
+                    if not self.ready_item_event.triggered:
+                        self.ready_item_event.succeed()
                     print(f"T={self.env.now:.2f} bufferstore finished moving item {item[0].id, item[1]} moved to ready_items")
                     self._trigger_reserve_get(None)
                     self._trigger_reserve_put(None)

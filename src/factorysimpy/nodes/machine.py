@@ -573,7 +573,7 @@ class Machine(Node):
                     #putting the item in the chosen out_edge
                     
                     item.update_node_event(self.id, self.env, "exit")
-                    if self.out_edges[edge_index].__class__.__name__ == "Buffer":
+                    if self.out_edges[edge_index].__class__.__name__  in [ "Buffer", "ConveyorBelt"]:
                         self.stats["num_item_processed"] += 1
                         itemput=self.out_edges[edge_index].put(chosen_put_event, item)
                         #itemput = chosen_put_event.resourcename.put(chosen_put_event, item)  # Get the item from the chosen in_edge

@@ -4,8 +4,9 @@ import scipy.stats
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from factorysimpy.nodes.machine import Machine
-from factorysimpy.edges.continuous_conveyor import ConveyorBelt
 from factorysimpy.edges.buffer import Buffer
+from factorysimpy.edges.continuous_conveyor import ConveyorBelt
+
 from factorysimpy.nodes.source import Source
 from factorysimpy.nodes.sink import Sink
 import random
@@ -20,42 +21,71 @@ env = simpy.Environment()
 
 
 # Initializing nodes
-SRC= Source(env, id="SRC",  inter_arrival_time=0.3,blocking=True, out_edge_selection="FIRST_AVAILABLE" )
+SRC1= Source(env, id="SRC1", flow_item_type="Pallet" ,inter_arrival_time=0.2,blocking=True, out_edge_selection=0 )
+SRC2= Source(env, id="SRC2",  inter_arrival_time=0.3,blocking=True, out_edge_selection=0 )
+SRC3= Source(env, id="SRC3",  inter_arrival_time=0.2,blocking=True, out_edge_selection=0 )
 
 #src= Source(env, id="Source-1",  inter_arrival_time=0.2,blocking=True,out_edge_selection=0 )
-MACHINE1 = Machine(env, id="MACHINE1", node_setup_time=0, work_capacity=1, blocking=True, processing_delay=0.7, in_edge_selection="FIRST_AVAILABLE", out_edge_selection="ROUND_ROBIN")
+CONVEYORBELT= ConveyorBelt(env, id="CONVEYORBELT1", capacity=5, speed=1, length=1, accumulating=True)
+MACHINE3 = Machine(env, id="MACHINE3", node_setup_time=0, work_capacity=1, blocking=True, processing_delay=0.5, in_edge_selection="ROUND_ROBIN", out_edge_selection="FIRST_AVAILABLE")
 SINK= Sink(env, id="SINK")
+#SPLITTER= Splitter(env, id="Splitter1", node_setup_time=0, blocking=True, processing_delay=0.5, in_edge_selection="FIRST_AVAILABLE", out_edge_selection="ROUND_ROBIN")
+MACHINE1 = Machine(env, id="MACHINE1", node_setup_time=0, work_capacity=1, blocking=True, processing_delay=0.5, in_edge_selection="ROUND_ROBIN", out_edge_selection="FIRST_AVAILABLE")
+MACHINE2 = Machine(env, id="MACHINE2", node_setup_time=0, work_capacity=1, blocking=True, processing_delay=0.5, in_edge_selection="ROUND_ROBIN", out_edge_selection="FIRST_AVAILABLE")
 
 # Initializing edges
-BUFFER1 = Buffer(env, id="BUFFER1", capacity=1, delay=0, mode="FIFO")
-CONVEYORBELT1 = ConveyorBelt(env, id="CONVEYORBELT1", capacity=5, speed=1, length=1, accumulating=True)
+BUFFER1 = Buffer(env, id="BUFFER1", capacity=5, delay=0, mode="FIFO")
+BUFFER2 = Buffer(env, id="BUFFER2", capacity=5, delay=0, mode="FIFO")
 
-
+BUFFER4 = Buffer(env, id="BUFFER4", capacity=5, delay=0, mode="FIFO")
+BUFFER5 = Buffer(env, id="BUFFER5", capacity=5, delay=0, mode="FIFO")
+BUFFER6 = Buffer(env, id="BUFFER6", capacity=5, delay=0, mode="FIFO")
+BUFFER7 = Buffer(env, id="BUFFER7", capacity=5, delay=0, mode="FIFO")
 
 # Adding connections
-CONVEYORBELT1.connect(SRC,MACHINE1)
-BUFFER1.connect(MACHINE1,SINK)
+BUFFER1.connect(SRC1,MACHINE3)
+BUFFER2.connect(SRC2,MACHINE3)
+CONVEYORBELT.connect(MACHINE3,MACHINE1)
+BUFFER4.connect(MACHINE1,MACHINE2)
 
+BUFFER7.connect(SRC3,MACHINE2)
+
+BUFFER6.connect(MACHINE2,MACHINE1)
+BUFFER5.connect(MACHINE2,SINK)
 
 
 time=100
 env.run(until=time)
-SRC.update_final_state_time(time)
-MACHINE1.update_final_state_time(time)
-CONVEYORBELT1.update_final_conveyor_avg_content(time)
+print("BUFFER1 items", BUFFER1.get_occupancy())
+print("BUFFER2 items", BUFFER2.get_occupancy())
+#print("BUFFER3 items", BUFFER3.get_occupancy())
+print("BUFFER4 items", BUFFER4.get_occupancy())
+
+SRC1.update_final_state_time(time)
+MACHINE3.update_final_state_time(time)
 BUFFER1.update_final_buffer_avg_content(time)
+BUFFER2.update_final_buffer_avg_content(time)
+CONVEYORBELT.update_final_conveyor_avg_content(time)
+BUFFER4.update_final_buffer_avg_content(time)
+BUFFER5.update_final_buffer_avg_content(time)
+BUFFER6.update_final_buffer_avg_content(time)
+BUFFER7.update_final_buffer_avg_content(time)
 SINK.update_final_state_time(time)
 
 
 print("Simulation completed.")
 # Print statistics
-print(f"SRC {SRC.id} stats: {SRC.stats}")
+print(f"SRC {SRC1.id} stats: {SRC1.stats}")
 print(f"SINK {SINK.id} stats: {SINK.stats}")
 #print(f"Machine1 {MACHINE1.id} state times: {MACHINE1.stats}")
 
 print(f"Time-average number of items in  {BUFFER1.id} is {BUFFER1.stats['time_averaged_num_of_items_in_buffer']}")
-print(f"Time-average number of items in  {CONVEYORBELT1.id} is {CONVEYORBELT1.stats['time_averaged_num_of_items_in_conveyor']}")
-
+print(f"Time-average number of items in  {BUFFER2.id} is {BUFFER2.stats['time_averaged_num_of_items_in_buffer']}")
+print(f"Time-average number of items in  {CONVEYORBELT.id} is {CONVEYORBELT.stats['time_averaged_num_of_items_in_conveyor']}")
+print(f"Time-average number of items in  {BUFFER4.id} is {BUFFER4.stats['time_averaged_num_of_items_in_buffer']}")
+print(f"Time-average number of items in  {BUFFER5.id} is {BUFFER5.stats['time_averaged_num_of_items_in_buffer']}")
+print(f"Time-average number of items in  {BUFFER6.id} is {BUFFER6.stats['time_averaged_num_of_items_in_buffer']}")
+print(f"Time-average number of items in  {BUFFER7.id} is {BUFFER7.stats['time_averaged_num_of_items_in_buffer']}")
 
 
 print(f"Sink {SINK.id} received {SINK.stats['num_item_received']} items.")
@@ -106,7 +136,7 @@ for machine in machines:
     print("per_thread_total_time_in_blocked_state", machine.per_thread_total_time_in_blocked_state)
     print("total_items_processed", machine.stats["num_item_processed"])
 
-buffers = [BUFFER1]
+buffers = [BUFFER1, BUFFER2, BUFFER4, BUFFER5, BUFFER6, BUFFER7]
 
 metric.append("Time avg content in buffers  ")
 model.append("---")
@@ -117,7 +147,7 @@ for buf in buffers:
 
 
 
-print(f"SRC {SRC.id} state times: {SRC.stats}")
+print(f"SRC {SRC2.id} state times: {SRC2.stats}")
 
 import pandas as pd
 
