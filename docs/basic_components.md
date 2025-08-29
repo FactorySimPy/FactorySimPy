@@ -586,7 +586,7 @@ print(f"Buffer {BUF1.id} state times: {BUF1.stats['total_time_spent_in_states']}
 
 **About**
 
-The `fleet` component represents an AGV that moves multiple items simulataneously between nodes in the system. It acts as an edge. The fleet is activated when either of two conditions is met:
+The `fleet` component represents an AGV that moves multiple items simultaneously between nodes in the system. It acts as an edge. The fleet is activated when either of two conditions is met:
 
 - Capacity condition – the number of stored items reaches capacity.
 
@@ -601,12 +601,12 @@ The API documentation can be found in [Fleet](fleet.md)
 - `state` - current state of the fleet 
 - `capacity` - target quantity of items after which the fleet will be activated
 - `delay` - Maximum waiting time before the fleet is triggered. (can be a constant, generator, or callable)
-- `transit_delay` - time to move the items after which the item becomes available (can be a constant, generator, or callable)
+- `transit_delay` - transit_delay (int, float): It is the time taken by the fleet to transport the item from src node to destination node. (can be a constant, generator, or callable)
 
 **Behavior**
 
 - When an item is put into the fleet, it is stored internally and becomes available for retrieval after the specified `delay` or after a target quantity (`capacity`) of items is available in fleet.
-- Once triggered the items will be available for the destination node after `transit_delay` amount of time.
+- Once triggered the items will be available for the destination node. Fleet will incur `transit_delay` amount of time to travel to the src_node from dest_node and takes the object and incurs `transit_delay` time again and transfer the item to the dest_node from src_node.
 - The fleet has methods to check if it can accept new items using can_put method and if it can provide items to the next node using 
   can_get method.
 - Incoming edges can use reserve_get and reserve_put calls on the store in the fleet to reserve an item or space and after yielding 

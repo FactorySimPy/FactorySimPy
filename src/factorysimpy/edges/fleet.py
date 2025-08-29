@@ -14,7 +14,9 @@ class Fleet(Edge):
         delay (int, float): Delay after which fleet activates to move items incase the target capacity is not reached. It Can be
         
             - int or float: Used as a constant delay.
-        transit_delay (int, float): time to move the items after which the item becomes available (can be a constant, generator, or callable)
+        transit_delay (int, float): It is the time taken by the fleet to transport the item from src node to destination node.  (can be a constant, generator, or callable).
+                                  
+
 
      Behavior:
             The Fleet is a type of edge represents components that moves multiple items simulataneaously between nodes.
@@ -144,6 +146,7 @@ class Fleet(Edge):
        
        proceed=self.inbuiltstore.put(event,item)
        self._fleet_stats_collector()
+       item.fleet_entry_time = self.env.now
        return proceed
     
     def get(self, event):
@@ -160,8 +163,11 @@ class Fleet(Edge):
         item : object
             The item retrieved from the fleet.
         """
+        #print(f"T={self.env.now:.2f}: {self.id} is getting an item at time {self.env.now}, total item in fleet is {len(self.inbuiltstore.items)+len(self.inbuiltstore.ready_items)}")
         item = self.inbuiltstore.get(event)
         self._fleet_stats_collector()
+        #print(f"T={self.env.now:.2f}, got an item!!!!")
+        item.fleet_exit_time = self.env.now
         return item
     
     def reserve_get_cancel(self,event):

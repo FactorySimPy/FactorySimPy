@@ -85,14 +85,18 @@ class FleetStore(Store):
         This process waits for the activate_fleet event to be triggered.
         """
         while True:
-            yield  self.env.timeout(self.delay)  or self.activate_fleet
+            timeout_event = self.env.timeout(self.delay)
+            event_list= [timeout_event, self.activate_fleet]
+            yield self.env.any_of(event_list)
+            
             print(f"T={self.env.now:.2f}: Fleet activation process triggered.")
             
             if self.items:
                 print(f"T={self.env.now:.2f}: Fleet activated with {len(self.items)} items ready.")
-                self.move_to_ready_items(self.items)
+                self.env.process(self.move_to_ready_items(self.items))
                 #self.env.process(self.move_to_ready_items(self.items))
                 if self.activate_fleet.triggered:
+                    #print("yes")
                     self.activate_fleet = self.env.event()  # Reset the event for next activation
 
     def reserve_put(self, priority=0):
@@ -516,6 +520,7 @@ class FleetStore(Store):
         self.reserved_events.remove(reserved_event)
 
         # 4) pop out the exact item reference
+        #yield self.env.timeout(self.transit_delay)  # Simulate delay for the fleet to travel to the source node to get the item to be transported.
         try:
             assigned_item = self.reserved_items.pop(ev_idx)
         except IndexError:
@@ -527,6 +532,7 @@ class FleetStore(Store):
         except ValueError:
             raise ValueError(f"Item {assigned_item} not in ready_items.")
         self._update_time_averaged_level()
+        #yield self.env.timeout(self.transit_delay)  # Simulate delay for the fleet to transport the item to the destination node
         return assigned_item
 
     def _do_get1(self, get_event):
@@ -697,7 +703,11 @@ class FleetStore(Store):
         if items:
             
             print(f"T={self.env.now:.2f}: Moving items to ready_items.")
-            yield self.env.timeout(self.transit_delay)  # Simulate delay before moving items
+            #START=self.env.now
+            yield self.env.timeout(self.transit_delay)
+            #print("WAITED FOR TRANSIT_DELAY BEFORE MOVING", self.env.now-START)
+            yield self.env.timeout(self.transit_delay)
+            
             for item in items:
                 
                 item_index = self.items.index(item)
@@ -705,11 +715,13 @@ class FleetStore(Store):
                
                 if len(self.ready_items) < self.capacity:
                     self.ready_items.append(item_to_put)
+                    #print(f"T={self.env.now:.2f}: {self.id} moved item {item_to_put.id} to ready_items.")
                     self._trigger_reserve_get(None)
                     self._trigger_reserve_put(None)
                     #print(f"T={self.env.now:.2f} bufferstore is moving item {item[0].id, item[1]} to ready_items. Total items in buffer is {len(self.items)+len(self.ready_items)}"   )
                 else:
                     raise RuntimeError("Total number of items in the store exceeds capacity. Cannot move item to ready_items.")
+            
             print(f"T={self.env.now:.2f}: Fleetstore moved items to ready_items.")
                 
 

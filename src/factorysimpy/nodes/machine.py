@@ -808,9 +808,11 @@ class Machine(Node):
                     
 
                     if in_edge_to_get.__class__.__name__ in ["Buffer", "Fleet", "ConveyorBelt"]:
+                        print(f"T={self.env.now:.2f}: {self.id} is pulling item from {in_edge_to_get.id} ")
                         outstore = in_edge_to_get
                         get_token = outstore.reserve_get()
                         yield get_token
+                        print(f"T={self.env.now:.2f}: {self.id} yielded from {in_edge_to_get.id} ")
                          # Create workers based on work_capacity
                         worker_thread_req = self.worker_thread.request()  # Request a worker thread
                         yield worker_thread_req
