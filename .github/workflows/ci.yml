@@ -26,7 +26,7 @@ jobs:
           restore-keys: |
             mkdocs-material-
       - run: pip install --upgrade pip
-      - run: pip install mkdocs-material mkdocstrings[python] mkdocs-sitemap # Install mkdocs-material
+      - run: pip install mkdocs-material mkdocstrings[python] # Install mkdocs-material
 
 
 
