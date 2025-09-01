@@ -10,12 +10,9 @@ theme:
 
 use_directory_urls: true
 
-extra_templates:
-  - sitemap.xml
+
 plugins:
   - search
-  - sitemap
-
   - mkdocstrings:
       handlers:
         python:
