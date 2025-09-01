@@ -23,11 +23,10 @@ jobs:
         with:
           key: mkdocs-material-${{ env.cache_id }}
           path: .cache 
-          restore-keys: |
+          r
             mkdocs-material-
       - run: pip install --upgrade pip
-      - run: pip install mkdocs-material mkdocstrings[python]  # Install dependencies
-      - run: pip install mkdocs-simple-plugin
+      - run: pip install mkdocs-material mkdocstrings[python] mkdocs-sitemap # Install mkdocs-material and mkdocstrings with Python support
 
 
        # NEW: Clean any previous site artifacts
