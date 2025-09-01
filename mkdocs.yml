@@ -19,7 +19,7 @@ plugins:
           #paths: ['ReservablePriorityReqStore', 'PriorityReqStore']  # Specify the paths to your modules here
           paths: 
           - src
-  - sitemap
+
           
           
           
