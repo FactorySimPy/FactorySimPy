@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://factorysimpy.github.io/FactorySimPy/sitemap.xml
