@@ -27,6 +27,8 @@ jobs:
             mkdocs-material-
       - run: pip install --upgrade pip
       - run: pip install mkdocs-material mkdocstrings[python]  # Install dependencies
+      - run: pip install mkdocs-simple-plugin
+
 
        # NEW: Clean any previous site artifacts
       - name: Clean build
