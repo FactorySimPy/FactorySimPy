@@ -13,9 +13,7 @@ use_directory_urls: true
 plugins:
   - search
 
-  - sitemap:
-      changefreq: weekly
-      priority: 0.5
+  
 
   - mkdocstrings:
       handlers:
@@ -23,6 +21,9 @@ plugins:
           #paths: ['ReservablePriorityReqStore', 'PriorityReqStore']  # Specify the paths to your modules here
           paths: 
           - src
+  - sitemap:
+      changefreq: weekly
+      priority: 0.5
           
           
           
