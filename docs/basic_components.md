@@ -699,7 +699,10 @@ There are two variants of conveyor available in this package:
 **Behavior**
 
 
-During a simulation run, the Conveyor gets an item and as soon as it gets an item it starts moving and after moving it waits delay amount of time before the next move. It moves until the first item reaches the other end of the belt. If item is not taken out by a dest_npde, then conveyor will be in "BLOCKED_STATE". During its operation, the source transitions through the following states:
+
+During a simulation run, once the conveyor receives the first item, it transitions into MOVING_STATE and begins advancing items at every delay interval. The conveyor continues this movement until the first item reaches the destination end. If the destination node does not retrieve the item, the conveyor stalls and enters one of the following states: STALLED_ACCUMULATING_STATE: for accumulating conveyors or STALLED_NONACCUMULATING_STATE: for non-accumulating conveyors. The movement resumes only after the front item is removed by the destination node.
+
+During its operation, the source transitions through the following states:
 
 
 1. "SETUP_STATE": Initialization or warm-up phase.
@@ -708,7 +711,7 @@ During a simulation run, the Conveyor gets an item and as soon as it gets an ite
 
 3. "STALLED_ACCUMULATING_STATE": a belt (configured to be accumulating) becomes stalled when it has an item that is ready to be taken by the destination node.
 
-4. "STALLED_NONACCUMULATING_STATE: a belt (configured to be non-accumulating) becomes stalled when it has an item that is ready to be taken by the destination node.
+4. "STALLED_NONACCUMULATING_STATE: a belt (configured to be non-accumulating) becomes stalled when it has an item that is ready to be taken by the destination node. It will allow an item to be pushed onto belt if and only if the first slot is empty.
 
 Conveyors can be either `accumulating` or `non-accumulating`:
 
@@ -720,7 +723,6 @@ Conveyors can be either `accumulating` or `non-accumulating`:
 The component reports the following key metrics:
 
 1. Time averaged number of items 
-3. Time spent in each state 
 
 
 
@@ -730,8 +732,8 @@ The component reports the following key metrics:
 
 **Basic attributes**
 
-- `state` - current state of the fleet 
-- `capacity` - target quantity of items after which the fleet will be activated
+- `state` - current state of the conveyor
+- `capacity` - Maximum number of items that can be carried simultaneously
 - `length` - Length of the item.
 - `speed` - speed of the conveyor belt (can be a constant, generator, or callable)
 - `accumulating` - Whether the belt supports accumulation (1 for yes, 0 for no)
@@ -765,7 +767,7 @@ Conveyors can be either `accumulating` or `non-accumulating`:
 The component reports the following key metrics:
 
 1. Time averaged number of items 
-3. Time spent in each state 
+
 
 
 <hr style="height:4px;border:none;color:blue; background-color:grey;" />
