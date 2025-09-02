@@ -28,7 +28,7 @@ MACHINE2 = Machine(env, id="MACHINE2",node_setup_time=0,work_capacity=1,blocking
 SINK= Sink(env, id="SINK")
 
 # Initializing edges
-FLEET1 = Fleet(env, id="FLEET1", capacity=1, delay=100, transit_delay=2)
+FLEET1 = Fleet(env, id="FLEET1", capacity=1, delay=100, transit_delay=1.9)
 BUFFER1 = Buffer(env, id="BUFFER1", capacity=5, delay=0, mode="FIFO")
 BUFFER2 = Buffer(env, id="BUFFER2", capacity=5, delay=0, mode="FIFO")
 

@@ -19,10 +19,10 @@ env = simpy.Environment()
 
 
 # Initializing nodes
-SRC= Source(env, id="SRC",  inter_arrival_time=0.5,blocking=True, out_edge_selection=0 )
+SRC= Source(env, id="SRC",  inter_arrival_time=0.2,blocking=True, out_edge_selection=0 )
 
 #src= Source(env, id="Source-1",  inter_arrival_time=0.2,blocking=True,out_edge_selection=0 )
-MACHINE1 = Machine(env, id="MACHINE1",node_setup_time=0,work_capacity=4,blocking=True, processing_delay=1,in_edge_selection=0,out_edge_selection="ROUND_ROBIN")
+MACHINE1 = Machine(env, id="MACHINE1",node_setup_time=0,work_capacity=2,blocking=True, processing_delay=0.5,in_edge_selection=0,out_edge_selection="ROUND_ROBIN")
 
 MACHINE2 = Machine(env, id="MACHINE2",node_setup_time=0,work_capacity=1,blocking=True, processing_delay=3,in_edge_selection=0,out_edge_selection="ROUND_ROBIN")
 SINK= Sink(env, id="SINK")
@@ -40,8 +40,7 @@ BUFFER3.connect(MACHINE2,SINK)
 
 
 
-
-time=100
+time=10
 env.run(until=time)
 SRC.update_final_state_time(time)
 print(MACHINE1.state)
@@ -77,7 +76,7 @@ import numpy as np
 
 print("Machine1",np.array(MACHINE1.time_per_work_occupancy)/env.now)
 for i in MACHINE1.stats['total_time_spent_in_states']:
-    print(f"Machine1 {MACHINE1.id} state times: {i} - {MACHINE1.stats['total_time_spent_in_states'][i]*100/time}")
+    print(f"Machine1 {MACHINE1.id} state times: {i} - {MACHINE1.stats['total_time_spent_in_states'][i]/time}")
 
 print("per_thread_total_time_in_processing_state:MACHINE1", MACHINE1.per_thread_total_time_in_processing_state)
 print("per_thread_total_time_in_blocked_state:MACHINE1",MACHINE1.per_thread_total_time_in_blocked_state)

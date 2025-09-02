@@ -467,23 +467,30 @@ class Machine(Node):
 
     def check_thread_state_and_update_machine_state_flexsim(self):
         n_proc, n_blocked = self._count_worker_state()
-
+        print(f"T={self.env.now:.2f} {self.id} - Invalid worker thread state. n_proc={n_proc}, n_blocked={n_blocked}, work_capacity={self.work_capacity}")
         if n_proc == 0 and n_blocked == 0:
             new_state = "IDLE_STATE"
-        elif n_proc == 0 and n_blocked == len(self.worker_thread_list):
+            self.update_state("IDLE_STATE", self.env.now)
+        #elif n_blocked>=self.work_capacity-1 :  # all slots blocked
+        elif n_blocked >0 and n_proc== self.work_capacity - n_blocked:  # all slots blocked   
+        #elif n_blocked>0 and n_blocked + n_proc == self.work_capacity:  # all slots blocked
             new_state = "BLOCKED_STATE"
-        else:
+            self.update_state("BLOCKED_STATE", self.env.now)
+        elif n_proc>0:                       # ≥1 slot still processing
             new_state = "PROCESSING_STATE"
+            self.update_state("PROCESSING_STATE", self.env.now)
+        else:
+            raise ValueError(f"{self.id} - Invalid worker thread state. n_proc={n_proc}, n_blocked={n_blocked}, work_capacity={self.work_capacity}")
 
-        # <<< TRACE every change >>> ------------------------------------------
-        if new_state != getattr(self, "current_state", None):
-            self._dbg( f"→ {new_state}   (proc={n_proc}, blk={n_blocked}, "
-                    f"active={len(self.worker_thread_list)})")
-        # ---------------------------------------------------------------------
+        # # <<< TRACE every change >>> ------------------------------------------
+        # if new_state != getattr(self, "current_state", None):
+        #     self._dbg( f"→ {new_state}   (proc={n_proc}, blk={n_blocked}, "
+        #             f"active={len(self.worker_thread_list)})")
+        # # ---------------------------------------------------------------------
 
-        if new_state != getattr(self, "current_state", None):
-            self.update_state(new_state, self.env.now)
-            self.current_state = new_state
+        # if new_state != getattr(self, "current_state", None):
+        #     self.update_state(new_state, self.env.now)
+        #     self.current_state = new_state
 
           
     def check_thread_state_and_update_machine_state(self):
@@ -584,7 +591,7 @@ class Machine(Node):
                     
                     self._update_avg_time_spent_in_blocked(self.env.now - blocking_start_time)
                     #self.env.active_process.thread_state = "PROCESSING_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
-                    #self.check_thread_state_and_update_machine_state()
+                    self.check_thread_state_and_update_machine_state()
                     # c=self.worker_thread_list.index(self.env.active_process)
                     # if c>=0:
                     #     assert self.worker_thread_list[c].thread_state == "PROCESSING_STATE", f"{self.id} - Worker thread {c} is not in PROCESSED_STATE after processing item {self.worker_thread_list[c].thread_state}."
@@ -610,10 +617,9 @@ class Machine(Node):
                          #self.env.active_process.thread_state = "PROCESSING_STATE"  # Update the thread state to PROCESSING_STATE BLOCKING
                          
                          self._update_avg_time_spent_in_blocked(self.env.now - blocking_start_time)
-                         #self.check_thread_state_and_update_machine_state()
+                         self.check_thread_state_and_update_machine_state()
 
-                        
-                    else:               
+                    else:
                         print(f"T={ self.env.now:.2f}: {self.id} worker is discarding item {item.id} because out_edge {edge.id} is full.")
                         self.stats["num_item_discarded"] += 1  # Decrement processed count if item is discarded
 
@@ -634,7 +640,7 @@ class Machine(Node):
                 self.check_thread_state_and_update_machine_state()
                 if self.blocking:
                     blocking_start_time = self.env.now
-                    print(f"T={self.env.now:.2f}: {self.id} worker is in BLOCKED_STATE")
+                    print(f"T={self.env.now:.2f}: {self.id} worker is in BLOCKED_STATE and machine is in {self.state}")
                     #yield self.env.process(self._push_item(item, outedge_to_put))
                     put_event=outedge_to_put.reserve_put()
                     yield put_event
@@ -698,7 +704,7 @@ class Machine(Node):
             
                 #self._update_worker_occupancy(action="UPDATE")
                 self.check_thread_state_and_update_machine_state()               
-                print(f"T={self.env.now:.2f}: {self.id} is in {self.state}")
+                print(f"T={self.env.now:.2f}: {self.id} is in {self.state}!!!")
                 
                 #in_edge_selection is "FIRST_AVAILABLE"--->     yield in a list, select one with min. index value and cancel other and pull item
                 if self.in_edge_selection == "FIRST_AVAILABLE":
