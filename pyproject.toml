@@ -1,6 +1,6 @@
 [project]
 name = "factorysimpy"
-version = "0.1.0b2"
+version = "0.1.0b3"
 description = "A light-weight component library for simulating manufacturing systems, based on SimPy"
 authors = [
     { name="Lekshmi P", email="lekshmi20231101@iitgoa.ac.in" },
