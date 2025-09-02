@@ -30,7 +30,7 @@ State transitions in the simulation are triggered solely by the actions of the n
 
 ├── Edge(Base Class for components that transfer items from one node to another)
     ├── Conveyor  #transfers items in a sequence from node to another and order is preserved
-    ├── Fleet      # Fleet of human operstor, warehouse robots or transport vehicles
+    ├── Fleet      # Fleet of human operator, warehouse robots or transport vehicles
     ├── Buffer     # Queue of items waiting to be accepted by the next node in a model
 
 
