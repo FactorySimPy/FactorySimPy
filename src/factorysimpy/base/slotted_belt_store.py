@@ -284,60 +284,6 @@ class BeltStore(Store):
             "No matching event in reserve_get_queue or reservations_get"
         )
 
-    def reserve_get_cancel1(self, get_event_to_cancel):
-
-      """
-        Cancel a previously made `reserve_get` request.
-
-        This method allows a process to cancel its reservation for retrieving an item
-        from the store. If the reservation exists in the `reserve_get_queue`, it is removed,
-        and `_trigger_reserve_get()` is called to process any remaining reservations.
-
-        If the reservation is already in `reservations_get`, it is removed, and the corresponding
-        item is repositioned in the store to maintain order. `_trigger_reserve_get()` is then
-        triggered to handle pending reservations.
-
-        Args:
-            get_event_to_cancel (simpy.Event): The reservation event that needs to be canceled.
-
-        Returns:
-            proceed (bool): True if the reservation was successfully canceled.
-
-        Raises:
-            RuntimeError: If the specified event does not exist in `reserve_get_queue`
-                          or `reservations_get`.
-        """
-      
-      proceed = False
-      #checking and removing the event if it is not yielded and is present in the reserve_get_queue
-      if get_event_to_cancel in self.reserve_get_queue:
-        self.reserve_get_queue.remove(get_event_to_cancel)
-        self._trigger_reserve_get(None)#if t is removed, then a waiting event can be succeeded, if any
-        proceed = True
-
-      #checking and removing the event if it is already yielded and is present in the reservations_queue.
-      # 1-to-1 association with items done to preserve item order should also be removed.
-      elif get_event_to_cancel in self.reservations_get:
-        self.reservations_get.remove(get_event_to_cancel)
-
-        #deleting the associated event in the reserved_events list to preserve the order of the items
-        #finding index of the item
-        event_in_index = self.reserved_events.index(get_event_to_cancel)
-        delta_position = len(self.reserved_events)
-        #shifting the item
-        item_to_shift = self.items.pop(event_in_index)
-        self.items.insert(delta_position-1, item_to_shift)
-        #deleting the event
-        self.reserved_events.pop(event_in_index)#if t is removed, then a waiting event can be succeeded, if any
-
-        self._trigger_reserve_get(None)
-        proceed = True
-
-      else:
-        raise RuntimeError("No matching event in reserve_get_queue or reservations_get for this process")
-      
-      return proceed
-
     def reserve_get(self,priority=0):
         """
         Create a reservation request to retrieve an item from the store.
@@ -538,52 +484,6 @@ class BeltStore(Store):
             raise ValueError(f"Item {assigned_item} not in ready_items.")
         self._update_time_averaged_level()
         return assigned_item
-
-    def _do_get1(self, get_event):
-        """
-        Execute a `get` operation from the store while ensuring valid reservations.
-
-        This method processes a `reserve_get` request by validating that the calling
-        process has a matching reservation. It retrieves the corresponding item from
-        the store while maintaining the correct order of reservations.
-
-        Args:
-            get_event (simpy.Event): The event associated with the reservation request.
-
-        Returns:
-            item (object): The retrieved item if successful.
-
-        Raises:
-            RuntimeError: If the process does not have a valid reservation ie, if the get_event is not in the reservations_gett list
-            ValueError: If the reserved item is not found in the store.
-        """
-
-        # Locate the reservation event for the current process
-        reserved_event = next(
-            (event for event in self.reservations_get
-            if event == get_event and event.requesting_process == self.env.active_process),
-            None
-        )
-
-        if reserved_event is None:
-            raise RuntimeError(
-                f"Time {self.env.now:.2f}, No matching reservation found for process {self.env.active_process}."
-            )
-
-        # Identify the corresponding item in the reserved events list
-        if self.mode == 'FIFO':
-            item_index = self.reserved_events.index(reserved_event)
-            self.reservations_get.remove(reserved_event)
-
-            # Retrieve the assigned item and remove it from storage
-            assigned_item = self.ready_items.pop(item_index)
-            self.reserved_events.pop(item_index)
-
-        if assigned_item is None:
-            raise ValueError(f"Reserved item for {get_event} not found in store.")
-
-        return assigned_item  # Successfully retrieved item
-
 
 
 

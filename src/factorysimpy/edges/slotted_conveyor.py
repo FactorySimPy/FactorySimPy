@@ -94,7 +94,7 @@ class ConveyorBelt(Edge):
 
 
         self.env.process(self.behaviour())
-        #self.env.process(self.itemstooutbuf())
+      
     def initial_test(self):
         assert self.src_node is not None , f"Conveyor '{self.id}' must have atleast 1 src_node."
         assert self.dest_node is not None , f"Conveyor '{self.id}' must have atleast 1 dest_node."
