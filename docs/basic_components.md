@@ -682,7 +682,7 @@ There are two variants of conveyor available in this package:
 
 
 
-
+#### Slotted-type Conveyor
 
 
 **Slotted-type**: This variant moves items from one end to the other at fixed time intervals, simulating a belt with predefined slots. Its behavior is governed by teo key parameters- a constant `delay` between two successive movements and `capacity` that defines the number of slots available on the conveyor. It can hold up to `capacity` number of items at a time.
@@ -719,11 +719,37 @@ Conveyors can be either `accumulating` or `non-accumulating`:
 
 2. A `accumulating` conveyor allows src_node to push items until its capacity is reached when when it is in stalled state.
 
+
+**Usage**
+
+A continuous-type can be initialized as below:
+
+```python
+import factorysimpy
+from factorysimpy.edges.slotted_conveyor import ConveyorBelt
+
+CONVEYORBELT1 = ConveyorBelt(
+    env,                     # Simulation environment
+    id="CONVEYORBELT1",      # Unique identifier for the fleet
+    capacity=5,              # Capacity of the conveyor
+    delay=1,                 # Time interval between two successive movements of the belt
+    accumulating=True        # If the conveyor is in Accumulating mode or not
+    
+)
+```
+
 **Monitoring and Reporting**
 The component reports the following key metrics:
 
 1. Time averaged number of items 
 
+
+**Examples**
+
+- ***[A simple example with a slotted-type conveyor belt](examples.md/#a-simple-example-with-slotted-type-conveyor)***
+
+
+#### Continuous-type Conveyor
 
 
 **Continuous-type conveyors**: This models a conveyor belt where items can be loaded at any time and will take a fixed time intervel to reach the destination. It can only be used to move discrete items. It also has a `capacity` to specify the maximum number of items that it can hold at any given time.
