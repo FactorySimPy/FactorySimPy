@@ -31,10 +31,10 @@ FactorySimPy is a light-weight Python library for modeling and discrete-event si
 
 2. **Install FactorySimPy**
 
-   <!--- **PyPI (recommended)**
+   **PyPI (recommended)**
    ```bash
    pip install factorysimpy
-   ``` --->
+   ``` 
 
    **Latest Git main**
    ```bash
@@ -92,16 +92,17 @@ env.run(until=10)
 | `Machine` | Processes/modifies items.| `work_capacity=1`, `blocking=False` , `processing_delay=0`, `in_edge_selection="RANDOM"`,`out_edge_selection="ROUND_ROBIN"`|
 | `Sink`    | Collects / destroys items.
 | `Splitter`   | Routes items to multiple outputs  | `blocking=False` , `processing_delay=0`, `in_edge_selection="RANDOM"`, `out_edge_selection="RANDOM"` |
-| `Combiner`    | Merges input streams into one | `blocking=False` , `processing_delay=0`,`target_quantity_of_each_item=[1]`, `in_edge_selection="RANDOM"`,`out_edge_selection="ROUND_ROBIN"`|
+| `Combiner`    | Merges input streams into one | `blocking=False` , `processing_delay=0`,`target_quantity_of_each_item=[1]`,`out_edge_selection="ROUND_ROBIN"`|
 
  
 ### Edges 
 | Class | Purpose | Key parameters |
 |-------|---------|----------------|
-| `Edge`   | base class for passive entities | `id` ,`delay=0`, `src_node=None`,`dest_node=None`  |
+| `Edge`   | base class for passive entities | `id` ,`delay=0`, `src_node=None`,`dest_node=None`|
 | `Buffer`  | Finite‑capacity queue. | `store_capacity`,`delay=0`, `mode="FIFO"`|
-| `Conveyor` | slotted conveyor belt; optional blocking slots. | `belt_capacity`, `time_per_slot`, `accumulating=False` |
-| `Fleet` | Pool of AGVs/robots moving items. | 
+| `Slotted-type Conveyor` | slotted conveyor belt | `capacity`, `delay=1`, `accumulating=False` |
+| `Continuous-type Conveyor` | continuous-type conveyor belt | `capacity`, `speed=1`, `length=1`, `accumulating=False` |
+| `Fleet` | Pool of AGVs/robots moving items. | `capacity`, `delay=1`, `transit_delay=2`|
 
 
 ---
