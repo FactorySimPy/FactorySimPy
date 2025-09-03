@@ -763,10 +763,36 @@ Conveyors can be either `accumulating` or `non-accumulating`:
 
 2. A `accumulating` conveyor allows src_node to push items until its capacity is reached when when it is in stalled state.
 
+
+**Usage**
+
+A continuous-type can be initialized as below:
+
+```python
+import factorysimpy
+from factorysimpy.edges.continuous_conveyor import ConveyorBelt
+
+CONVEYORBELT1 = ConveyorBelt(
+    env,                     # Simulation environment
+    id="CONVEYORBELT1",      # Unique identifier for the fleet
+    capacity=5,              # Capacity of the conveyor
+    speed=1,                 # Speed of the conveyor
+    length=1,                # Length of the item
+    accumulating=True        # If the conveyor is in Accumulating mode or not
+    
+)
+```
+
+
 **Monitoring and Reporting**
 The component reports the following key metrics:
 
 1. Time averaged number of items 
+
+
+**Examples**
+
+- ***[A simple example with a continuous-type conveyor belt](examples.md/#a-simple-example-with-continuous-type-conveyor)***
 
 
 

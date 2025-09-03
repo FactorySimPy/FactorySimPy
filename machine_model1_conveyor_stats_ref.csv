@@ -1,0 +1,13 @@
+Metric,Model
+Simulation time (sec),100
+Cycle time (sec),5.699999999999995
+Throughput (items/sec),0.94
+Utilization,---
+MACHINE1 - SETUP_STATE,0.0
+MACHINE1 - IDLE_STATE,33.49999999999982
+MACHINE1 - PROCESSING_STATE,66.50000000000018
+MACHINE1 - BLOCKED_STATE,0.0
+MACHINE1- with 0 worker threads,33.49999999999982
+MACHINE1- with 1 worker threads,66.50000000000018
+Time avg content in buffers  ,---
+BUFFER1,0.0

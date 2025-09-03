@@ -173,7 +173,7 @@ class BeltStore(Store):
                         event.succeed()
                         if self.noaccumulation_mode_on:
                            self.one_item_inserted=True
-        else:
+        else:# if not items succeed, belt is empty and succeed immediately
            
             if len(self.reservations_put) + len(self.items) +len(self.ready_items) < self.capacity:
                 self.reservations_put.append(event)  # Add reservation

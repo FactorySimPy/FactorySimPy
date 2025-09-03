@@ -128,4 +128,4 @@ stats_list=[metric, model]
 stats_rows = list(zip(*stats_list))
 # Create DataFrame and save to CSV
 stats_df = pd.DataFrame(stats_rows, columns=["Metric", "Model"])
-stats_df.to_csv("machine_model1_stats_ref.csv", index=False)
+stats_df.to_csv("machine_model1_conveyor_stats_ref.csv", index=False)
