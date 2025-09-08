@@ -1,4 +1,5 @@
 site_name: FactorySimPy
+repo_url: https://github.com/FactorySimPy/FactorySimPy
 site_url: https://factorysimpy.github.io/FactorySimPy/
 
 theme:
@@ -19,7 +20,7 @@ plugins:
           #paths: ['ReservablePriorityReqStore', 'PriorityReqStore']  # Specify the paths to your modules here
           options:
             show_source: true
-            source_linker: mkdocstrings.handlers.python.linkers.github
+            source_linker: mkdocstrings.handlers.python.rendering.SourceLinker
             show_root_toc: true
             show_root_heading: true
             show_root_full_path: false
