@@ -21,6 +21,7 @@ plugins:
           options:
             show_source: true
             source_linker: mkdocstrings.handlers.python.rendering.SourceLinker
+            source_url_template: "<https://github.com/FactorySimPy/FactorySimPy/blob/main/{path}#L{linenno}>"
             show_root_toc: true
             show_root_heading: true
             show_root_full_path: false
