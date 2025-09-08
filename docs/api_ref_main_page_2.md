@@ -1,6 +1,7 @@
 # API Reference
 
-::: src
+::: factorysimpy
+    
 
 
 
