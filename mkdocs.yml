@@ -27,8 +27,7 @@ plugins:
             show_root_full_path: false
             show_submodules: true
             merge_init_into_class: true
-          paths: 
-          - src         
+          paths: ["src"]         
 markdown_extensions:
   - admonition
   - codehilite
