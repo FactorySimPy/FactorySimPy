@@ -17,13 +17,11 @@ plugins:
       handlers:
         python:
           #paths: ['ReservablePriorityReqStore', 'PriorityReqStore']  # Specify the paths to your modules here
+          options:
+            show_source: true
+            show_submodules: true
           paths: 
-          - src
-
-          
-          
-          
-          
+          - src         
 markdown_extensions:
   - admonition
   - codehilite
@@ -47,7 +45,7 @@ nav:
       - Enabling real-time simulation: RTsimulation.md     
   - REFERENCE:
     - Supporting classes: extendedresources.md  
-    - API Reference: api_ref_main_page.md
+    - API Reference: api_ref_main_page_2.md
 
   
   - About:       

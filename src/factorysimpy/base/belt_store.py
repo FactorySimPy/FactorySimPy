@@ -165,24 +165,23 @@ class BeltStore(Store):
         # Check if there's enough space to reserve
         if self.items:
             if len(self.reservations_put) + len(self.items) +len(self.ready_items) < self.capacity:
-                if not self.noaccumulation_mode_on or (self.noaccumulation_mode_on and self.one_item_inserted==False):
+                if self.noaccumulation_mode_on==False:
                     if self.env.now>= self.items[-1][0].conveyor_entry_time + self.items[-1][0].length/self.speed:
                         #print(f"At time={self.env.now:.2f}, Process {self.env.active_process} "
                         # f"reserved space. Total reservations: {len(self.reservations_put)}")
                         self.reservations_put.append(event)
                         event.succeed()
-                        if self.noaccumulation_mode_on:
-                           self.one_item_inserted=True
+                        
         else:# if not items succeed, belt is empty and succeed immediately
-           
-            if len(self.reservations_put) + len(self.items) +len(self.ready_items) < self.capacity:
-                self.reservations_put.append(event)  # Add reservation
-                event.succeed()
-                # Log the success of the reservation
-                #print(f"At time={self.env.now:.2f}, Process {self.env.active_process} "
-                    # f"reserved space. Total reservations: {len(self.reservations_put)}")
+            #if self.noaccumulation_mode_on==False:
+                if len(self.reservations_put) + len(self.items) +len(self.ready_items) < self.capacity:
+                    self.reservations_put.append(event)  # Add reservation
+                    event.succeed()
+                    # Log the success of the reservation
+                    #print(f"At time={self.env.now:.2f}, Process {self.env.active_process} "
+                    #      f"reserved space. Total reservations: {len(self.reservations_put)}")
 
-                # Mark the event as successful
+                    # Mark the event as successful
 
             #else:
                 #print(f"At {self.env.now:.2f}, Reservation failed for {self.env.active_process} "
@@ -335,10 +334,13 @@ class BeltStore(Store):
                           found when attempting to remove it after successful processing.
         """
         idx=0
+        
         while idx < len(self.reserve_get_queue):
           reserve_get_event = self.reserve_get_queue[idx]
           proceed = self._do_reserve_get(reserve_get_event)
+          
           if not reserve_get_event.triggered:
+            
             idx += 1
           elif self.reserve_get_queue.pop(idx) != reserve_get_event:
             raise RuntimeError('Reserve get queue invariant violated')
@@ -366,9 +368,9 @@ class BeltStore(Store):
             # Successful reservation; add to reservations list
             self.reservations_get.append(event)
             event.succeed()  # Immediately succeed the event
-            if self.noaccumulation_mode_on==True:
-                self.one_item_inserted=False
-                self._trigger_reserve_get(event)
+            # if self.noaccumulation_mode_on==True:
+            #     self.one_item_inserted=False
+            #     self._trigger_reserve_get(event)
 
             #reserving the item to preserved item order by adding the reserve_get event to a list(the index position of event= index position of reserved item)
             
@@ -601,8 +603,7 @@ class BeltStore(Store):
             }
             
             # Handle selective interruption for new items during no accumulation mode
-            if self.noaccumulation_mode_on:
-                self.handle_new_item_during_interruption(item)
+         
             
             return True  # Successfully added item
         
@@ -697,6 +698,8 @@ class BeltStore(Store):
                    
                     if not self.ready_item_event.triggered:
                         self.ready_item_event.succeed()
+                        # if len(self.reservations_get)==0:
+                        #     self.noaccumulation_mode_on=True
                     print(f"T={self.env.now:.2f} bufferstore finished moving item {item[0].id, item[1]} moved to ready_items")
                     self._trigger_reserve_get(None)
                     self._trigger_reserve_put(None)
@@ -741,41 +744,48 @@ class BeltStore(Store):
         old_resume_event = self.resume_event
         self.resume_event = self.env.event()
         old_resume_event.succeed()
-    
+   
+
     def _get_belt_pattern(self):
         """
-        Generate a pattern string representing the current belt occupancy.
-        Returns a string where '*' represents an item and '_' represents empty space.
+        Generate a pattern string representing current belt occupancy.
+        '*' represents an item, '_' represents empty space.
+
+        Returns:
+            str: A string of length `capacity` showing belt state.
         """
-        # Create a representation of the belt with capacity positions
         belt_positions = ['_'] * self.capacity
-        
-        # Mark positions with items
-        # Items in self.items are still moving, items in ready_items are at the end
-        num_moving_items = len(self.items)
-        num_ready_items = len(self.ready_items)
-        
-        # Place moving items based on their current position on the belt
-        for i, item in enumerate(self.items):
-            if i < self.capacity:
-                # Calculate position based on time since entry and belt speed
-                if hasattr(item[0], 'conveyor_entry_time'):
-                    time_on_belt = self.env.now - item[0].conveyor_entry_time
-                    # Assuming each position takes 1 time unit to traverse
-                    position = int(time_on_belt * self.speed)
-                    if 0 <= position < self.capacity:
-                        belt_positions[position] = '*'
-                else:
-                    raise AttributeError("Item does not have 'conveyor_entry_time' attribute.")
-        
-        # Place ready items at the end of the belt
-        for i in range(num_ready_items):
+
+        # Process items that are still moving
+        for item in self.items:
+            item_obj = item[0]
+
+            if not hasattr(item_obj, 'conveyor_entry_time') or not hasattr(item_obj, 'length'):
+                raise AttributeError("Item must have 'conveyor_entry_time' and 'length' attributes.")
+
+            time_on_belt = self.env.now - item_obj.conveyor_entry_time
+            est_position = int((time_on_belt / (item_obj.length / self.speed)) * self.capacity)
+
+            # Clamp position to belt limits
+            est_position = max(0, min(est_position, self.capacity - 1))
+
+            # Fill the slot if it's not already occupied
+            if belt_positions[est_position] == '_':
+                belt_positions[est_position] = '*'
+            else:
+                # Optional: allow multiple items in same slot (or raise error)
+                pass
+
+        # Process ready items (items at end of belt)
+        for i in range(len(self.ready_items)):
             pos = self.capacity - 1 - i
             if pos >= 0:
                 belt_positions[pos] = '*'
-        
+
         return ''.join(belt_positions)
-    
+
+
+
     def selective_interrupt(self, reason="Selective interrupt"):
         """
         Perform selective interruption based on belt occupancy patterns and mode.
@@ -802,8 +812,8 @@ class BeltStore(Store):
             return
         
         # If noaccumulation_mode_on is True (STALLED_NONACCUMULATING_STATE), interrupt all items immediately
-        if self.noaccumulation_mode_on:
-            print(f"T={self.env.now:.2f} No accumulation mode: interrupting all items immediately")
+        if self.noaccumulation_mode_on == True:
+            print(f"T={self.env.now:.2f} Noaccumulation_mode_on: interrupting all items immediately")
             for i, item in enumerate(self.items):
                 item_id = item[0].id if hasattr(item[0], 'id') else str(id(item))
                 self._interrupt_specific_item(item_id, f"{reason} - immediate (no accumulation)")
@@ -876,31 +886,40 @@ class BeltStore(Store):
 
     def _calculate_gap_based_interruptions(self, pattern, item_positions):
         """
-        Calculate interruption delays based on gaps between items.
-        
-        For patterns with gaps:
-        - First item: interrupt immediately
-        - Subsequent items: delay = number of empty spaces before this item from the previous item
+        Improved logic for accumulating = 1.
+
+        Args:
+            pattern (str): Belt pattern like '__***__*_*_***'
+            item_positions (list of int): Indices of '*' characters
+
+        Returns:
+            List[dict]: Each dict has {'item_index': int, 'delay': int}
         """
         interruption_plan = []
-        
+
+        cap = len(pattern)
         if not item_positions:
             return interruption_plan
-        
-        # First item always interrupted immediately
-        interruption_plan.append({'item_index': 0, 'delay': 0})
-        
-        # Calculate delays for subsequent items
-        for i in range(1, len(item_positions)):
-            prev_pos = item_positions[i-1]
-            curr_pos = item_positions[i]
-            gap_size = curr_pos - prev_pos - 1  # Number of empty spaces between items
-            
-            # Delay is based on gap size
-            delay = max(gap_size, 1)  # Minimum delay of 1
+
+        # Special case: fully packed
+        if '_' not in pattern:
+            return [{'item_index': i, 'delay': 0} for i in range(len(item_positions))]
+
+        for i, pos in enumerate(item_positions):
+            # Count how many '_' ahead
+            empties_ahead = 0
+            for j in range(pos + 1, cap):
+                if pattern[j] == '_':
+                    empties_ahead += 1
+
+            delay = empties_ahead
             interruption_plan.append({'item_index': i, 'delay': delay})
-        
+
         return interruption_plan
+
+
+
+    
 
     def _execute_interruption_plan(self, interruption_plan, reason):
         """
@@ -965,22 +984,39 @@ class BeltStore(Store):
 
     def handle_new_item_during_interruption(self, item):
         """
-        Handle new items arriving during selective interruption.
-        
-        For new items, the delay before interruption is: capacity - num_items
-        
-        Args:
-            item: The new item being added
+        Handle new item added during STALLED_ACCUMULATING_STATE with accumulation=1.
+
+        Computes delay using same logic as for existing items.
         """
-        if self.noaccumulation_mode_on:
-            num_items = len(self.items) + len(self.ready_items)
-            delay_before_interrupt = max(self.capacity - num_items, 0)
-            
-            item_id = item[0].id if hasattr(item[0], 'id') else str(id(item))
-            
-            if delay_before_interrupt > 0:
-                print(f"T={self.env.now:.2f} New item {item_id} will be interrupted after {delay_before_interrupt} time units")
-                self.env.process(self._delayed_interrupt(item_id, delay_before_interrupt, "New item during interruption"))
-            else:
-                print(f"T={self.env.now:.2f} New item {item_id} interrupted immediately")
-                self._interrupt_specific_item(item_id, "New item during interruption")
+        if not self.noaccumulation_mode_on:
+            return
+
+        # Build the updated belt pattern with new item
+        current_pattern = self._get_belt_pattern()
+        updated_pattern = list(current_pattern)
+
+        # Find first available empty position from the left
+        try:
+            insert_pos = updated_pattern.index('_')
+        except ValueError:
+            insert_pos = len(updated_pattern)  # should never happen since we check accumulation mode
+
+        if insert_pos < self.capacity:
+            updated_pattern[insert_pos] = '*'
+
+        # Recompute item positions
+        item_positions = [i for i, c in enumerate(updated_pattern) if c == '*']
+
+        # Get interruption plan
+        interruption_plan = self._calculate_gap_based_interruptions(''.join(updated_pattern), item_positions)
+
+        # The new item is the last one added in pattern
+        delay_for_new_item = interruption_plan[-1]['delay']
+
+        item_id = item[0].id if hasattr(item[0], 'id') else str(id(item))
+        if delay_for_new_item > 0:
+            print(f"T={self.env.now:.2f} New item {item_id} will be interrupted after {delay_for_new_item} time units")
+            self.env.process(self._delayed_interrupt(item_id, delay_for_new_item, "New item during interruption"))
+        else:
+            print(f"T={self.env.now:.2f} New item {item_id} interrupted immediately")
+            self._interrupt_specific_item(item_id, "New item during interruption")

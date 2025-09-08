@@ -685,7 +685,7 @@ There are two variants of conveyor available in this package:
 #### Slotted-type Conveyor
 
 
-**Slotted-type**: This variant moves items from one end to the other at fixed time intervals, simulating a belt with predefined slots. Its behavior is governed by teo key parameters- a constant `delay` between two successive movements and `capacity` that defines the number of slots available on the conveyor. It can hold up to `capacity` number of items at a time.
+This variant moves items from one end to the other at fixed time intervals, simulating a belt with predefined slots. Its behavior is governed by teo key parameters- a constant `delay` between two successive movements and `capacity` that defines the number of slots available on the conveyor. It can hold up to `capacity` number of items at a time.
 
 **Basic attributes**
 
@@ -752,7 +752,7 @@ The component reports the following key metrics:
 #### Continuous-type Conveyor
 
 
-**Continuous-type conveyors**: This models a conveyor belt where items can be loaded at any time and will take a fixed time intervel to reach the destination. It can only be used to move discrete items. It also has a `capacity` to specify the maximum number of items that it can hold at any given time.
+This models a conveyor belt where items can be loaded at any time and will take a fixed time intervel to reach the destination. It can only be used to move discrete items. It also has a `capacity` to specify the maximum number of items that it can hold at any given time.
 
 
 

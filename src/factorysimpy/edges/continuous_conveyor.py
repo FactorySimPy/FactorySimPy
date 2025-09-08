@@ -185,7 +185,7 @@ class ConveyorBelt(Edge):
         print(f"T={self.env.now:.2f}: {self.id }:put: putting item {item_to_put[0].id} on belt with delay {item_to_put[1]}")
         return_val = self.belt.put(event, item_to_put)
         self._conveyor_stats_collector()
-        if len(self.belt.items)==1:
+        if len(self.belt.items)==1 and self.state=="IDLE_STATE":
             self.item_arrival_event.succeed()
             print(f"T={self.env.now:.2f}: {self.id }:put: item arrival event succeeded")
         else: 
@@ -220,21 +220,7 @@ class ConveyorBelt(Edge):
     
         return item
 
-    def itemstooutbuf(self):
-        while True:
-            #moving ready item to out buffer
-            print(f"T={self.env.now:.2f}: {self.id } checking if it can release an item to out buffer")
-            get_event= self.belt.reserve_get()
-            yield get_event
-            print(f"T={self.env.now:.2f}: {self.id } ready to release an item to out buffer")
-            item = self.belt.get(get_event)
-            
-
-            belt_put_event = self.out_buf.reserve_put()
-            yield belt_put_event
-            self.out_buf.put(belt_put_event, item)
-            
-            print(f"T={self.env.now:.2f}: {self.id } retrieving an item from conveyor belt {item.id} ")
+   
 
     
 
@@ -257,6 +243,39 @@ class ConveyorBelt(Edge):
        
        while True:
           print(f"T={self.env.now:.2f}: {self.id } is in {self.state}")
+
+
+          if self.is_empty():
+             self.set_conveyor_state("IDLE_STATE")
+             yield self.item_arrival_event
+             if self.item_arrival_event.triggered:
+                 self.item_arrival_event = self.env.event()
+                 print(f"T={self.env.now:.2f}: {self.id }item_arrival  event triggered")
+
+          elif not self.is_empty() and not self.is_stalled():
+            #  print(len(self.belt.ready_items), len(self.belt.reservations_get))
+            #  if len(self.belt.reservations_get)>0:
+            #      print(self.env.now, self.belt.reservations_get[0].requesting_process)             
+                 
+             self.set_conveyor_state("MOVING_STATE")
+             
+             if self.belt.noaccumulation_mode_on==True:
+                self.belt.noaccumulation_mode_on=False
+                
+          elif self.is_stalled():
+              if self.accumulating:
+                 self.set_conveyor_state("STALLED_ACCUMULATING_STATE")
+                 self.belt.noaccumulation_mode_on=False
+              else:
+                
+                 self.set_conveyor_state("STALLED_NONACCUMULATING_STATE")
+                 self.belt.noaccumulation_mode_on=True
+                
+               
+        
+          else:
+            print(self.belt.items, self.belt.ready_items, self.is_stalled())
+            raise ValueError(f"Conveyor {self.id} in unknown state {self.state}")
           
           
           triggered_events_list= self.env.any_of(event_list)
@@ -264,7 +283,10 @@ class ConveyorBelt(Edge):
           print(f"T={self.env.now:.2f}: {self.id } event triggered")
           if self.belt.ready_item_event.triggered:
               print(f"T={self.env.now:.2f}: {self.id } ready item event triggered")
-          self.chosen_triggered_event= next((e for e in event_list if e.triggered),None)
+    
+              self.chosen_triggered_event= self.belt.ready_item_event
+          else:
+            self.chosen_triggered_event= next((e for e in event_list if e.triggered),None)
           #if self.chosen_triggered_event is not None:
           if self.chosen_triggered_event:
              if self.chosen_triggered_event is self.get_events_available:
@@ -277,32 +299,7 @@ class ConveyorBelt(Edge):
                   self.belt.ready_item_event = self.env.event()
                   event_list=[self.belt.ready_item_event, self.get_events_available, self.put_events_available]
           # if self.chosen_triggered_event is not None:
-          if self.is_empty():
-             self.set_conveyor_state("IDLE_STATE")
-             yield self.item_arrival_event
-             self.item_arrival_event = self.env.event()
-             print(f"T={self.env.now:.2f}: {self.id }item_arrival  event triggered")
-             
-             
-          elif not self.is_empty() and not self.is_stalled():
-             self.set_conveyor_state("MOVING_STATE")
-             
-             if self.belt.noaccumulation_mode_on==True:
-                self.belt.noaccumulation_mode_on=False
-                
-          elif self.is_stalled():
-              if self.accumulating:
-                 self.set_conveyor_state("STALLED_ACCUMULATING_STATE")
-              else:
-                
-                 self.set_conveyor_state("STALLED_NONACCUMULATING_STATE")
-                 self.belt.noaccumulation_mode_on=True
-                
-               
-        
-          else:
-            print(self.belt.items, self.belt.ready_items, self.is_stalled())
-            raise ValueError(f"Conveyor {self.id} in unknown state {self.state}")
+          
             
     def set_conveyor_state(self, new_state):
         """

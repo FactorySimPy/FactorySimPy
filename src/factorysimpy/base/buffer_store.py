@@ -70,9 +70,7 @@ class BufferStore(Store):
         total_time = now
         self.time_averaged_num_of_items_in_store = (
             self._weighted_sum / total_time if total_time > 0 else 0.0
-
         )
-        #print("!!!!!", self.time_averaged_num_of_items_in_store)
 
     def reserve_put(self, priority=0):
         """
@@ -670,15 +668,16 @@ class BufferStore(Store):
 
         # Move items to the ready_items list
         if self.items:
-            
+            print(f"T={self.env.now:.2f} beltstore received an item {item[0].id, item[1]} . Item started moving in belt")
             yield self.env.timeout(item[1])
+            print(f"T={self.env.now:.2f} bufferstore finished moving item {item[0].id, item[1]} going to ready_items")
             
             item_index = self.items.index(item)
             item_to_put = self.items.pop(item_index)  # Remove the first item
             #print(item_to_put, item)
             if len(self.ready_items)+ len(self.items) < self.capacity:
                 self.ready_items.append(item_to_put[0])
-                #self._update_time_averaged_level()
+                print(f"T={self.env.now:.2f} bufferstore finished moving item {item[0].id, item[1]} moved to ready_items")
                 self._trigger_reserve_get(None)
                 self._trigger_reserve_put(None)
                 #print(f"T={self.env.now:.2f} bufferstore is moving item {item[0].id, item[1]} to ready_items. Total items in buffer is {len(self.items)+len(self.ready_items)}"   )
