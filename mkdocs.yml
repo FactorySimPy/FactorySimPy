@@ -19,9 +19,12 @@ plugins:
           #paths: ['ReservablePriorityReqStore', 'PriorityReqStore']  # Specify the paths to your modules here
           options:
             show_source: true
+            source_linker: mkdocstrings.handlers.python.linkers.github
             show_root_toc: true
+            show_root_heading: true
+            show_root_full_path: false
             show_submodules: true
-            render_source: false
+            merge_init_into_class: true
           paths: 
           - src         
 markdown_extensions:
