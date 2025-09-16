@@ -126,7 +126,8 @@ class Sink(Node):
         #self.buffertime+=(self.item_in_process.timestamp_node_entry- self.item_in_process.timestamp_creation)
         #print(f"buffertime={item.timestamp_node_entry- item.timestamp_creation}")
         print(f"T={self.env.now:.2f}: {self.id } got an {self.item_in_process} ")
-        #print(f"item{self.item_in_process.id} conveyortime {self.item_in_process.conveyor_entry_time} and {self.item_in_process.conveyor_exit_time} - time spend in conveyor {self.item_in_process.conveyor_exit_time - self.item_in_process.conveyor_entry_time if self.item_in_process.conveyor_exit_time and self.item_in_process.conveyor_entry_time else 'N/A'}")
+        if hasattr(self.item_in_process, 'conveyor_entry_time'):
+            print(f"item{self.item_in_process.id} conveyortime {self.item_in_process.conveyor_entry_time} and {self.item_in_process.conveyor_exit_time} - time spend in conveyor {self.item_in_process.conveyor_exit_time - self.item_in_process.conveyor_entry_time if self.item_in_process.conveyor_exit_time and self.item_in_process.conveyor_entry_time else 'N/A'}")
         #print(f"item{self.item_in_process.id} fleettime {self.item_in_process.fleet_entry_time} and {self.item_in_process.fleet_exit_time} - time spend in fleet {self.item_in_process.fleet_exit_time - self.item_in_process.fleet_entry_time if self.item_in_process.fleet_exit_time and self.item_in_process.fleet_entry_time else 'N/A'}")
         self.item_in_process=None
        

@@ -1,6 +1,8 @@
 site_name: FactorySimPy
 repo_url: https://github.com/FactorySimPy/FactorySimPy
 site_url: https://factorysimpy.github.io/FactorySimPy/
+extra_css:
+  - extra.css
 
 theme:
   #name: material  # optional: for Material Design theme

@@ -719,6 +719,7 @@ class Machine(Node):
                 print(f"T={self.env.now:.2f}: {self.id} is in {self.state}!!!")
                 worker_thread_req = self.worker_thread.request()  # Request a worker thread
                 yield worker_thread_req
+                self._update_worker_occupancy(action="ADD")
                 
                 #in_edge_selection is "FIRST_AVAILABLE"--->     yield in a list, select one with min. index value and cancel other and pull item
                 if self.in_edge_selection == "FIRST_AVAILABLE":
@@ -798,7 +799,7 @@ class Machine(Node):
                     ####---3/9
                     
                     #update occupancy
-                    self._update_worker_occupancy(action="ADD")
+                    #self._update_worker_occupancy(action="ADD")
 
                     if self.in_edges[edge_index].__class__.__name__ in ["Buffer", "Fleet", "ConveyorBelt"]:
                         self.item_in_process=self.in_edges[edge_index].get(self.chosen_event)  # Get the item from the chosen in_edge
@@ -837,7 +838,7 @@ class Machine(Node):
                         #worker_thread_req = self.worker_thread.request()  # Request a worker thread
                         #yield worker_thread_req
                         #update occupancy
-                        self._update_worker_occupancy(action="ADD")
+                        #self._update_worker_occupancy(action="ADD")
                         
                         
                         self.item_in_process =outstore.get(get_token)

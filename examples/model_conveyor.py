@@ -21,13 +21,13 @@ env = simpy.Environment()
 
 
 # Initializing nodes
-SRC1= Source(env, id="SRC1", flow_item_type="Pallet" ,inter_arrival_time=0.2,blocking=True, out_edge_selection=0 )
+SRC1= Source(env, id="SRC1",  inter_arrival_time=0.2,blocking=True, out_edge_selection=0 )
 SRC2= Source(env, id="SRC2",  inter_arrival_time=0.3,blocking=True, out_edge_selection=0 )
 SRC3= Source(env, id="SRC3",  inter_arrival_time=0.2,blocking=True, out_edge_selection=0 )
 
 #src= Source(env, id="Source-1",  inter_arrival_time=0.2,blocking=True,out_edge_selection=0 )
-CONVEYORBELT= ConveyorBelt(env, id="CONVEYORBELT1", capacity=5, speed=1, length=1, accumulating=True)
-MACHINE3 = Machine(env, id="MACHINE3", node_setup_time=0, work_capacity=1, blocking=True, processing_delay=0.5, in_edge_selection="ROUND_ROBIN", out_edge_selection="FIRST_AVAILABLE")
+CONVEYORBELT= ConveyorBelt(env, id="CONVEYORBELT1", capacity=5, speed=1, length=1, accumulating=1)
+MACHINE3 = Machine(env, id="MACHINE3", node_setup_time=0, work_capacity=1, blocking=True, processing_delay=5, in_edge_selection="ROUND_ROBIN", out_edge_selection="FIRST_AVAILABLE")
 SINK= Sink(env, id="SINK")
 #SPLITTER= Splitter(env, id="Splitter1", node_setup_time=0, blocking=True, processing_delay=0.5, in_edge_selection="FIRST_AVAILABLE", out_edge_selection="ROUND_ROBIN")
 MACHINE1 = Machine(env, id="MACHINE1", node_setup_time=0, work_capacity=1, blocking=True, processing_delay=0.5, in_edge_selection="ROUND_ROBIN", out_edge_selection="FIRST_AVAILABLE")
@@ -54,7 +54,7 @@ BUFFER6.connect(MACHINE2,MACHINE1)
 BUFFER5.connect(MACHINE2,SINK)
 
 
-time=100
+time=1000
 env.run(until=time)
 print("BUFFER1 items", BUFFER1.get_occupancy())
 print("BUFFER2 items", BUFFER2.get_occupancy())
@@ -144,6 +144,10 @@ for buf in buffers:
     metric.append(buf.id)
     print(f"Time-average number of items in  {buf.id} is {buf.stats['time_averaged_num_of_items_in_buffer']}")
     model.append(buf.stats['time_averaged_num_of_items_in_buffer'])
+metric.append("Time avg content in CONVEYORBELT  ")
+metric.append(CONVEYORBELT.id)
+print(f"Time-average number of items in  {CONVEYORBELT.id} is {CONVEYORBELT.stats['time_averaged_num_of_items_in_conveyor']}")
+model.append(CONVEYORBELT.stats['time_averaged_num_of_items_in_conveyor'])
 
 
 
@@ -158,4 +162,4 @@ stats_list=[metric, model]
 stats_rows = list(zip(*stats_list))
 # Create DataFrame and save to CSV
 stats_df = pd.DataFrame(stats_rows, columns=["Metric", "Model"])
-stats_df.to_csv("machine_model_conveyor_stats_ref.csv", index=False)
+stats_df.to_csv("machine_model_conveyor_stats_ref_acc_1.csv", index=False)

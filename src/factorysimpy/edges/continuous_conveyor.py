@@ -40,7 +40,7 @@ class BeltStore(BeltStore):
     def _do_put(self, event, item):
         """Override to handle the put operation with conveyor-specific logging."""
         returnval = super()._do_put(event, item)
-        print(f"T={self.env.now:.2f}: BeltStore:_do_put: putting item on belt {item[0].id} and belt items are {[(i[0].id) for i in self.items]}")
+        print(f"T={self.env.now:.2f}: BeltStore:_do_put: putting item on belt {item[0].id} and belt items are {[(i[0].id) for i in self.items]} and ready items are {[(i.id) for i in self.ready_items]}")
         return returnval
 class ConveyorBelt(Edge):
     """
@@ -159,6 +159,8 @@ class ConveyorBelt(Edge):
             return False
     
     def reserve_put(self):
+       #if self.accumulating==0 and self.noaccumulation_mode_on==True:
+       print(f"T={self.env.now:.2f}: {self.id }: attempting to reserve_put an item while non accumulating mode on and {self.state} and {self.belt.noaccumulation_mode_on}")
        return self.belt.reserve_put()
     
     def put(self, event, item):
@@ -191,7 +193,14 @@ class ConveyorBelt(Edge):
         else: 
             event= self.env.event()
             self.put_events_available.succeed()
+            if self.accumulating==0:
+                print(f"T={self.env.now:.2f}: {self.id }: attempting to put an item while non accumulating mode on and {self.state} and {self.belt.noaccumulation_mode_on}")
             print(f"T={self.env.now:.2f}: {self.id }:put: item arrival event else succeeded")
+        
+        if self.state=="STALLED_ACCUMULATING_STATE" and self.accumulating==1:
+            print(f"T={self.env.now:.2f}: {self.id }:put: handling new item during interruption {item_to_put[0].id} on belt")
+            self.belt.handle_new_item_during_interruption(item_to_put)
+        
             
         return return_val
 
@@ -243,10 +252,13 @@ class ConveyorBelt(Edge):
        
        while True:
           print(f"T={self.env.now:.2f}: {self.id } is in {self.state}")
+          print(f"T={self.env.now:.2f}: {self.id } belt pattern: {self.belt._get_belt_pattern()[1]}, {[i[0].id for i in reversed(self.belt.items)]}, ready items: {[i.id for i in self.belt.ready_items]} ")
 
 
           if self.is_empty():
              self.set_conveyor_state("IDLE_STATE")
+             if self.belt.noaccumulation_mode_on==True:
+                self.belt.noaccumulation_mode_on=False
              yield self.item_arrival_event
              if self.item_arrival_event.triggered:
                  self.item_arrival_event = self.env.event()
@@ -280,13 +292,14 @@ class ConveyorBelt(Edge):
           
           triggered_events_list= self.env.any_of(event_list)
           yield triggered_events_list
-          print(f"T={self.env.now:.2f}: {self.id } event triggered")
+          #print(f"T={self.env.now:.2f}: {self.id } event triggered")
           if self.belt.ready_item_event.triggered:
               print(f"T={self.env.now:.2f}: {self.id } ready item event triggered")
     
               self.chosen_triggered_event= self.belt.ready_item_event
           else:
             self.chosen_triggered_event= next((e for e in event_list if e.triggered),None)
+            print(f"T={self.env.now:.2f}: {self.id } get or put event triggered")
           #if self.chosen_triggered_event is not None:
           if self.chosen_triggered_event:
              if self.chosen_triggered_event is self.get_events_available:
@@ -319,7 +332,10 @@ class ConveyorBelt(Edge):
             self.belt.selective_interrupt(f"Conveyor {self.id} selective interruption - {new_state}")
         elif old_state in ["STALLED_ACCUMULATING_STATE", "STALLED_NONACCUMULATING_STATE"] and new_state in ["MOVING_STATE", "IDLE_STATE"]:
             # When conveyor resumes to moving or becomes idle, resume all belt store processes
+            #self.belt.interrupt_and_resume_all_delayed_interrupt_processes()
             self.belt.resume_all_move_processes()
+        else:
+            print("state changes from",old_state,"to",  new_state)
 
 
 
