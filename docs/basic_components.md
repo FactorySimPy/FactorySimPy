@@ -176,6 +176,7 @@ A machine is an active component that processes items flowing through the system
 - `work_capacity` - Maximum number of items that can be processed by the machine simulataneously.
 - `processing_delay`- Time taken to process an item.
 - `state` - This is the state per working thread. This is a dictionary where each key is a worker thread's ID (assigned in order of initialization), and the value is the current state of that worker.
+-`state` - This is a 2-tuple, e.g., (num_active_threads, num_blocked_threads), representing the number of threads in the active and blocked states respectively; the number of threads in the IDLE_STATE can be determined by subtracting the sum of num_active_threads and num_blocked_threads from the total work_capacity (work_capacity - (num_active_threads + num_blocked_threads)).
 - `blocking`-  If True, waits for output edge to be available to accept item and pushes the item when it is available; if False, discards the item if the output edge is full.
 - `in_edge_selection`- Edge selection policy as a function to select input edge.
 - `out_edge_selection`- Edge selection policy as a function to select output edge.
@@ -190,18 +191,35 @@ At the start of the simulation, the machine waits for `node_setup_time`. This is
 
  
  **States**
- 
- During its operation, machine changes states depending on the action of the machine and the state of the worker threads. The machine transitions through the following states:
+
+ During its operation, a machine transitions between different states based on the status of its worker threads. Each worker thread moves through the following thread level states:
+
+   - `PROCESSING_STATE`: The thread is actively processing an item.
+   - `BLOCKED_STATE`: The thread has finished processing but is waiting for an available output edge to transfer the item.
+
+The machine reports the following states based on the collective status of its threads. All the states are not mutually exclusive.
+
 
 1. "SETUP_STATE": Initialization or warm-up phase before item processing starts.
 
-2. "IDLE_STATE": When the machine doesnot have any worker thread that is currently getting processed or are in blocked state
+2. "IDLE_STATE": When the machine doesnot have any worker thread that is currently getting processed or is blocked.
 
-3. "PROCESSING_STATE": Active state where items are being processed. If atleast one thread is in processing state, then the machine is in "PROCESSING_STATE"
+3. "ATLEAST_ONE_PROCESSING_STATE": Active state where items are being processed. State when atleast one thread is in processing state.
 
-4. "BLOCKED_STATE": The machine is blocked, only when all the worker_threads that are currently active and processing items are in "BOCKED_STATE" as they are waiting for the out edge to be available to accept the processed item. 
+4. "ALL_ACTIVE_BLOCKED_STATE": The state when all the worker_threads that are currently active are in "BOCKED_STATE" as they are waiting for the out edge to be available to accept the processed item.  Number of active threads can be equal to greater than work_capacity.
+5. "ALL_ACTIVE_PROCESSING_STATE": The state when all the active threads are in processing state. Number of active threads can be equal to greater than work_capacity.
 
-The worker threads also transitions through "PROCESSING_STATE", where it is actively processing items and "BLOCKED_STATE", when it is finished processing but waiting for an output edge to push the item to.
+6. "ATLEAST_ONE_BLOCKED_STATE": The state when atleast one of the worker_threads is in "BOCKED_STATE" as it is waiting for the out edge to be available to accept the processed item.
+
+Some of the machine states are not mutually exclusive and may occur simultaneously. However, the following groupings of states are mutually exclusive and collectively exhaustive, meaning they cover all possible scenarios without overlap within each group:
+
+Group A: {SETUP_STATE, IDLE_STATE, ATLEAST_ONE_PROCESSING_STATE, ALL_ACTIVE_BLOCKED_STATE}
+This set reflects the machine's progression during simulation.
+
+Group B: {SETUP_STATE, IDLE_STATE, ALL_ACTIVE_PROCESSING_STATE, ATLEAST_ONE_BLOCKED_STATE}
+This set captures alternate perspectives, focusing on full utilization of worker threads and partial blocking scenarios.
+
+Each group individually spans 100% of the machine’s operational state space, but the states within a group are mutually exclusive with respect to each other
 
 **Usage**
 
@@ -230,20 +248,37 @@ The machine component reports the following key metrics.
 2. total time in PROCESSING_STATE (per thread)
 3. Total time spent in BLOCKED_STATE (per thread)
 4. Occupancy of the worker threads
-5. Total number if items discarded (when `blocking`= False)
+5. Total time spent in each of the machine level states
+6. Total number if items discarded (when `blocking`= False)
+
 
 Consider a machine with `work_capacity`=`2`, `blocking`= `False` and and instance name as MACHINE1. Metrics of a component MACHINE1 can be accessed after completion of the simulation run as
 
 ```python
 
 
-print(f"Total number of items processed by worker thread 1 of {MACHINE1.id}={MACHINE1.stats["num_items_processed"]}")
-print(f"Total number of items discarded by worker thread 1 of {MACHINE1.id}={MACHINE1.stats["num_items_discarded"]}")
-print(f"Total number of items processed by worker thread 2 of {MACHINE1.id}={MACHINE1.stats["num_items_processed"]}")
-print(f"Total number of items discarded by worker thread 2 of {MACHINE1.id}={MACHINE1.stats["num_items_discarded"]}")
+print(f"Total number of items processed by  {MACHINE1.id}={MACHINE1.stats["num_items_processed"]}")
+print(f"Total number of items discarded by {MACHINE1.id}={MACHINE1.stats["num_items_discarded"]}")
+
 print(f"Machine {MACHINE1.id},total time in BLOCKED_STATE (per thread) : {MACHINE1.per_thread_total_time_in_blocked_state}")
 print(f"Machine {MACHINE1.id},total time in PROCESSING_STATE (per thread) : {MACHINE1.per_thread_total_time_in_processing_state}")
-print(f"Worker occupancy, {MACHINE1.time_per_work_occupancy)})
+print(f"Worker occupancy: (Indices represent the number of active threads, and values represent the total time during which that many threads were active simultaneously)\n{MACHINE1.time_per_work_occupancy}")
+# Print time spent in each state
+print("Time spent in each machine state:")
+for state, duration in MACHINE1.stats["total_time_spent_in_states"].items():
+    print(f"  {state:<30}: {duration:.2f}")
+
+# Compute mutually exclusive sums
+groupA_states = ["SETUP_STATE", "IDLE_STATE", "ATLEAST_ONE_PROCESSING_STATE", "ALL_ACTIVE_BLOCKED_STATE"]
+groupB_states = ["SETUP_STATE", "IDLE_STATE", "ALL_ACTIVE_PROCESSING_STATE", "ATLEAST_ONE_BLOCKED_STATE"]
+
+sum_groupA = sum(MACHINE1.stats["total_time_spent_in_states"][s] for s in groupA_states)
+sum_groupB = sum(MACHINE1.stats["total_time_spent_in_states"][s] for s in groupB_states)
+
+print("\nMutually exclusive group totals:")
+print(f"  Group A (SETUP + IDLE + ATLEAST_ONE_PROCESSING + ALL_ACTIVE_BLOCKED): {sum_groupA:.2f}")
+print(f"  Group B (SETUP + IDLE + ALL_ACTIVE_PROCESSING + ATLEAST_ONE_BLOCKED): {sum_groupB:.2f}")
+
 
 ```
 

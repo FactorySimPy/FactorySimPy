@@ -28,7 +28,7 @@ SINK= Sink(env, id="SINK")
 
 # Initializing edges
 BUFFER1 = Buffer(env, id="BUFFER1", capacity=1, delay=0, mode="FIFO")
-CONVEYORBELT1 = ConveyorBelt(env, id="CONVEYORBELT1", capacity=5, speed=1, length=1, accumulating=1)
+CONVEYORBELT1 = ConveyorBelt(env, id="CONVEYORBELT1", capacity=5, speed=1, length=1, accumulating=0)
 
 
 

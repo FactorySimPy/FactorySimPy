@@ -121,32 +121,22 @@ class Machine(Node):
             current_time (float): The current simulation time.
         """
         previous_state_rep = self.state_rep
-        if self.env.now == 105.0:
-            print(previous_state_rep)
         
         if self.state_rep is not None and self.stats["last_state_change_time"] is not None:
             elapsed = current_time - self.stats["last_state_change_time"]
-            # all idle
+            
             if previous_state_rep == (0, 0):
                 self.stats["total_time_spent_in_states"]["IDLE_STATE"] += elapsed
-            
-            
-            
-            #all active are blocked and none processing
-            if previous_state_rep[1]>0 and previous_state_rep[0]==0:
-                if self.env.now in [2.8 ,3.0, 3.8, 4.0]:
-                    print(f"ALL_ACTIVE_BLOCKED_STATE at PARTICULAR TIMES {self.id} {previous_state_rep} {elapsed} {current_time}")
-                self.stats["total_time_spent_in_states"]["ALL_ACTIVE_BLOCKED_STATE"] += elapsed
-            # at least one processing 
-            if previous_state_rep[0]>0  :
+            if previous_state_rep[0]>0 and previous_state_rep[1]==0:
                 self.stats["total_time_spent_in_states"]["ATLEAST_ONE_PROCESSING_STATE"] += elapsed
-
-            # all active are processing and none blocked
-            if previous_state_rep[0]>0  and previous_state_rep[1]==0:
+            if previous_state_rep[0]==len(self.worker_thread_list) and previous_state_rep[1]==0:
                 self.stats["total_time_spent_in_states"]["ALL_ACTIVE_PROCESSING_STATE"] += elapsed
-            #at least one blocked
-            if previous_state_rep[1]>0 :
+            if previous_state_rep[0]>0:
                 self.stats["total_time_spent_in_states"]["ATLEAST_ONE_BLOCKED_STATE"] += elapsed
+            if previous_state_rep[1]==len(self.worker_thread_list) and previous_state_rep[0]==0:
+                self.stats["total_time_spent_in_states"]["ALL_ACTIVE_BLOCKED_STATE"] += elapsed
+
+           
             
         
     
@@ -227,7 +217,28 @@ class Machine(Node):
         
 
     
-     
+        
+ 
+    def update_state1(self, new_state: str, current_time: float):
+        """
+        Update node state and track the time spent in the previous state.
+        
+        Args:
+            i (int): The index of the worker thread to update the state for.
+            new_state (str): The new state to transition to. Must be one of "SETUP_STATE", "GENERATING_STATE", "BLOCKED_STATE".
+            current_time (float): The current simulation time.
+
+        """
+        
+        if self.state is not None and self.stats["last_state_change_time"] is not None:
+            elapsed = current_time - self.stats["last_state_change_time"]
+
+            self.stats["total_time_spent_in_states"][self.state] = (
+                self.stats["total_time_spent_in_states"].get(self.state, 0.0) + elapsed
+            )
+        self.state = new_state
+        self.stats["last_state_change_time"] = current_time
+
         
     
 
@@ -252,20 +263,18 @@ class Machine(Node):
         
     def update_final_state_time(self, simulation_end_time):
         duration = simulation_end_time- self.stats["last_state_change_time"]
-        # updating the time of per thread statescld
+        # updating the time of per thread states
         for procs in self.worker_thread_list:
             if procs.thread_state == "PROCESSING_STATE":
                 self._update_avg_time_spent_in_processing(duration)
             elif procs.thread_state == "BLOCKED_STATE":
                 self._update_avg_time_spent_in_blocked(duration)
         #checking threadstates and updating the machine state
-        print(f"Final update of state_rep for machine {self.id} at time {simulation_end_time} {self.state_rep}")
-        self._update_worker_occupancy("UPDATE")
         self.update_state_rep(simulation_end_time)
       
         #updating the time vs no. of worker thread list
         #num worker thread is the index of the list and time spent by that many worker threads is the value)
-        
+        self._update_worker_occupancy("UPDATE")
                 
 
     def add_out_edges(self, edge):
