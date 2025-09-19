@@ -19,13 +19,13 @@ def distribution_generator(loc=4.0, scale=5.0, size=1):
 # Initializing nodes
 src= Source(env, id="Source-1",  inter_arrival_time=.2,blocking=True, out_edge_selection="FIRST_AVAILABLE" )
 #src= Source(env, id="Source-1",  inter_arrival_time=0.2,blocking=True,out_edge_selection=0 )
-m1 = Machine(env, id="M1",node_setup_time=0,work_capacity=4, processing_delay=.02,in_edge_selection="FIRST_AVAILABLE",out_edge_selection="FIRST_AVAILABLE")
+m1 = Machine(env, id="M1",node_setup_time=0,work_capacity=4, processing_delay=2,in_edge_selection="FIRST_AVAILABLE",out_edge_selection="FIRST_AVAILABLE")
 
 sink= Sink(env, id="Sink-1")
 
 # Initializing edges
 buffer1 = Buffer(env, id="Buffer-1", capacity=4, delay=0, mode="LIFO")
-buffer2 = Buffer(env, id="Buffer-2", capacity=1, delay=12, mode="FIFO")
+buffer2 = Buffer(env, id="Buffer-2", capacity=1, delay=4, mode="FIFO")
 
 # Adding connections
 buffer1.connect(src,m1)

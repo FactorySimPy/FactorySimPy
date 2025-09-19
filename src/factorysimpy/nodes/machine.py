@@ -70,7 +70,7 @@ class Machine(Node):
     def __init__(self, env, id, in_edges=None, out_edges=None,node_setup_time=0, work_capacity=1,processing_delay=0,blocking=True,in_edge_selection="FIRST_AVAILABLE",out_edge_selection="FIRST_AVAILABLE"):
         super().__init__(env, id,in_edges, out_edges, node_setup_time)
         
-        self.state = "SETUP_STATE1"  # Initial state of the machine
+        
         self.work_capacity = work_capacity
         self.in_edge_selection = in_edge_selection
         self.out_edge_selection = out_edge_selection
@@ -89,7 +89,7 @@ class Machine(Node):
         #self.stats={"total_time_spent_in_states": {"SETUP_STATE": 0.0, "IDLE_STATE":0.0, "PROCESSING_STATE": 0.0,"BLOCKED_STATE":0.0 },
          #           "last_state_change_time": None, "num_item_processed": 0, "num_item_discarded": 0,"processing_delay":[], "in_edge_selection":[],"out_edge_selection":[]}
         
-        self.stats={"total_time_spent_in_states": {"SETUP_STATE": 0.0, "IDLE_STATE":0.0, "ATLEAST_ONE_PROCESSING_STATE": 0.0,"ATLEAST_ONE_BLOCKED_STATE":0.0,"ALL_ACTIVE_PROCESSING_STATE":0.0, "ALL_ACTIVE_BLOCKED_STATE":0.0 },
+        self.stats={"total_time_spent_in_states": {"SETUP_STATE": 0.0, "IDLE_STATE":0.0, "ATLEAST_ONE_PROCESSING_STATE": 0.0,  "ALL_ACTIVE_BLOCKED_STATE":0.0, "ALL_ACTIVE_PROCESSING_STATE":0.0 ,"ATLEAST_ONE_BLOCKED_STATE":0.0 },
                     "last_state_change_time": None, "num_item_processed": 0, "num_item_discarded": 0,"processing_delay":[], "in_edge_selection":[],"out_edge_selection":[]}
        
      
@@ -121,8 +121,7 @@ class Machine(Node):
             current_time (float): The current simulation time.
         """
         previous_state_rep = self.state_rep
-        if self.env.now == 105.0:
-            print(previous_state_rep)
+      
         
         if self.state_rep is not None and self.stats["last_state_change_time"] is not None:
             elapsed = current_time - self.stats["last_state_change_time"]
@@ -134,8 +133,6 @@ class Machine(Node):
             
             #all active are blocked and none processing
             if previous_state_rep[1]>0 and previous_state_rep[0]==0:
-                if self.env.now in [2.8 ,3.0, 3.8, 4.0]:
-                    print(f"ALL_ACTIVE_BLOCKED_STATE at PARTICULAR TIMES {self.id} {previous_state_rep} {elapsed} {current_time}")
                 self.stats["total_time_spent_in_states"]["ALL_ACTIVE_BLOCKED_STATE"] += elapsed
             # at least one processing 
             if previous_state_rep[0]>0  :
@@ -157,7 +154,7 @@ class Machine(Node):
 
         
         self.stats["last_state_change_time"] = current_time
-        print(f"Machine {self.id} state_rep updated from {previous_state_rep} to {self.state_rep} at time {current_time}")
+        #print(f"Machine {self.id} state_rep updated from {previous_state_rep} to {self.state_rep} at time {current_time}")
 
         
         
@@ -165,7 +162,7 @@ class Machine(Node):
       
     def reset(self):
 
-            self.state = "SETUP_STATE1"  # Reset state to SETUP_STATE1
+            
             self.state_rep = (-1,-1)
             
             # setting the edge_selection and processing_delay parameters
@@ -259,7 +256,7 @@ class Machine(Node):
             elif procs.thread_state == "BLOCKED_STATE":
                 self._update_avg_time_spent_in_blocked(duration)
         #checking threadstates and updating the machine state
-        print(f"Final update of state_rep for machine {self.id} at time {simulation_end_time} {self.state_rep}")
+        #print(f"Final update of state_rep for machine {self.id} at time {simulation_end_time} {self.state_rep}")
         self._update_worker_occupancy("UPDATE")
         self.update_state_rep(simulation_end_time)
       
@@ -614,7 +611,7 @@ class Machine(Node):
                 self.update_state_rep(self.env.now)
                 if self.blocking:
                     blocking_start_time = self.env.now
-                    print(f"T={self.env.now:.2f}: {self.id} worker is in BLOCKED_STATE and machine is in {self.state}")
+                    print(f"T={self.env.now:.2f}: {self.id} worker is in BLOCKED_STATE")
                     #yield self.env.process(self._push_item(item, outedge_to_put))
                     put_event=outedge_to_put.reserve_put()
                     yield put_event
@@ -688,7 +685,7 @@ class Machine(Node):
                 #self._update_worker_occupancy(action="UPDATE")
                 #3self.check_thread_state_and_update_machine_state()     
                 self.update_state_rep(self.env.now)          
-                print(f"T={self.env.now:.2f}: {self.id} is in {self.state}!!!")
+                #print(f"T={self.env.now:.2f}: {self.id} is in {self.state}!!!")
                 worker_thread_req = self.worker_thread.request()  # Request a worker thread
                 yield worker_thread_req
                 self._update_worker_occupancy(action="ADD")
@@ -747,7 +744,8 @@ class Machine(Node):
                     print(f"T={self.env.now:.2f}: {self.id} yielded from {self.in_edges[edge_index].id} ")
                     
                     
-                    #self.in_edge_events.remove(self.chosen_event)  # Remove the chosen event from the list
+                    #self.in_edge_events.remove(self.chosen_event)  #
+                    #  Remove the chosen event from the list
                     #cancelling already triggered in_edge events other than chosen events
                     
                     for event in self.in_edge_events:
