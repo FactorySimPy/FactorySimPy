@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://factorysimpy.github.io/FactorySimPy/getting_started/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Getting Started - FactorySimPy</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Getting Started";
+        var mkdocs_page_input_path = "getting_started.md";
+        var mkdocs_page_url = "/FactorySimPy/getting_started/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> FactorySimPy
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Overview</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Getting Started</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#what-you-can-model">What You Can Model</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#a-minimal-working-example">A Minimal Working Example</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#directory-structure">Directory Structure</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">SYSTEM DESCRIPTION</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../basic_components/">Basic Components</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Other features</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../monitoring/">Monitoring and Measurement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../constructs/">Constructs for Modeling</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../extending_components/">Extending Components</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../interrupts/">Modeling interrupts</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RTsimulation/">Enabling real-time simulation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">REFERENCE</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../extendedresources/">Supporting classes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../api_ref_main_page_2/">API Reference</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">About</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../authors/">Authors</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../changelog/">Changelog</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../license/">License</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">FactorySimPy</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Getting Started</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/FactorySimPy/FactorySimPy/edit/master/docs/getting_started.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="getting-started-with-factorysimpy">Getting Started with FactorySimPy<a class="headerlink" href="#getting-started-with-factorysimpy" title="Permanent link">&para;</a></h1>
+<p>Welcome to FactorySimPy – a lightweight, open-source component library for discrete-event simulation (DES) of manufacturing systems, built on top of <a href="https://simpy.readthedocs.io/en/4.1.1/">SimPy v4.1.1</a>. </p>
+<p>This guide will help you to get started with the packages in a few minutes.</p>
+<hr />
+<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
+<p>Install FactorySimPy. Make sure you have Python ≥ 3.8.</p>
+<p>From Github</p>
+<ol>
+<li>
+<p>Install SimPy (if not already installed)
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>simpy
+</code></pre></div></p>
+</li>
+<li>
+<p>Install FactorySimPy</p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/FactorySimPy/FactorySimPy.git
+</code></pre></div>
+<hr />
+<h2 id="what-you-can-model">What You Can Model<a class="headerlink" href="#what-you-can-model" title="Permanent link">&para;</a></h2>
+<p>FactorySimPy lets you simulate typical manufacturing scenarios using ready-made building blocks like:</p>
+<ul>
+<li>
+<p><strong>Machine</strong> is a node with configurable processing delay</p>
+</li>
+<li>
+<p><strong>Splitter ** and </strong>Combiner** are nodes for splitting an item or joining multiple items.</p>
+</li>
+<li>
+<p><strong>Buffer</strong>, <strong>Conveyor</strong> and <strong>Fleet</strong> are entities of type edge for aiding in item transfer from one node to another</p>
+</li>
+<li>
+<p><strong>Source</strong> and <strong>Sink</strong> for generating and collecting items</p>
+</li>
+</ul>
+<p>All components can be customized, and extended easily.</p>
+<hr />
+<h2 id="a-minimal-working-example">A Minimal Working Example<a class="headerlink" href="#a-minimal-working-example" title="Permanent link">&para;</a></h2>
+<p>An example that shows how to simulate a simple system with a machine and two buffers
+<div class="highlight"><pre><span></span><code><span class="c1">#   System layout </span>
+<span class="c1">#   SRC ──&gt; BUF1 ──&gt; MACHINE1 ──&gt; BUF2 ──&gt; SINK</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">factorysimpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.machine</span><span class="w"> </span><span class="kn">import</span> <span class="n">Machine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.edges.buffer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buffer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.source</span><span class="w"> </span><span class="kn">import</span> <span class="n">Source</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.sink</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sink</span>
+
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">simpy</span><span class="o">.</span><span class="n">Environment</span><span class="p">()</span>
+
+<span class="c1"># Initializing nodes</span>
+<span class="n">SRC</span><span class="o">=</span> <span class="n">Source</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SRC&quot;</span><span class="p">,</span> <span class="n">flow_item_type</span><span class="o">=</span><span class="s2">&quot;item&quot;</span><span class="p">,</span> <span class="n">inter_arrival_time</span><span class="o">=</span> <span class="mf">0.8</span><span class="p">,</span><span class="n">blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">out_edge_selection</span><span class="o">=</span><span class="s2">&quot;RANDOM&quot;</span> <span class="p">)</span>
+<span class="n">MACHINE1</span> <span class="o">=</span> <span class="n">Machine</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;MACHINE1&quot;</span><span class="p">,</span><span class="n">work_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">processing_delay</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span><span class="n">blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">in_edge_selection</span><span class="o">=</span><span class="s2">&quot;RANDOM&quot;</span><span class="p">,</span><span class="n">out_edge_selection</span><span class="o">=</span><span class="s2">&quot;RANDOM&quot;</span><span class="p">)</span>
+<span class="n">SINK</span><span class="o">=</span> <span class="n">Sink</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SINK&quot;</span> <span class="p">)</span>
+
+<span class="c1"># Initializing edges</span>
+<span class="n">BUF1</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF1&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;FIFO&quot;</span><span class="p">)</span>
+<span class="n">BUF2</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF2&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;FIFO&quot;</span><span class="p">)</span>
+
+<span class="c1"># Adding connections</span>
+<span class="n">BUF1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">SRC</span><span class="p">,</span><span class="n">MACHINE1</span><span class="p">)</span>
+<span class="n">BUF2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">MACHINE1</span><span class="p">,</span><span class="n">SINK</span><span class="p">)</span>
+
+
+<span class="n">env</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">until</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</code></pre></div></p>
+<hr />
+<h2 id="directory-structure">Directory Structure<a class="headerlink" href="#directory-structure" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>FactorySimPy/
+├─ src/factorysimpy/
+│  ├─ nodes/     # Processor, Source, Sink, Combiner, Splitter
+│  ├─ edges/     # Buffer, Conveyor, Fleet
+│  ├─ base/      # SimPy extensions
+│  ├─ constructs/      # constructs to simplify model creation
+│  ├─ helper/    # Other necessary classes like Item, baseflowitem, pallet
+│  └─ utils/     # Other utility functions
+├─ docs/
+│  ├─ index.md
+│  └─ examples/
+├─ tests/
+├─ examples/
+└─ README.md
+</code></pre></div>
+<hr />
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href=".." class="btn btn-neutral float-left" title="Overview"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../basic_components/" class="btn btn-neutral float-right" title="Basic Components">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/FactorySimPy/FactorySimPy" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../basic_components/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

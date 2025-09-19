@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://factorysimpy.github.io/FactorySimPy/examples/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Examples - FactorySimPy</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Examples";
+        var mkdocs_page_input_path = "examples.md";
+        var mkdocs_page_url = "/FactorySimPy/examples/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> FactorySimPy
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Overview</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../getting_started/">Getting Started</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">SYSTEM DESCRIPTION</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../basic_components/">Basic Components</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Examples</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#a-simple-example">A simple example</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#a-simple-example-with-fleet">A simple example with fleet</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#a-simple-example-with-slotted-type-conveyor">A simple example with slotted type conveyor</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#a-simple-example-with-continuous-type-conveyor">A simple example with continuous type conveyor</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#example-with-delay-as-a-reference-to-a-function">Example with delay as a reference to a function</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#delay-as-python-function">Delay as python function</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#delay-as-generator-function">Delay as generator function</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#example-with-a-custom-edge-selection-policy-as-a-function">Example with a custom edge selection policy as a function</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#edge-selection-as-python-function">Edge selection as python function</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edge-selection-as-generator-function">Edge selection as generator function</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#example-to-illustrate-the-use-of-the-components-splitter-and-combiner">Example to illustrate the use of the components splitter and combiner</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#example-with-constructs">Example with constructs</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Other features</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../monitoring/">Monitoring and Measurement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../constructs/">Constructs for Modeling</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../extending_components/">Extending Components</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../interrupts/">Modeling interrupts</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RTsimulation/">Enabling real-time simulation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">REFERENCE</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../extendedresources/">Supporting classes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../api_ref_main_page_2/">API Reference</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">About</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../authors/">Authors</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../changelog/">Changelog</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../license/">License</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">FactorySimPy</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">SYSTEM DESCRIPTION</li>
+      <li class="breadcrumb-item active">Examples</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/FactorySimPy/FactorySimPy/edit/master/docs/examples.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h1>
+<p>In this section, we present examples that demonstrate how to use FactorySimPy</p>
+<h2 id="a-simple-example">A simple example<a class="headerlink" href="#a-simple-example" title="Permanent link">&para;</a></h2>
+<p><strong><em>Here's a simple example to connect a machine to an input buffer and output buffer and to simulate item flow through them.</em></strong></p>
+<p>Shown below is a very simple example. Here, the delays to be configured are <code>inter_arrival_time</code>, and <code>processing_delay</code> of the source and the machine respectively. In this example, the delays <code>inter_arrival_time</code>, and <code>processing_delay</code>, are specified as constant values at the time of node initiation.</p>
+<p>Similarly <code>in_edge_selection</code> and  <code>out_edge_selection</code> can also be provided as a constant or use one of the generator functions available in the package. These functions can be passed as a string. <a href="../configuring_parameters/">See this page for details about edge selection policy.</a></p>
+<div class="highlight"><pre><span></span><code><span class="c1">#   System layout </span>
+<span class="c1">#   SRC ──&gt; BUF1 ──&gt; MACHINE1 ──&gt; BUF2 ──&gt; SINK</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">factorysimpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.machine</span><span class="w"> </span><span class="kn">import</span> <span class="n">Machine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.edges.buffer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buffer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.source</span><span class="w"> </span><span class="kn">import</span> <span class="n">Source</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.sink</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sink</span>
+
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">simpy</span><span class="o">.</span><span class="n">Environment</span><span class="p">()</span>
+
+<span class="c1"># Initializing nodes</span>
+<span class="n">SRC</span><span class="o">=</span> <span class="n">Source</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SRC&quot;</span><span class="p">,</span>  <span class="n">inter_arrival_time</span><span class="o">=</span> <span class="mf">0.8</span><span class="p">,</span><span class="n">blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">out_edge_selection</span><span class="o">=</span><span class="mi">0</span> <span class="p">)</span>
+<span class="n">MACHINE1</span> <span class="o">=</span> <span class="n">Machine</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;MACHINE1&quot;</span><span class="p">,</span><span class="n">work_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">processing_delay</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">in_edge_selection</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">out_edge_selection</span><span class="o">=</span><span class="s2">&quot;RANDOM&quot;</span><span class="p">)</span>
+<span class="n">SINK</span><span class="o">=</span> <span class="n">Sink</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SINK&quot;</span> <span class="p">)</span>
+
+<span class="c1"># Initializing edges</span>
+<span class="n">BUF1</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF1&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;FIFO&quot;</span><span class="p">)</span>
+<span class="n">BUF2</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF2&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;FIFO&quot;</span><span class="p">)</span>
+
+<span class="c1"># Adding connections</span>
+<span class="n">BUF1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">SRC</span><span class="p">,</span><span class="n">MACHINE1</span><span class="p">)</span>
+<span class="n">BUF2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">MACHINE1</span><span class="p">,</span><span class="n">SINK</span><span class="p">)</span>
+
+
+<span class="n">env</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">until</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="a-simple-example-with-fleet">A simple example with fleet<a class="headerlink" href="#a-simple-example-with-fleet" title="Permanent link">&para;</a></h2>
+<p><strong><em>Here's a simple example for fleet</em></strong></p>
+<p>Shown below is a very simple example. Here, the delays to be configured are <code>inter_arrival_time</code>, and <code>processing_delay</code> of the source and the machine respectively. In this example, the delays <code>inter_arrival_time</code>, and <code>processing_delay</code>, are specified as constant values at the time of node initiation.</p>
+<p>Similarly <code>in_edge_selection</code> and  <code>out_edge_selection</code> can also be provided as a constant or use one of the generator functions available in the package. These functions can be passed as a string. <a href="../configuring_parameters/">See this page for details about edge selection policy.</a></p>
+<div class="highlight"><pre><span></span><code><span class="c1">#   System layout </span>
+<span class="c1">#   SRC ──&gt; FLEET1 ──&gt; MACHINE1 ──&gt; BUF2 ──&gt; SINK</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">factorysimpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.machine</span><span class="w"> </span><span class="kn">import</span> <span class="n">Machine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.edges.buffer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buffer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.edges.fleet</span><span class="w"> </span><span class="kn">import</span> <span class="n">Fleet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.source</span><span class="w"> </span><span class="kn">import</span> <span class="n">Source</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.sink</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sink</span>
+
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">simpy</span><span class="o">.</span><span class="n">Environment</span><span class="p">()</span>
+
+
+
+<span class="c1"># Initializing nodes</span>
+<span class="n">SRC</span><span class="o">=</span> <span class="n">Source</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SRC&quot;</span><span class="p">,</span>  <span class="n">inter_arrival_time</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span><span class="n">blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">out_edge_selection</span><span class="o">=</span><span class="mi">0</span> <span class="p">)</span>
+
+<span class="c1">#src= Source(env, id=&quot;Source-1&quot;,  inter_arrival_time=0.2,blocking=True,out_edge_selection=0 )</span>
+<span class="n">MACHINE1</span> <span class="o">=</span> <span class="n">Machine</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;MACHINE1&quot;</span><span class="p">,</span><span class="n">node_setup_time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">work_capacity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">processing_delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span><span class="n">in_edge_selection</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">out_edge_selection</span><span class="o">=</span><span class="s2">&quot;ROUND_ROBIN&quot;</span><span class="p">)</span>
+<span class="n">SINK</span><span class="o">=</span> <span class="n">Sink</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SINK&quot;</span><span class="p">)</span>
+
+<span class="c1"># Initializing edges</span>
+<span class="n">FLEET1</span> <span class="o">=</span> <span class="n">Fleet</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;FLEET1&quot;</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">transit_delay</span><span class="o">=</span><span class="mf">1.4</span><span class="p">)</span>
+
+<span class="n">BUFFER2</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUFFER2&quot;</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;FIFO&quot;</span><span class="p">)</span>
+
+<span class="c1"># Adding connections</span>
+<span class="n">FLEET1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">SRC</span><span class="p">,</span><span class="n">MACHINE1</span><span class="p">)</span>
+<span class="n">BUFFER2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">MACHINE1</span><span class="p">,</span><span class="n">SINK</span><span class="p">)</span>
+
+
+
+<span class="n">time</span><span class="o">=</span><span class="mi">10</span>
+<span class="n">env</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">until</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="a-simple-example-with-slotted-type-conveyor">A simple example with slotted type conveyor<a class="headerlink" href="#a-simple-example-with-slotted-type-conveyor" title="Permanent link">&para;</a></h2>
+<p><strong><em>Here's a simple example of conveyorbelt</em></strong>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.machine</span><span class="w"> </span><span class="kn">import</span> <span class="n">Machine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.edges.slotted_conveyor</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConveyorBelt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.edges.buffer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buffer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.source</span><span class="w"> </span><span class="kn">import</span> <span class="n">Source</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.sink</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sink</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+
+<span class="c1">#SRC ──&gt; CONVEYORBELT1 ──&gt; MACHINE1 ───&gt; BUF2 ──&gt;SINK</span>
+
+
+
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">simpy</span><span class="o">.</span><span class="n">Environment</span><span class="p">()</span>
+
+
+
+<span class="c1"># Initializing nodes</span>
+<span class="n">SRC</span><span class="o">=</span> <span class="n">Source</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SRC&quot;</span><span class="p">,</span>  <span class="n">inter_arrival_time</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span><span class="n">blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">out_edge_selection</span><span class="o">=</span><span class="s2">&quot;FIRST_AVAILABLE&quot;</span> <span class="p">)</span>
+
+<span class="c1">#src= Source(env, id=&quot;Source-1&quot;,  inter_arrival_time=0.2,blocking=True,out_edge_selection=0 )</span>
+<span class="n">MACHINE1</span> <span class="o">=</span> <span class="n">Machine</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;MACHINE1&quot;</span><span class="p">,</span> <span class="n">node_setup_time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">work_capacity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">processing_delay</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">in_edge_selection</span><span class="o">=</span><span class="s2">&quot;FIRST_AVAILABLE&quot;</span><span class="p">,</span> <span class="n">out_edge_selection</span><span class="o">=</span><span class="s2">&quot;ROUND_ROBIN&quot;</span><span class="p">)</span>
+<span class="n">SINK</span><span class="o">=</span> <span class="n">Sink</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SINK&quot;</span><span class="p">)</span>
+
+<span class="c1"># Initializing edges</span>
+<span class="n">BUFFER1</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUFFER1&quot;</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;FIFO&quot;</span><span class="p">)</span>
+<span class="n">CONVEYORBELT1</span> <span class="o">=</span> <span class="n">ConveyorBelt</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;CONVEYORBELT1&quot;</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">accumulating</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+
+<span class="c1"># Adding connections</span>
+<span class="n">CONVEYORBELT1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">SRC</span><span class="p">,</span><span class="n">MACHINE1</span><span class="p">)</span>
+<span class="n">BUFFER1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">MACHINE1</span><span class="p">,</span><span class="n">SINK</span><span class="p">)</span>
+
+
+
+<span class="n">time</span><span class="o">=</span><span class="mi">100</span>
+<span class="n">env</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">until</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
+</code></pre></div></p>
+<h2 id="a-simple-example-with-continuous-type-conveyor">A simple example with continuous type conveyor<a class="headerlink" href="#a-simple-example-with-continuous-type-conveyor" title="Permanent link">&para;</a></h2>
+<p><strong><em>Here's a simple example of conveyorbelt</em></strong>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.machine</span><span class="w"> </span><span class="kn">import</span> <span class="n">Machine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.edges.continuous_conveyor</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConveyorBelt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.edges.buffer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buffer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.source</span><span class="w"> </span><span class="kn">import</span> <span class="n">Source</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.sink</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sink</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+
+<span class="c1">#SRC ──&gt; CONVEYORBELT1 ──&gt; MACHINE1 ───&gt; BUF2 ──&gt;SINK</span>
+
+
+
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">simpy</span><span class="o">.</span><span class="n">Environment</span><span class="p">()</span>
+
+
+
+<span class="c1"># Initializing nodes</span>
+<span class="n">SRC</span><span class="o">=</span> <span class="n">Source</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SRC&quot;</span><span class="p">,</span>  <span class="n">inter_arrival_time</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span><span class="n">blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">out_edge_selection</span><span class="o">=</span><span class="s2">&quot;FIRST_AVAILABLE&quot;</span> <span class="p">)</span>
+
+<span class="c1">#src= Source(env, id=&quot;Source-1&quot;,  inter_arrival_time=0.2,blocking=True,out_edge_selection=0 )</span>
+<span class="n">MACHINE1</span> <span class="o">=</span> <span class="n">Machine</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;MACHINE1&quot;</span><span class="p">,</span> <span class="n">node_setup_time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">work_capacity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">processing_delay</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">in_edge_selection</span><span class="o">=</span><span class="s2">&quot;FIRST_AVAILABLE&quot;</span><span class="p">,</span> <span class="n">out_edge_selection</span><span class="o">=</span><span class="s2">&quot;ROUND_ROBIN&quot;</span><span class="p">)</span>
+<span class="n">SINK</span><span class="o">=</span> <span class="n">Sink</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SINK&quot;</span><span class="p">)</span>
+
+<span class="c1"># Initializing edges</span>
+<span class="n">BUFFER1</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUFFER1&quot;</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;FIFO&quot;</span><span class="p">)</span>
+<span class="n">CONVEYORBELT1</span> <span class="o">=</span> <span class="n">ConveyorBelt</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;CONVEYORBELT1&quot;</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">accumulating</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+
+<span class="c1"># Adding connections</span>
+<span class="n">CONVEYORBELT1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">SRC</span><span class="p">,</span><span class="n">MACHINE1</span><span class="p">)</span>
+<span class="n">BUFFER1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">MACHINE1</span><span class="p">,</span><span class="n">SINK</span><span class="p">)</span>
+
+
+
+<span class="n">time</span><span class="o">=</span><span class="mi">100</span>
+<span class="n">env</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">until</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
+</code></pre></div></p>
+<h2 id="example-with-delay-as-a-reference-to-a-function">Example with delay as a reference to a function<a class="headerlink" href="#example-with-delay-as-a-reference-to-a-function" title="Permanent link">&para;</a></h2>
+<p>Shown below is a very simple example where the source generates items and puts it to a machine through a buffer and the items processed in machine is moved to a sink using another buffer. This example shows how to pass a function as a parameter.</p>
+<h3 id="delay-as-python-function">Delay as python function<a class="headerlink" href="#delay-as-python-function" title="Permanent link">&para;</a></h3>
+<p><strong><em>An example showing how to pass python functions as delay parameters.</em></strong> </p>
+<p>In this example, the delays to be configured are <code>inter_arrival_time</code>, and <code>processing_delay</code> of source and machine. These are specified as a reference to a python function. Let the inter arrival time of the source be a value sampled from a gaussian distribution with mean = 1, std deviation is = 0.25 and the processing delay of the machine be a value function of the duration of the time spent by the machine in processing state.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">#   System layout </span>
+<span class="c1">#   SRC ──&gt; BUF1 ──&gt; MACHINE1 ──&gt; BUF2 ──&gt; SINK</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">factorysimpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.machine</span><span class="w"> </span><span class="kn">import</span> <span class="n">Machine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.edges.buffer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buffer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.source</span><span class="w"> </span><span class="kn">import</span> <span class="n">Source</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.sink</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sink</span>
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">simpy</span><span class="o">.</span><span class="n">Environment</span><span class="p">()</span>
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">simpy</span><span class="o">.</span><span class="n">Environment</span><span class="p">()</span>
+
+<span class="c1">#let the inter arrival time of the source be a value sampled from a gaussian distribution with mean = 1, std deviation is = 0.25</span>
+<span class="c1">#Gaussian distribution as a python function </span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_gaussian_distribution</span><span class="p">():</span>
+
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">gauss</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sigma</span><span class="o">=</span> <span class="mf">0.25</span><span class="p">)</span>
+
+<span class="c1">#let the processing delay of the machine be a value function of the duration of the time spent by the machine in processing state</span>
+<span class="c1">#if the time spent in processing state is greater than 7, the processing delay has to take one value in index 0 of the return_vals</span>
+<span class="c1">#if the time spent in processing state is less than or equal to 7, the processing delay has to take the value in index 1</span>
+<span class="c1">#This behaviour as a python function </span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_process_delay</span><span class="p">():</span>
+      <span class="n">return_vals</span><span class="o">=</span><span class="p">[</span><span class="mf">0.9</span><span class="p">,</span><span class="mf">1.2</span><span class="p">]</span>
+      <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;total_time_spent_in_states&quot;</span><span class="p">][</span><span class="s2">&quot;PROCESSING_STATE&quot;</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">7</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">return_vals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">return_vals</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+
+
+
+<span class="c1"># Initializing nodes</span>
+<span class="n">SRC</span><span class="o">=</span> <span class="n">Source</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SRC&quot;</span><span class="p">,</span>  <span class="n">inter_arrival_time</span><span class="o">=</span><span class="n">generate_gaussian_distribution</span><span class="p">,</span><span class="n">blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">out_edge_selection</span><span class="o">=</span><span class="mi">0</span> <span class="p">)</span>
+<span class="n">MACHINE1</span> <span class="o">=</span> <span class="n">Machine</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;MACHINE1&quot;</span><span class="p">,</span><span class="n">work_capacity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">processing_delay</span><span class="o">=</span><span class="n">generate_process_delay</span><span class="p">,</span><span class="n">in_edge_selection</span><span class="o">=</span><span class="s2">&quot;RANDOM&quot;</span><span class="p">,</span><span class="n">out_edge_selection</span><span class="o">=</span><span class="s2">&quot;RANDOM&quot;</span><span class="p">)</span>
+
+<span class="n">SINK</span><span class="o">=</span> <span class="n">Sink</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SINK&quot;</span> <span class="p">)</span>
+
+
+
+<span class="c1"># Initializing edges</span>
+<span class="n">BUF1</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF1&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">BUF2</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF2&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+
+<span class="c1"># Adding connections</span>
+<span class="n">BUF1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">SRC</span><span class="p">,</span><span class="n">MACHINE1</span><span class="p">)</span>
+<span class="n">BUF2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">MACHINE1</span><span class="p">,</span><span class="n">SINK</span><span class="p">)</span>
+
+
+
+
+<span class="n">env</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">until</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="delay-as-generator-function">Delay as generator function<a class="headerlink" href="#delay-as-generator-function" title="Permanent link">&para;</a></h3>
+<p><strong><em>An example showing how to pass python generator functions as delay parameters.</em></strong> </p>
+<p>In this example (same as above), the delays to be configured are <code>inter_arrival_time</code>, and <code>processing_delay</code> of source and machine. These are specified as a reference to a python generator function instance. Let the inter arrival time of the source be a value sampled from a gaussian distribution with mean = 1, std deviation is = 0.25 and the processing delay of the machine be a value function of the duration of the time spent by the machine in processing state. Generator functions are created for the two cases and supplied as parameters.
+<div class="highlight"><pre><span></span><code><span class="c1">#   System layout </span>
+<span class="c1">#   SRC ──&gt; BUF1 ──&gt; MACHINE1 ──&gt; BUF2 ──&gt; SINK</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">factorysimpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.machine</span><span class="w"> </span><span class="kn">import</span> <span class="n">Machine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.edges.buffer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buffer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.source</span><span class="w"> </span><span class="kn">import</span> <span class="n">Source</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.sink</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sink</span>
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">simpy</span><span class="o">.</span><span class="n">Environment</span><span class="p">()</span>
+
+<span class="c1">#let the inter arrival time of the source be a value sampled from a gaussian distribution with mean = 2, std deviation is = 0.5</span>
+<span class="c1">#Gaussian distribution as a generator function </span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_gaussian_distribution</span><span class="p">():</span>
+   <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">random</span><span class="o">.</span><span class="n">gauss</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">sigma</span><span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1">#let the processing delay of the machine be a value function of the duration of the time spent by the machine in processing state</span>
+<span class="c1">#if the time spent in processing state is greater than 7, the processing delay has to take one value in index 0 of the return_vals</span>
+<span class="c1">#if the time spent in processing state is less than or equal to 7, the processing delay has to take the value in index 1</span>
+<span class="c1">#This behaviour as a generator function </span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_process_delay</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="n">env</span><span class="p">):</span>
+   <span class="n">return_vals</span><span class="o">=</span><span class="p">[</span><span class="mf">0.9</span><span class="p">,</span><span class="mf">1.2</span><span class="p">]</span>
+   <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;total_time_spent_in_states&quot;</span><span class="p">][</span><span class="s2">&quot;PROCESSING_STATE&quot;</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">7</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">return_vals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">yield</span>  <span class="n">return_vals</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+
+
+
+<span class="c1"># Initializing nodes</span>
+<span class="n">SRC</span><span class="o">=</span> <span class="n">Source</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SRC&quot;</span><span class="p">,</span>  <span class="n">inter_arrival_time</span><span class="o">=</span><span class="n">generate_gaussian_distribution</span><span class="p">,</span><span class="n">blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">out_edge_selection</span><span class="o">=</span><span class="mi">0</span> <span class="p">)</span>
+<span class="n">MACHINE1</span> <span class="o">=</span> <span class="n">Machine</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;MACHINE1&quot;</span><span class="p">,</span><span class="n">work_capacity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">processing_delay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">in_edge_selection</span><span class="o">=</span><span class="s2">&quot;RANDOM&quot;</span><span class="p">,</span><span class="n">out_edge_selection</span><span class="o">=</span><span class="s2">&quot;RANDOM&quot;</span><span class="p">)</span>
+<span class="n">processing_delay_func</span><span class="o">=</span><span class="n">generate_process_delay</span><span class="p">(</span><span class="n">MACHINE1</span><span class="p">,</span><span class="n">env</span><span class="p">)</span>
+<span class="n">MACHINE1</span><span class="o">.</span><span class="n">processing_delay</span> <span class="o">=</span> <span class="n">processing_delay_func</span>
+<span class="n">SINK</span><span class="o">=</span> <span class="n">Sink</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SINK&quot;</span> <span class="p">)</span>
+
+
+
+<span class="c1"># Initializing edges</span>
+<span class="n">BUF1</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF1&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">BUF2</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF2&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+
+<span class="c1"># Adding connections</span>
+<span class="n">BUF1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">SRC</span><span class="p">,</span><span class="n">MACHINE1</span><span class="p">)</span>
+<span class="n">BUF2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">MACHINE1</span><span class="p">,</span><span class="n">SINK</span><span class="p">)</span>
+
+
+
+
+<span class="n">env</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">until</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</code></pre></div></p>
+<h2 id="example-with-a-custom-edge-selection-policy-as-a-function">Example with a custom edge selection policy as a function<a class="headerlink" href="#example-with-a-custom-edge-selection-policy-as-a-function" title="Permanent link">&para;</a></h2>
+<p>In the example below, there are multiple sources that generates items and puts it into their output buffers. The machine chooses one of its <code>in_edges</code> and picks an item and processes it and chooses an output edge and puts the item there. It choses the input edge and output edge based on the values yielded from function specified in <code>in_edge_selection</code> parameter and <code>out_edge_selection</code> parameter. </p>
+<h3 id="edge-selection-as-python-function">Edge selection as python function<a class="headerlink" href="#edge-selection-as-python-function" title="Permanent link">&para;</a></h3>
+<p><strong><em>An example that shows how to interconnect a source to a machine using buffers and pass a python function as parameter.</em></strong></p>
+<p>Consider the case when the edge selection parameters are to be modelled as a python function. Here is an example that shows how to pass a python function instance as a parameter. Let us consider a case where the <code>in_edge_selection</code> is dependant on the values sampled from a uniform distribution [0,1], if the sampled value is less than 0.5, then always index 1 is returned and if the sampled value is greater than 0.5 then index 0 is returned. <code>out_edge_selection</code> is dependant on the values sampled from a gaussian distribution with mean 4 and standard deviation 1 , if the value is greater than 3, then edge 0 is selected otherwise edge 1 is selected. Edge selection parameters of SRC1, and all the  SINKs are provided with options that are implemented within the package. <a href="../configuring_parameters/">See this page for details about edge selection policy.</a></p>
+<div class="highlight"><pre><span></span><code><span class="c1">#  System layout </span>
+
+<span class="c1">#   SRC1 ──&gt; BUFFER1 ──┐</span>
+<span class="c1">#                      │</span>
+<span class="c1">#   SRC2 ──&gt; BUFFER2 ──┴─&gt; MACHINE1 ──┬─&gt; BUFFER3 ──&gt; SINK1</span>
+<span class="c1">#      │                              │</span>
+<span class="c1">#      └─&gt; BUFFER5 ──&gt; SINK3          └─&gt; BUFFER4 ──&gt; SINK2</span>
+<span class="c1">#                                         </span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">factorysimpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.machine</span><span class="w"> </span><span class="kn">import</span> <span class="n">Machine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.edges.buffer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buffer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.source</span><span class="w"> </span><span class="kn">import</span> <span class="n">Source</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.sink</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sink</span>
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">simpy</span><span class="o">.</span><span class="n">Environment</span><span class="p">()</span>
+
+<span class="c1">#let the in_edge_selection of the machine be a function that yields 1 or 0 based on the value sampled from uniform distribution [0,1]</span>
+<span class="c1"># This  function will yield 1 if value 0.5, and 0 if it is otherwise.</span>
+<span class="c1">#in_edge_selection as a  function for machine</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">machine_in_edge_selector</span><span class="p">():</span>
+   <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span><span class="o">&lt;</span><span class="mf">0.5</span><span class="p">:</span>
+      <span class="k">return</span> <span class="mi">1</span>
+   <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="mi">0</span>
+
+<span class="c1">#let the out_edge_selection of the machine be a function that yields the index of the edge to be selected</span>
+<span class="c1"># This  function will yield the index of the edge to be selected based on the value sampled from a gaussian dostribution with mean=4 and sigma=1</span>
+<span class="c1"># it will return 1 is the sampled value is &gt;3, else it will return 0</span>
+<span class="c1">#out_edge_selection as a function for machine</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">machine_out_edge_selector</span><span class="p">():</span>
+   <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">gauss</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">sigma</span><span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span><span class="mi">3</span><span class="p">:</span>
+      <span class="k">return</span> <span class="mi">1</span>
+   <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="mi">0</span>
+
+<span class="c1">#let the out_edge_selection of the source 2 be a generator function that yields 1 or 0 based on the current time</span>
+<span class="c1"># This generator function will yield 1 if the current time is even, and 0 if it is odd.</span>
+<span class="c1">#out_edge_selection as a function for source</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">source_out_edge_selector</span><span class="p">(</span><span class="n">env</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">env</span><span class="o">.</span><span class="n">now</span><span class="o">%</span><span class="mi">2</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+         <span class="k">return</span> <span class="mi">1</span>
+      <span class="k">else</span><span class="p">:</span>
+         <span class="k">return</span> <span class="mi">0</span>
+
+
+
+
+
+
+<span class="c1"># Initializing nodes</span>
+<span class="n">SRC1</span><span class="o">=</span> <span class="n">Source</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SRC1&quot;</span><span class="p">,</span>  <span class="n">inter_arrival_time</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span><span class="n">blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">out_edge_selection</span><span class="o">=</span><span class="s2">&quot;FIRST_AVAILABLE&quot;</span> <span class="p">)</span>
+<span class="n">SRC2</span><span class="o">=</span> <span class="n">Source</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SRC2&quot;</span><span class="p">,</span>  <span class="n">inter_arrival_time</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span><span class="n">blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">out_edge_selection</span><span class="o">=</span><span class="n">source_out_edge_selector</span><span class="p">(</span><span class="n">env</span><span class="p">)</span> <span class="p">)</span>
+<span class="n">MACHINE1</span> <span class="o">=</span> <span class="n">Machine</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;MACHINE1&quot;</span><span class="p">,</span><span class="n">work_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">processing_delay</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">in_edge_selection</span><span class="o">=</span><span class="n">machine_in_edge_selector</span><span class="p">,</span><span class="n">out_edge_selection</span><span class="o">=</span><span class="n">machine_out_edge_selector</span><span class="p">)</span>
+<span class="n">SINK1</span><span class="o">=</span> <span class="n">Sink</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SINK1&quot;</span><span class="p">,</span> <span class="n">in_edge_selection</span><span class="o">=</span><span class="s2">&quot;RANDOM&quot;</span> <span class="p">)</span>
+<span class="n">SINK2</span><span class="o">=</span> <span class="n">Sink</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SINK2&quot;</span><span class="p">,</span> <span class="n">in_edge_selection</span><span class="o">=</span><span class="s2">&quot;RANDOM&quot;</span>  <span class="p">)</span>
+<span class="n">SINK3</span><span class="o">=</span> <span class="n">Sink</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SINK3&quot;</span><span class="p">,</span> <span class="n">in_edge_selection</span><span class="o">=</span><span class="s2">&quot;FIRST_AVAILABLE&quot;</span>  <span class="p">)</span>
+
+
+
+
+
+
+
+<span class="c1"># Initializing edges</span>
+<span class="c1"># Initializing edges</span>
+<span class="n">BUF1</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF1&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">BUF2</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF2&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">BUF3</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF3&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">BUF4</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF4&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">BUF5</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF5&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+
+
+
+<span class="c1"># Adding connections</span>
+<span class="n">BUF1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">SRC1</span><span class="p">,</span><span class="n">MACHINE1</span><span class="p">)</span>
+<span class="n">BUF2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">SRC2</span><span class="p">,</span><span class="n">MACHINE1</span><span class="p">)</span>
+<span class="n">BUF3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">MACHINE1</span><span class="p">,</span><span class="n">SINK1</span><span class="p">)</span>
+<span class="n">BUF4</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">MACHINE1</span><span class="p">,</span><span class="n">SINK2</span><span class="p">)</span>
+<span class="n">BUF5</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">SRC2</span><span class="p">,</span><span class="n">SINK3</span><span class="p">)</span>
+
+
+<span class="n">env</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">until</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="edge-selection-as-generator-function">Edge selection as generator function<a class="headerlink" href="#edge-selection-as-generator-function" title="Permanent link">&para;</a></h3>
+<p><strong><em>An example that shows how to interconnect a source to a machine using buffers and pass a python function or a generator instance as parameter.</em></strong></p>
+<p>Consider the case when the edge selection parameters are to be modelled as a generator function that depends on the node object or the current time of the simulation environment. Here is an example that shows how to pass a generator function instance as a parameter.
+<div class="highlight"><pre><span></span><code><span class="c1">#  System layout </span>
+
+<span class="c1">#   SRC1 ──&gt; BUFFER1 ──┐</span>
+<span class="c1">#                      │</span>
+<span class="c1">#   SRC2 ──&gt; BUFFER2 ──┴─&gt; MACHINE1 ──┬─&gt; BUFFER3 ──&gt; SINK1</span>
+<span class="c1">#      │                              │</span>
+<span class="c1">#      └─&gt; BUFFER5 ──&gt; SINK3          └─&gt; BUFFER4 ──&gt; SINK2</span>
+<span class="c1">#                                         </span>
+
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">factorysimpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.machine</span><span class="w"> </span><span class="kn">import</span> <span class="n">Machine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.edges.buffer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buffer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.source</span><span class="w"> </span><span class="kn">import</span> <span class="n">Source</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.sink</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sink</span>
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">simpy</span><span class="o">.</span><span class="n">Environment</span><span class="p">()</span>
+
+<span class="c1">#let the out_edge_selection of the source be a generator function that yields 1 or 0 based on the current time</span>
+<span class="c1"># This generator function will yield 1 if the current time is even, and 0 if it is odd.</span>
+<span class="c1"># This will simulate a scenario where the source alternates between two output edges based on the time.</span>
+<span class="c1">#out_edge_selection as a generator function for machine</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">machine_out_edge_selector</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+   <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">env</span><span class="o">.</span><span class="n">now</span><span class="o">%</span><span class="mi">2</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+         <span class="k">yield</span> <span class="mi">1</span>
+      <span class="k">else</span><span class="p">:</span>
+         <span class="k">yield</span> <span class="mi">0</span>
+
+<span class="c1">#let the in_edge_selection of the machine be a generator function that yields the index of the edge to be selected</span>
+<span class="c1"># This generator function will yield the index of the edge to be selected based on the current time.</span>
+<span class="c1"># The index will be incremented every time the generator is called, and will wrap around when it reaches the number of edges.</span>
+<span class="c1">#in_edge_selection as a generator function for machine</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">machine_in_edge_selector</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="n">env</span><span class="p">):</span>
+   <span class="n">num_edges</span><span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">in_edges</span><span class="p">)</span>
+   <span class="n">i</span><span class="o">=</span><span class="mi">0</span>
+   <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+         <span class="k">yield</span> <span class="n">i</span>
+         <span class="k">yield</span> <span class="n">i</span>
+         <span class="n">i</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">num_edges</span>
+
+<span class="c1">#let the out_edge_selection of the source be a generator function that yields 1 or 0 based on the current time</span>
+<span class="c1"># This generator function will yield 1 if the current time is even, and 0 if it is odd.</span>
+<span class="c1">#out_edge_selection as a generator function for source</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">source_out_edge_selector</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+
+   <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">env</span><span class="o">.</span><span class="n">now</span><span class="o">%</span><span class="mi">2</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+         <span class="k">yield</span> <span class="mi">1</span>
+      <span class="k">else</span><span class="p">:</span>
+         <span class="k">yield</span> <span class="mi">0</span>
+
+
+
+
+
+
+<span class="c1"># Initializing nodes</span>
+<span class="n">SRC1</span><span class="o">=</span> <span class="n">Source</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SRC1&quot;</span><span class="p">,</span>  <span class="n">inter_arrival_time</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span><span class="n">blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">out_edge_selection</span><span class="o">=</span><span class="s2">&quot;FIRST_AVAILABLE&quot;</span> <span class="p">)</span>
+<span class="n">SRC2</span><span class="o">=</span> <span class="n">Source</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SRC2&quot;</span><span class="p">,</span>  <span class="n">inter_arrival_time</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span><span class="n">blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">out_edge_selection</span><span class="o">=</span><span class="kc">None</span> <span class="p">)</span>
+<span class="n">MACHINE1</span> <span class="o">=</span> <span class="n">Machine</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;MACHINE1&quot;</span><span class="p">,</span><span class="n">work_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">processing_delay</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">in_edge_selection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">out_edge_selection</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">SINK1</span><span class="o">=</span> <span class="n">Sink</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SINK1&quot;</span><span class="p">,</span> <span class="n">in_edge_selection</span><span class="o">=</span><span class="s2">&quot;RANDOM&quot;</span> <span class="p">)</span>
+<span class="n">SINK2</span><span class="o">=</span> <span class="n">Sink</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SINK2&quot;</span><span class="p">,</span> <span class="n">in_edge_selection</span><span class="o">=</span><span class="s2">&quot;RANDOM&quot;</span>  <span class="p">)</span>
+<span class="n">SINK3</span><span class="o">=</span> <span class="n">Sink</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SINK3&quot;</span><span class="p">,</span> <span class="n">in_edge_selection</span><span class="o">=</span><span class="s2">&quot;FIRST_AVAILABLE&quot;</span>  <span class="p">)</span>
+
+<span class="c1">#initialising out_edge_selection for source</span>
+<span class="n">source_out_edge_func</span> <span class="o">=</span> <span class="n">source_out_edge_selector</span><span class="p">(</span><span class="n">SRC2</span><span class="p">,</span><span class="n">env</span><span class="p">)</span>
+<span class="n">SRC2</span><span class="o">.</span><span class="n">out_edge_selection</span> <span class="o">=</span> <span class="n">source_out_edge_func</span>
+
+<span class="c1">#initialising in_edge_selection parameter</span>
+<span class="n">machine_in_edge_func</span> <span class="o">=</span> <span class="n">machine_in_edge_selector</span><span class="p">(</span><span class="n">MACHINE1</span><span class="p">,</span><span class="n">env</span><span class="p">)</span>
+<span class="n">MACHINE1</span><span class="o">.</span><span class="n">in_edge_selection</span> <span class="o">=</span> <span class="n">machine_in_edge_func</span>
+
+<span class="c1">#initialising in_edge_selection parameter for machine</span>
+<span class="n">machine_out_edge_func</span> <span class="o">=</span> <span class="n">machine_out_edge_selector</span><span class="p">(</span><span class="n">MACHINE1</span><span class="p">,</span><span class="n">env</span><span class="p">)</span>
+<span class="n">MACHINE1</span><span class="o">.</span><span class="n">out_edge_selection</span> <span class="o">=</span> <span class="n">machine_out_edge_func</span>
+
+
+
+
+
+<span class="c1"># Initializing edges</span>
+<span class="c1"># Initializing edges</span>
+<span class="n">BUF1</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF1&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">BUF2</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF2&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">BUF3</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF3&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">BUF4</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF4&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">BUF5</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF5&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+
+
+
+<span class="c1"># Adding connections</span>
+<span class="n">BUF1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">SRC1</span><span class="p">,</span><span class="n">MACHINE1</span><span class="p">)</span>
+<span class="n">BUF2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">SRC2</span><span class="p">,</span><span class="n">MACHINE1</span><span class="p">)</span>
+<span class="n">BUF3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">MACHINE1</span><span class="p">,</span><span class="n">SINK1</span><span class="p">)</span>
+<span class="n">BUF4</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">MACHINE1</span><span class="p">,</span><span class="n">SINK2</span><span class="p">)</span>
+<span class="n">BUF5</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">SRC2</span><span class="p">,</span><span class="n">SINK3</span><span class="p">)</span>
+
+
+<span class="n">env</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">until</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</code></pre></div></p>
+<h2 id="example-to-illustrate-the-use-of-the-components-splitter-and-combiner">Example to illustrate the use of the components splitter and combiner<a class="headerlink" href="#example-to-illustrate-the-use-of-the-components-splitter-and-combiner" title="Permanent link">&para;</a></h2>
+<p><strong><em>An example to understand how to simulate packing and unpacking of items using SPLITTER and COMBINER</em></strong></p>
+<p>Consider a system which has to pack 5 base items of <code>flow_item_type</code>="item" in to an entity of <code>flow_item_type</code>="pallet". And in the same example
+the method to unpack these packed items using a SPLITTER is also shown. There are two sources, SRC1 (producing "items") and SRC2 (producing "pallets"). These flow items are combined inside combiner and are pushed to a buffer. Splitter takes the items from the combiner and splits it into items and pallets and pushes it into sinks. Out_edge_selection of the splitter is a generator function that depends on the type of the item. It chooses index 0, incase the flow item is of type "item" and 1 if it is type "pallet".</p>
+<div class="highlight"><pre><span></span><code><span class="c1">#  System layout </span>
+
+<span class="c1">#   SRC1 ──&gt; BUFFER1 ──┐</span>
+<span class="c1">#                      │</span>
+<span class="c1">#   SRC2 ──&gt; BUFFER2 ──┴─&gt; COMBINER1 ──&gt; BUFFER3 ──&gt;SPLITTER1 ──┬─&gt; BUFFER4 ──&gt; SINK1</span>
+<span class="c1">#                                                         │</span>
+<span class="c1">#                                                         └─&gt; BUFFER5 ──&gt; SINK2</span>
+<span class="c1"># </span>
+
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">factorysimpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.machine</span><span class="w"> </span><span class="kn">import</span> <span class="n">Machine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.edges.buffer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buffer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.source</span><span class="w"> </span><span class="kn">import</span> <span class="n">Source</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.sink</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sink</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.combiner</span><span class="w"> </span><span class="kn">import</span> <span class="n">Combiner</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.splitter</span><span class="w"> </span><span class="kn">import</span> <span class="n">Splitter</span>
+
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">simpy</span><span class="o">.</span><span class="n">Environment</span><span class="p">()</span>
+
+
+<span class="c1">#generator function for  out edge selection of splitter</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">splitter_out_edge_selector</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+   <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+      <span class="n">proc</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">active_process</span>
+      <span class="n">item_in_process</span><span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">item_to_put</span>
+
+      <span class="k">if</span> <span class="n">item_in_process</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unknown calling process&quot;</span><span class="p">)</span>
+
+      <span class="k">if</span> <span class="n">item_in_process</span><span class="o">.</span><span class="n">flow_item_type</span><span class="o">==</span><span class="s2">&quot;item&quot;</span> <span class="p">:</span>
+            <span class="k">yield</span> <span class="mi">0</span>
+
+      <span class="k">elif</span> <span class="n">item_in_process</span><span class="o">.</span><span class="n">flow_item_type</span><span class="o">==</span><span class="s2">&quot;pallet&quot;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">item_in_process</span><span class="o">.</span><span class="n">items</span><span class="p">)</span> <span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+
+            <span class="k">yield</span> <span class="mi">1</span>
+
+
+      <span class="k">else</span><span class="p">:</span>
+         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid item_type encountered&quot;</span><span class="p">)</span>
+
+<span class="c1"># Initializing nodes</span>
+<span class="n">SRC1</span><span class="o">=</span> <span class="n">Source</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SRC1&quot;</span><span class="p">,</span> <span class="n">flow_item_type</span> <span class="o">=</span> <span class="s2">&quot;pallet&quot;</span><span class="p">,</span> <span class="n">inter_arrival_time</span><span class="o">=</span> <span class="mf">0.8</span><span class="p">,</span><span class="n">blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">out_edge_selection</span><span class="o">=</span><span class="s2">&quot;RANDOM&quot;</span> <span class="p">)</span>
+
+<span class="n">SRC2</span><span class="o">=</span> <span class="n">Source</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SRC2&quot;</span><span class="p">,</span> <span class="n">flow_item_type</span> <span class="o">=</span> <span class="s2">&quot;item&quot;</span><span class="p">,</span>  <span class="n">inter_arrival_time</span><span class="o">=</span> <span class="mf">0.8</span><span class="p">,</span><span class="n">blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">out_edge_selection</span><span class="o">=</span><span class="s2">&quot;RANDOM&quot;</span> <span class="p">)</span>
+
+<span class="n">COMBINER1</span> <span class="o">=</span> <span class="n">Combiner</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;COMBINER1&quot;</span><span class="p">,</span> <span class="n">target_quantity_of_each_item</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">],</span> <span class="n">processing_delay</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">blocking</span><span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">out_edge_selection</span><span class="o">=</span><span class="s2">&quot;RANDOM&quot;</span> <span class="p">)</span>
+
+<span class="n">SPLITTER1</span> <span class="o">=</span> <span class="n">Splitter</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SPLITTER1&quot;</span><span class="p">,</span> <span class="n">processing_delay</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">in_edge_selection</span><span class="o">=</span><span class="s2">&quot;RANDOM&quot;</span><span class="p">,</span><span class="n">out_edge_selection</span><span class="o">=</span><span class="kc">None</span> <span class="p">)</span>
+
+
+<span class="n">SINK1</span><span class="o">=</span> <span class="n">Sink</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SINK1&quot;</span> <span class="p">)</span>
+<span class="n">SINK2</span><span class="o">=</span> <span class="n">Sink</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;SINK2&quot;</span> <span class="p">)</span>
+
+
+<span class="c1">#initialising in_edge_selection parameter for SPLITTER</span>
+<span class="n">splitter_out_edge_func</span> <span class="o">=</span> <span class="n">splitter_out_edge_selector</span><span class="p">(</span><span class="n">SPLITTER1</span><span class="p">)</span>
+<span class="n">splitter</span><span class="o">.</span><span class="n">out_edge_selection</span> <span class="o">=</span> <span class="n">splitter_out_edge_func</span>
+
+<span class="c1"># Initializing edges</span>
+<span class="n">BUF1</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF1&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;FIFO&quot;</span><span class="p">)</span>
+<span class="n">BUF2</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF2&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;FIFO&quot;</span><span class="p">)</span>
+<span class="n">BUF3</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF3&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;FIFO&quot;</span><span class="p">)</span>
+<span class="n">BUF4</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF4&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;FIFO&quot;</span><span class="p">)</span>
+<span class="n">BUF5</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;BUF5&quot;</span><span class="p">,</span> <span class="n">store_capacity</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;FIFO&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># Adding connections</span>
+<span class="n">BUF1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">SRC1</span><span class="p">,</span><span class="n">COMBINER1</span><span class="p">)</span>
+<span class="n">BUF2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">SRC2</span><span class="p">,</span><span class="n">COMBINER1</span><span class="p">)</span>
+<span class="n">BUF3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">COMBINER1</span><span class="p">,</span><span class="n">SPLITTER1</span><span class="p">)</span>
+<span class="n">BUF4</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">SPLITTER1</span><span class="p">,</span><span class="n">SINK1</span><span class="p">)</span>
+<span class="n">BUF5</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">SPLITTER1</span><span class="p">,</span><span class="n">SINK2</span><span class="p">)</span>
+
+
+<span class="n">env</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">until</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="example-with-constructs">Example with constructs<a class="headerlink" href="#example-with-constructs" title="Permanent link">&para;</a></h2>
+<p><strong><em>Here's an example that shows the utility of the constructs</em></strong></p>
+<p>Suppose you want to model an assembly line with 20 machines connected in series, each separated by a buffer. Manually creating and connecting each machine and buffer would be repetitive, error-prone, and require a lot of code. To simplify this process for large, homogeneous systems, FactorySimPy provides constructs that automate the creation and connection of such chains.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">#  System layout </span>
+
+<span class="c1">#   SRC ──&gt; BUF1 ──&gt; MACHINE1 ──&gt; BUF2 ──&gt; MACHINE2 ──&gt;   </span>
+<span class="c1">#       ──&gt; BUF3 ──&gt; MACHINE3 ──&gt; BUF4 ──&gt; MACHINE4 ──&gt;  ...</span>
+<span class="c1">#            .          .           .         .</span>
+<span class="c1">#            .          .           .         .</span>
+<span class="c1">#       ...   BUF19 ──&gt; MACHINE19 ──&gt; BUF20 ──&gt; MACHINE20 ──&gt; SINK</span>
+
+<span class="c1"># (20 machines in series, each separated by a buffer)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">factorysimpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.machine</span><span class="w"> </span><span class="kn">import</span> <span class="n">Machine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.edges.buffer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buffer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.source</span><span class="w"> </span><span class="kn">import</span> <span class="n">Source</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.sink</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sink</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.constructs.chain</span><span class="w"> </span><span class="kn">import</span> <span class="n">connect_chain_with_source_sink</span><span class="p">,</span> <span class="n">connect_nodes_with_buffers</span>    
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">simpy</span><span class="o">.</span><span class="n">Environment</span><span class="p">()</span>
+
+<span class="n">node_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+
+    <span class="s2">&quot;node_setup_time&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;work_capacity&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;processing_delay&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+    <span class="s2">&quot;in_edge_selection&quot;</span><span class="p">:</span> <span class="s2">&quot;RANDOM&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;out_edge_selection&quot;</span><span class="p">:</span> <span class="s2">&quot;FIRST_AVAILABLE&quot;</span>
+<span class="p">}</span>
+
+<span class="n">edge_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+
+    <span class="s2">&quot;store_capacity&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="s2">&quot;delay&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;LIFO&quot;</span>
+<span class="p">}</span>
+
+<span class="n">source_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+
+    <span class="s2">&quot;inter_arrival_time&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;blocking&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s2">&quot;out_edge_selection&quot;</span><span class="p">:</span> <span class="s2">&quot;FIRST_AVAILABLE&quot;</span>
+<span class="p">}</span>
+<span class="n">sink_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;Sink-1&quot;</span>
+<span class="p">}</span>
+
+
+<span class="c1"># Example for a chain of 1 machine (count=1)</span>
+<span class="n">nodes</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">sink</span> <span class="o">=</span> <span class="n">connect_chain_with_source_sink</span><span class="p">(</span>
+    <span class="n">env</span><span class="p">,</span>
+    <span class="n">count</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+    <span class="n">node_cls</span><span class="o">=</span><span class="n">Machine</span><span class="p">,</span>
+    <span class="n">edge_cls</span><span class="o">=</span><span class="n">Buffer</span><span class="p">,</span>
+    <span class="n">source_cls</span><span class="o">=</span><span class="n">Source</span><span class="p">,</span>
+    <span class="n">sink_cls</span><span class="o">=</span><span class="n">Sink</span><span class="p">,</span>
+    <span class="n">node_kwargs</span><span class="o">=</span><span class="n">node_kwargs</span><span class="p">,</span>
+    <span class="n">edge_kwargs</span><span class="o">=</span><span class="n">edge_kwargs</span><span class="p">,</span>
+    <span class="n">source_kwargs</span> <span class="o">=</span> <span class="n">source_kwargs</span><span class="p">,</span>
+    <span class="n">sink_kwargs</span><span class="o">=</span> <span class="n">sink_kwargs</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;Machine&quot;</span><span class="p">,</span>
+    <span class="n">edge_prefix</span><span class="o">=</span><span class="s2">&quot;Buffer&quot;</span>
+<span class="p">)</span>
+
+
+<span class="n">machines</span><span class="p">,</span> <span class="n">buffers</span> <span class="o">=</span> <span class="n">connect_nodes_with_buffers</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">sink</span><span class="p">)</span>
+
+
+
+
+<span class="n">env</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">until</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</code></pre></div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../basic_components/" class="btn btn-neutral float-left" title="Basic Components"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../monitoring/" class="btn btn-neutral float-right" title="Monitoring and Measurement">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/FactorySimPy/FactorySimPy" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../basic_components/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../monitoring/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
