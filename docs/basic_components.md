@@ -175,8 +175,8 @@ A machine is an active component that processes items flowing through the system
 
 - `work_capacity` - Maximum number of items that can be processed by the machine simulataneously.
 - `processing_delay`- Time taken to process an item.
-- `state` - This is the state per working thread. This is a dictionary where each key is a worker thread's ID (assigned in order of initialization), and the value is the current state of that worker.
--`state` - This is a 2-tuple, e.g., (num_active_threads, num_blocked_threads), representing the number of threads in the active and blocked states respectively; the number of threads in the IDLE_STATE can be determined by subtracting the sum of num_active_threads and num_blocked_threads from the total work_capacity (work_capacity - (num_active_threads + num_blocked_threads)).
+
+-`state_rep` - This is a 2-tuple, e.g., (num_active_threads, num_blocked_threads), representing the number of threads in the active and blocked states respectively; the number of threads in the IDLE_STATE can be determined by subtracting the sum of num_active_threads and num_blocked_threads from the total work_capacity (work_capacity - (num_active_threads + num_blocked_threads)). Inaddition to these, there is a "SETUP_STATE" for the machine and is denoted as (-1,-1).
 - `blocking`-  If True, waits for output edge to be available to accept item and pushes the item when it is available; if False, discards the item if the output edge is full.
 - `in_edge_selection`- Edge selection policy as a function to select input edge.
 - `out_edge_selection`- Edge selection policy as a function to select output edge.
@@ -200,7 +200,7 @@ At the start of the simulation, the machine waits for `node_setup_time`. This is
 The machine reports the following states based on the collective status of its threads. All the states are not mutually exclusive.
 
 
-1. "SETUP_STATE": Initialization or warm-up phase before item processing starts.
+1. "SETUP_STATE": Initialization or warm-up phase before item processing starts. Denoted as (-1,-1) in state_rep.
 
 2. "IDLE_STATE": When the machine doesnot have any worker thread that is currently getting processed or is blocked.
 
