@@ -175,8 +175,7 @@ A machine is an active component that processes items flowing through the system
 
 - `work_capacity` - Maximum number of items that can be processed by the machine simulataneously.
 - `processing_delay`- Time taken to process an item.
-
--`state_rep` - This is a 2-tuple, e.g., (num_active_threads, num_blocked_threads), representing the number of threads in the active and blocked states respectively; the number of threads in the IDLE_STATE can be determined by subtracting the sum of num_active_threads and num_blocked_threads from the total work_capacity (work_capacity - (num_active_threads + num_blocked_threads)). Inaddition to these, there is a "SETUP_STATE" for the machine and is denoted as (-1,-1).
+- `state_rep` - This is a 2-tuple, e.g., (num_processing_threads, num_blocked_threads), representing the number of threads in the processing state and blocked state respectively; the number of threads in the IDLE_STATE can be determined by subtracting the sum of num_processing_threads and num_blocked_threads from the total work_capacity (work_capacity - (num_processing_threads + num_blocked_threads)). Inaddition to these, there is a "SETUP_STATE" for the machine and is denoted as (-1,-1).
 - `blocking`-  If True, waits for output edge to be available to accept item and pushes the item when it is available; if False, discards the item if the output edge is full.
 - `in_edge_selection`- Edge selection policy as a function to select input edge.
 - `out_edge_selection`- Edge selection policy as a function to select output edge.

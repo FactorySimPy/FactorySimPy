@@ -11,13 +11,16 @@ class Machine(Node):
         This Machine can have multiple input edges and  output edges.
 
         Parameters:
-            state (str): Current state of the machine node. One of :
-                   
-                - SETUP_STATE: Initial setup phase before machine starts to operate.
-                - IDLE_STATE: Worker threads waiting to receive items.
-                - PROCESSING_STATE: Actively processing items.
-                - BLOCKED_STATE: When all the worker threads are waiting to push the processed item but the out going edge is full.
-           
+            state_rep (tuple): Current state of the machine node representates as a tuple based on the state of the worker threads (num_worker_threads_processing, num_worker_threads_blocked). Worker threads can be either in the processing state or in the blocked state. Based on that machine can be in one or many of the following states:
+
+                - SETUP_STATE: Initial setup phase before machine starts to operate. Denoted as (-1,-1)
+                - IDLE_STATE: Worker threads waiting to receive items. Denoted as (0,0)
+                - ATLEAST_ONE_PROCESSING_STATE: Active state where items are being processed. State when atleast one thread is in processing state.
+                - ALL_ACTIVE_BLOCKED_STATE: The state when all the worker_threads that are currently active are in "BLOCKED_STATE" as they are waiting for the out edge to be available to accept the processed item.  Number of active threads can be equal to greater than work_capacity.
+                - ALL_ACTIVE_PROCESSING_STATE: The state when all the active threads are in processing state. Number of active threads can be equal to greater than work_capacity.
+                - ATLEAST_ONE_BLOCKED_STATE: The state when atleast one of the worker_threads is in "BLOCKED_STATE" as it is waiting for the out edge to be available to accept the processed item.
+
+                
             blocking (bool): If True, the source waits until it can put an item into the out edge. If False, it discards the item if the out edge is full and cannot accept the item that is being pushed by the machine.
             work_capacity (int): Maximum no. of processing that can be performed simultaneously.1  worker thread can process one item.
             processing_delay (None, int, float, Generator, Callable): Delay for processing items. Can be:
