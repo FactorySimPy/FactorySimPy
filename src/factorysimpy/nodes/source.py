@@ -329,10 +329,10 @@ class Source(Node):
                 i+=1
                 if self.flow_item_type == "item":
                     item = Item(f'item_{self.id+"_"+str(i)}')
-                    item.length = 1.0
+                    item.length = 0.5
                 else:
                     item = Pallet(f'pallet_{self.id+"_"+str(i)}')
-                    item.length = 1.0
+                    item.length = 0.5
                 #item.set_creation(self.id, self.env)
                 self.stats["num_item_generated"] +=1
                 #edgeindex_to_put = next(self.out_edge_selection)

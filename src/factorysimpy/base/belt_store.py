@@ -4,6 +4,7 @@
 
 import simpy
 import math
+import numpy as np
 from simpy.resources.store import Store
 
 class BeltStore(Store):
@@ -170,8 +171,9 @@ class BeltStore(Store):
                 if self.noaccumulation_mode_on==False:
                     time_on_belt = self.env.now- self.items[-1][0].conveyor_entry_time - self.items[-1][0].total_interruption_time 
                     if self.items[-1][0].interruption_start_time is not None:
-                        time_on_belt = self.env.now- self.items[-1][0].conveyor_entry_time - (self.env.now - self.items[-1][0].interruption_start_time) - self.items[-1][0].total_interruption_time
-                    if time_on_belt>= self.items[-1][0].length/self.speed:
+                        time_on_belt = np.round(self.env.now- self.items[-1][0].conveyor_entry_time - (self.env.now - self.items[-1][0].interruption_start_time) - self.items[-1][0].total_interruption_time)
+                    print(f"T={self.env.now:.2f}: time_on_belt1111 is {np.round(time_on_belt)}, item length is {self.items[-1][0].length}, speed is {self.speed}, length/speed is {self.items[-1][0].length/self.speed}")
+                    if np.round(time_on_belt,1)>= self.items[-1][0].length/self.speed:
                     #if self.env.now>= self.items[-1][0].conveyor_entry_time + self.items[-1][0].length/self.speed:
                         #print(f"At time={self.env.now:.2f}, Process {self.env.active_process} "
                         # f"reserved space. Total reservations: {len(self.reservations_put)}")

@@ -20,15 +20,15 @@ env = simpy.Environment()
 
 
 # Initializing nodes
-SRC= Source(env, id="SRC",  inter_arrival_time=2,blocking=True, out_edge_selection="FIRST_AVAILABLE" )
+SRC= Source(env, id="SRC",  inter_arrival_time=.3,blocking=True, out_edge_selection="FIRST_AVAILABLE" )
 
 #src= Source(env, id="Source-1",  inter_arrival_time=0.2,blocking=True,out_edge_selection=0 )
-MACHINE1 = Machine(env, id="MACHINE1", node_setup_time=0, work_capacity=2, blocking=True, processing_delay=2, in_edge_selection="FIRST_AVAILABLE", out_edge_selection="ROUND_ROBIN")
+MACHINE1 = Machine(env, id="MACHINE1", node_setup_time=0, work_capacity=2, blocking=True, processing_delay=3, in_edge_selection="FIRST_AVAILABLE", out_edge_selection="ROUND_ROBIN")
 SINK= Sink(env, id="SINK")
 
 # Initializing edges
 BUFFER1 = Buffer(env, id="BUFFER1", capacity=4, delay=0, mode="FIFO")
-CONVEYORBELT1 = ConveyorBelt(env, id="CONVEYORBELT1", capacity=4, speed=1, length=1, accumulating=0)
+CONVEYORBELT1 = ConveyorBelt(env, id="CONVEYORBELT1", capacity=10, speed=1, length=0.5, accumulating=0)
 
 
 
