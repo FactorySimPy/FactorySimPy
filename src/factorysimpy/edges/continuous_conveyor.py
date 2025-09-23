@@ -159,8 +159,8 @@ class ConveyorBelt(Edge):
             return False
     
     def reserve_put(self):
-       #if self.accumulating==0 and self.noaccumulation_mode_on==True:
-       print(f"T={self.env.now:.2f}: {self.id }: attempting to reserve_put an item while non accumulating mode on and {self.state} and {self.belt.noaccumulation_mode_on}")
+       if self.accumulating==0 and self.noaccumulation_mode_on==True:
+         print(f"T={self.env.now:.2f}: {self.id }: attempting to reserve_put an item while non accumulating mode on and {self.state} and {self.belt.noaccumulation_mode_on}")
        return self.belt.reserve_put()
     
     def put(self, event, item):
@@ -258,6 +258,7 @@ class ConveyorBelt(Edge):
        while True:
           print(f"T={self.env.now:.2f}: {self.id } is in {self.state}")
           print(f"T={self.env.now:.2f}: {self.id } belt pattern: {self.belt._get_belt_pattern()[1]}, {[i[0].id for i in reversed(self.belt.items)]}, ready items: {[i.id for i in self.belt.ready_items]} ")
+          
 
 
           if self.is_empty():
@@ -346,7 +347,7 @@ class ConveyorBelt(Edge):
             # When conveyor becomes stalled (either accumulating or non-accumulating), apply selective interruption
             if not self.accumulating:
                 self.belt.noaccumulation_mode_on = True
-                
+
             self.belt.selective_interrupt(f"Conveyor {self.id} selective interruption - {new_state}")
         elif old_state in ["STALLED_ACCUMULATING_STATE", "STALLED_NONACCUMULATING_STATE"] and new_state in ["MOVING_STATE", "IDLE_STATE"]:
             # When conveyor resumes to moving or becomes idle, resume all belt store processes
@@ -354,6 +355,7 @@ class ConveyorBelt(Edge):
             if not self.accumulating:
                 self.belt.noaccumulation_mode_on = False
             self.belt.resume_all_move_processes()
+            self.belt.interrupt_and_resume_all_delayed_interrupt_processes()
         else:
             print("state changes from",old_state,"to",  new_state)
 

@@ -177,4 +177,21 @@ class Edge:
     def can_get(self):
         #Override this method in subclasses
         raise NotImplementedError("This method should be implemented in subclasses.")
+
+    def reserve_get(self):
+        #Override this method in subclasses
+        raise NotImplementedError("This method should be implemented in subclasses.")
+
+    def reserve_put(self):
+        #Override this method in subclasses
+        raise NotImplementedError("This method should be implemented in subclasses.")
+    
+    def get(self):
+        #Override this method in subclasses
+        raise NotImplementedError("This method should be implemented in subclasses."
+                                  )
+    
+    def put(self, item):
+        #Override this method in subclasses
+        raise NotImplementedError("This method should be implemented in subclasses.")
     

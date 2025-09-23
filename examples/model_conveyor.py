@@ -26,8 +26,8 @@ SRC2= Source(env, id="SRC2",  inter_arrival_time=0.3,blocking=True, out_edge_sel
 SRC3= Source(env, id="SRC3",  inter_arrival_time=0.2,blocking=True, out_edge_selection=0 )
 
 #src= Source(env, id="Source-1",  inter_arrival_time=0.2,blocking=True,out_edge_selection=0 )
-CONVEYORBELT= ConveyorBelt(env, id="CONVEYORBELT1", capacity=5, speed=1, length=1, accumulating=0)
-MACHINE3 = Machine(env, id="MACHINE3", node_setup_time=0, work_capacity=1, blocking=True, processing_delay=.5, in_edge_selection="ROUND_ROBIN", out_edge_selection="FIRST_AVAILABLE")
+CONVEYORBELT= ConveyorBelt(env, id="CONVEYORBELT1", capacity=4, speed=1, length=1, accumulating=1)
+MACHINE3 = Machine(env, id="MACHINE3", node_setup_time=0, work_capacity=1, blocking=True, processing_delay=2, in_edge_selection="ROUND_ROBIN", out_edge_selection="FIRST_AVAILABLE")
 SINK= Sink(env, id="SINK")
 #SPLITTER= Splitter(env, id="Splitter1", node_setup_time=0, blocking=True, processing_delay=0.5, in_edge_selection="FIRST_AVAILABLE", out_edge_selection="ROUND_ROBIN")
 MACHINE1 = Machine(env, id="MACHINE1", node_setup_time=0, work_capacity=1, blocking=True, processing_delay=5, in_edge_selection="ROUND_ROBIN", out_edge_selection="FIRST_AVAILABLE")

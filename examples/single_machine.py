@@ -17,14 +17,14 @@ def distribution_generator(loc=4.0, scale=5.0, size=1):
         yield delay[0]
 
 # Initializing nodes
-src= Source(env, id="Source-1",  inter_arrival_time=5,blocking=True, out_edge_selection="FIRST_AVAILABLE" )
+src= Source(env, id="Source-1", inter_arrival_time=0.25,blocking=True, out_edge_selection="FIRST_AVAILABLE" )
 #src= Source(env, id="Source-1",  inter_arrival_time=0.2,blocking=True,out_edge_selection=0 )
-m1 = Machine(env, id="M1",node_setup_time=0,work_capacity=1, processing_delay=2,in_edge_selection="FIRST_AVAILABLE",out_edge_selection="FIRST_AVAILABLE")
+m1 = Machine(env, id="M1",node_setup_time=0,work_capacity=4, processing_delay=1,in_edge_selection="FIRST_AVAILABLE",out_edge_selection="FIRST_AVAILABLE")
 
 sink= Sink(env, id="Sink-1")
 
 # Initializing edges
-buffer1 = Buffer(env, id="Buffer-1", capacity=4, delay=0, mode="LIFO")
+buffer1 = Buffer(env, id="Buffer-1", capacity=5, delay=0, mode="LIFO")
 buffer2 = Buffer(env, id="Buffer-2", capacity=1, delay=4, mode="FIFO")
 
 # Adding connections
@@ -33,26 +33,10 @@ buffer1.connect(src,m1)
 buffer2.connect(m1,sink)
 
 
-env.run(until=500)
-
-print("Time spent in each machine state:")
-for state, duration in m1.stats["total_time_spent_in_states"].items():
-    print(f"  {state:<30}: {duration:.2f}")
-
-# Compute mutually exclusive sums
-groupA_states = ["SETUP_STATE", "IDLE_STATE", "ATLEAST_ONE_PROCESSING_STATE", "ALL_ACTIVE_BLOCKED_STATE"]
-groupB_states = ["SETUP_STATE", "IDLE_STATE", "ALL_ACTIVE_PROCESSING_STATE", "ATLEAST_ONE_BLOCKED_STATE"]
-
-sum_groupA = sum(m1.stats["total_time_spent_in_states"][s] for s in groupA_states)
-sum_groupB = sum(m1.stats["total_time_spent_in_states"][s] for s in groupB_states)
-
-print("\nMutually exclusive group totals:")
-print(f"  Group A (SETUP + IDLE + ATLEAST_ONE_PROCESSING + ALL_ACTIVE_BLOCKED): {sum_groupA:.2f}")
-print(f"  Group B (SETUP + IDLE + ALL_ACTIVE_PROCESSING + ATLEAST_ONE_BLOCKED): {sum_groupB:.2f}")
+env.run(until=100)
 
 
-
-m1.update_final_state_time(500)
+m1.update_final_state_time(100)
 
 print("Simulation completed.")
 # Print statistics
@@ -85,3 +69,5 @@ sum_groupB = sum(m1.stats["total_time_spent_in_states"][s] for s in groupB_state
 print("\nMutually exclusive group totals:")
 print(f"  Group A (SETUP + IDLE + ATLEAST_ONE_PROCESSING + ALL_ACTIVE_BLOCKED): {sum_groupA:.2f}")
 print(f"  Group B (SETUP + IDLE + ALL_ACTIVE_PROCESSING + ATLEAST_ONE_BLOCKED): {sum_groupB:.2f}")
+print(f"Percentage of each state in a group, Group A: { {state: (m1.stats['total_time_spent_in_states'].get(state, 0) / sum_groupA * 100) if sum_groupA > 0 else 0 for state in groupA_states} }")
+print(f"Percentage of each state in a group, Group B: { {state: (m1.stats['total_time_spent_in_states'].get(state, 0) / sum_groupB * 100) if sum_groupB > 0 else 0 for state in groupB_states} }")
