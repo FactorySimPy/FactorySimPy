@@ -25,7 +25,7 @@ class BeltStore(BeltStore):
     from the parent class.
     """
 
-    def __init__(self, env, capacity=float('inf'), time_per_item=0):
+    def __init__(self, env, capacity=float('inf'), speed=0):
         """
         Initializes a belt store for conveyor operations.
 
@@ -34,8 +34,8 @@ class BeltStore(BeltStore):
             capacity (int, optional): The maximum number of items the store can hold.
             time_per_item (float, optional): Time taken to process each item in the belt.
         """
-        super().__init__(env, capacity, mode="FIFO")
-        self.time_per_item = time_per_item
+        super().__init__(env, capacity, mode="FIFO", speed=speed)
+        self.speed = speed
 
     def _do_put(self, event, item):
         """Override to handle the put operation with conveyor-specific logging."""
@@ -64,12 +64,12 @@ class ConveyorBelt(Edge):
         self.accumulating = accumulating
         self.speed=speed
         self.delay = int(self.length/self.speed)*capacity
-       
-        self.belt = BeltStore(env, capacity, self.delay)
+        #self.delay = (self.length*self.speed)/capacity
+        self.belt = BeltStore(env, capacity, self.speed)
       
         
         
-        self.time_per_item = self.length/self.speed
+        #self.time_per_item = self.length/self.speed
         #self.inp_buf=ReservablePriorityReqStore(env, capacity=1)
         #self.out_buf=ReservablePriorityReqStore(env, capacity=1)
         self.stats = {
@@ -181,7 +181,7 @@ class ConveyorBelt(Edge):
         """
         #delay=self.get_delay(self.delay)
         print(f"T={self.env.now:.2f}: Conveyor:put: putting item {item.id} ")
-        delay = self.capacity * self.time_per_item
+        delay = self.length * self.capacity/self.speed
         item.conveyor_entry_time = self.env.now
         item_to_put = (item, delay)
         print(f"T={self.env.now:.2f}: {self.id }:put: putting item {item_to_put[0].id} on belt with delay {item_to_put[1]} {self.state}")
