@@ -38,7 +38,7 @@ BUFFER1.connect(MACHINE1,SINK)
 
 
 
-time=20
+time= 50
 
 env.run(until=time)
 SRC.update_final_state_time(time)
@@ -133,5 +133,6 @@ stats_list=[metric, model]
 stats_rows = list(zip(*stats_list))
 # Create DataFrame and save to CSV
 stats_df = pd.DataFrame(stats_rows, columns=["Metric", "Model"])
-stats_df.to_csv("machine_model2_conveyor_stats_ref_acc_1.csv", index=False)
+#stats_df.to_csv("machine_model2_conveyor_stats_ref_acc_1.csv", index=False)
 print(CONVEYORBELT1.capacity)
+print(SINK.item_list)

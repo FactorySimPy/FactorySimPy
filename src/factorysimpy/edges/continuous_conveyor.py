@@ -162,8 +162,11 @@ class ConveyorBelt(Edge):
             return False
     
     def reserve_put(self):
+    
        if self.accumulating==0 and self.noaccumulation_mode_on==True:
          print(f"T={self.env.now:.2f}: {self.id }: attempting to reserve_put an item while non accumulating mode on and {self.state} and {self.belt.noaccumulation_mode_on}")
+       else:
+        print(f"T={self.env.now} will reserve_put yield?!?!?!!? ")
        return self.belt.reserve_put()
     
     def put(self, event, item):

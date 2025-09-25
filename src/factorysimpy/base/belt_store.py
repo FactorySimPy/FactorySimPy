@@ -170,10 +170,12 @@ class BeltStore(Store):
             if len(self.reservations_put) + len(self.items) +len(self.ready_items) < self.capacity:
                 if self.noaccumulation_mode_on==False or (self.noaccumulation_mode_on==True and len(self.ready_items)==0):
                     time_on_belt = self.env.now- self.items[-1][0].conveyor_entry_time - self.items[-1][0].total_interruption_time 
+                    print(f"T={self.env.now:.2f}: time_on_belt1111 for {self.items[-1][0].id} is {time_on_belt} rounding to {np.round(time_on_belt)}, item length is {self.items[-1][0].length}, speed is {self.speed}, length/speed is {self.items[-1][0].length/self.speed}")
                     if self.items[-1][0].interruption_start_time is not None:
-                        time_on_belt = np.round(self.env.now- self.items[-1][0].conveyor_entry_time - (self.env.now - self.items[-1][0].interruption_start_time) - self.items[-1][0].total_interruption_time)
-                    print(f"T={self.env.now:.2f}: time_on_belt1111 is {time_on_belt} rounding to {np.round(time_on_belt)}, item length is {self.items[-1][0].length}, speed is {self.speed}, length/speed is {self.items[-1][0].length/self.speed}")
-                    if np.abs(time_on_belt - self.items[-1][0].length/self.speed) < 1e-5 or time_on_belt > self.items[-1][0].length/self.speed:
+                        print(self._get_belt_pattern()[1])
+                        time_on_belt = self.env.now- self.items[-1][0].conveyor_entry_time - (self.env.now - self.items[-1][0].interruption_start_time)
+                    print(f"T={self.env.now:.2f}: time_on_belt2222 for {self.items[-1][0].id} is {time_on_belt} rounding to {np.round(time_on_belt)}, item length is {self.items[-1][0].length}, speed is {self.speed}, length/speed is {self.items[-1][0].length/self.speed}")
+                    if np.abs(time_on_belt  - self.items[-1][0].length/self.speed) < 1e-5 or time_on_belt > self.items[-1][0].length/self.speed:
                     #if self.env.now>= self.items[-1][0].conveyor_entry_time + self.items[-1][0].length/self.speed:
                         #print(f"At time={self.env.now:.2f}, Process {self.env.active_process} "
                         # f"reserved space. Total reservations: {len(self.reservations_put)}")
