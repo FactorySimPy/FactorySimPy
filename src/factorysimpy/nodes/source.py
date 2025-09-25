@@ -82,11 +82,12 @@ class Source(Node):
 
     """
 
-    def __init__(self, env, id, in_edges=None, out_edges=None, flow_item_type = "item", inter_arrival_time=0, blocking=False, out_edge_selection="FIRST_AVAILABLE" ):
+    def __init__(self, env, id, in_edges=None, out_edges=None, item_length=1, flow_item_type = "item", inter_arrival_time=0, blocking=False, out_edge_selection="FIRST_AVAILABLE" ):
         super().__init__( env, id,in_edges , out_edges )
         
         self.state = "SETUP_STATE" # Initial state of the source node
         self.blocking = blocking
+        self.item_length = item_length
         self.out_edge_selection = out_edge_selection  # Selection strategy for out edges
         self.flow_item_type = flow_item_type # Type of item to be generated, default is "item"
         self.stats = {
@@ -329,10 +330,10 @@ class Source(Node):
                 i+=1
                 if self.flow_item_type == "item":
                     item = Item(f'item_{self.id+"_"+str(i)}')
-                    item.length = 1
+                    item.length = self.item_length
                 else:
                     item = Pallet(f'pallet_{self.id+"_"+str(i)}')
-                    item.length = 1
+                    item.length = self.item_length
                 #item.set_creation(self.id, self.env)
                 self.stats["num_item_generated"] +=1
                 #edgeindex_to_put = next(self.out_edge_selection)

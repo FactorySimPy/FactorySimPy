@@ -715,6 +715,88 @@ There are two variants of conveyor available in this package:
 
 
 
+#### Continuous-type Conveyor
+
+
+This variant models a conveyor belt where items can be placed onto the belt at any time. Each item requires a fixed transport time to reach its destination. The conveyor is designed for discrete items only and has a limited carrying capacity, i.e., it can hold only a fixed number of items simultaneously.
+
+
+**Basic attributes**
+
+- `state` - current state of the conveyor
+- `capacity` - Maximum number of items that can be carried simultaneously
+- `length` - Length of the item.
+- `speed` - speed of the conveyor belt (can be a constant)
+- `accumulating` - Whether the belt supports accumulation (1 for yes, 0 for no)
+
+
+
+
+
+
+**Behavior**
+
+During a simulation run, a Conveyor that is initially empty begins operation as soon as it receives its first item. Each item requires a fixed transport time to reach the opposite end of the belt. The time delay to transport an item on the conveyor is calculated as item_length × conveyor_capacity / conveyor_speed. A new item can be added only after item_length/ conveyor_speed amount of time is incurred after the last item is put on the belt. The conveyor continues moving until the leading item reaches the destination node (dest_node). If the destination node does not accept the item, the conveyor enters a STALLED state.
+
+ - An accumulating conveyor can continue to accept new items while stalled, provided there is remaining capacity.
+
+ - A non-accumulating conveyor cannot accept new items while stalled.
+
+ During its operation, the source transitions through the following states:
+
+
+1. "SETUP_STATE": Initialization or warm-up phase.
+
+2. "MOVING_STATE": state when the belt is moving.
+
+3. "STALLED_ACCUMULATING_STATE": a belt (configured to be accumulating) becomes stalled when it has an item that is ready to be taken by the destination node.
+
+4. "STALLED_NONACCUMULATING_STATE: a belt (configured to be non-accumulating) becomes stalled when it has an item that is ready to be taken by the destination node.
+
+Conveyors can be either `accumulating` or `non-accumulating`:
+
+1. A `non-accumulating` type conveyor will not allow `src_node` to push items into the conveyor if it is in a stalled state
+
+2. A `accumulating` conveyor allows src_node to push items until its capacity is reached when when it is in stalled state.
+
+
+
+
+
+**Usage**
+
+A continuous-type can be initialized as below:
+
+```python
+import factorysimpy
+from factorysimpy.edges.continuous_conveyor import ConveyorBelt
+
+CONVEYORBELT1 = ConveyorBelt(
+    env,                     # Simulation environment
+    id="CONVEYORBELT1",      # Unique identifier for the fleet
+    capacity=5,              # Capacity of the conveyor
+    speed=1,                 # Speed of the conveyor
+    length=1,                # Length of the item
+    accumulating=True        # If the conveyor is in Accumulating mode or not
+    
+)
+```
+
+
+**Monitoring and Reporting**
+The component reports the following key metrics:
+
+1. Time averaged number of items 
+
+
+**Examples**
+
+- ***[A simple example with a continuous-type conveyor belt](examples.md/#a-simple-example-with-continuous-type-conveyor)***
+
+
+
+<hr style="height:4px;border:none;color:blue; background-color:grey;" />
+
 
 #### Slotted-type Conveyor
 
@@ -783,80 +865,8 @@ The component reports the following key metrics:
 - ***[A simple example with a slotted-type conveyor belt](examples.md/#a-simple-example-with-slotted-type-conveyor)***
 
 
-#### Continuous-type Conveyor
 
 
-This models a conveyor belt where items can be loaded at any time and will take a fixed time intervel to reach the destination. It can only be used to move discrete items. It also has a `capacity` to specify the maximum number of items that it can hold at any given time.
-
-
-
-**Basic attributes**
-
-- `state` - current state of the conveyor
-- `capacity` - Maximum number of items that can be carried simultaneously
-- `length` - Length of the item.
-- `speed` - speed of the conveyor belt (can be a constant, generator, or callable)
-- `accumulating` - Whether the belt supports accumulation (1 for yes, 0 for no)
-
-
-
-
-
-
-**Behavior**
-
-
-During a simulation run, the Conveyor gets an item and as soon as it gets an item it starts moving and after moving it waits delay amount of time before the next move. It moves until the first item reaches the other end of the belt. If item is not taken out by a dest_npde, then conveyor will be in "BLOCKED_STATE". During its operation, the source transitions through the following states:
-
-
-1. "SETUP_STATE": Initialization or warm-up phase.
-
-2. "MOVING_STATE": state when the belt is moving.
-
-3. "STALLED_ACCUMULATING_STATE": a belt (configured to be accumulating) becomes stalled when it has an item that is ready to be taken by the destination node.
-
-4. "STALLED_NONACCUMULATING_STATE: a belt (configured to be non-accumulating) becomes stalled when it has an item that is ready to be taken by the destination node.
-
-Conveyors can be either `accumulating` or `non-accumulating`:
-
-1. A `non-accumulating` type conveyor will allow `src_node` to push items into the conveyor only once, if it is in a stalled state
-
-2. A `accumulating` conveyor allows src_node to push items until its capacity is reached when when it is in stalled state.
-
-
-**Usage**
-
-A continuous-type can be initialized as below:
-
-```python
-import factorysimpy
-from factorysimpy.edges.continuous_conveyor import ConveyorBelt
-
-CONVEYORBELT1 = ConveyorBelt(
-    env,                     # Simulation environment
-    id="CONVEYORBELT1",      # Unique identifier for the fleet
-    capacity=5,              # Capacity of the conveyor
-    speed=1,                 # Speed of the conveyor
-    length=1,                # Length of the item
-    accumulating=True        # If the conveyor is in Accumulating mode or not
-    
-)
-```
-
-
-**Monitoring and Reporting**
-The component reports the following key metrics:
-
-1. Time averaged number of items 
-
-
-**Examples**
-
-- ***[A simple example with a continuous-type conveyor belt](examples.md/#a-simple-example-with-continuous-type-conveyor)***
-
-
-
-<hr style="height:4px;border:none;color:blue; background-color:grey;" />
 
 ## BaseFlowItem
 <hr style="height:4px;border:none;color:blue; background-color:grey;" />

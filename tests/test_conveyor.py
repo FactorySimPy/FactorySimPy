@@ -87,7 +87,7 @@ def test_conveyor_1(env_for_test):
     )
     
     # create source and sink
-    src1 = Source(env, id="Source-1",  inter_arrival_time=0.3,blocking=True,out_edge_selection="FIRST_AVAILABLE" )
+    src1 = Source(env, id="Source-1", item_length=0.5, inter_arrival_time=0.3,blocking=True,out_edge_selection="FIRST_AVAILABLE" )
    
     sink = Sink(env, id="Sink-1")
     conveyor1.connect(src1, machine)
@@ -149,6 +149,51 @@ def test_conveyor_3():
     assert np.round(tot_cycletime/tot_items,3) == 8.0 #7.9
 
 
+
+
+
+def test_conveyor_4():
+    env = simpy.Environment()
+
+
+
+    # Initializing nodes
+    SRC= Source(env, id="SRC",  inter_arrival_time=1,blocking=True, out_edge_selection="FIRST_AVAILABLE" )
+
+    #src= Source(env, id="Source-1",  inter_arrival_time=0.2,blocking=True,out_edge_selection=0 )
+    MACHINE1 = Machine(env, id="MACHINE1", node_setup_time=0, work_capacity=2, blocking=True, processing_delay=1, in_edge_selection="FIRST_AVAILABLE", out_edge_selection="ROUND_ROBIN")
+    SINK= Sink(env, id="SINK")
+
+    # Initializing edges
+    BUFFER1 = Buffer(env, id="BUFFER1", capacity=4, delay=0, mode="FIFO")
+    CONVEYORBELT1 = ConveyorBelt(env, id="CONVEYORBELT1", capacity=10, speed=2, length=1, accumulating=0)
+
+
+
+    # Adding connections
+    CONVEYORBELT1.connect(SRC,MACHINE1)
+    BUFFER1.connect(MACHINE1,SINK)
+
+
+
+    time=1000
+
+    env.run(until=time)
+    SRC.update_final_state_time(time)
+    MACHINE1.update_final_state_time(time)
+    CONVEYORBELT1.update_final_conveyor_avg_content(time)
+    BUFFER1.update_final_buffer_avg_content(time)
+    SINK.update_final_state_time(time)
+
+
+    assert SINK.stats['num_item_received'] == 993 #994
+
+    # Check that machine updated its stats
+    assert np.round(CONVEYORBELT1.stats['time_averaged_num_of_items_in_conveyor'],3) == 4.985 # 4.980
+    assert SINK.stats['num_item_received']/env.now == 0.993
+    tot_cycletime = SINK.stats["total_cycle_time"]
+    tot_items = SINK.stats["num_item_received"]
+    assert np.round(tot_cycletime/tot_items,3) == 6.0 #5.99
 
 
 

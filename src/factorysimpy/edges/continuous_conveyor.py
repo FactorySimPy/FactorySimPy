@@ -231,7 +231,7 @@ class ConveyorBelt(Edge):
         self._conveyor_stats_collector()
         event= self.env.event()
         self.get_events_available.succeed()
-    
+        print(f"{self.env.now} {item.id} time in conveyor {item.conveyor_entry_time} and {item.conveyor_exit_time} - time spend in conveyor {item.conveyor_exit_time - item.conveyor_entry_time if item.conveyor_exit_time and item.conveyor_entry_time else 'N/A'}")
         return item
 
    
