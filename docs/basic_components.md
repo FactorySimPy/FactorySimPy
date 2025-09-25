@@ -723,8 +723,8 @@ This variant models a conveyor belt where items can be placed onto the belt at a
 **Basic attributes**
 
 - `state` - current state of the conveyor
-- `capacity` - Maximum number of items that can be carried simultaneously
-- `length` - Length of the item.
+- `conveyor_length` - Length of the belt
+- `item_length` - Length of the item.
 - `speed` - speed of the conveyor belt (can be a constant)
 - `accumulating` - Whether the belt supports accumulation (1 for yes, 0 for no)
 
@@ -735,13 +735,13 @@ This variant models a conveyor belt where items can be placed onto the belt at a
 
 **Behavior**
 
-During a simulation run, a Conveyor that is initially empty begins operation as soon as it receives its first item. Each item requires a fixed transport time to reach the opposite end of the belt. The time delay to transport an item on the conveyor is calculated as item_length × conveyor_capacity / conveyor_speed. A new item can be added only after item_length/ conveyor_speed amount of time is incurred after the last item is put on the belt. The conveyor continues moving until the leading item reaches the destination node (dest_node). If the destination node does not accept the item, the conveyor enters a STALLED state.
+During a simulation run, a Conveyor that is initially empty begins operation as soon as it receives its first item. Each item requires a fixed transport time to reach the opposite end of the belt. The time delay to transport an item on the conveyor is calculated as conveyor_length / conveyor_speed. A new item can be added only after item_length/ conveyor_speed amount of time is incurred after the last item is put on the belt. The conveyor continues moving until the leading item reaches the destination node (dest_node). If the destination node does not accept the item, the conveyor enters a STALLED state.
 
  - An accumulating conveyor can continue to accept new items while stalled, provided there is remaining capacity.
 
  - A non-accumulating conveyor cannot accept new items while stalled.
 
- During its operation, the source transitions through the following states:
+ During its operation, the conveyor transitions through the following states:
 
 
 1. "SETUP_STATE": Initialization or warm-up phase.
@@ -773,9 +773,9 @@ from factorysimpy.edges.continuous_conveyor import ConveyorBelt
 CONVEYORBELT1 = ConveyorBelt(
     env,                     # Simulation environment
     id="CONVEYORBELT1",      # Unique identifier for the fleet
-    capacity=5,              # Capacity of the conveyor
+    conveyor_length=5,              # Capacity of the conveyor
     speed=1,                 # Speed of the conveyor
-    length=1,                # Length of the item
+    item_length=1,                # Length of the item
     accumulating=True        # If the conveyor is in Accumulating mode or not
     
 )
@@ -800,7 +800,7 @@ The component reports the following key metrics:
 #### Slotted-type Conveyor
 
 
-This variant moves items from one end to the other at fixed time intervals, simulating a belt with predefined slots. Its behavior is governed by teo key parameters- a constant `delay` between two successive movements and `capacity` that defines the number of slots available on the conveyor. It can hold up to `capacity` number of items at a time.
+This variant moves items from one end to the other at fixed time intervals, simulating a belt with predefined slots. Its behavior is governed by teo key parameters- a constant `delay` between two successive movements and `capacity` that defines the number of slots available on the conveyor. It can hold only up to `capacity` number of items at a time.
 
 **Basic attributes**
 
@@ -815,9 +815,15 @@ This variant moves items from one end to the other at fixed time intervals, simu
 
 
 
-During a simulation run, once the conveyor receives the first item, it transitions into MOVING_STATE and begins advancing items at every delay interval. The conveyor continues this movement until the first item reaches the destination end. If the destination node does not retrieve the item, the conveyor stalls and enters one of the following states: STALLED_ACCUMULATING_STATE: for accumulating conveyors or STALLED_NONACCUMULATING_STATE: for non-accumulating conveyors. The movement resumes only after the front item is removed by the destination node.
+During a simulation run, the conveyor remains idle until it receives the first item. At that point, it transitions into MOVING_STATE and begins advancing items at fixed intervals defined by delay. Each advancement shifts all items one slot closer to the destination end. The conveyor continues moving until the leading item reaches the destination node. The conveyor continues moving until the leading item reaches the destination node (dest_node). If the destination node does not accept the item, the conveyor enters a STALLED state.
 
-During its operation, the source transitions through the following states:
+ - An accumulating conveyor can continue to accept new items while stalled, provided there is remaining capacity.
+
+ - A non-accumulating conveyor cannot accept new items while stalled.
+
+ During its operation, the conveyor transitions through the following states:
+
+
 
 
 1. "SETUP_STATE": Initialization or warm-up phase.
@@ -826,13 +832,9 @@ During its operation, the source transitions through the following states:
 
 3. "STALLED_ACCUMULATING_STATE": a belt (configured to be accumulating) becomes stalled when it has an item that is ready to be taken by the destination node.
 
-4. "STALLED_NONACCUMULATING_STATE: a belt (configured to be non-accumulating) becomes stalled when it has an item that is ready to be taken by the destination node. It will allow an item to be pushed onto belt if and only if the first slot is empty.
+4. "STALLED_NONACCUMULATING_STATE: a belt (configured to be non-accumulating) becomes stalled when it has an item that is ready to be taken by the destination node. It will not allow any item to be pushed onto belt while in this state.
 
-Conveyors can be either `accumulating` or `non-accumulating`:
 
-1. A `non-accumulating` type conveyor will allow `src_node` to push items into the conveyor only once, if it is in a stalled state
-
-2. A `accumulating` conveyor allows src_node to push items until its capacity is reached when when it is in stalled state.
 
 
 **Usage**

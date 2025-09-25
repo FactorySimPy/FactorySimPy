@@ -20,7 +20,7 @@ env = simpy.Environment()
 
 
 # Initializing nodes
-SRC= Source(env, id="SRC",  inter_arrival_time=4.3,blocking=True, out_edge_selection="FIRST_AVAILABLE" )
+SRC= Source(env, id="SRC", item_length= 0.5, inter_arrival_time=1,blocking=True, out_edge_selection="FIRST_AVAILABLE" )
 
 #src= Source(env, id="Source-1",  inter_arrival_time=0.2,blocking=True,out_edge_selection=0 )
 MACHINE1 = Machine(env, id="MACHINE1", node_setup_time=0, work_capacity=1, blocking=True, processing_delay=4, in_edge_selection="FIRST_AVAILABLE", out_edge_selection="ROUND_ROBIN")
@@ -28,7 +28,7 @@ SINK= Sink(env, id="SINK")
 
 # Initializing edges
 BUFFER1 = Buffer(env, id="BUFFER1", capacity=4, delay=0, mode="FIFO")
-CONVEYORBELT1 = ConveyorBelt(env, id="CONVEYORBELT1", capacity=4, speed=2, length=1, accumulating=1)
+CONVEYORBELT1 = ConveyorBelt(env, id="CONVEYORBELT1", conveyor_length=4, speed=1, item_length=0.5, accumulating=1)
 
 
 
@@ -38,7 +38,7 @@ BUFFER1.connect(MACHINE1,SINK)
 
 
 
-time=1000
+time=20
 
 env.run(until=time)
 SRC.update_final_state_time(time)
@@ -134,3 +134,4 @@ stats_rows = list(zip(*stats_list))
 # Create DataFrame and save to CSV
 stats_df = pd.DataFrame(stats_rows, columns=["Metric", "Model"])
 stats_df.to_csv("machine_model2_conveyor_stats_ref_acc_1.csv", index=False)
+print(CONVEYORBELT1.capacity)

@@ -1051,7 +1051,8 @@ class BeltStore(Store):
                     #break
         #print("total delay for item at pos", pos, "is", delay)
             item=belt_rep[pos][0]
-            print(items_on_real_belt,item, delay)
+            #delay = delay *( 0.5 / self.speed)
+            #print("holahola",items_on_real_belt,item, delay)
             #index = items_on_real_belt.index(item)
             interruption_plan.append({'item_index': i, 'delay': delay, "item_index_on_pattern": pos, "item_id": item})
 
@@ -1085,7 +1086,8 @@ class BeltStore(Store):
                     print(f"T={self.env.now:.2f} Found item at index {item_index} for interruption")
                     item = self.items[item_index]
                     item_id = item[0].id if hasattr(item[0], 'id') else str(id(item))
-            
+                    item_length = item[0].length if hasattr(item[0], 'length') else 1.0
+                    delay = delay * (item_length / self.speed)
 
                 
                     if delay > 0:
@@ -1176,6 +1178,9 @@ class BeltStore(Store):
         delay_for_new_item = interruption_plan[0]['delay']
 
         item_id = item[0].id if hasattr(item[0], 'id') else str(id(item))
+        item_id = item[0].id if hasattr(item[0], 'id') else str(id(item))
+        item_length = item[0].length if hasattr(item[0], 'length') else 1.0
+        delay_for_new_item = delay_for_new_item * (item_length / self.speed)
         if delay_for_new_item > 0:
             print(f"T={self.env.now:.2f} New item {item_id} will be interrupted after {delay_for_new_item} time units")
             interrupt_process= self.env.process(self._delayed_interrupt(item_id, delay_for_new_item, "New item during interruption"))

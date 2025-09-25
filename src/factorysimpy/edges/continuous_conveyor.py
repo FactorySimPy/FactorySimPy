@@ -6,6 +6,7 @@ import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 import simpy
 import random
+import numpy as np
 
 from factorysimpy.helper.item import Item
 from factorysimpy.edges.edge import Edge
@@ -55,15 +56,17 @@ class ConveyorBelt(Edge):
         accumulating (bool): Whether the belt supports accumulation (1 for yes, 0 for no).
         belt (BeltStore): The belt store object.
     """
-    def __init__(self, env, id, capacity, speed,length,accumulating):
+    def __init__(self, env, id, conveyor_length, speed,item_length,accumulating):
+        capacity = int(np.ceil(conveyor_length)/item_length)
         super().__init__(env, id, capacity)
        
         self.state = "IDLE_STATE"
-        self.length= length #length of the item
+        self.length= item_length #length of the item
+        self.conveyor_length = conveyor_length
         
         self.accumulating = accumulating
         self.speed=speed
-        self.delay = int(self.length/self.speed)*capacity
+        self.delay = int(self.conveyor_length/self.speed)*capacity
         #self.delay = (self.length*self.speed)/capacity
         self.belt = BeltStore(env, capacity, self.speed)
       
