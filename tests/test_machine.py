@@ -81,29 +81,29 @@ def test_machine_processes_multiple_inputs(setup_machine_with_buffers):
 
 
 @pytest.mark.parametrize(
-    "inter_arrival_time, processing_delay, work_capacity, buffer_capacity,  buffer1_delay, buffer2_delay",
+    "inter_arrival_time, processing_delay, work_capacity, buffer1_capacity, buffer2_capacity,, buffer1_delay, buffer2_delay",
     [   #single thread machine cases, no buffer delay
-        (1, 1, 1, 1, 0, 0),   # Case 1: Simple single-thread machine, no buffer delay
-        (0.25, 1, 1, 1,  0, 0), # Case 2: Faster arrivals, single-thread machine, no buffer delay
-        (2, 3, 1, 1, 0, 0),   # Case 3: Slower arrivals, single-thread machine, no buffer delay
+        (1, 1, 1, 4, 1, 0, 0),   # Case 1: Simple single-thread machine, no buffer delay
+        (0.25, 1, 1, 4, 1,  0, 0), # Case 2: Faster arrivals, single-thread machine, no buffer delay
+        (2, 3, 1, 4, 1, 0, 0),   # Case 3: Slower arrivals, single-thread machine, no buffer delay
         #multi thread machine cases, no buffer delay
-        (1, 1, 5, 1, 0, 0),   # Case 3: Simple multi-thread machine, no buffer delay
-        (0.5, 1, 5, 1,  0, 0), # Case 4: Faster arrivals, multi-thread machine, no buffer delay
-        (2, 3, 5, 1, 0, 0),   # Case 5: Slower arrivals, multi-thread machine, no buffer delay
+        (1, 1, 5, 4, 1, 0, 0),   # Case 3: Simple multi-thread machine, no buffer delay
+        (0.5, 1, 5,4, 1,  0, 0), # Case 4: Faster arrivals, multi-thread machine, no buffer delay
+        (2, 3, 5,4, 1, 0, 0),   # Case 5: Slower arrivals, multi-thread machine, no buffer delay
         
         # single thread machine cases, with buffer delay
-        (1, 1, 1, 1, 0, 3),   # Case 6: Balanced case with multi-thread machine
-        (0.5, 2, 1, 1, 0, 3), # Case 7: High contention scenario
-        (1, 2, 1, 1, 1, 3),   # Case 8: Buffers with delay
+        (1, 1, 1,4, 1, 0, 3),   # Case 6: Balanced case with multi-thread machine
+        (0.5, 2, 1,4, 1, 0, 3), # Case 7: High contention scenario
+        (1, 2, 1, 1,4, 1, 3),   # Case 8: Buffers with delay
 
 
         #multi thread machine cases, with buffer delay
-        (1, 1, 5, 1, 0, 3),   # Case 9: Balanced case with multi-thread machine
-        (0.5, 2, 5, 1, 0, 3), # Case 10: High contention scenario
-        (1, 2, 5, 1, 1, 3),   # Case 11: Buffers with delay
+        (1, 1, 5,4, 1, 0, 3),   # Case 9: Balanced case with multi-thread machine
+        (0.5, 2, 5,4, 1, 0, 3), # Case 10: High contention scenario
+        (1, 2, 5, 1,4, 1, 3),   # Case 11: Buffers with delay
     ]
 )
-def test_pipeline_stats(inter_arrival_time, processing_delay, buffer_capacity, work_capacity, buffer1_delay, buffer2_delay):
+def test_pipeline_stats(inter_arrival_time, processing_delay, work_capacity,buffer1_capacity,buffer2_capacity, buffer1_delay, buffer2_delay):
     """
     Build a small pipeline: Source -> Buffer1 -> Machine -> Buffer2 -> Sink
     Run the simulation and check reported stats.
@@ -114,9 +114,9 @@ def test_pipeline_stats(inter_arrival_time, processing_delay, buffer_capacity, w
 
     # Create components
     source = Source(env, id="SRC", inter_arrival_time=inter_arrival_time)
-    buffer1 = Buffer(env, id="BUF1", capacity=buffer_capacity, delay=buffer1_delay)
+    buffer1 = Buffer(env, id="BUF1", capacity=buffer1_capacity, delay=buffer1_delay)
     machine = Machine(env, id="M1", processing_delay=processing_delay, work_capacity=work_capacity)
-    buffer2 = Buffer(env, id="BUF2", capacity=buffer_capacity, delay=buffer2_delay)
+    buffer2 = Buffer(env, id="BUF2", capacity=buffer2_capacity, delay=buffer2_delay)
     sink = Sink(env, id="SNK")
 
     # Connect components
@@ -143,7 +143,7 @@ def test_pipeline_stats(inter_arrival_time, processing_delay, buffer_capacity, w
     # Report results (for manual inspection during dev)
     print("\n--- Simulation Results ---")
     print(f"Parameters: inter_arrival={inter_arrival_time}, processing_delay={processing_delay}, "
-          f"buffer_capacity={buffer_capacity}, work_capacity={work_capacity}")
+          f"buffer1_capacity={buffer1_capacity}, buffer2_capacity={buffer2_capacity}, work_capacity={work_capacity}")
     print(f"Items processed: {machine.stats['num_item_processed']}")
     print(f"Items discarded: {machine.stats['num_item_discarded']}")
     print(f"Sink received:   {sink.stats['num_item_received']}")
