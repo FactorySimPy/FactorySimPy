@@ -213,10 +213,9 @@ The machine reports the following states based on the collective status of its t
 Some of the machine states are not mutually exclusive and may occur simultaneously. However, the following groupings of states are mutually exclusive and collectively exhaustive, meaning they cover all possible scenarios without overlap within each group:
 
 Group A: {SETUP_STATE, IDLE_STATE, ATLEAST_ONE_PROCESSING_STATE, ALL_ACTIVE_BLOCKED_STATE}
-This set reflects the machine's progression during simulation.
 
 Group B: {SETUP_STATE, IDLE_STATE, ALL_ACTIVE_PROCESSING_STATE, ATLEAST_ONE_BLOCKED_STATE}
-This set captures alternate perspectives, focusing on full utilization of worker threads and partial blocking scenarios.
+
 
 Each group individually spans 100% of the machine’s operational state space, but the states within a group are mutually exclusive with respect to each other
 
