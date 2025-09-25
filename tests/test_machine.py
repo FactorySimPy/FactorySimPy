@@ -92,15 +92,15 @@ def test_machine_processes_multiple_inputs(setup_machine_with_buffers):
         (2, 3, 5,4, 1, 0, 0),   # Case 5: Slower arrivals, multi-thread machine, no buffer delay
         
         # single thread machine cases, with buffer delay
-        (1, 1, 1,4, 1, 0, 3),   # Case 6: Balanced case with multi-thread machine
-        (0.5, 2, 1,4, 1, 0, 3), # Case 7: High contention scenario
-        (1, 2, 1, 1,4, 1, 3),   # Case 8: Buffers with delay
+        (1, 1, 1,4, 1, 0, 3),   # Case 6: Balanced case with single-thread machine and buffer delay
+        (0.5, 2, 1,4, 1, 0, 3), # Case 7: faster arrivals with buffer delay
+        (1, 2, 1, 4,1, 1, 3),   # Case 8: slower arrivals with buffer delay
 
 
         #multi thread machine cases, with buffer delay
         (1, 1, 5,4, 1, 0, 3),   # Case 9: Balanced case with multi-thread machine
-        (0.5, 2, 5,4, 1, 0, 3), # Case 10: High contention scenario
-        (1, 2, 5, 1,4, 1, 3),   # Case 11: Buffers with delay
+        (0.5, 2, 5,4, 1, 0, 3), # Case 10: faster arrivals with multi-thread machine
+        (1, 2, 5, 4,1, 0, 3),   # Case 11: slower arrivals with multi-thread machine
     ]
 )
 def test_pipeline_stats(inter_arrival_time, processing_delay, work_capacity,buffer1_capacity,buffer2_capacity, buffer1_delay, buffer2_delay):
