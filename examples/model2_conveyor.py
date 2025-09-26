@@ -38,7 +38,7 @@ BUFFER1.connect(MACHINE1,SINK)
 
 
 
-time= 15
+time=1000
 
 env.run(until=time)
 SRC.update_final_state_time(time)

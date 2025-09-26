@@ -38,12 +38,18 @@ class BeltStore(Store):
            reservations_get (list):List of successful get reservations
         """
 
-    def __init__(self, env, capacity=float('inf'),mode='FIFO', speed=1):
+    def __init__(self, env, capacity=float('inf'),mode='FIFO', speed=1, accumulation_mode_indicator=True):
         """
         Initializes a reservable store with priority-based reservations.
 
         Args:
-         
+         env (simpy.Environment): The simulation environment.
+         capacity (int, optional): The maximum number of items the store can hold.
+                                    Defaults to infinity.
+         mode (str, optional): The mode of the store ('FIFO' or 'LIFO'). Defaults to 'FIFO'.
+         speed (int, optional): The speed of the conveyor belt. Defaults to 1.
+         accumulation_mode_indicator (bool, optional): Indicates if the belt is in accumulation mode.
+                                                       Defaults to True.
             capacity (int, optional): The maximum number of items the store can hold.
                                       Defaults to infinity.
         """
@@ -67,6 +73,7 @@ class BeltStore(Store):
         self.active_delayed_interrupt_processes = {}  # Dictionary to track active delayed interrupt processes
         self.resume_event = self.env.event()  # Event to signal when to resume processes
         self.noaccumulation_mode_on = False # to control if the belt is in noaccumulation mode
+        self.accumulation_mode_indicator = accumulation_mode_indicator # to indicate if the belt is in accumulation mode or not
         self.one_item_inserted = False # to control insertion of only one item in noaccumulation mode
         self.ready_item_event= self.env.event()
 
@@ -168,25 +175,36 @@ class BeltStore(Store):
         # Check if there's enough space to reserve
         if self.items:
             if len(self.reservations_put) + len(self.items) +len(self.ready_items) < self.capacity:
-                
+              
+                #if self.noaccumulation_mode_on==False or (self.noaccumulation_mode_on==True and len(self.ready_items)==0):
+                if self.accumulation_mode_indicator==True  or (self.noaccumulation_mode_on==False and len(self.ready_items)==0) or (self.noaccumulation_mode_on==True and len(self.ready_items)==0) :
 
-                if self.noaccumulation_mode_on==False or (self.noaccumulation_mode_on==True and len(self.ready_items)==0) :
                     time_on_belt = self.env.now- self.items[-1][0].conveyor_entry_time - self.items[-1][0].total_interruption_time 
+                    time_on_belt_last_item =self.env.now- self.items[0][0].conveyor_entry_time - self.items[0][0].total_interruption_time 
                     print(f"T={self.env.now:.2f}: time_on_belt1111 for {self.items[-1][0].id} is {time_on_belt} rounding to {np.round(time_on_belt)}, item length is {self.items[-1][0].length}, speed is {self.speed}, length/speed is {self.items[-1][0].length/self.speed}")
+                    
                     if self.items[-1][0].interruption_start_time is not None:
                         print(self._get_belt_pattern()[1])
-                        time_on_belt = self.env.now- self.items[-1][0].conveyor_entry_time - (self.env.now - self.items[-1][0].interruption_start_time)
+                        time_on_belt = self.env.now- self.items[-1][0].conveyor_entry_time - (self.env.now - self.items[-1][0].interruption_start_time)- self.items[-1][0].total_interruption_time
+                    if self.items[0][0].interruption_start_time is not None:
+                        print(self._get_belt_pattern()[1])
+                        time_on_belt_last_item = self.env.now- self.items[0][0].conveyor_entry_time - (self.env.now - self.items[0][0].interruption_start_time)- self.items[0][0].total_interruption_time
                     print(f"T={self.env.now:.2f}: time_on_belt2222 for {self.items[-1][0].id} is {time_on_belt} rounding to {np.round(time_on_belt)}, item length is {self.items[-1][0].length}, speed is {self.speed}, length/speed is {self.items[-1][0].length/self.speed}")
+                    #There is an item going to be in ready_items in the same time step, so do not allow another item to be put. It is because "put" was called first before the otem was moved to ready_items. all happens at same time instant.
                     if np.abs(time_on_belt  - self.items[-1][0].length/self.speed) < 1e-5 or time_on_belt > self.items[-1][0].length/self.speed:
+                        print("the last item check",self.items[0][0].id, time_on_belt_last_item)
+                        if time_on_belt_last_item >= self.items[0][0].length* self.capacity/self.speed:
+                            print("the first item check",self.items[0][0].id, time_on_belt_last_item)
                     #if self.env.now>= self.items[-1][0].conveyor_entry_time + self.items[-1][0].length/self.speed:
                         #print(f"At time={self.env.now:.2f}, Process {self.env.active_process} "
                         # f"reserved space. Total reservations: {len(self.reservations_put)}")
-                        self.reservations_put.append(event)
-                        event.succeed()
-                        print(f"T={self.env.now:.2f}: yielded reserve_put when noaccumulation_mode_on is {self.noaccumulation_mode_on}")
+                        else:
+                            self.reservations_put.append(event)
+                            event.succeed()
+                            print(f"T={self.env.now:.2f}: yielded reserve_put when noaccumulation_mode_on is {self.noaccumulation_mode_on}")
                         
         else:# if not items succeed, belt is empty and succeed immediately
-            if self.noaccumulation_mode_on==False or (self.noaccumulation_mode_on==True and len(self.ready_items)==0):
+            #if self.accumulation_mode_indicator==False or (self.accumulation_mode_indicator==True and len(self.ready_items)==0):
                 if len(self.reservations_put) + len(self.items) +len(self.ready_items) < self.capacity:
 
                     self.reservations_put.append(event)  # Add reservation
@@ -942,7 +960,8 @@ class BeltStore(Store):
             return
         
         # For accumulating mode (STALLED_ACCUMULATING_STATE), use pattern-based interruption
-        if self.noaccumulation_mode_on == False:
+        if self.accumulation_mode_indicator == True:
+        #if self.noaccumulation_mode_on == False:
             print(f"T={self.env.now:.2f} Accumulating mode: using pattern-based interruption")
         
             # Get current belt pattern

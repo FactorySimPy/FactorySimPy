@@ -39,7 +39,7 @@ def setup_machine_with_buffers(env_for_test):
     )
     
     # create source and sink
-    src1 = Source(env_for_test, id="Source-1",  inter_arrival_time=1,blocking=True,out_edge_selection="FIRST_AVAILABLE" )
+    src1 = Source(env_for_test, id="Source-1",item_length=0.5,  inter_arrival_time=3,blocking=True,out_edge_selection="FIRST_AVAILABLE" )
    
     sink = Sink(env_for_test, id="Sink-1")
     return env_for_test, machine, src1, conveyor1, buffer1,  sink
@@ -57,14 +57,14 @@ def test_conveyor_2(setup_machine_with_buffers):
     # Check that output buffer got both items
     
    
-    assert sink.stats['num_item_received'] == 664
+    assert sink.stats['num_item_received'] == 332
 
     # Check that machine updated its stats
-    assert np.round(conveyor1.stats['time_averaged_num_of_items_in_conveyor'],3) == 0.999
-    assert sink.stats['num_item_received']/env.now == 0.664
+    assert np.round(conveyor1.stats['time_averaged_num_of_items_in_conveyor'],3) == 0.289
+    assert sink.stats['num_item_received']/env.now == 0.332
     tot_cycletime = sink.stats["total_cycle_time"]
     tot_items = sink.stats["num_item_received"]
-    assert np.round(tot_cycletime/tot_items,3) == 4.498
+    assert np.round(tot_cycletime/tot_items,3) == 3.868
 
 
 def test_conveyor_1(env_for_test):

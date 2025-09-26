@@ -26,7 +26,7 @@ class BeltStore(BeltStore):
     from the parent class.
     """
 
-    def __init__(self, env, capacity=float('inf'), speed=0):
+    def __init__(self, env, capacity=float('inf'), speed=0, accumulation_mode_indicator=True):
         """
         Initializes a belt store for conveyor operations.
 
@@ -35,7 +35,7 @@ class BeltStore(BeltStore):
             capacity (int, optional): The maximum number of items the store can hold.
             time_per_item (float, optional): Time taken to process each item in the belt.
         """
-        super().__init__(env, capacity, mode="FIFO", speed=speed)
+        super().__init__(env, capacity, mode="FIFO", speed=speed, accumulation_mode_indicator=accumulation_mode_indicator)
         self.speed = speed
 
     def _do_put(self, event, item):
@@ -68,7 +68,7 @@ class ConveyorBelt(Edge):
         self.speed=speed
         self.delay = int(self.conveyor_length/self.speed)*capacity
         #self.delay = (self.length*self.speed)/capacity
-        self.belt = BeltStore(env, capacity, self.speed)
+        self.belt = BeltStore(env, capacity, self.speed, self.accumulating)
       
         
         
