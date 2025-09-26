@@ -175,7 +175,7 @@ A machine is an active component that processes items flowing through the system
 
 - `work_capacity` - Maximum number of items that can be processed by the machine simulataneously.
 - `processing_delay`- Time taken to process an item.
-- `state_rep` - This is a 2-tuple where the entries are the number of threads in the processing state and in the blocked state respectively  e.g., (num_processing_threads, num_blocked_threads). The number of threads in the IDLE_STATE can be determined by subtracting the sum of num_processing_threads and num_blocked_threads from the total work_capacity (work_capacity - (num_processing_threads + num_blocked_threads)). Inaddition to these, there is a "SETUP_STATE" for the machine and is denoted as (-1,-1). "IDLE_STATE" is when all the threads are idle
+- `state_rep` - This is a 2-tuple where the entries are the number of threads in the processing state and in the blocked state respectively  e.g., (num_processing_threads, num_blocked_threads). The number of threads in the IDLE_STATE can be determined by subtracting the sum of num_processing_threads and num_blocked_threads from the total work_capacity (work_capacity - (num_processing_threads + num_blocked_threads)). Inaddition to these, there is a "SETUP_STATE" for the machine and is denoted as (-1,-1). "IDLE_STATE" is when all the threads are idle and is represented as (0,0).
 - `blocking`-  If True, waits for output edge to be available to accept item and pushes the item when it is available; if False, discards the item if the output edge is full.
 - `in_edge_selection`- Edge selection policy as a function to select input edge.
 - `out_edge_selection`- Edge selection policy as a function to select output edge.
@@ -192,6 +192,7 @@ At the start of the simulation, the machine waits for `node_setup_time`. This is
  **States**
 
  During its operation, a machine transitions between different states based on the status of its worker threads. Each worker thread moves through the following thread level states:
+   
    - `IDLE_STATE`: All the threads are idle.
    - `PROCESSING_STATE`: The thread is actively processing an item.
    - `BLOCKED_STATE`: The thread has finished processing but is waiting for an available output edge to transfer the item.
@@ -203,17 +204,19 @@ The machine reports the following statistics for a machine based on the collecti
 
 2. total_time_idle (I): Time duration for which the machine doesnot have any worker thread that is currently getting processed or is blocked.
 
-3. total_time_atleast_one_processing (1P): Time duration for which the machine is actively processing items. There will be atleast one thread in processing state in the machine.
+3. total_time_atleast_one_processing (1P): Time duration for which the machine is actively processing items. There will be atleast one thread in processing state in the machine. 
 
-4. total_time_all_blocked (AB): Time duration for which all the worker_threads that are currently active are in "BOCKED_STATE" as they are waiting for the out edge to be available to accept the processed item.  The number of active threads can be equal to less than work_capacity.
+4. total_time_all_blocked (AB): Time duration for which all the worker_threads that are currently active are in "BOCKED_STATE" as they are waiting for the out edge to be available to accept the processed item.  The number of active threads can be equal to less than work_capacity. ie, there will >=1 threads in blocked state, >=0 threads in idle state and no threads in processing state.
+
 5. total_time_all_active_processing (AP): Time duration for which all the active threads are in processing state. The number of active threads can be equal to less than work_capacity.
 
 6. total_time_atleast_one_blocked (1B): Time duration for which atleast one of the worker_threads is in "BOCKED_STATE" as it is waiting for the out edge to be available to accept the processed item.
 
-Some of the reported statistics are not mutually exclusive and may occur simultaneously. However, the following groupings of states are mutually exclusive and collectively exhaustive, meaning they cover all possible scenarios without overlap within each group:
+Some of the reported statistics are not mutually exclusive and may occur simultaneously. However, the following groupings are mutually exclusive and collectively exhaustive, meaning they cover all possible scenarios without overlap within each group:
 
-Group A: {S+I+1P+AB} = total simulation time
-Group B: {S+I+AP+1B} = total simulation time
+Group A: {S + I + 1P + AB} = total simulation time
+
+Group B: {S + I + AP + 1B} = total simulation time
 
 
 Each group individually spans 100% of the simulation time.
@@ -260,10 +263,7 @@ print(f"Total number of items discarded by {MACHINE1.id}={MACHINE1.stats["num_it
 print(f"Machine {MACHINE1.id},total time in BLOCKED_STATE (per thread) : {MACHINE1.per_thread_total_time_in_blocked_state}")
 print(f"Machine {MACHINE1.id},total time in PROCESSING_STATE (per thread) : {MACHINE1.per_thread_total_time_in_processing_state}")
 print(f"Worker occupancy: (Indices represent the number of active threads, and values represent the total time during which that many threads were active simultaneously)\n{MACHINE1.time_per_work_occupancy}")
-# Print time spent in each state
-print("Time spent in each machine state:")
-for state, duration in MACHINE1.stats["total_time_spent_in_states"].items():
-    print(f"  {state:<30}: {duration:.2f}")
+
 
 # Compute mutually exclusive sums
 groupA_states = ["total_time_setup","total_time_idle" , "total_time_atleast_one_processing", "total_time_all_active_blocked"]
