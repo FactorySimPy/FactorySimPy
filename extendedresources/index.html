@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://factorysimpy.github.io/FactorySimPy/extendedresources/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Supporting classes - FactorySimPy</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Supporting classes";
+        var mkdocs_page_input_path = "extendedresources.md";
+        var mkdocs_page_url = "/FactorySimPy/extendedresources/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> FactorySimPy
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Overview</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../getting_started/">Getting Started</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">SYSTEM DESCRIPTION</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../basic_components/">Basic Components</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Other features</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../monitoring/">Monitoring and Measurement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../constructs/">Constructs for Modeling</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../extending_components/">Extending Components</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../interrupts/">Modeling interrupts</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RTsimulation/">Enabling real-time simulation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">REFERENCE</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Supporting classes</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#reservablepriorityreqstore">ReservablePriorityReqStore</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example-usage">Example Usage</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usecase">Usecase</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#priorityreqstore">PriorityReqStore</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_1">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example-usage_1">Example Usage</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usecase_1">Usecase</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../api_ref_main_page_2/">API Reference</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">About</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../authors/">Authors</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../changelog/">Changelog</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../license/">License</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">FactorySimPy</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">REFERENCE</li>
+      <li class="breadcrumb-item active">Supporting classes</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/FactorySimPy/FactorySimPy/edit/master/docs/extendedresources.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="extended-resources-for-factorysimpy">Extended resources for FactorySimPy<a class="headerlink" href="#extended-resources-for-factorysimpy" title="Permanent link">&para;</a></h1>
+<hr />
+<h3 id="reservablepriorityreqstore">ReservablePriorityReqStore<a class="headerlink" href="#reservablepriorityreqstore" title="Permanent link">&para;</a></h3>
+<p style="text-align: justify;">
+The ReservablePriorityReqStore is a class derived from SimPy's Store class that addresses a missing capability in the library by allowing both priority-based retrieval and reservation of items(or space) before they are actually retrieved (or put), respecting the capacity of the store. This is particularly useful in manufacturing systems where materials or products must be allocated in advance, ensuring that specific parts are reserved for machines before processing begins. It also allows priority-based retrieval, ensuring that urgent requests are handled first. Additionally, decoupling reservation from yielding a "get" request ensures that items remain in storage until they are actually needed, and can be retrieved using a simple get method, improving coordination in assembly lines and buffer management. Only the reservation request has to be yielded, and upon yielding it, the user can just call the get or put method to get or put an item. Unlike SimPy’s existing resource reservation methods, which manage process-related elements like machines or operators, ReservablePriorityReqStore focuses on item-level management, making it a valuable addition for handling inventory, buffer stocks, and material flows in discrete-event simulations. 
+However, when implementing SimPy interrupts, the events should be manually canceled in case of an interruption.
+</p>
+
+<p>The <code>ReservablePriorityReqStore</code> extends SimPy's <code>Store</code> by allowing users to:  </p>
+<ul>
+<li>
+<p><strong>Reserve Capacity</strong>: Processes can reserve space (or item) in the store before actually putting (or getting) in it.  </p>
+</li>
+<li>
+<p><strong>Enforce Reservation Rules</strong>: Prohibits any process from adding (or getting) items to the store without a prior reservation.  </p>
+</li>
+<li>
+<p><strong>Priority for requests</strong>: Users can pass a priority along with the reservation requests. The requests with the highest priority(lowest first) will be yielded first. Two requests with same priority will be yielded in a FIFO manner.</p>
+</li>
+<li>
+<p><strong>Cancel a reservation</strong>: Allows users to cancel a placed/yielded reserve_put (or reserve_get) request.</p>
+</li>
+</ul>
+<h5 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h5>
+<ul>
+<li><strong><code>env</code></strong>: The SimPy environment managing the simulation.  </li>
+<li><strong><code>capacity</code></strong>: Maximum number of items the store can hold (default: infinite).  </li>
+</ul>
+<h5 id="example-usage">Example Usage<a class="headerlink" href="#example-usage" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">simpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ReservablePriorityReqStore</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReservablePriorityReqStore</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Item</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents an item to be stored.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+<span class="c1"># Simulation Setup</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">simpy</span><span class="o">.</span><span class="n">Environment</span><span class="p">()</span>
+<span class="n">itemstore</span> <span class="o">=</span> <span class="n">ReservablePriorityReqStore</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">producer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">itemstore</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">priority</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Producer process produces items and puts it in the store.&quot;&quot;&quot;</span>
+    <span class="k">yield</span> <span class="n">env</span><span class="o">.</span><span class="n">timeout</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>  <span class="c1"># Simulate time before producing</span>
+
+    <span class="n">put_reservation</span> <span class="o">=</span> <span class="n">itemstore</span><span class="o">.</span><span class="n">reserve_put</span><span class="p">(</span><span class="n">priority</span><span class="o">=</span><span class="n">priority</span><span class="p">)</span>
+    <span class="k">yield</span> <span class="n">put_reservation</span>  <span class="c1"># Wait for reservation to succeed</span>
+
+    <span class="n">item</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">itemstore</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">put_reservation</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;T=</span><span class="si">{</span><span class="n">env</span><span class="o">.</span><span class="n">now</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> : </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> added to store with priority </span><span class="si">{</span><span class="n">priority</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">consumer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">itemstore</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">cancel</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Consumer process picks up items from the store.&quot;&quot;&quot;</span>
+
+    <span class="n">get_reservation</span> <span class="o">=</span> <span class="n">itemstore</span><span class="o">.</span><span class="n">reserve_get</span><span class="p">(</span><span class="n">priority</span><span class="o">=</span><span class="n">priority</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;T=</span><span class="si">{</span><span class="n">env</span><span class="o">.</span><span class="n">now</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> : </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> placed a reserve_get request </span>
+             <span class="n">to</span> <span class="n">store</span> <span class="k">with</span> <span class="n">priority</span> <span class="p">{</span><span class="n">priority</span><span class="p">}</span><span class="s2">&quot;)</span>
+
+    <span class="k">if</span> <span class="n">cancel</span> <span class="ow">and</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]):</span>
+        <span class="n">itemstore</span><span class="o">.</span><span class="n">reserve_get_cancel</span><span class="p">(</span><span class="n">get_reservation</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;T=</span><span class="si">{</span><span class="n">env</span><span class="o">.</span><span class="n">now</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> : </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> CANCELED reservation&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">yield</span> <span class="n">get_reservation</span>  <span class="c1"># Wait for reservation to succeed</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;T=</span><span class="si">{</span><span class="n">env</span><span class="o">.</span><span class="n">now</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> : </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> yielded from store with priority </span><span class="si">{</span><span class="n">priority</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">yield</span> <span class="n">env</span><span class="o">.</span><span class="n">timeout</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+    <span class="n">item</span> <span class="o">=</span> <span class="n">itemstore</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">get_reservation</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;T=</span><span class="si">{</span><span class="n">env</span><span class="o">.</span><span class="n">now</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> : </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> retrieved </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> from store with </span>
+                <span class="n">priority</span> <span class="p">{</span><span class="n">priority</span><span class="p">}</span><span class="s2">&quot;)</span>
+
+<span class="c1"># Creating producers and consumers</span>
+<span class="n">env</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">consumer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">itemstore</span><span class="p">,</span> <span class="s2">&quot;Consumer1&quot;</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">cancel</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="n">env</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">consumer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">itemstore</span><span class="p">,</span> <span class="s2">&quot;Consumer2&quot;</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">env</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">consumer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">itemstore</span><span class="p">,</span> <span class="s2">&quot;Consumer3&quot;</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+
+
+<span class="n">env</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">producer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">itemstore</span><span class="p">,</span> <span class="s2">&quot;ItemA&quot;</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">env</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">producer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">itemstore</span><span class="p">,</span> <span class="s2">&quot;ItemB&quot;</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">env</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">producer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">itemstore</span><span class="p">,</span> <span class="s2">&quot;ItemC&quot;</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+
+
+<span class="n">env</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">until</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Simulation output</strong><br />
+<div class="highlight"><pre><span></span><code>T=0.00 : Consumer1 placed a reserve_get request to store with priority 3
+T=0.00 : Consumer1 CANCELED reservation
+T=0.00 : Consumer2 placed a reserve_get request to store with priority 1
+T=0.00 : Consumer3 placed a reserve_get request to store with priority 2
+T=2.14 : ItemB added to store with priority 1
+T=2.14 : Consumer2 yielded from store with priority 1
+T=2.23 : ItemA added to store with priority 2
+T=2.23 : Consumer3 yielded from store with priority 2
+T=2.54 : ItemC added to store with priority 3
+T=5.40 : Consumer2 retrieved ItemB from store with priority 1
+T=6.02 : Consumer3 retrieved ItemA from store with priority 2 
+</code></pre></div></p>
+<h5 id="usecase">Usecase<a class="headerlink" href="#usecase" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><span class="c1"># @title Usecase</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">simpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ReservablePriorityReqStore</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReservablePriorityReqStore</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">In this simulation, two machines (MachineGreen and MachineOrange) produce</span>
+<span class="sd">new items by consuming specific part. MachineGreen,which produces green balls, </span>
+<span class="sd">requests parts (like yellow and blue balls) with a higher priority, while </span>
+<span class="sd">MachineOrange, which produces orange balls, requests parts</span>
+<span class="sd">(like yellow and red balls) with lower priority. Producers generate red, yellow, </span>
+<span class="sd">and blue balls at defined intervals, and consumers retrieve the assembled green </span>
+<span class="sd">and orange balls from their respective stores.&#39;&#39;&#39;</span>
+
+
+
+<span class="c1"># ----- Producer -----</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">producer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">interarrival</span><span class="p">,</span> <span class="n">store</span><span class="p">,</span> <span class="n">item_prefix</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Produces items with a given prefix into a store.&quot;&quot;&quot;</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">env</span><span class="o">.</span><span class="n">timeout</span><span class="p">(</span><span class="n">interarrival</span><span class="p">)</span>
+        <span class="n">put_req</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">reserve_put</span><span class="p">()</span>
+        <span class="k">yield</span> <span class="n">put_req</span>
+        <span class="n">item_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">item_prefix</span><span class="si">}{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">store</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">put_req</span><span class="p">,</span> <span class="n">item_name</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;T=</span><span class="si">{</span><span class="n">env</span><span class="o">.</span><span class="n">now</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">: Producer </span><span class="si">{</span><span class="n">item_prefix</span><span class="si">}</span><span class="s2">: added </span><span class="si">{</span><span class="n">item_name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="c1"># ----- Consumer -----</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">consumer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">interarrival</span><span class="p">,</span> <span class="n">store</span><span class="p">,</span> <span class="n">consumer_name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Consumes items from a store.&quot;&quot;&quot;</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">env</span><span class="o">.</span><span class="n">timeout</span><span class="p">(</span><span class="n">interarrival</span><span class="p">)</span>
+        <span class="n">get_req</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">reserve_get</span><span class="p">()</span>
+        <span class="k">yield</span> <span class="n">get_req</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">get_req</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;T=</span><span class="si">{</span><span class="n">env</span><span class="o">.</span><span class="n">now</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">: Consumer </span><span class="si">{</span><span class="n">consumer_name</span><span class="si">}</span><span class="s2">: got item </span><span class="si">{</span><span class="n">item</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># ----- Machine -----</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">machine</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">delay</span><span class="p">,</span> <span class="n">input_stores</span><span class="p">,</span> <span class="n">input_priorities</span><span class="p">,</span> 
+               <span class="n">output_store</span><span class="p">,</span> <span class="n">output_prefix</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A machine that requests multiple items from input stores </span>
+<span class="sd">    (with optional priorities),waits processing time, and outputs a new item.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        input_stores (list): list of stores to get inputs from</span>
+<span class="sd">        input_priorities (list): list of priorities (None if no priority)</span>
+<span class="sd">        output_store: where to put output</span>
+<span class="sd">        output_prefix: name prefix for output items</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">put_req</span> <span class="o">=</span> <span class="n">output_store</span><span class="o">.</span><span class="n">reserve_put</span><span class="p">()</span>
+        <span class="k">yield</span> <span class="n">put_req</span>
+
+        <span class="c1"># Request input items</span>
+        <span class="n">input_requests</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">store</span><span class="p">,</span> <span class="n">priority</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">input_stores</span><span class="p">,</span> <span class="n">input_priorities</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">priority</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">req</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">reserve_get</span><span class="p">(</span><span class="n">priority</span><span class="o">=</span><span class="n">priority</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">req</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">reserve_get</span><span class="p">()</span>
+            <span class="n">input_requests</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;T=</span><span class="si">{</span><span class="n">env</span><span class="o">.</span><span class="n">now</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">: Machine </span><span class="si">{</span><span class="n">output_prefix</span><span class="si">}</span><span class="s2">: waiting to yield </span>
+                           <span class="n">reserve_get</span> <span class="n">requests</span><span class="s2">&quot;)</span>
+        <span class="k">yield</span> <span class="n">env</span><span class="o">.</span><span class="n">all_of</span><span class="p">(</span><span class="n">input_requests</span><span class="p">)</span>
+
+        <span class="c1"># Get input items</span>
+        <span class="k">for</span> <span class="n">store</span><span class="p">,</span> <span class="n">req</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">input_stores</span><span class="p">,</span> <span class="n">input_requests</span><span class="p">):</span>
+            <span class="n">store</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;T=</span><span class="si">{</span><span class="n">env</span><span class="o">.</span><span class="n">now</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">: Machine </span><span class="si">{</span><span class="n">output_prefix</span><span class="si">}</span><span class="s2">: got both inputs&quot;</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">env</span><span class="o">.</span><span class="n">timeout</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span>
+
+        <span class="n">output_store</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">put_req</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_prefix</span><span class="si">}{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;T=</span><span class="si">{</span><span class="n">env</span><span class="o">.</span><span class="n">now</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">: Machine </span><span class="si">{</span><span class="n">output_prefix</span><span class="si">}</span><span class="s2">: finished product is </span>
+                        <span class="n">available</span> <span class="ow">in</span> <span class="n">its</span> <span class="n">store</span><span class="s2">&quot;)</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="c1"># ----- Simulation Setup -----</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_simulation</span><span class="p">():</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">simpy</span><span class="o">.</span><span class="n">Environment</span><span class="p">()</span>
+
+    <span class="c1"># Create Stores</span>
+    <span class="n">redstore</span> <span class="o">=</span> <span class="n">ReservablePriorityReqStore</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">yellowstore</span> <span class="o">=</span> <span class="n">ReservablePriorityReqStore</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">bluestore</span> <span class="o">=</span> <span class="n">ReservablePriorityReqStore</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">orangestore</span> <span class="o">=</span> <span class="n">ReservablePriorityReqStore</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">greenstore</span> <span class="o">=</span> <span class="n">ReservablePriorityReqStore</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Producer setups</span>
+    <span class="n">producer_params</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">redstore</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">yellowstore</span><span class="p">,</span> <span class="s2">&quot;yellow&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">bluestore</span><span class="p">,</span> <span class="s2">&quot;blue&quot;</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Consumer setups</span>
+    <span class="n">consumer_params</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">orangestore</span><span class="p">,</span> <span class="s2">&quot;orange&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">greenstore</span><span class="p">,</span> <span class="s2">&quot;green&quot;</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Machine setups</span>
+    <span class="n">machine_params</span> <span class="o">=</span> <span class="p">[</span>
+       <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="n">yellowstore</span><span class="p">,</span> <span class="n">redstore</span><span class="p">],</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">orangestore</span><span class="p">,</span> <span class="s2">&quot;orange&quot;</span><span class="p">),</span><span class="c1">#Machine1</span>
+       <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="n">yellowstore</span><span class="p">,</span> <span class="n">bluestore</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">greenstore</span><span class="p">,</span> <span class="s2">&quot;green&quot;</span><span class="p">)</span> <span class="c1"># Machine2</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Start Producers</span>
+    <span class="k">for</span> <span class="n">interarrival</span><span class="p">,</span> <span class="n">store</span><span class="p">,</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="n">producer_params</span><span class="p">:</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">producer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">interarrival</span><span class="p">,</span> <span class="n">store</span><span class="p">,</span> <span class="n">prefix</span><span class="p">))</span>
+
+    <span class="c1"># Start Consumers</span>
+    <span class="k">for</span> <span class="n">interarrival</span><span class="p">,</span> <span class="n">store</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">consumer_params</span><span class="p">:</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">consumer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">interarrival</span><span class="p">,</span> <span class="n">store</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+
+    <span class="c1"># Start Machines</span>
+    <span class="k">for</span> <span class="n">delay</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">priorities</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="n">machine_params</span><span class="p">:</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">machine</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">delay</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">priorities</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">prefix</span><span class="p">))</span>
+
+    <span class="c1"># Run Simulation</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">until</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+
+
+<span class="c1"># Run it</span>
+<span class="n">run_simulation</span><span class="p">()</span>
+</code></pre></div>
+<p><strong>Simulation output</strong> </p>
+<div class="highlight"><pre><span></span><code>T=0.00: Machine orange: waiting to yield reserve_get requests
+T=0.00: Machine green: waiting to yield reserve_get requests
+T=1.00: Producer red: added red1 
+T=1.00: Producer blue: added blue1 
+T=2.00: Producer yellow: added yellow1
+T=2.00: Producer red: added red2 
+T=2.00: Producer blue: added blue2
+T=2.00: Machine green: got both inputs
+T=3.00: Machine green: finished product is available in its store
+T=3.00: Producer red: added red3 
+T=3.00: Producer blue: added blue3
+T=3.00: Consumer green: got item green0
+T=3.00: Machine green: waiting to yield reserve_get requests
+T=4.00: Producer yellow: added yellow2 
+T=4.00: Producer red: added red4 
+T=4.00: Producer blue: added blue4 
+T=4.00: Machine green: got both inputs
+</code></pre></div>
+<p><a href="../reservablepriorityreqstore/">Go to API Reference</a></p>
+<hr />
+<h2 id="priorityreqstore">PriorityReqStore<a class="headerlink" href="#priorityreqstore" title="Permanent link">&para;</a></h2>
+<p style="text-align: justify;">
+PriorityReqStore is a resource store with priority handling capabilities. Users can add a priority for each of the get(or put) requests. Request with lower values of priority yields first among all get(or put) requests. If two requests with same priority are placed from two processes then FIFO order is followed to yield the requests.
+</p>
+<p><strong>Main Features:</strong></p>
+<ul>
+<li><strong>Priority for requests</strong>: Manages concurrent requests with different priority values.</li>
+</ul>
+<h5 id="parameters_1">Parameters<a class="headerlink" href="#parameters_1" title="Permanent link">&para;</a></h5>
+<ul>
+<li><strong><code>env</code></strong>: The SimPy environment managing the simulation.  </li>
+<li><strong><code>capacity</code></strong>: Maximum number of items the store can hold (default: infinite).  </li>
+</ul>
+<h3 id="example-usage_1">Example Usage<a class="headerlink" href="#example-usage_1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">simpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PriorityReqStore</span><span class="w"> </span><span class="kn">import</span> <span class="n">PriorityReqStore</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">item</span><span class="p">:</span>
+  <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">=</span><span class="n">name</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">source</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">env</span><span class="p">,</span><span class="n">delay</span><span class="p">,</span><span class="n">priority</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="n">i</span><span class="o">=</span><span class="mi">1</span>
+
+    <span class="k">yield</span> <span class="n">env</span><span class="o">.</span><span class="n">timeout</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span>
+    <span class="n">item1</span> <span class="o">=</span> <span class="n">item</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;item&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;T=</span><span class="si">{</span><span class="n">env</span><span class="o">.</span><span class="n">now</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">: Source </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> Going to put an item in </span>
+                    <span class="n">store</span> <span class="p">{</span><span class="n">item1</span><span class="o">.</span><span class="n">name</span><span class="p">}</span> <span class="k">with</span> <span class="n">priority</span> <span class="p">{</span><span class="n">priority</span><span class="p">}</span><span class="s1">&#39;)</span>
+
+    <span class="k">yield</span> <span class="n">store</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">item1</span><span class="p">,</span><span class="n">priority</span><span class="p">)</span>
+    <span class="n">i</span><span class="o">+=</span><span class="mi">2</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">sink</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">env</span><span class="p">,</span><span class="n">delay</span><span class="p">,</span><span class="n">priority</span><span class="p">):</span>
+
+    <span class="k">yield</span> <span class="n">env</span><span class="o">.</span><span class="n">timeout</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;T=</span><span class="si">{</span><span class="n">env</span><span class="o">.</span><span class="n">now</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">: Sink </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> placed a get request with </span>
+                     <span class="n">priority</span> <span class="p">{</span><span class="n">priority</span><span class="p">}</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">store</span><span class="s1">&#39;)</span>
+    <span class="n">item</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">store</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">priority</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;T=</span><span class="si">{</span><span class="n">env</span><span class="o">.</span><span class="n">now</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">: Sink </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> Got an item from store </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+
+
+<span class="n">env</span><span class="o">=</span> <span class="n">simpy</span><span class="o">.</span><span class="n">Environment</span><span class="p">()</span>
+<span class="n">store</span><span class="o">=</span> <span class="n">PriorityReqStore</span><span class="p">(</span><span class="n">env</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">p1</span><span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">sink</span><span class="p">(</span><span class="s1">&#39;OUT-1&#39;</span><span class="p">,</span><span class="n">env</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">p2</span><span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">sink</span><span class="p">(</span><span class="s1">&#39;OUT-2&#39;</span><span class="p">,</span><span class="n">env</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">p3</span><span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">source</span><span class="p">(</span><span class="s1">&#39;IN-A&#39;</span><span class="p">,</span><span class="n">env</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">p4</span><span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">source</span><span class="p">(</span><span class="s1">&#39;IN-B&#39;</span><span class="p">,</span><span class="n">env</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="n">env</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">until</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Simulation output</strong> 
+<div class="highlight"><pre><span></span><code>T=0.00: Sink OUT-1 placed a get request with priority 2 in the store
+T=0.00: Sink OUT-2 placed a get request with priority 1 in the store
+T=1.00: Source IN-A Going to put an item in store itemIN-A1 with priority 2
+T=1.00: Source IN-B Going to put an item in store itemIN-B1 with priority 1
+T=1.00: Sink OUT-2 Got an item from store itemIN-A1
+T=1.00: Sink OUT-1 Got an item from store itemIN-B1
+</code></pre></div></p>
+<h3 id="usecase_1">Usecase<a class="headerlink" href="#usecase_1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">A university’s Central IT Department supports Admin, Library, Student Labs,</span>
+<span class="sd">and Research Labs. Departments request IT systems (computers). Systems are</span>
+<span class="sd">allocated based on request priority — higher-priority departments get</span>
+<span class="sd">systems first.&#39;&#39;&#39;</span>
+
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">simpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PriorityReqStore</span><span class="w"> </span><span class="kn">import</span> <span class="n">PriorityReqStore</span>  <span class="c1"># Importing your PriorityReqStore</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CentralITDepartment</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">initial_stock</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">env</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="o">=</span> <span class="n">PriorityReqStore</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Pre-load some stock if needed</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">initial_stock</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preloaded_System_</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">department_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">department_name</span><span class="p">,</span> <span class="n">priority</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Department places a request for a system.&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;T=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">now</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">department_name</span><span class="si">}</span><span class="s2"> places a request with </span>
+                                 <span class="n">priority</span> <span class="p">{</span><span class="n">priority</span><span class="p">}</span><span class="s2">&quot;)</span>
+        <span class="n">system</span> <span class="o">=</span> <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">priority</span><span class="o">=</span><span class="n">priority</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">now</span><span class="p">,</span> <span class="n">department_name</span><span class="p">,</span> <span class="n">system</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;T=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">now</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">department_name</span><span class="si">}</span><span class="s2"> received </span><span class="si">{</span><span class="n">system</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_systems</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;IT department adds systems after a delay.&quot;&quot;&quot;</span>
+        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">timeout</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
+            <span class="n">system_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;System_</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">_after_delay&quot;</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">system_name</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;T=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">now</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">: IT Department added </span><span class="si">{</span><span class="n">system_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">run_central_it_simulation</span><span class="p">():</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">simpy</span><span class="o">.</span><span class="n">Environment</span><span class="p">()</span>
+    <span class="n">it_department</span> <span class="o">=</span> <span class="n">CentralITDepartment</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+
+    <span class="c1"># Start departments making requests</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">it_department</span><span class="o">.</span><span class="n">department_request</span><span class="p">(</span><span class="s1">&#39;Admin&#39;</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">it_department</span><span class="o">.</span><span class="n">department_request</span><span class="p">(</span><span class="s1">&#39;Library&#39;</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">it_department</span><span class="o">.</span><span class="n">department_request</span><span class="p">(</span><span class="s1">&#39;Student Lab&#39;</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">it_department</span><span class="o">.</span><span class="n">department_request</span><span class="p">(</span><span class="s1">&#39;Research Lab&#39;</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="c1"># IT Department will add new systems after 2 time units</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">it_department</span><span class="o">.</span><span class="n">add_systems</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="n">env</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">until</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">run_central_it_simulation</span><span class="p">()</span>
+</code></pre></div>
+<p><strong>Simulation output</strong> 
+<div class="highlight"><pre><span></span><code>T=0.00: Admin places a request with priority 3
+T=0.00: Library places a request with priority 3
+T=0.00: Student Lab places a request with priority 1
+T=0.00: Research Lab places a request with priority 2
+T=2.00: IT Department added System_1_after_delay
+T=2.00: Student Lab received System_1_after_delay
+T=2.00: IT Department added System_2_after_delay
+T=2.00: Research Lab received System_2_after_delay
+T=2.00: IT Department added System_3_after_delay
+T=2.00: Admin received System_3_after_delay
+</code></pre></div></p>
+<p><a href="../priorityreqstore/">Go to API Reference</a></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../RTsimulation/" class="btn btn-neutral float-left" title="Enabling real-time simulation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../api_ref_main_page_2/" class="btn btn-neutral float-right" title="API Reference">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/FactorySimPy/FactorySimPy" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../RTsimulation/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../api_ref_main_page_2/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
