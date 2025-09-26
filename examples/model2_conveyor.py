@@ -28,7 +28,7 @@ SINK= Sink(env, id="SINK")
 
 # Initializing edges
 BUFFER1 = Buffer(env, id="BUFFER1", capacity=4, delay=0, mode="FIFO")
-CONVEYORBELT1 = ConveyorBelt(env, id="CONVEYORBELT1", conveyor_length=4, speed=1, item_length=0.5, accumulating=1)
+CONVEYORBELT1 = ConveyorBelt(env, id="CONVEYORBELT1", conveyor_length=4, speed=1, item_length=0.5, accumulating=0)
 
 
 
@@ -38,7 +38,7 @@ BUFFER1.connect(MACHINE1,SINK)
 
 
 
-time= 50
+time= 15
 
 env.run(until=time)
 SRC.update_final_state_time(time)

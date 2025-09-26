@@ -168,7 +168,9 @@ class BeltStore(Store):
         # Check if there's enough space to reserve
         if self.items:
             if len(self.reservations_put) + len(self.items) +len(self.ready_items) < self.capacity:
-                if self.noaccumulation_mode_on==False or (self.noaccumulation_mode_on==True and len(self.ready_items)==0):
+                
+
+                if self.noaccumulation_mode_on==False or (self.noaccumulation_mode_on==True and len(self.ready_items)==0) :
                     time_on_belt = self.env.now- self.items[-1][0].conveyor_entry_time - self.items[-1][0].total_interruption_time 
                     print(f"T={self.env.now:.2f}: time_on_belt1111 for {self.items[-1][0].id} is {time_on_belt} rounding to {np.round(time_on_belt)}, item length is {self.items[-1][0].length}, speed is {self.speed}, length/speed is {self.items[-1][0].length/self.speed}")
                     if self.items[-1][0].interruption_start_time is not None:
@@ -181,7 +183,7 @@ class BeltStore(Store):
                         # f"reserved space. Total reservations: {len(self.reservations_put)}")
                         self.reservations_put.append(event)
                         event.succeed()
-                        print(f"T={self.env.now:.2f}: yielded reserve_put when {self.noaccumulation_mode_on}")
+                        print(f"T={self.env.now:.2f}: yielded reserve_put when noaccumulation_mode_on is {self.noaccumulation_mode_on}")
                         
         else:# if not items succeed, belt is empty and succeed immediately
             if self.noaccumulation_mode_on==False or (self.noaccumulation_mode_on==True and len(self.ready_items)==0):

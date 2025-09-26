@@ -21,7 +21,7 @@ def env_for_test():
 @pytest.fixture
 def setup_machine_with_buffers(env_for_test):
     # Create input buffers
-    conveyor1 = ConveyorBelt(env_for_test, "Conveyor1", capacity=10, speed=5.76, length=0.5, accumulating=0)
+    conveyor1 = ConveyorBelt(env_for_test, "Conveyor1", conveyor_length=5, speed=5.76, item_length=0.5, accumulating=0)
     buffer1 = Buffer(env_for_test, "Buffer1", delay=0, capacity=4)
 
    
@@ -69,7 +69,7 @@ def test_conveyor_2(setup_machine_with_buffers):
 
 def test_conveyor_1(env_for_test):
     env= env_for_test
-    conveyor1 = ConveyorBelt(env, "Conveyor1", capacity=10, speed=1, length=0.5, accumulating=1)
+    conveyor1 = ConveyorBelt(env, "Conveyor1", conveyor_length=5, speed=1, item_length=0.5, accumulating=1)
     buffer1 = Buffer(env, "Buffer1", delay=0, capacity=4)
 
    
@@ -103,11 +103,11 @@ def test_conveyor_1(env_for_test):
     assert sink.stats['num_item_received'] == 331
 
     # Check that machine updated its stats
-    assert np.round(conveyor1.stats['time_averaged_num_of_items_in_conveyor'],3) == 9.809 # 9.941
+    assert np.round(conveyor1.stats['time_averaged_num_of_items_in_conveyor'],3) == 9.974 # 9.941
     assert sink.stats['num_item_received']/env.now == 0.331
     tot_cycletime = sink.stats["total_cycle_time"]
     tot_items = sink.stats["num_item_received"]
-    assert np.round(tot_cycletime/tot_items,3) == 32.101 #32.48
+    assert np.round(tot_cycletime/tot_items,3) == 32.585 #32.48
 
 
 
@@ -126,7 +126,7 @@ def test_conveyor_3():
 
     # Initializing edges
     BUFFER1 = Buffer(env, id="BUFFER1", capacity=4, delay=0, mode="FIFO")
-    CONVEYORBELT1 = ConveyorBelt(env, id="CONVEYORBELT1", capacity=10, speed=1, length=0.5, accumulating=1)
+    CONVEYORBELT1 = ConveyorBelt(env, id="CONVEYORBELT1", conveyor_length=5, speed=1, item_length=0.5, accumulating=1)
 
 
 
@@ -166,7 +166,7 @@ def test_conveyor_4():
 
     # Initializing edges
     BUFFER1 = Buffer(env, id="BUFFER1", capacity=4, delay=0, mode="FIFO")
-    CONVEYORBELT1 = ConveyorBelt(env, id="CONVEYORBELT1", capacity=10, speed=2, length=1, accumulating=0)
+    CONVEYORBELT1 = ConveyorBelt(env, id="CONVEYORBELT1", conveyor_length=10, speed=2, item_length=1, accumulating=0)
 
 
 
@@ -197,7 +197,48 @@ def test_conveyor_4():
 
 
 
+def test_conveyor_5():
 
+    env = simpy.Environment()
+
+
+
+    # Initializing nodes
+    SRC= Source(env, id="SRC", item_length= 0.5, inter_arrival_time=1,blocking=True, out_edge_selection="FIRST_AVAILABLE" )
+
+    #src= Source(env, id="Source-1",  inter_arrival_time=0.2,blocking=True,out_edge_selection=0 )
+    MACHINE1 = Machine(env, id="MACHINE1", node_setup_time=0, work_capacity=1, blocking=True, processing_delay=4, in_edge_selection="FIRST_AVAILABLE", out_edge_selection="ROUND_ROBIN")
+    SINK= Sink(env, id="SINK")
+
+    # Initializing edges
+    BUFFER1 = Buffer(env, id="BUFFER1", capacity=4, delay=0, mode="FIFO")
+    CONVEYORBELT1 = ConveyorBelt(env, id="CONVEYORBELT1", conveyor_length=4, speed=1, item_length=0.5, accumulating=1)
+
+
+
+    # Adding connections
+    CONVEYORBELT1.connect(SRC,MACHINE1)
+    BUFFER1.connect(MACHINE1,SINK)
+
+
+
+    time= 1000
+
+    env.run(until=time)
+    SRC.update_final_state_time(time)
+    MACHINE1.update_final_state_time(time)
+    CONVEYORBELT1.update_final_conveyor_avg_content(time)
+    BUFFER1.update_final_buffer_avg_content(time)
+    SINK.update_final_state_time(time)
+
+    assert SINK.stats['num_item_received'] == 248 
+
+    # Check that machine updated its stats
+    assert np.round(CONVEYORBELT1.stats['time_averaged_num_of_items_in_conveyor'],3) == 7.956 # 7.956
+    assert SINK.stats['num_item_received']/env.now == 0.248
+    tot_cycletime = SINK.stats["total_cycle_time"]
+    tot_items = SINK.stats["num_item_received"]
+    assert np.round(tot_cycletime/tot_items,3) == 35.401 #35.41
 
 
 
