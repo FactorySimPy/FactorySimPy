@@ -223,24 +223,21 @@ Each group individually spans 100% of the simulation time.
 
 **State Diagram**
 
+State_rep - (N\_P, N\_B); (Number of threads in processing state, number of threads in blocked state)
+Number of threads in idle state, N\_I = work_capacity - (N\_P + N\_B)
+
+
 ```mermaid
 stateDiagram
   direction TB
-  [*] --> Idle
+  [*] --> Idle : No jobs and all threads idle
   Idle --> Processing:Input job
-  Processing --> Blocked:Output Blocked
+  Processing --> Blocked:Output blocked
   Processing --> Idle:Job finished
   Blocked --> Idle:Output succeeded
 ```
 
-```mermaid
-flowchart LR
-    A("Idle") -- Input job --> B("Processing");
-    B -- Job finished --> A;
-    B -- Output blocked --> C("Blocked");
-    C -- Output succeeded --> A;
 
-```
 
 **Usage**
 
