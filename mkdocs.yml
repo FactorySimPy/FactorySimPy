@@ -16,6 +16,7 @@ use_directory_urls: true
 
 plugins:
   - search
+  - mermaid2
   - mkdocstrings:
       handlers:
         python:
