@@ -44,7 +44,11 @@ markdown_extensions:
       permalink: true
   - pymdownx.highlight
   - pymdownx.superfences  # (important for code blocks inside lists/admonitions)
-
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
 nav:
   - Overview: index.md  
   - Getting Started: getting_started.md

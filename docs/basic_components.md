@@ -238,6 +238,15 @@ stateDiagram
   Blocked --> Idle:Output succeeded
 ```
 
+```mermaid
+flowchart LR
+    A("Idle") -- Input job --> B("Processing")
+    B -- Job finished --> A
+    B -- Output blocked --> C("Blocked")
+    C -- Output succeeded --> A
+
+```
+
 **Usage**
 
 A machine can be initialised as below.
