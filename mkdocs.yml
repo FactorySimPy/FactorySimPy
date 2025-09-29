@@ -44,7 +44,6 @@ markdown_extensions:
   - toc:
       permalink: true
   - pymdownx.highlight
-  - pymdownx.superfences  # (important for code blocks inside lists/admonitions)
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
