@@ -91,7 +91,7 @@ env.run(until=10)
 | `Source`  | Generates new items | `inter_arrival_time=0` , `flow_item_type="item"`, `blocking=False` , `out_edge_selection="RANDOM"`   |
 | `Machine` | Processes/modifies items.| `work_capacity=1`, `blocking=False` , `processing_delay=0`, `in_edge_selection="RANDOM"`,`out_edge_selection="ROUND_ROBIN"`|
 | `Sink`    | Collects / destroys items.
-| `Splitter`   | Splits or unpacks an item into multiple items  | `blocking=False` , `processing_delay=0`, `mode="UNPACK"`, `in_edge_selection="RANDOM"`, `out_edge_selection="RANDOM"` |
+| `Splitter`   | Splits or unpacks an item into multiple items  | `blocking=False` , `processing_delay=0`, `mode="UNPACK"`, `split_quantity=None`, `in_edge_selection="RANDOM"`, `out_edge_selection="RANDOM"` |
 | `Combiner`    | Combines or packs multiple items together | `blocking=False` , `processing_delay=0`,`target_quantity_of_each_item=[1]`,`out_edge_selection="ROUND_ROBIN"`|
 
  

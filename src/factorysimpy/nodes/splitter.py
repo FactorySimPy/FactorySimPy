@@ -18,7 +18,13 @@ class Splitter(Node):
                 - BLOCKED_STATE: When all the worker threads are waiting to push the processed item but the out going edge is full.
            
             blocking (bool): If True, the node waits until it can put an item into the out edge. If False, it discards the item if the out edge is full and cannot accept the item that is being pushed by the splitter.
-            work_capacity (int): Maximum no. of processing that can be performed simultaneously.1  worker thread can process one item.
+            
+            mode (str): Mode of operation of the splitter. Either "UNPACK" or "SPLIT".
+                - "UNPACK": The splitter unpacks all items from a packed item (like a pallet) and pushes each item to an output edge, one by one. After all items are pushed, the empty container itself is pushed to an output edge.
+                - "SPLIT": The splitter splits the incoming item into a target quantity of items, specified by `split_quantity` and pushes each item to an output edge, one by one.
+
+            split_quantity (int, optional): Target quantity of items to split the input flow item into. This parameter is required if `mode` is "SPLIT". If `mode` is "UNPACK", this parameter is ignored.
+            
             processing_delay (None, int, float, Generator, Callable): Delay for processing items. Can be:
                 
                 - None: Used when the processing time depends on parameters of the node object (like current state of the object) or environment. 
@@ -66,7 +72,7 @@ class Splitter(Node):
                 
     """
 
-    def __init__(self, env, id, in_edges=None, out_edges=None,node_setup_time=0,processing_delay=0,blocking=True,in_edge_selection="FIRST_AVAILABLE",out_edge_selection="FIRST_AVAILABLE"):
+    def __init__(self, env, id, in_edges=None, out_edges=None,node_setup_time=0,processing_delay=0,blocking=True,mode= "UNPACK", split_quantity=None, in_edge_selection="FIRST_AVAILABLE",out_edge_selection="FIRST_AVAILABLE"):
         super().__init__(env, id,in_edges, out_edges, node_setup_time)
         
         self.state = "SETUP_STATE"  # Initial state of the Splitter
@@ -74,6 +80,8 @@ class Splitter(Node):
         self.in_edge_selection = in_edge_selection
         self.out_edge_selection = out_edge_selection
         self.blocking = blocking
+        self.mode = mode
+        self.split_quantity = split_quantity
         self.per_thread_total_time_in_blocked_state = 0.0
         self.per_thread_total_time_in_processing_state = 0.0
         

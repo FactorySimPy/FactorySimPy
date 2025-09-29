@@ -413,6 +413,7 @@ The `Splitter` component represents a node that unpacks or splits an input item 
 - `processing_delay` - time taken to process and unpack the items
 - `blocking` - if True, waits for output edge to accept the item; if False, discards the items if the output edge is full
 - `mode` - mode of operation of the splitter. Either "UNPACK" or "SPLIT".
+- `split_quantity` -  Target quantity of items to split the input flow item into.
 - `in_edge_selection` - edge selection policy as a function to select input edge
 - `out_edge_selection` - edge selection policy as a function to select output edge
 
@@ -462,6 +463,7 @@ SPLITTER11 = Split(
     processing_delay=1.0,       # Unpacking delay (constant or generator/function)
     blocking=True,              # Wait for output edge to accept item
     mode = "UNPACK",            # mode can be UNPACK or SPLIT
+    split_quantity = None,      # To be used is mode is SPLIT
     in_edge_selection="RANDOM",  # Policy or function to select input edge
     out_edge_selection="ROUND_ROBIN"  # Policy or function to select output edge
 )
