@@ -223,7 +223,7 @@ Each group individually spans 100% of the simulation time.
 
 **State Diagram**
 
-
+```mermaid
 ---
 config:
   layout: dagre
@@ -236,7 +236,7 @@ stateDiagram
   Processing --> Blocked:Output Blocked
   Processing --> Idle:Job finished
   Blocked --> Idle:Output succeeded
-
+```
 
 **Usage**
 
