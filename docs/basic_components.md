@@ -224,11 +224,6 @@ Each group individually spans 100% of the simulation time.
 **State Diagram**
 
 ```mermaid
----
-config:
-  layout: dagre
-  theme: neutral
----
 stateDiagram
   direction TB
   [*] --> Idle
@@ -240,10 +235,10 @@ stateDiagram
 
 ```mermaid
 flowchart LR
-    A("Idle") -- Input job --> B("Processing")
-    B -- Job finished --> A
-    B -- Output blocked --> C("Blocked")
-    C -- Output succeeded --> A
+    A("Idle") -- Input job --> B("Processing");
+    B -- Job finished --> A;
+    B -- Output blocked --> C("Blocked");
+    C -- Output succeeded --> A;
 
 ```
 
