@@ -107,8 +107,14 @@ class ConveyorBelt(Edge):
       return (
           len(self.belt.items)+len(self.belt.ready_items) == 0  )
 
-    def belt_occupancy(self):
+    def occupancy(self):
           return len(self.belt.items)+len(self.belt.ready_items)
+    
+    def items(self):
+         return self.belt.items + self.belt.ready_items
+    
+    def ready_items(self):
+        return self.belt.ready_items
 
     def is_full(self):
           """Check if the belt is full."""
