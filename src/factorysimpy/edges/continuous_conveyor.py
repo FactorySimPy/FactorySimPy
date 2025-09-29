@@ -17,32 +17,7 @@ from factorysimpy.base.belt_store import BeltStore
 
 
 
-class BeltStore(BeltStore):
-    """
-    A specialized BeltStore for conveyor belt operations.
 
-    This class extends BeltStore to handle conveyor-specific item movement
-    with timing constraints while maintaining the interrupt/resume capabilities
-    from the parent class.
-    """
-
-    def __init__(self, env, capacity=float('inf'), speed=0, accumulation_mode_indicator=True):
-        """
-        Initializes a belt store for conveyor operations.
-
-        Args:
-            env: SimPy environment
-            capacity (int, optional): The maximum number of items the store can hold.
-            time_per_item (float, optional): Time taken to process each item in the belt.
-        """
-        super().__init__(env, capacity, mode="FIFO", speed=speed, accumulation_mode_indicator=accumulation_mode_indicator)
-        self.speed = speed
-
-    def _do_put(self, event, item):
-        """Override to handle the put operation with conveyor-specific logging."""
-        returnval = super()._do_put(event, item)
-        print(f"T={self.env.now:.2f}: BeltStore:_do_put: putting item on belt {item[0].id} and belt items are {[(i[0].id) for i in self.items]} and ready items are {[(i.id) for i in self.ready_items]}")
-        return returnval
 class ConveyorBelt(Edge):
     """
     A conveyor belt system with optional accumulation.

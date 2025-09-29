@@ -1,4 +1,4 @@
-# src/ReservablePriorityReqStore.py
+
 
 
 
@@ -10,25 +10,29 @@ from simpy.resources.store import Store
 class BeltStore(Store):
     """
         This is a class that is derived from SimPy's Store class and has extra capabilities
-        that makes it a priority-based reservable store for processes to reserve space
-        for storing and retrieving items with priority-based access.
+        that makes it a reservable store for processes to reserve space
+        for storing and retrieving items.
 
         Processes can use reserve_put() and reserve_get() methods to get notified when a space becomes
-        available in the store or when an item gets available in the ReservablePriorityReqStore.
+        available in the store or when an item gets available in the ReservableReqStore.
         These methods returns a unique event (SimPy.Event) to the process for every reserve requests it makes.
-        Processes can also pass a priority as argument in the request. Lower values indicate higher priority.
+       
 
-        get and put are two methods that can be used for item storing and retrieval from ReservablePriorityReqStore.
+        get and put are two methods that can be used for item storing and retrieval from ReservableReqStore.
         Process has to make a prior reservation and pass the associated reservation event as argument in the get and
-        put requests. ReservablePriorityReqStore maintains separate queues for `reserve_put` and `reserve_get` operations
+        put requests. ReservableReqStore maintains separate queues for `reserve_put` and `reserve_get` operations
         to ensures that only processes with valid reservations can store or retrieve items.
 
-        ReservablePriorityReqStore preserves item order by associating an unreserved item in the store with a reservation event
+        ReservableReqStore preserves item order by associating an unreserved item in the store with a reservation event
         by index when a reserve_get() request is made. As a result, it maintains a list of reserved events to preserve item order.
 
         It also allows users to cancel an already placed reserve_get or reserve_put request even if it is yielded.
         It also handles the dissociation of the event and item done at the time of reservation when an already yielded
         event is canceled.
+
+        When an item is added into the BeltStore using put(), it is associated with a delay representing the time it takes for the item 
+        to move through the belt. The item is not immediately available for retrieval after being put into the store.
+        Instead, it becomes available only after the specified delay has elapsed, simulating the movement of items on a conveyor belt.
 
         Attributes:
            reserved_events (list):  Maintains events corresponding to reserved items to preserve item order by index
@@ -37,25 +41,25 @@ class BeltStore(Store):
            reserve_get_queue (list): Queue for managing reserve_get reservations
            reservations_get (list):List of successful get reservations
         """
-
-    def __init__(self, env, capacity=float('inf'),mode='FIFO', speed=1, accumulation_mode_indicator=True):
+   
+    def __init__(self, env, capacity=float('inf'), speed=1, accumulation_mode_indicator=True):
         """
-        Initializes a reservable store with priority-based reservations.
+        Initializes a reservable store with reservations.
 
         Args:
-         env (simpy.Environment): The simulation environment.
+         
          capacity (int, optional): The maximum number of items the store can hold.
                                     Defaults to infinity.
          mode (str, optional): The mode of the store ('FIFO' or 'LIFO'). Defaults to 'FIFO'.
-         speed (int, optional): The speed of the conveyor belt. Defaults to 1.
+         speed (float, optional): The speed of the conveyor belt. Defaults to 1.
          accumulation_mode_indicator (bool, optional): Indicates if the belt is in accumulation mode.
                                                        Defaults to True.
-            capacity (int, optional): The maximum number of items the store can hold.
+         capacity (int, optional): The maximum number of items the store can hold.
                                       Defaults to infinity.
         """
         super().__init__(env, capacity)
         self.env = env
-        self.mode=mode
+        
         self.speed = speed  # Speed of the conveyor belt (units per time)
         self.reserve_put_queue = []  # Queue for managing reserve_put reservations
         self.reservations_put = []   # List of successful put reservations
@@ -89,21 +93,19 @@ class BeltStore(Store):
             self._weighted_sum / total_time if total_time > 0 else 0.0
         )
 
-    def reserve_put(self, priority=0):
+    def reserve_put(self):
         """
         Create a reservation request to put an item into the store.
 
         This function generates a SimPy event representing a reservation request. The event is
-        assigned attributes such as priority, resource name, and the process making the request.
-        The event is then added to `reserve_put_queue`, which is maintained in priority order.
+        assigned attributes such as resource name, and the process making the request.
+        The event is then added to `reserve_put_queue`, which is maintained in the order in which the 
+        request is made.
 
         After adding the event to the queue, `_trigger_reserve_put` is called to process
         any pending reservations.
 
-        Args:
-            priority (int, optional): The priority level of the reservation request.
-                                      Lower values indicate higher priority. Defaults to 0.
-
+        
         Returns:
             event (simpy.Event): A reservation event that will succeed when space is available.
 
@@ -111,11 +113,9 @@ class BeltStore(Store):
         event = self.env.event()
         event.resourcename = self  # Store reference
         event.requesting_process = self.env.active_process  # Process making the reservation
-        event.priority_to_put = priority  # Priority for sorting reservations
-
-        # Add the event to the reservation queue and sort by priority
+        
         self.reserve_put_queue.append(event)
-        self.reserve_put_queue.sort(key=lambda e: e.priority_to_put)
+        
 
         # Attempt to process reservations
         self._trigger_reserve_put(event)
@@ -287,13 +287,9 @@ class BeltStore(Store):
                 raise RuntimeError(f"Item {item!r} not found in ready_items during cancel.")
 
             # 6) Compute new insertion index
-            if self.mode == "FIFO":
-                # one slot before the remaining reserved block
-                insert_idx = len(self.ready_items) - len(self.reserved_events) - 1
-            else:  # LIFO
-                # top of stack
-                insert_idx = len(self.ready_items)
-
+           
+            insert_idx = len(self.ready_items) - len(self.reserved_events) - 1
+            
             # 7) Re‑insert it
             self.ready_items.insert(insert_idx, item)
 
@@ -306,21 +302,19 @@ class BeltStore(Store):
             "No matching event in reserve_get_queue or reservations_get"
         )
 
-    def reserve_get(self,priority=0):
+    def reserve_get(self):
         """
         Create a reservation request to retrieve an item from the store.
 
         This method generates a SimPy event representing a request to reserve an item
-        for retrieval (`get`). The event is assigned attributes such as priority,
+        for retrieval (`get`). The event is assigned attributes such as
         the resource it belongs to, and the process making the request.
 
         The event is then added to `reserve_get_queue`, which is maintained in
-        priority order, and `_trigger_reserve_get()` is called to process pending
+        the order in which the requests are made, and `_trigger_reserve_get()` is called to process pending
         reservations if items are available.
 
-        Args:
-            priority (int, optional): The priority level of the reservation request.
-                                      Lower values indicate higher priority. Defaults to 0.
+        
 
         Returns:
            event (simpy.Event): A reservation event that will succeed when an item becomes available.
@@ -330,12 +324,11 @@ class BeltStore(Store):
         event.resourcename=self
         event.requesting_process = self.env.active_process  # Associate event with the current process
        
-        #event.priority_to_get = (priority, self._env.now)
-        event.priority_to_get = priority
+        
 
-        #sorting the list based on priority after appending the new event
+        
         self.reserve_get_queue.append(event)
-        self.reserve_get_queue.sort(key=lambda e: e.priority_to_get)
+        
 
         self._trigger_reserve_get(event)
         return event
@@ -400,14 +393,12 @@ class BeltStore(Store):
 
             """
             Called when a process reserves an item.
-            We pick the j-th from top (for LIFO) or bottom (for FIFO)
-            but do NOT remove it yet—we just record the exact item.
+            But do NOT remove it yet—just record the exact item.
             """
             j = len(self.reserved_events)
-            if self.mode == "FIFO":
-                item = self.ready_items[j]
-            else:  # LIFO
-                item = self.ready_items[-1 - j]
+           
+            item = self.ready_items[j]
+            
 
             # record the reservation
             self.reserved_events.append(event)
@@ -630,7 +621,7 @@ class BeltStore(Store):
             # Handle selective interruption for new items during no accumulation mode
         
          
-            
+            print(f"T={self.env.now:.2f}: BeltStore:_do_put: putting item on belt {item[0].id} and belt items are {[(i[0].id) for i in self.items]} and ready items are {[(i.id) for i in self.ready_items]}")
             return True  # Successfully added item
 
 

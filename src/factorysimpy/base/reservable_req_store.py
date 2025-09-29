@@ -1,10 +1,11 @@
+# src/ReservableReqStore.py
 
 
 
 import simpy
 from simpy.resources.store import Store
 
-class BufferStore(Store):
+class ReservableReqStore(Store):
     """
         This is a class that is derived from SimPy's Store class and has extra capabilities
         that makes it a reservable store for processes to reserve space
@@ -26,9 +27,6 @@ class BufferStore(Store):
         It also handles the dissociation of the event and item done at the time of reservation when an already yielded
         event is canceled.
 
-        An item that is added into the BufferStore using put(), it is associated with a delay representing the time it takes for the item
-        to be available for retrieval. The delay can also be 0. The items can be retrieved in FIFO or LIFO manner based on the mode of operation of the BufferStore.
-
         Attributes:
            reserved_events (list):  Maintains events corresponding to reserved items to preserve item order by index
            reserve_put_queue (list): Queue for managing reserve_put reservations
@@ -37,24 +35,22 @@ class BufferStore(Store):
            reservations_get (list):List of successful get reservations
         """
 
-    def __init__(self, env, capacity=float('inf'),mode='FIFO'):
+    def __init__(self, env, capacity=float('inf')):
         """
+        Initializes a reservable store with reservations.
+
         Args:
          
             capacity (int, optional): The maximum number of items the store can hold.
                                       Defaults to infinity.
-            mode (str, optional): The mode of the store ('FIFO' or 'LIFO'). Defaults to 'FIFO'.
         """
         super().__init__(env, capacity)
         self.env = env
-        self.mode=mode
         self.reserve_put_queue = []  # Queue for managing reserve_put reservations
         self.reservations_put = []   # List of successful put reservations
         self.reserve_get_queue = []  # Queue for managing reserve_get reservations
         self.reservations_get = []   # List of successful get reservations
         self.reserved_events = []     # Maintains events corresponding to reserved items to preserve item order
-        self.ready_items=[]  #Maintains the items ready to be taken out
-        self.reserved_items   = []   # parallel list of the exact items reserved
         self._last_level_change_time = self.env.now
         self._last_num_items = 0
         self._weighted_sum = 0.0
@@ -65,8 +61,8 @@ class BufferStore(Store):
         interval = now - self._last_level_change_time
         self._weighted_sum += self._last_num_items * interval
         self._last_level_change_time = now
-        self._last_num_items = len(self.items)+len(self.ready_items)
-        
+        self._last_num_items = len(self.items)
+        # Optionally, update stats in real time
         total_time = now
         self.time_averaged_num_of_items_in_store = (
             self._weighted_sum / total_time if total_time > 0 else 0.0
@@ -77,13 +73,14 @@ class BufferStore(Store):
         Create a reservation request to put an item into the store.
 
         This function generates a SimPy event representing a reservation request. The event is
-        assigned attributes such as resource name, and the process making the request.
-        The event is then added to `reserve_put_queue`, which is maintained in the order in which the requests are made.
+        assigned attributes such as the resource name, and the process making the request.
+        The event is then added to `reserve_put_queue`, which is maintained in the order in which the request has come.
 
         After adding the event to the queue, `_trigger_reserve_put` is called to process
         any pending reservations.
 
-       
+      
+           
 
         Returns:
             event (simpy.Event): A reservation event that will succeed when space is available.
@@ -92,7 +89,7 @@ class BufferStore(Store):
         event = self.env.event()
         event.resourcename = self  # Store reference
         event.requesting_process = self.env.active_process  # Process making the reservation
-            
+      
         self.reserve_put_queue.append(event)
         
 
@@ -148,11 +145,11 @@ class BufferStore(Store):
         Side Effects:
             - Modifies `self.reservations_put` by appending the successful reservation.
             - Calls `event.succeed()` to indicate a successful reservation.
-      
+            - Logs the reservation status to the console. (currently commented out)
 
         """
         # Check if there's enough space to reserve
-        if len(self.reservations_put) + len(self.items) +len(self.ready_items) < self.capacity:
+        if len(self.reservations_put) + len(self.items) < self.capacity:
             self.reservations_put.append(event)  # Add reservation
             event.succeed()
             # Log the success of the reservation
@@ -202,71 +199,74 @@ class BufferStore(Store):
       else:
         raise RuntimeError("No matching event in reserve_put_queue or reservations_put for this process")
       return proceed
-    
+
     def reserve_get_cancel(self, get_event_to_cancel):
-        """
+
+      """
         Cancel a previously made `reserve_get` request.
+
+        This method allows a process to cancel its reservation for retrieving an item
+        from the store. If the reservation exists in the `reserve_get_queue`, it is removed,
+        and `_trigger_reserve_get()` is called to process any remaining reservations.
+
+        If the reservation is already in `reservations_get`, it is removed, and the corresponding
+        item is repositioned in the store to maintain order. `_trigger_reserve_get()` is then
+        triggered to handle pending reservations.
+
+        Args:
+            get_event_to_cancel (simpy.Event): The reservation event that needs to be canceled.
+
+        Returns:
+            proceed (bool): True if the reservation was successfully canceled.
+
+        Raises:
+            RuntimeError: If the specified event does not exist in `reserve_get_queue`
+                          or `reservations_get`.
         """
-        # Case 1: still waiting
-        if get_event_to_cancel in self.reserve_get_queue:
-            self.reserve_get_queue.remove(get_event_to_cancel)
-            self._trigger_reserve_get(None)
-            return True
+      
+      proceed = False
+      #checking and removing the event if it is not yielded and is present in the reserve_get_queue
+      if get_event_to_cancel in self.reserve_get_queue:
+        self.reserve_get_queue.remove(get_event_to_cancel)
+        self._trigger_reserve_get(None)#if t is removed, then a waiting event can be succeeded, if any
+        proceed = True
 
-        # Case 2: already yielded reservation
-        if get_event_to_cancel in self.reservations_get:
-            # 1) Remove from active reservations
-            self.reservations_get.remove(get_event_to_cancel)
+      #checking and removing the event if it is already yielded and is present in the reservations_queue.
+      # 1-to-1 association with items done to preserve item order should also be removed.
+      elif get_event_to_cancel in self.reservations_get:
+        self.reservations_get.remove(get_event_to_cancel)
 
-            # 2) Find its index in the parallel lists
-            ev_idx = self.reserved_events.index(get_event_to_cancel)
+        #deleting the associated event in the reserved_events list to preserve the order of the items
+        #finding index of the item
+        event_in_index = self.reserved_events.index(get_event_to_cancel)
+        delta_position = len(self.reserved_events)
+        #shifting the item
+        item_to_shift = self.items.pop(event_in_index)
+        self.items.insert(delta_position-1, item_to_shift)
+        #deleting the event
+        self.reserved_events.pop(event_in_index)#if t is removed, then a waiting event can be succeeded, if any
 
-            # 3) Pop out the exact item reference
-            item = self.reserved_items.pop(ev_idx)
-            # 4) Drop the event token
-            self.reserved_events.pop(ev_idx)
+        self._trigger_reserve_get(None)
+        proceed = True
 
-            # 5) Remove it from ready_items wherever it currently is
-            try:
-                self.ready_items.remove(item)
-            except ValueError:
-                raise RuntimeError(f"Item {item} not found in ready_items during cancel.")
-
-            # 6) Compute new insertion index as a get call is cancelled and item that is reserved and associated to an event is now freely available to be assigned to a new incoming event
-            if self.mode == "FIFO":
-                # one slot before the remaining reserved block
-                insert_idx = len(self.ready_items) - len(self.reserved_events) - 1
-            else:  # LIFO
-                # top of stack
-                insert_idx = len(self.ready_items)
-
-            # 7) Re‑insert it
-            self.ready_items.insert(insert_idx, item)
-
-            # 8) Trigger any other pending reservations
-            self._trigger_reserve_get(None)
-            return True
-
-        # No such reservation
-        raise RuntimeError(
-            "No matching event in reserve_get_queue or reservations_get"
-        )
-
-    
+      else:
+        raise RuntimeError("No matching event in reserve_get_queue or reservations_get for this process")
+      
+      return proceed
 
     def reserve_get(self):
         """
         Create a reservation request to retrieve an item from the store.
 
         This method generates a SimPy event representing a request to reserve an item
-        for retrieval (`get`). The event is assigned attributes such as the resource 
-        it belongs to, and the process making the request.
+        for retrieval (`get`). The event is assigned attributes such as the resource it belongs to, and the process making the request.
 
         The event is then added to `reserve_get_queue`, which is maintained in
-        the order in which the requests are made, and `_trigger_reserve_get()` is called to process pending
+        the order in which it has added, and `_trigger_reserve_get()` is called to process pending
         reservations if items are available.
 
         
+
         Returns:
            event (simpy.Event): A reservation event that will succeed when an item becomes available.
         """
@@ -276,8 +276,10 @@ class BufferStore(Store):
         event.requesting_process = self.env.active_process  # Associate event with the current process
        
         
+
+        
         self.reserve_get_queue.append(event)
-       
+        
 
         self._trigger_reserve_get(event)
         return event
@@ -326,28 +328,13 @@ class BufferStore(Store):
 
         """
         #if there are items that are unreserved, the create a reservation by adding that event to the reservations_get list
-        if len(self.reservations_get) < len(self.ready_items):
+        if len(self.reservations_get) < len(self.items):
             # Successful reservation; add to reservations list
             self.reservations_get.append(event)
             event.succeed()  # Immediately succeed the event
 
             #reserving the item to preserved item order by adding the reserve_get event to a list(the index position of event= index position of reserved item)
-            
-
-            """
-            Called when a process reserves an item.
-            We pick the j-th from top (for LIFO) or bottom (for FIFO)
-            but do NOT remove it yet—we just record the exact item.
-            """
-            j = len(self.reserved_events)
-            if self.mode == "FIFO":
-                item = self.ready_items[j]
-            else:  # LIFO
-                item = self.ready_items[-1 - j]
-
-            # record the reservation
             self.reserved_events.append(event)
-            self.reserved_items .append(item)
 
 
 
@@ -387,7 +374,7 @@ class BufferStore(Store):
         if item is None:
           raise RuntimeError(f"No item found in the store for {get_event.requesting_process} and get request failed")
         else:
-          #self._update_time_averaged_level()
+          self._update_time_averaged_level()
           return item
 
     def _trigger_get(self, get_event):
@@ -409,42 +396,56 @@ class BufferStore(Store):
         return item
 
 
+
+
+
+
     def _do_get(self, get_event):
         """
-        Execute the actual `get` (process has called yield on the Event).
-        Removes the reservation and takes out that exact item from ready_items.
+        Execute a `get` operation from the store while ensuring valid reservations.
+
+        This method processes a `reserve_get` request by validating that the calling
+        process has a matching reservation. It retrieves the corresponding item from
+        the store while maintaining the correct order of reservations.
+
+        Args:
+            get_event (simpy.Event): The event associated with the reservation request.
+
+        Returns:
+            item (object): The retrieved item if successful.
+
+        Raises:
+            RuntimeError: If the process does not have a valid reservation ie, if the get_event is not in the reservations_gett list
+            ValueError: If the reserved item is not found in the store.
         """
-        # 1) validate reservation exists for this process
+
+        # Locate the reservation event for the current process
         reserved_event = next(
-            (ev for ev in self.reservations_get
-             if ev == get_event and ev.requesting_process == self.env.active_process),
+            (event for event in self.reservations_get
+            if event == get_event and event.requesting_process == self.env.active_process),
             None
         )
+
         if reserved_event is None:
             raise RuntimeError(
-                f"Time {self.env.now:.2f}, no matching reservation for process {self.env.active_process}."
+                f"Time {self.env.now:.2f}, No matching reservation found for process {self.env.active_process}."
             )
 
-        # 2) find its index in the reservation lists
-        ev_idx = self.reserved_events.index(reserved_event)
-
-        # 3) remove from reservations
+        # Identify the corresponding item in the reserved events list
+        item_index = self.reserved_events.index(reserved_event)
         self.reservations_get.remove(reserved_event)
-        self.reserved_events.remove(reserved_event)
 
-        # 4) pop out the exact item reference
-        try:
-            assigned_item = self.reserved_items.pop(ev_idx)
-        except IndexError:
+        # Retrieve the assigned item and remove it from storage
+        assigned_item = self.items.pop(item_index)
+        self.reserved_events.pop(item_index)
+
+        if assigned_item is None:
             raise ValueError(f"Reserved item for {get_event} not found in store.")
 
-        # 5) remove that object from ready_items by value
-        try:
-            self.ready_items.remove(assigned_item)
-        except ValueError:
-            raise ValueError(f"Item {assigned_item} not in ready_items.")
-        self._update_time_averaged_level()
-        return assigned_item
+        return assigned_item  # Successfully retrieved item
+
+
+
 
     def put(self,put_event,item):
         """
@@ -476,13 +477,13 @@ class BufferStore(Store):
           #self._trigger_get(None)
           self._trigger_reserve_get(None)
           
-        
+        #if the put operation is not successful, then raise an erro
 
         if not proceed:
 
           raise RuntimeError(f"No matching put_event found in the reservations and put failed for{item}")
         else:
-          #self._update_time_averaged_level()
+          self._update_time_averaged_level()
           return proceed
 
     def _trigger_put(self,put_event, item):
@@ -544,36 +545,11 @@ class BufferStore(Store):
         self.reservations_put.remove(reserved_event)
 
         # Add the item if space is available
-        if len(self.items)+len(self.ready_items) < self.capacity:
+        if len(self.items) < self.capacity:
             self.items.append(item)
-            self._update_time_averaged_level()
-            self.env.process(self.move_to_ready_items(item))
             return True  # Successfully added item
         
-    def move_to_ready_items(self,item):
-        """
-        Move items from the store to the ready_items list after a put operation.
-        This method is called as a process to ensure that items are moved asynchronously.
-        """
 
-        # Move items to the ready_items list
-        if self.items:
-            #print(f"T={self.env.now:.2f} beltstore received an item {item[0].id, item[1]} . Item started moving in belt")
-            yield self.env.timeout(item[1])
-            #print(f"T={self.env.now:.2f} bufferstore finished moving item {item[0].id, item[1]} going to ready_items")
-            
-            item_index = self.items.index(item)
-            item_to_put = self.items.pop(item_index)  # Remove the first item
-            #print(item_to_put, item)
-            if len(self.ready_items)+ len(self.items) < self.capacity:
-                self.ready_items.append(item_to_put[0])
-                #print(f"T={self.env.now:.2f} bufferstore finished moving item {item[0].id, item[1]} moved to ready_items")
-                self._trigger_reserve_get(None)
-                self._trigger_reserve_put(None)
-                #print(f"T={self.env.now:.2f} bufferstore is moving item {item[0].id, item[1]} to ready_items. Total items in buffer is {len(self.items)+len(self.ready_items)}"   )
-            else:
-                raise RuntimeError("Total number of items in the store exceeds capacity. Cannot move item to ready_items.")
-            
 
 
         
