@@ -69,9 +69,9 @@ def test_machine_processes_multiple_inputs(setup_machine_with_buffers):
     env.run(until=5)  # Run long enough for processing to complete
 
     # Check that output buffer got both items
-    print(f"Out buffer items: {[item[0].id for item in out_buffer.get_items()]}")
-    assert len(out_buffer.get_items()) == 2
-    output_item_ids = [item[0].id for item in out_buffer.get_items()]
+    print(f"Out buffer items: {[item[0].id for item in out_buffer.items()]}")
+    assert len(out_buffer.items()) == 2
+    output_item_ids = [item[0].id for item in out_buffer.items()]
     assert "item1" in output_item_ids
     assert "item2" in output_item_ids
 

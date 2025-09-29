@@ -197,7 +197,7 @@ At the start of the simulation, the machine waits for `node_setup_time`. This is
    - `PROCESSING_STATE`: The thread is actively processing an item.
    - `BLOCKED_STATE`: The thread has finished processing but is waiting for an available output edge to transfer the item.
 
-The machine reports the following statistics for a machine based on the collective status of its threads. 
+The machine reports the following statistics for the various states a machine transitions through during simulation based on the collective status of the states of its threads. 
 
 
 1. total_time_setup (S): Time spent in the initialization or warming up phase before item processing starts. Denoted as (-1,-1) in state_rep.
@@ -208,7 +208,7 @@ The machine reports the following statistics for a machine based on the collecti
 
 4. total_time_all_blocked (AB): Time duration for which all the worker_threads that are currently active are in "BOCKED_STATE" as they are waiting for the out edge to be available to accept the processed item.  The number of active threads can be equal to less than work_capacity. ie, there will >=1 threads in blocked state, >=0 threads in idle state and no threads in processing state.
 
-5. total_time_all_active_processing (AP): Time duration for which all the active threads are in processing state. The number of active threads can be equal to less than work_capacity.
+5. total_time_all_active_processing (AP): Time duration for which all the active threads are in processing state. The number of active threads can be equal to less than work_capacity. ie, there will >=1 threads in processing state, >=0 threads in idle state and no threads in blocked state.
 
 6. total_time_atleast_one_blocked (1B): Time duration for which atleast one of the worker_threads is in "BOCKED_STATE" as it is waiting for the out edge to be available to accept the processed item.
 
@@ -220,6 +220,23 @@ Group B: {S + I + AP + 1B} = total simulation time
 
 
 Each group individually spans 100% of the simulation time.
+
+**State Diagram**
+
+
+---
+config:
+  layout: dagre
+  theme: neutral
+---
+stateDiagram
+  direction TB
+  [*] --> Idle
+  Idle --> Processing:Input job
+  Processing --> Blocked:Output Blocked
+  Processing --> Idle:Job finished
+  Blocked --> Idle:Output succeeded
+
 
 **Usage**
 

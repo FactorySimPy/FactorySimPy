@@ -213,13 +213,13 @@ class Buffer(Edge):
             The event that was reserved for putting an item.
         """
         return self.inbuiltstore.reserve_put_cancel(event)
-    def get_occupancy(self):
+    def occupancy(self):
        return len(self.inbuiltstore.items) + len(self.inbuiltstore.ready_items)
 
-    def get_ready_items(self):
+    def ready_items(self):
        return self.inbuiltstore.ready_items
     
-    def get_items(self):
+    def items(self):
          return self.inbuiltstore.items + self.inbuiltstore.ready_items
 
     def behaviour(self):

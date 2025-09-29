@@ -333,6 +333,8 @@ class Machine(Node):
                   
    
 
+  
+    
     def _push_item(self, item_to_push, out_edge):
         """
         It picks a processed item from the store and pushes it to the specified out_edge.
@@ -344,15 +346,8 @@ class Machine(Node):
 
         """
        
-        if out_edge.__class__.__name__ == "ConveyorBelt":                 
-                put_token = out_edge.reserve_put()
-                pe = yield put_token
-                item_to_push.update_node_event(self.id, self.env, "exit")
-                
-                y=out_edge.put(pe, item_to_push)
-                if y:
-                    print(f"T={self.env.now:.2f}: {self.id} puts {item_to_push.id} item into {out_edge.id}  ")
-        elif out_edge.__class__.__name__ == "Buffer":
+        
+        if out_edge.__class__.__name__ in ["Buffer", "Fleet", "ConveyorBelt"]:
                 outstore = out_edge
                 put_token = outstore.reserve_put()
                 yield put_token
@@ -372,23 +367,8 @@ class Machine(Node):
 
         """
 
-        if in_edge.__class__.__name__ == "ConveyorBelt":
-               
-                get_token = in_edge.reserve_get()
-                
-                gtoken = yield get_token
-                
-                pulled_item = yield in_edge.get(gtoken)
-                pulled_item.update_node_event(self.id, self.env, "entry")
-                              
-                if pulled_item is not None:
-                    print(f"T={self.env.now:.2f}: {self.id} gets item {pulled_item.id} from {in_edge.id} ")
-                    self.item_in_process= pulled_item  # Assign the pulled item to the item_in_process attribute
-                    
-                else:
-                    raise ValueError(f"{self.id} - No item pulled from in_edge {in_edge.id}!")
-                
-        elif in_edge.__class__.__name__ == "Buffer":
+        
+        if in_edge.__class__.__name__ in ["Buffer", "Fleet", "ConveyorBelt"]:
                 outstore = in_edge
                 get_token = outstore.reserve_get()
                 yield get_token
@@ -523,7 +503,7 @@ class Machine(Node):
                     self.update_state_rep(self.env.now)
                     blocking_start_time = self.env.now
                 
-                    #self.out_edge_events = [edge.reserve_put() if edge.__class__.__name__ == "ConveyorBelt" else edge.inbuiltstore.reserve_put() for edge in self.out_edges]
+                   
                     #out_edge_events = [self.out_edges[i].inbuiltstore.reserve_put() for i in range(len(self.out_edges)-1,-1,-1)]
                     out_edge_events= [edge.reserve_put() for edge in self.out_edges]  # Filter out None events
                     #print(self.env.now,len(self.out_edge_events),self.out_edges)
@@ -549,7 +529,7 @@ class Machine(Node):
                     #putting the item in the chosen out_edge
                     
                     item.update_node_event(self.id, self.env, "exit")
-                    if self.out_edges[edge_index].__class__.__name__  in [ "Buffer", "ConveyorBelt"]:
+                    if self.out_edges[edge_index].__class__.__name__  in [ "Buffer", "ConveyorBelt", "Fleet"]:
                         self.stats["num_item_processed"] += 1
                         itemput=self.out_edges[edge_index].put(chosen_put_event, item)
                         #itemput = chosen_put_event.resourcename.put(chosen_put_event, item)  # Get the item from the chosen in_edge
@@ -723,7 +703,7 @@ class Machine(Node):
                     edge_index_to_print = None
                     for i in range(len(self.in_edges)):
                         #print(self.chosen_event.resourcename, self.in_edges[i])
-                        if self.in_edges[i].__class__.__name__ == "Buffer" or self.in_edges[i].__class__.__name__ == "Fleet":
+                        if self.in_edges[i].__class__.__name__ in ["Buffer", "Fleet"]:
                             if self.chosen_event.resourcename == self.in_edges[i].inbuiltstore :
                         
                                 edge_index_to_print=i

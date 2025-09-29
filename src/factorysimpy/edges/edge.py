@@ -28,7 +28,7 @@ class Edge:
     """
     
 
-
+ 
     def __init__(self, env, id, capacity):
         self.env = env
         self.id = id
@@ -161,11 +161,16 @@ class Edge:
 
         
     
-    def get_occupancy(self):
+    def occupancy(self):
         #Override this method in subclasses
         raise NotImplementedError("This method should be implemented in subclasses.")
     
-    def get_ready_items(self):
+    def ready_items(self):
+        
+        #Override this method in subclasses
+        raise NotImplementedError("This method should be implemented in subclasses.")
+    
+    def items(self):
         
         #Override this method in subclasses
         raise NotImplementedError("This method should be implemented in subclasses.")

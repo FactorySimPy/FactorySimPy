@@ -180,40 +180,7 @@ class Source(Node):
     
 
     
-   
-
-    def _push_item(self, item_to_push, out_edge):
-        """
-        It picks a processed item from the store and pushes it to the specified out_edge.
-        The out_edge can be a ConveyorBelt or Buffer.
-        Args:
-            item_to_push (BaseFlowItem Object): Item to be pushed.
-            out_edge (Edge Object): The edge to which the item will be pushed.
-
-
-        """
-       
-        if out_edge.__class__.__name__ == "ConveyorBelt":                 
-                put_token = out_edge.reserve_put()
-                pe = yield put_token
-                item_to_push.update_node_event(self.id, self.env, "exit")
-                
-                y=out_edge.put(pe, item_to_push)
-                if y:
-                    print(f"T={self.env.now:.2f}: {self.id} puts {item_to_push.id} item into {out_edge.id}  ")
-        elif out_edge.__class__.__name__ in ["Buffer", "Fleet"]:
-                outstore = out_edge
-                put_token = outstore.reserve_put()
-                yield put_token
-                item_to_push.update_node_event(self.id, self.env, "exit")
-                y=outstore.put(put_token, item_to_push)
-                if y:
-                    print(f"T={self.env.now:.2f}: {self.id} puts item into {out_edge.id}")
-        else:
-                raise ValueError(f"Unsupported edge type: {out_edge.__class__.__name__}")
-
-
-    
+  
         
  
     def add_in_edges(self, edge):
@@ -241,19 +208,8 @@ class Source(Node):
    
     
     def _push_item(self, item, out_edge):
-        if out_edge.__class__.__name__ == "ConveyorBelt1":
-
-                            
-                put_token = out_edge.reserve_put()
-
-                yield put_token
-                item.set_creation(self.id, self.env)
-                item.timestamp_node_exit = self.env.now
-                y=out_edge.put(put_token, item)
-                if y:
-                    print(f"T={self.env.now:.2f}: {self.id} puts {item.id} item into {out_edge.id}  ")
-                
-        elif out_edge.__class__.__name__ in ["Buffer", "Fleet", "ConveyorBelt"]:
+        
+        if out_edge.__class__.__name__ in ["Buffer", "Fleet", "ConveyorBelt"]:
                 outstore = out_edge
                 put_token = outstore.reserve_put()
                 yield put_token
