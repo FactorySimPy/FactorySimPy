@@ -2,19 +2,6 @@ from factorysimpy.edges.edge import Edge
 from factorysimpy.base.buffer_store import BufferStore 
 
 
-
-
-# @title buffer
-
-
-
-
-#from factorysimpy.base.reservable_priority_req_filter_store import ReservablePriorityReqFilterStore  # Import your class
-
-
-
-# @title buffer_new
-
 class Buffer(Edge):
     """
     Buffer class representing a FIFO queue.
