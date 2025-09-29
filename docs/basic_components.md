@@ -575,7 +575,7 @@ The API documentation can be found in [Buffer](buffer.md)
 - The buffer transitions between states such as "IDLE_STATE" (waiting for items), "RELEASING_STATE" (releasing items), and "BLOCKED_STATE" (cannot accept or release items due to capacity or downstream constraints).
 
 1. "EMPTY_STATE"  - when there is no items in the buffer
-2. "RELEASING_STATE"- When there is items in the buffer
+2. "RELEASING_STATE"- When there is items in the buffer that are ready to be taken out.
 
 
 
