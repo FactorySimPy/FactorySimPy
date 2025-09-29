@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://factorysimpy.github.io/FactorySimPy/source/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Source - FactorySimPy</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Source";
+        var mkdocs_page_input_path = "source.md";
+        var mkdocs_page_url = "/FactorySimPy/source/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> FactorySimPy
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Overview</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../getting_started/">Getting Started</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">SYSTEM DESCRIPTION</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../basic_components/">Basic Components</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Other features</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../monitoring/">Monitoring and Measurement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../constructs/">Constructs for Modeling</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../extending_components/">Extending Components</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../interrupts/">Modeling interrupts</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RTsimulation/">Enabling real-time simulation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">REFERENCE</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../extendedresources/">Supporting classes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../api_ref_main_page_2/">API Reference</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">About</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../authors/">Authors</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../changelog/">Changelog</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../license/">License</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">FactorySimPy</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Source</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/FactorySimPy/FactorySimPy/edit/master/docs/source.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="factorysimpy.nodes.source"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="factorysimpy.nodes.source.Source" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">Source</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">in_edges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">out_edges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">item_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">flow_item_type</span><span class="o">=</span><span class="s1">&#39;item&#39;</span><span class="p">,</span> <span class="n">inter_arrival_time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">out_edge_selection</span><span class="o">=</span><span class="s1">&#39;FIRST_AVAILABLE&#39;</span><span class="p">)</span></code>
+
+<a href="#factorysimpy.nodes.source.Source" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="Node(env, id, in_edges=None, out_edges=None, node_setup_time=0) (factorysimpy.nodes.node.Node)" href="../api_ref_main_page_2/#factorysimpy.nodes.node.Node">Node</a></code></p>
+
+
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>state</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Current state of the source node. One of :</p>
+<ul>
+<li>SETUP_STATE: Initial setup phase before item generation starts.</li>
+<li>GENERATING_STATE: Actively generating and dispatching items.</li>
+<li>BLOCKED_STATE: Waiting to transfer item when edge is full (in blocking mode).</li>
+</ul>
+              </div>
+            </li>
+            <li>
+              <b><code>inter_arrival_time</code></b>
+                  (<code>None, int, float, generator, or callable</code>, default:
+                      <code>0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Time between item generations. Can be:</p>
+<ul>
+<li>None: Used when the setup time depends on parameters of the node object (like current state of the object) or environment. </li>
+<li>int or float: Used as a constant delay.</li>
+<li>Callable: A function that returns a delay (int or float).</li>
+<li>Generator: A generator function yielding delay values over time.  </li>
+</ul>
+              </div>
+            </li>
+            <li>
+              <b><code>flow_item_type</code></b>
+                  (<code><span title="str">str</span></code>, default:
+                      <code>&#39;item&#39;</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Type of item to be generated. Default is "item". Can be </p>
+<ul>
+<li>"item" : Smallest unit of discrete item and it cannot hold other items inside. </li>
+<li>"pallet" : Entities that can store multiple smaller units of items </li>
+</ul>
+              </div>
+            </li>
+            <li>
+              <b><code>blocking</code></b>
+                  (<code><span title="bool">bool</span></code>, default:
+                      <code>False</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>If True, the source waits until it can put an item into the out edge.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>out_edge_selection</code></b>
+                  (<code>None or <span title="str">str</span> or <span title="callable">callable</span></code>, default:
+                      <code>&#39;FIRST_AVAILABLE&#39;</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Criterion or function for selecting the out edge.
+                                  Options include "RANDOM", "FIRST", "LAST", "ROUND_ROBIN", "FIRST_AVAILABLE".</p>
+<ul>
+<li>None: Used when out edge selection depends on parameters of the node object (like current state of the object) or environment.    </li>
+<li>str: A string that specifies the selection method.<ul>
+<li>"RANDOM": Selects a random out edge.</li>
+<li>"ROUND_ROBIN": Selects out edges in a round-robin manner.</li>
+<li>"FIRST_AVAILABLE": Selects the first out edge that can accept an item.</li>
+</ul>
+</li>
+<li>callable: A function that returns an edge index.</li>
+</ul>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p>Behavior:</p>
+<p>The Source node is responsible for generating items that flow in the simulation model. It operates in two modes: 
+blocking and non-blocking.</p>
+<p>when <code>blocking=True</code>:
+    - After each <code>inter_arrival_time</code>, the source generates an item.
+    - If the selected out edge is full, the source waits until space is available.
+    - Once space is available, the item is transferred to the selected edge.
+    - <code>inter_arrival_time</code> must not be <code>None</code>.</p>
+<p>when <code>blocking=False</code>:
+    - After each <code>inter_arrival_time</code>, the source generates an item.
+    - If the selected out edge is full, the item is discarded immediately.
+    - If space is available, the item is transferred without waiting.
+    - <code>inter_arrival_time</code> must not be 0.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If <code>inter_arrival_time</code> is 0 in non-blocking mode or if <code>out_edge_selection</code> is not a valid type.</p>
+              </div>
+            </li>
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If <code>out_edge_selection</code> is not a string or callable.</p>
+              </div>
+            </li>
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If <code>out_edges</code> is not provided or has less than one edge.</p>
+              </div>
+            </li>
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If <code>in_edges</code> is provided, as Source nodes should not have input edges.</p>
+              </div>
+            </li>
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If <code>out_edges</code> already has an edge when trying to add a new one.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p>Output performance metrics:
+The key performance metrics of the Source node is captured in <code>stats</code> attribute (dict) during a simulation run. </p>
+<div class="codehilite"><pre><span></span><code><span class="n">last_state_change_time</span><span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">Time</span><span class="w"> </span><span class="n">when</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="n">was</span><span class="w"> </span><span class="n">last</span><span class="w"> </span><span class="n">changed</span><span class="o">.</span>
+<span class="n">num_item_generated</span><span class="w">        </span><span class="o">:</span><span class="w"> </span><span class="n">Total</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">items</span><span class="w"> </span><span class="n">generated</span><span class="o">.</span>
+<span class="n">num_item_discarded</span><span class="w">        </span><span class="o">:</span><span class="w"> </span><span class="n">Total</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">items</span><span class="w"> </span><span class="n">discarded</span><span class="w"> </span><span class="n">due</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">lack</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">space</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="n">edge</span><span class="o">.</span>
+<span class="n">total_time_spent_in_states</span><span class="o">:</span><span class="w"> </span><span class="n">Dictionary</span><span class="w"> </span><span class="k">with</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="n">spent</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">each</span><span class="w"> </span><span class="n">state</span><span class="o">.</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.nodes.source.Source.add_out_edges" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">add_out_edges</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span></code>
+
+<a href="#factorysimpy.nodes.source.Source.add_out_edges" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Adds an out_edge to the source node. Raises an error if the source already has an 
+out_edge or if the edge already exists in the out_edges list.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>edge</code></b>
+                  (<code>Edge Object</code>)
+              –
+              <div class="doc-md-description">
+                <p>The edge to be added as an out_edge.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.nodes.source.Source.update_state" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">update_state</span><span class="p">(</span><span class="n">new_state</span><span class="p">,</span> <span class="n">current_time</span><span class="p">)</span></code>
+
+<a href="#factorysimpy.nodes.source.Source.update_state" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Update node state and track the time spent in the previous state.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>i</code></b>
+                  (<code><span title="int">int</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The index of the worker thread to update the state for.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>new_state</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The new state to transition to. Must be one of "SETUP_STATE", "GENERATING_STATE", "BLOCKED_STATE".</p>
+              </div>
+            </li>
+            <li>
+              <b><code>current_time</code></b>
+                  (<code><span title="float">float</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The current simulation time.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/FactorySimPy/FactorySimPy" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

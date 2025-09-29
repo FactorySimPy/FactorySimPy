@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://factorysimpy.github.io/FactorySimPy/buffer/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Buffer - FactorySimPy</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Buffer";
+        var mkdocs_page_input_path = "buffer.md";
+        var mkdocs_page_url = "/FactorySimPy/buffer/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> FactorySimPy
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Overview</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../getting_started/">Getting Started</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">SYSTEM DESCRIPTION</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../basic_components/">Basic Components</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Other features</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../monitoring/">Monitoring and Measurement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../constructs/">Constructs for Modeling</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../extending_components/">Extending Components</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../interrupts/">Modeling interrupts</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RTsimulation/">Enabling real-time simulation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">REFERENCE</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../extendedresources/">Supporting classes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../api_ref_main_page_2/">API Reference</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">About</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../authors/">Authors</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../changelog/">Changelog</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../license/">License</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">FactorySimPy</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Buffer</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/FactorySimPy/FactorySimPy/edit/master/docs/buffer.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="factorysimpy.edges.buffer"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="factorysimpy.edges.buffer.Buffer" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">Buffer</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;FIFO&#39;</span><span class="p">)</span></code>
+
+<a href="#factorysimpy.edges.buffer.Buffer" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="Edge(env, id, capacity) (factorysimpy.edges.edge.Edge)" href="../api_ref_main_page_2/#factorysimpy.edges.edge.Edge">Edge</a></code></p>
+
+
+        <p>Buffer class representing a FIFO queue.
+Inherits from the Edge class. This buffer can have a single input edge and a single output edge.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Attributes:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>state</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The current state of the buffer.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>capacity</code></b>
+                  (<code><span title="int">int</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The capacity of the buffer's internal storage.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>mode</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Mode of operation for the buffer, It can be
+- "FIFO" (First In First Out) 
+- "LIFO" (Last In First Out).</p>
+              </div>
+            </li>
+            <li>
+              <b><code>delay</code></b>
+                  (<code>(<span title="int">int</span>, <span title="float">float</span>)</code>)
+              –
+              <div class="doc-md-description">
+                <p>Delay after which the item becomes available. It Can be</p>
+<ul>
+<li>int or float: Used as a constant delay.</li>
+</ul>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p>Behavior:
+        The Buffer is a type of edge represents components that holds the items that are waiting to be accepted by the destination node. Items that are added in buffer becomes available
+        for use after <code>delay</code> amount of time. It operates in two modes- 
+        1. <code>FIFO</code>: It prioritizes items in the order they were added, with the oldest items being available for the destination node first.
+        2. <code>LIFO</code>: It prioritizes items in the reverse order of their arrival, items that newly added are available to use by the destination node first
+        Incoming edges can use reserve_get and reserve_put calls on the store in the buffer to reserve an item or space and after yielding 
+        the requests, an item can be put and obtained by using put and get methods.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="AssertionError">AssertionError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If the buffer does not have at least one source node or one destination node.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<details class="output-performance-metrics" open>
+  <summary>Output performance metrics</summary>
+  <p>The key performance metrics of the buffer edge are captured in the <code>stats</code> attribute (dict) during a simulation run. </p>
+<div class="codehilite"><pre><span></span><code><span class="n">last_state_change_time</span><span class="w">                      </span><span class="o">:</span><span class="w"> </span><span class="n">Time</span><span class="w"> </span><span class="n">when</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="n">was</span><span class="w"> </span><span class="n">last</span><span class="w"> </span><span class="n">changed</span><span class="o">.</span>
+<span class="n">time_averaged_num_of_items_in_buffer</span><span class="w">        </span><span class="o">:</span><span class="w"> </span><span class="n">Time</span><span class="o">-</span><span class="n">averaged</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">items</span><span class="w"> </span><span class="n">available</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">buffer</span><span class="o">.</span>
+<span class="n">total_time_spent_in_states</span><span class="w">                  </span><span class="o">:</span><span class="w"> </span><span class="n">Dictionary</span><span class="w"> </span><span class="k">with</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="n">spent</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">each</span><span class="w"> </span><span class="n">state</span><span class="o">.</span>
+</code></pre></div>
+</details>
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.edges.buffer.Buffer.can_put" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">can_put</span><span class="p">()</span></code>
+
+<a href="#factorysimpy.edges.buffer.Buffer.can_put" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the buffer can accept an item.</p>
+<h5 id="factorysimpy.edges.buffer.Buffer.can_put--returns">Returns<a class="headerlink" href="#factorysimpy.edges.buffer.Buffer.can_put--returns" title="Permanent link">&para;</a></h5>
+<p>bool
+    True if the buffer can accept an item, False otherwise.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.edges.buffer.Buffer.can_get" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">can_get</span><span class="p">()</span></code>
+
+<a href="#factorysimpy.edges.buffer.Buffer.can_get" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the buffer can accept an item.</p>
+<h5 id="factorysimpy.edges.buffer.Buffer.can_get--returns">Returns<a class="headerlink" href="#factorysimpy.edges.buffer.Buffer.can_get--returns" title="Permanent link">&para;</a></h5>
+<p>bool
+    True if the buffer can give an item, False otherwise.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.edges.buffer.Buffer.get" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></code>
+
+<a href="#factorysimpy.edges.buffer.Buffer.get" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Get an item from the buffer.</p>
+<h5 id="factorysimpy.edges.buffer.Buffer.get--parameters">Parameters<a class="headerlink" href="#factorysimpy.edges.buffer.Buffer.get--parameters" title="Permanent link">&para;</a></h5>
+<p>event : simpy.Event
+    The event that was reserved for getting an item.</p>
+<h5 id="factorysimpy.edges.buffer.Buffer.get--returns">Returns<a class="headerlink" href="#factorysimpy.edges.buffer.Buffer.get--returns" title="Permanent link">&para;</a></h5>
+<p>item : object
+    The item retrieved from the buffer.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.edges.buffer.Buffer.reserve_get_cancel" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">reserve_get_cancel</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></code>
+
+<a href="#factorysimpy.edges.buffer.Buffer.reserve_get_cancel" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Cancel a reserved get event.</p>
+<h5 id="factorysimpy.edges.buffer.Buffer.reserve_get_cancel--parameters">Parameters<a class="headerlink" href="#factorysimpy.edges.buffer.Buffer.reserve_get_cancel--parameters" title="Permanent link">&para;</a></h5>
+<p>event : simpy.Event
+    The event that was reserved for getting an item.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.edges.buffer.Buffer.reserve_put_cancel" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">reserve_put_cancel</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></code>
+
+<a href="#factorysimpy.edges.buffer.Buffer.reserve_put_cancel" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Cancel a reserved put event.</p>
+<h5 id="factorysimpy.edges.buffer.Buffer.reserve_put_cancel--parameters">Parameters<a class="headerlink" href="#factorysimpy.edges.buffer.Buffer.reserve_put_cancel--parameters" title="Permanent link">&para;</a></h5>
+<p>event : simpy.Event
+    The event that was reserved for putting an item.</p>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/FactorySimPy/FactorySimPy" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

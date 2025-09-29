@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://factorysimpy.github.io/FactorySimPy/splitter/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Splitter - FactorySimPy</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Splitter";
+        var mkdocs_page_input_path = "splitter.md";
+        var mkdocs_page_url = "/FactorySimPy/splitter/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> FactorySimPy
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Overview</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../getting_started/">Getting Started</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">SYSTEM DESCRIPTION</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../basic_components/">Basic Components</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Other features</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../monitoring/">Monitoring and Measurement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../constructs/">Constructs for Modeling</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../extending_components/">Extending Components</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../interrupts/">Modeling interrupts</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RTsimulation/">Enabling real-time simulation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">REFERENCE</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../extendedresources/">Supporting classes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../api_ref_main_page_2/">API Reference</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">About</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../authors/">Authors</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../changelog/">Changelog</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../license/">License</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">FactorySimPy</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Splitter</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/FactorySimPy/FactorySimPy/edit/master/docs/splitter.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="factorysimpy.nodes.splitter"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="factorysimpy.nodes.splitter.Splitter" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">Splitter</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">in_edges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">out_edges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node_setup_time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">processing_delay</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;UNPACK&#39;</span><span class="p">,</span> <span class="n">split_quantity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">in_edge_selection</span><span class="o">=</span><span class="s1">&#39;FIRST_AVAILABLE&#39;</span><span class="p">,</span> <span class="n">out_edge_selection</span><span class="o">=</span><span class="s1">&#39;FIRST_AVAILABLE&#39;</span><span class="p">)</span></code>
+
+<a href="#factorysimpy.nodes.splitter.Splitter" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="Node(env, id, in_edges=None, out_edges=None, node_setup_time=0) (factorysimpy.nodes.node.Node)" href="../api_ref_main_page_2/#factorysimpy.nodes.node.Node">Node</a></code></p>
+
+
+        <p>Splitter class representing a processing node that can unpack an incoming item and send it to multiple outgoing edges in a factory simulation.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>state</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Current state of the splitter node. One of :</p>
+<ul>
+<li>SETUP_STATE: Initial setup phase before splitter starts to operate.</li>
+<li>IDLE_STATE: Worker threads waiting to receive items.</li>
+<li>PROCESSING_STATE: Actively processing items.</li>
+<li>BLOCKED_STATE: When all the worker threads are waiting to push the processed item but the out going edge is full.</li>
+</ul>
+              </div>
+            </li>
+            <li>
+              <b><code>blocking</code></b>
+                  (<code><span title="bool">bool</span></code>, default:
+                      <code>True</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>If True, the node waits until it can put an item into the out edge. If False, it discards the item if the out edge is full and cannot accept the item that is being pushed by the splitter.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>mode</code></b>
+                  (<code><span title="str">str</span></code>, default:
+                      <code>&#39;UNPACK&#39;</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Mode of operation of the splitter. Either "UNPACK" or "SPLIT".
+- "UNPACK": The splitter unpacks all items from a packed item (like a pallet) and pushes each item to an output edge, one by one. After all items are pushed, the empty container itself is pushed to an output edge.
+- "SPLIT": The splitter splits the incoming item into a target quantity of items, specified by <code>split_quantity</code> and pushes each item to an output edge, one by one.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>split_quantity</code></b>
+                  (<code><span title="int">int</span></code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Target quantity of items to split the input flow item into. This parameter is required if <code>mode</code> is "SPLIT". If <code>mode</code> is "UNPACK", this parameter is ignored.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>processing_delay</code></b>
+                  (<code>(None, <span title="int">int</span>, <span title="float">float</span>, <span title="Generator">Generator</span>, <span title="Callable">Callable</span>)</code>, default:
+                      <code>0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Delay for processing items. Can be:</p>
+<ul>
+<li>None: Used when the processing time depends on parameters of the node object (like current state of the object) or environment. </li>
+<li>int or float: Used as a constant delay.</li>
+<li>Generator: A generator function yielding delay values over time.</li>
+<li>Callable: A function that returns a delay (int or float).</li>
+</ul>
+              </div>
+            </li>
+            <li>
+              <b><code>in_edge_selection</code></b>
+                  (<code>None or <span title="str">str</span> or <span title="callable">callable</span></code>, default:
+                      <code>&#39;FIRST_AVAILABLE&#39;</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Criterion or function for selecting the edge.
+                              Options include "RANDOM", "ROUND_ROBIN", "FIRST_AVAILABLE".</p>
+<ul>
+<li>None: Used when edge selction depends on parameters of the node object (like current state of the object) or environment. </li>
+<li>str: A string that specifies the selection method.<ul>
+<li>"RANDOM": Selects a random edge.</li>
+<li>"ROUND_ROBIN": Selects edges in a round-robin manner.</li>
+<li>"FIRST_AVAILABLE": Selects the first out edge that can give an item.</li>
+</ul>
+</li>
+<li>callable: A function that returns an edge index.</li>
+</ul>
+              </div>
+            </li>
+            <li>
+              <b><code>out_edge_selection</code></b>
+                  (<code>None or <span title="str">str</span> or <span title="callable">callable</span></code>, default:
+                      <code>&#39;FIRST_AVAILABLE&#39;</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Criterion or function for selecting the out edge.
+                              Options include "RANDOM", "ROUND_ROBIN", "FIRST_AVAILABLE".</p>
+<ul>
+<li>None: None: Used when out edge selction depends on parameters of the node object (like current state of the object) or environment.   </li>
+<li>str: A string that specifies the selection method.<ul>
+<li>"RANDOM": Selects a random out edge in the out_edges list.</li>
+<li>"ROUND_ROBIN": Selects out edges in a round-robin manner.</li>
+<li>"FIRST_AVAILABLE": Selects the first out edge that can accept an item.</li>
+</ul>
+</li>
+<li>callable: A function that returns an edge index.</li>
+</ul>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<details class="behavior" open>
+  <summary>Behavior</summary>
+  <p>The Splitter node represents components that process or modify the items that flow in the simulation model. It can have multiple incoming edges
+and multiple outgoing edge. Edge from which the item comes in and the edge to which processed item is pushed is decided using the method specified
+in the parameter <code>in_edge_selection</code> and <code>out_edge_selection</code>. Splitter will transition through the states- <code>SETUP_STATE</code>, <code>PROCESSING_STATE</code>, <code>IDLE_STATE</code> and
+<code>BLOCKED_STATE</code>. The Splitter has a blocking behavior if <code>blocking</code>=<code>True</code> and gets blocked when all its worker threads have processed items and the out edge is full and
+cannot accept the item that is being pushed by the Splitter and waits until the out edge can accept the item. If <code>blocking</code>=<code>False</code>, the Splitter will
+discard the item if the out edge is full and cannot accept the item that is being pushed by the Splitter.</p>
+</details>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="AssertionError">AssertionError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If the Splitter has no input or output edges.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p>Output performance metrics:
+The key performance metrics of the Splitter node is captured in <code>stats</code> attribute (dict) during a simulation run. </p>
+<div class="codehilite"><pre><span></span><code><span class="n">last_state_change_time</span><span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">Time</span><span class="w"> </span><span class="n">when</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="n">was</span><span class="w"> </span><span class="n">last</span><span class="w"> </span><span class="n">changed</span><span class="o">.</span>
+<span class="n">num_item_processed</span><span class="w">        </span><span class="o">:</span><span class="w"> </span><span class="n">Total</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">items</span><span class="w"> </span><span class="n">generated</span><span class="o">.</span>
+<span class="n">num_item_discarded</span><span class="w">        </span><span class="o">:</span><span class="w"> </span><span class="n">Total</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">items</span><span class="w"> </span><span class="n">discarded</span><span class="o">.</span>
+<span class="n">total_time_spent_in_states</span><span class="o">:</span><span class="w"> </span><span class="n">Dictionary</span><span class="w"> </span><span class="k">with</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="n">spent</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">each</span><span class="w"> </span><span class="n">state</span><span class="o">.</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.nodes.splitter.Splitter.update_state" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">update_state</span><span class="p">(</span><span class="n">new_state</span><span class="p">,</span> <span class="n">current_time</span><span class="p">)</span></code>
+
+<a href="#factorysimpy.nodes.splitter.Splitter.update_state" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Update node state and track the time spent in the previous state.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>i</code></b>
+                  (<code><span title="int">int</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The index of the worker thread to update the state for.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>new_state</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The new state to transition to. Must be one of "SETUP_STATE", "GENERATING_STATE", "BLOCKED_STATE".</p>
+              </div>
+            </li>
+            <li>
+              <b><code>current_time</code></b>
+                  (<code><span title="float">float</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The current simulation time.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.nodes.splitter.Splitter.add_in_edges" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">add_in_edges</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span></code>
+
+<a href="#factorysimpy.nodes.splitter.Splitter.add_in_edges" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Adds an in_edge to the node. Raises an error if the edge already exists in the in_edges list.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>edge (Edge Object) </code></b>
+              –
+              <div class="doc-md-description">
+                <p>The edge to be added as an in_edge.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.nodes.splitter.Splitter.add_out_edges" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">add_out_edges</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span></code>
+
+<a href="#factorysimpy.nodes.splitter.Splitter.add_out_edges" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Adds an out_edge to the node. Raises an error if the edge already exists in the out_edges list.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>edge (Edge Object) </code></b>
+              –
+              <div class="doc-md-description">
+                <p>The edge to be added as an out_edge.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/FactorySimPy/FactorySimPy" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

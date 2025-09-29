@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://factorysimpy.github.io/FactorySimPy/configuring_parameters/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Configuring parameters - FactorySimPy</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Configuring parameters";
+        var mkdocs_page_input_path = "configuring_parameters.md";
+        var mkdocs_page_url = "/FactorySimPy/configuring_parameters/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> FactorySimPy
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Overview</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../getting_started/">Getting Started</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">SYSTEM DESCRIPTION</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../basic_components/">Basic Components</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Other features</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../monitoring/">Monitoring and Measurement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../constructs/">Constructs for Modeling</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../extending_components/">Extending Components</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../interrupts/">Modeling interrupts</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RTsimulation/">Enabling real-time simulation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">REFERENCE</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../extendedresources/">Supporting classes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../api_ref_main_page_2/">API Reference</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">About</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../authors/">Authors</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../changelog/">Changelog</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../license/">License</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">FactorySimPy</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Configuring parameters</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/FactorySimPy/FactorySimPy/edit/master/docs/configuring_parameters.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="configuring-parameters">Configuring parameters<a class="headerlink" href="#configuring-parameters" title="Permanent link">&para;</a></h1>
+<h2 id="edge-selection">Edge Selection<a class="headerlink" href="#edge-selection" title="Permanent link">&para;</a></h2>
+<p>There are different methods available to choose an input edge and output edge. To choose an input edge to pull an item from, the nodes utilises the strategy specified in the parameter <code>in_edge_selection</code>.  Similarly, to select an output edge, to push the item to, nodes uses the method specified in <code>out_edge_selection</code> parameter. These parameters can be a constant integer value (one of the edge indices), or one of the methods available in the package (passed as a string; listed below) or a Python function or a generator function instance provided by the user. User-provided function should return or yield an edge index. If the function depends on any of the node attributes, users can pass <code>None</code> to these parameters at the time of node creation and later initialise the parameter with the reference to the function. Various options available in the package for <code>in_edge_selection</code> and <code>out_edge_selection</code> are listed below. To use these strategies, their names can be passed as a string while initialising the node.</p>
+<ul>
+<li>"RANDOM": Selects a random out edge.</li>
+<li>"ROUND_ROBIN": Selects out edges in a round-robin manner.</li>
+<li>"FIRST_AVAILABLE": Selects the first out edge that can accept an item. </li>
+</ul>
+<p>In case of "FIRST_AVAILABLE", always the edge with the least index value will be selected if multiple edges are available. If <code>blocking</code> is set to False and <code>out_edge_selection</code> is set to "FIRST_AVAILABLE", then the worker thread will check if any of the out edges is available to accept. The item is discarded only if none of the edges are available.  </p>
+<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><em><a href="../examples/#a-simple-example">Example showing how to pass constant values to these parameters</a></em></strong></li>
+<li><strong><em><a href="../examples/#example-with-a-custom-edge-selction-policy-as-a-function">Example showing how to pass one of the methods available in the package as a string or a custom function to these parameters</a></em></strong></li>
+</ul>
+<h2 id="delay-parameters">Delay parameters<a class="headerlink" href="#delay-parameters" title="Permanent link">&para;</a></h2>
+<p><code>node_setup_time</code>, <code>inter_arrival_time</code> and <code>processing_delay</code> are one of the two delay paramaters that can be configured. <code>node_setup_time</code> is an intial one time delay for setting up any node. <code>inter_arrival_time</code> is the time interval between two successive item generation in the source and <code>processing_delay</code> is the time incurres by an item to get processed in components like machine, split, joint, etc. <code>node_setup_time</code> can be an <code>int</code> or a <code>float</code> and is a constant value. The parameters <code>inter_arrival_time</code> and <code>processing_delay</code> can be specified as a constant value (<code>int</code> or <code>float</code>) or as a reference to a python function or a generator function instance that generates random variates from a chosen distribution. If the function depends on any of the node attributes, users can pass <code>None</code> to this parameter at the time of node creation and later initialise the parameter with the reference to the function.</p>
+<h3 id="examples_1">Examples<a class="headerlink" href="#examples_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><em><a href="../examples/#a-simple-example">Example showing how to pass constant values to these parameters</a></em></strong></li>
+<li><strong><em><a href="../examples/#example-with-delay-as-random-variates">Example showing how to pass a custom function or generator function instance to these parameters</a></em></strong></li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/FactorySimPy/FactorySimPy" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

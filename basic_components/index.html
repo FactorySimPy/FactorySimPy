@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+
+<html class="writer-html5" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://factorysimpy.github.io/FactorySimPy/basic_components/" rel="canonical"/>
+<link href="../img/favicon.ico" rel="shortcut icon"/>
+<title>Basic Components - FactorySimPy</title>
+<link href="../css/theme.css" rel="stylesheet"/>
+<link href="../css/theme_extra.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" rel="stylesheet"/>
+<link href="../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../extra.css" rel="stylesheet"/>
+<script>
+        // Current page data
+        var mkdocs_page_name = "Basic Components";
+        var mkdocs_page_input_path = "basic_components.md";
+        var mkdocs_page_url = "/FactorySimPy/basic_components/";
+      </script>
+<!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+</head>
+<body class="wy-body-for-nav" role="document">
+<div class="wy-grid-for-nav">
+<nav class="wy-nav-side stickynav" data-toggle="wy-nav-shift">
+<div class="wy-side-scroll">
+<div class="wy-side-nav-search">
+<a class="icon icon-home" href=".."> FactorySimPy
+        </a><div role="search">
+<form action="../search.html" class="wy-form" id="rtd-search-form" method="get">
+<input aria-label="Search docs" name="q" placeholder="Search docs" title="Type search term here" type="text"/>
+</form>
+</div>
+</div>
+<div aria-label="Navigation menu" class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="..">Overview</a>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/">Getting Started</a>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">SYSTEM DESCRIPTION</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal current" href="#">Basic Components</a>
+<ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="#nodes">Nodes</a>
+<ul>
+<li class="toctree-l3"><a class="reference internal" href="#source">Source</a>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#machine">Machine</a>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#combiner">Combiner</a>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#splitter">Splitter</a>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#sink">Sink</a>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#edges">Edges</a>
+<ul>
+<li class="toctree-l3"><a class="reference internal" href="#buffer">Buffer</a>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fleet">Fleet</a>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#conveyor">Conveyor</a>
+<ul>
+<li class="toctree-l4"><a class="reference internal" href="#continuous-type-conveyor">Continuous-type Conveyor</a>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#slotted-type-conveyor">Slotted-type Conveyor</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#baseflowitem">BaseFlowItem</a>
+<ul>
+<li class="toctree-l3"><a class="reference internal" href="#item">Item</a>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pallet">Pallet</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/">Examples</a>
+</li>
+<li class="toctree-l1"><a class="reference internal">Other features</a>
+<ul>
+<li class="toctree-l2"><a class="reference internal" href="../monitoring/">Monitoring and Measurement</a>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../constructs/">Constructs for Modeling</a>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../extending_components/">Extending Components</a>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../interrupts/">Modeling interrupts</a>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../RTsimulation/">Enabling real-time simulation</a>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">REFERENCE</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../extendedresources/">Supporting classes</a>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api_ref_main_page_2/">API Reference</a>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../authors/">Authors</a>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/">Changelog</a>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../license/">License</a>
+</li>
+</ul>
+</div>
+</div>
+</nav>
+<section class="wy-nav-content-wrap" data-toggle="wy-nav-shift">
+<nav aria-label="Mobile navigation menu" class="wy-nav-top" role="navigation">
+<i class="fa fa-bars" data-toggle="wy-nav-top"></i>
+<a href="..">FactorySimPy</a>
+</nav>
+<div class="wy-nav-content">
+<div class="rst-content"><div aria-label="breadcrumbs navigation" role="navigation">
+<ul class="wy-breadcrumbs">
+<li><a aria-label="Docs" class="icon icon-home" href=".."></a></li>
+<li class="breadcrumb-item">SYSTEM DESCRIPTION</li>
+<li class="breadcrumb-item active">Basic Components</li>
+<li class="wy-breadcrumbs-aside">
+<a class="icon icon-github" href="https://github.com/FactorySimPy/FactorySimPy/edit/master/docs/basic_components.md"> Edit on GitHub</a>
+</li>
+</ul>
+<hr/>
+</div>
+<div class="document" itemscope="itemscope" itemtype="http://schema.org/Article" role="main">
+<div class="section" itemprop="articleBody">
+<h1 id="basic-components">Basic Components<a class="headerlink" href="#basic-components" title="Permanent link">¶</a></h1>
+<p>Node, Edge and BaseFlowItem are the 3 basic component types in the library. All the other components are derived from them. Nodes are the active, static elements in the system and are responsible for operations such as processing, splitting, or combining items. Every node maintains a list of <code>in_edges</code> and <code>out_edges</code>, which are references to edge objects that connect it to other nodes. Other parameters of Nodes are <code>id</code> (a unique name) and <code>node_setup_time</code> (initial delay in each node, which is be a constant value). Common node types include Machine, Split, Combiner, Source, and Sink. Source can be used to generate items that flow in the system. Machines are the entities that modifies/processes an item. To multiplex the items that flow in the system, Splits can be used and to pack/join items from different input edges a Combiner can be used. Sink is the terminal node in the system and the items that enter this node cannot be retrieved.</p>
+<p>Edges are passive components that connect exactly two nodes (src_node and dest_node) and helps in transfering items between them. Edges are directed. Each edge has a unique identifier called <code>id</code>, and parameters <code>src_node</code> and <code>dest_node</code> to store the reference to the source node and destination node. Specific types of edges include Buffer, Conveyor, and Fleet. Buffers act as queues with a defined delay. Conveyors move items between nodes while preserving order and support both discrete (slotted belts) and continuous motion. Fleets represent systems like warehouse robots or human operators that transport items between nodes without preserving order.</p>
+<p>BaseFlowItem represents the entities that flow in the system. Every baseflowitem has a unique <code>id</code>. There are mainly two two of flow items available specified as <code>flow_item_type</code>. It can be either item or a pallet. Item is the smallest unit of discrete items that flow in the system.
+Pallets represents enitities that can hold multiple base items that belong to <code>flow_item_type</code>- "items".  </p>
+<p><strong>Rules for interconnection</strong></p>
+<ol>
+<li>Node represent static entities that are active. Components like machine, source, sink, split, combiners, etc are derived from node.</li>
+<li>Edge is directed and connects one node to another. Conveyor, buffer and fleet are the entities that are of type Edge.</li>
+<li>Items are discrete parts that flow in the system through the directed edges from one node to another. </li>
+<li>Each node has two lists <code>in_edges</code> and <code>out_edges</code> that points to a list with references of the edges that comes in and go out of the node.</li>
+<li>Each edge stores pointers to a <code>src_node</code> and a <code>dest_node</code>. An edge can be used only to connect a node to another node or same node.</li>
+<li>An edge can have the same node in both <code>src_node</code> and <code>dest_node</code>. Self loops are allowed.</li>
+<li>Nodes are the active elements whose activites initiates state changes in the system.</li>
+<li>Edges are the passive elements and state change occurs due to actions initiated by nodes.</li>
+<li>To multiplex the output from a machine node into multiple streams, a splittermust be connected to the machine using an edge.</li>
+<li>To join multiple streams and to feed as input to a machine , a Combiner must be connected to the machine using an edge.</li>
+</ol>
+<p><strong>Steps for Connecting Components</strong></p>
+<ol>
+<li>Instantiate nodes and edges:
+   <div class="highlight"><pre><span></span><code><span class="n">n1</span> <span class="o">=</span> <span class="n">Source</span><span class="p">()</span>
+<span class="n">n2</span> <span class="o">=</span> <span class="n">Machine</span><span class="p">()</span>
+<span class="n">n3</span> <span class="o">=</span> <span class="n">Sink</span><span class="p">()</span>
+<span class="n">e1</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">()</span>
+<span class="n">e2</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">()</span>
+</code></pre></div></li>
+<li>Establish connections:
+   <div class="highlight"><pre><span></span><code><span class="n">e1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">)</span>
+<span class="n">e2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n2</span><span class="p">,</span> <span class="n">n3</span><span class="p">)</span>
+</code></pre></div></li>
+</ol>
+<hr/>
+<hr style="height:4px;border:none;color:blue; background-color:grey;"/>
+<h2 id="nodes">Nodes<a class="headerlink" href="#nodes" title="Permanent link">¶</a></h2>
+<hr style="height:4px;border:none;color:blue; background-color:grey;"/>
+<p>Nodes represent active elements in the system. This is a basic type and is the basis for the active components like Machine, Split, Sink, Source, Combiner, etc. Every node has a unique identifier named <code>id</code> and maintains two lists named <code>in_edges</code> and <code>out_edges</code>. Every node has a <code>node_setup_time</code> that can be specified as a constant delay (integer of float). Activities that takesplace in a node create state changes in the system. The API documentation can be found in <a href="../nodes/">Node</a>.</p>
+<p><strong>Basic attributes</strong></p>
+<ul>
+<li><code>id</code> - unique identifier of the node</li>
+<li><code>in_edges</code>- list of all the input edges to the node</li>
+<li><code>out_edges</code> -  list of all the output edges from the node</li>
+<li><code>node_setup_time</code>- an initial delay to set up the node. </li>
+</ul>
+<hr style="height:2px;border:none;color:grey; background-color:grey;"/>
+<h3 id="source">Source<a class="headerlink" href="#source" title="Permanent link">¶</a></h3>
+<hr style="height:2px;border:none;color:grey; background-color:grey;"/>
+<p><strong>About</strong></p>
+<p>The source is an active component that generates items that flow through the system. There are two modes of operation for the source. If the parameter <code>blocking</code> is set to True, the source generates an item and tries to send it to the connected output edge. If the edge is full or cannot accept the item, the source waits until space becomes available. If the <code>blocking</code> parameter is set to False, the source generates items and attempts to send them to the output edge. If the edge is full or cannot accept the item, the source discards the item. The API documentation can be found in <a href="../source/">Source</a>. </p>
+<p><strong>Basic attributes</strong></p>
+<ul>
+<li><code>state</code> - Current state of the component.</li>
+<li><code>inter_arrival_time</code>- Time interval between two successive item generation.</li>
+<li><code>flow_item_type</code> - This is the type of item the source should generate. Either "item" or "pallet".</li>
+<li><code>blocking</code> -  If True, waits for output edge to be available to accept item and pushes the item when it is available; if False, discards the item if the output edge if full.</li>
+<li><code>out_edge_selection</code>- Edge selection policy as a function to select output edge.</li>
+</ul>
+<p><strong>Behavior</strong></p>
+<p>At the start of the simulation, the source waits for <code>node_setup_time</code>. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an <code>int</code> or <code>float</code>).</p>
+<p>During a simulation run, the source generates items at discrete instants of time determined by the parameter <code>inter_arrival_time</code>. <a href="../configuring_parameters/#delay-parameters">Details on how to configure parameter <code>inter_arrival_time</code> can be found here</a>. After the wait it produces a flow item based on the type mentioned in <code>flow_item_type</code>. It can be of two types namely "item" and "pallet". Item represents the smallest unit of discrete items that flow in the system. Pallets represents the type of flow item that can hold multiple items inside and it can be used to pack items. The source can have multiple output edges. It then chooses an output edge from <code>out_edges</code> list based on the <code>out_edge_selection</code> parameter. <a href="../configuring_parameters/#edge-selection">More details on how to configure parameter <code>out_edge_selection</code> can be found here</a>.</p>
+<p>After generating an item and choosing an output edge, the source behaves as follows:</p>
+<ol>
+<li>If <code>blocking</code> is <code>True</code>, it waits with the processed item in a "BLOCKED_STATE" for the out edge to be available and pushes the item when output edge becomes available or has space.</li>
+<li>If <code>blocking</code> is <code>False</code>, it checks if there is space in the output edge to accomodate the item. If the edge is full or unavailable, the item is discarded and the count of discarded item is recorded.</li>
+</ol>
+<p><strong>States</strong></p>
+<p>During its operation, the source transitions through the following states:</p>
+<ol>
+<li>
+<p>"SETUP_STATE": Initialization or node setup phase before item generation starts.</p>
+</li>
+<li>
+<p>"GENERATING_STATE": Active state where items are being created and pushed to the output edge.</p>
+</li>
+<li>
+<p>"BLOCKED_STATE": The source is blocked, waiting for the output edge to be available to accept an item (only when <code>blocking</code> is <code>True</code>).</p>
+</li>
+</ol>
+<p><strong>Usage</strong></p>
+<p>Source can be initialised as shown below.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">factorysimpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.source</span><span class="w"> </span><span class="kn">import</span> <span class="n">Source</span>
+
+<span class="n">SRC</span> <span class="o">=</span> <span class="n">Source</span><span class="p">(</span>
+    <span class="n">env</span><span class="p">,</span>                        <span class="c1"># Simulation environment</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">"SRC2"</span><span class="p">,</span>                  <span class="c1"># Unique identifier for the source node</span>
+    <span class="n">inter_arrival_time</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>     <span class="c1"># Time between item generations (can be constant or function/generator)</span>
+    <span class="n">flow_item_type</span><span class="o">=</span><span class="s2">"item"</span><span class="p">,</span>      <span class="c1"># Type of baseflowitem that the source should generate</span>
+    <span class="n">blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>             <span class="c1"># If True, waits for output edge to accept item; if False, discards item if the output edge is full</span>
+    <span class="n">out_edge_selection</span><span class="o">=</span><span class="mi">0</span>        <span class="c1"># Strategy or function to select output edge (can be string or callable or genrator or a constant int)</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><strong>Statistics collected</strong></p>
+<p>Several key metrics are being monitored in the class can be accessed in the attribute <code>stats</code> as 
+ component.stats[<code>num_item_generated</code>]. The source component reports the following key metrics.</p>
+<ol>
+<li>Total number of items generated</li>
+<li>Number of items discarded (non-blocking mode)</li>
+<li>Time spent in each state </li>
+</ol>
+<p>Consider a source with <code>blocking</code>= <code>False</code> and instance name as SRC. Metrics of a component SRC can be accessed after completion of the simulation run as</p>
+<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total number of items generated by </span><span class="si">{</span><span class="n">SRC</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">SRC</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="s2">"num_items_processed"</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total number of items discarded by </span><span class="si">{</span><span class="n">SRC</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">SRC</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="s2">"num_items_discarded"</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Source </span><span class="si">{</span><span class="n">SRC</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, state times: </span><span class="si">{</span><span class="n">SRC</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="s2">"time_spent_in_states"</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Examples</strong></p>
+<ul>
+<li>
+<p><strong><em><a href="../examples/#a-simple-example">A simple example with all parameters passed as constants</a></em></strong></p>
+</li>
+<li>
+<p><strong><em><a href="../examples/#delay-as-python-function">An example with <code>inter_arrival_delay</code> passed as a normal python function</a></em></strong></p>
+</li>
+<li>
+<p><strong><em><a href="../examples/#delay-as-generator-function">An example with <code>inter_arrival_delay</code> passed as a normal python generator function instance</a></em></strong></p>
+</li>
+<li>
+<p><strong><em><a href="../examples/#example-with-a-custom-edge-selction-policy-as-a-function">An example with <code>out_edge_selection</code> parameter is passed as custom function that yields edge indices</a></em></strong></p>
+</li>
+</ul>
+<hr style="height:2px;border:none;color:blue; background-color:grey;"/>
+<h3 id="machine">Machine<a class="headerlink" href="#machine" title="Permanent link">¶</a></h3>
+<hr style="height:2px;border:none;color:blue; background-color:grey;"/>
+<p><strong>About</strong></p>
+<p>A machine is an active component that processes items flowing through the system. Each item incurs a <code>processing_delay</code> amount of time to get processed in the machine. A machine can have multiple <code>in_edges</code> and <code>out_edges</code>. A machine can process multiple items simultaneously. The parameter <code>work_capacity</code> indicates the maximum number of items that can be processed simulatanously inside the machine. If work_capacity is set to a number greater than 1 (for example, k), this represents a machine with a maximum of k worker processes that are capable of processing k items simultaneously. Machine has two modes of operation based on the parameter value specified in <code>blocking</code>. If it is set to <code>True</code>, the processed item is held in a blocked state and machine waits for the out edge to be available to accept the item and pushes the processed item to the chosen out edge once it is available. The other mode can be configured by setting <code>blocking</code> to <code>False</code>. In this mode , the machine checks if there is space available in the chosen output edge and only if there is space the item is pushed. If the output edge is unavailable or full, the item will be discarded and its count will be recorded. The API documentation can be found in <a href="../machine/">Machine</a>.</p>
+<p><strong>Basic attributes</strong></p>
+<ul>
+<li><code>work_capacity</code> - Maximum number of items that can be processed by the machine simulataneously.</li>
+<li><code>processing_delay</code>- Time taken to process an item.</li>
+<li><code>state_rep</code> - This is a 2-tuple where the entries are the number of threads in the processing state and in the blocked state respectively  e.g., (num_processing_threads, num_blocked_threads). The number of threads in the IDLE_STATE can be determined by subtracting the sum of num_processing_threads and num_blocked_threads from the total work_capacity (work_capacity - (num_processing_threads + num_blocked_threads)). Inaddition to these, there is a "SETUP_STATE" for the machine and is denoted as (-1,-1). "IDLE_STATE" is when all the threads are idle and is represented as (0,0).</li>
+<li><code>blocking</code>-  If True, waits for output edge to be available to accept item and pushes the item when it is available; if False, discards the item if the output edge is full.</li>
+<li><code>in_edge_selection</code>- Edge selection policy as a function to select input edge.</li>
+<li><code>out_edge_selection</code>- Edge selection policy as a function to select output edge.</li>
+</ul>
+<p><strong>Behavior</strong></p>
+<p>At the start of the simulation, the machine waits for <code>node_setup_time</code>. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an <code>int</code> or <code>float</code>).  Machine can process atmost <code>work_capacity</code> number of items in parallel. As soon as an item is input from one of its input edges based on <code>in_edge_selection</code>, a worker thread is reserved which remains busy for processing the item in <code>processing_delay</code> amount of time and at the end of this time the worker thread attempts to output the item to one of the <code>out_edges</code> selected using the <code>out_edge_selection</code> parameter. <a href="../configuring_parameters/">More details on how to configure the parameters <code>processing_delay</code>, <code>out_edge_selection</code> and <code>in_edge_selection</code> can be found here</a>. Multiple items can be in "PROCESSING_STATE" at a time. After processing the item, the worker thread behaves as follows:</p>
+<ol>
+<li>If <code>blocking</code> is <code>True</code>, it waits with the processed item in a "BLOCKED_STATE" for the out edge to be available and pushes the item when output edge becomes available or has space.</li>
+<li>If <code>blocking</code> is <code>False</code>, it checks if there is space in the output edge to accomodate the item. If the edge is full or unavailable, the item is discarded and the count of discarded item is recorded.</li>
+</ol>
+<p><strong>States</strong></p>
+<p>During its operation, a machine transitions between different states based on the status of its worker threads. Each worker thread moves through the following thread level states:</p>
+<ul>
+<li><code>IDLE_STATE</code>: All the threads are idle.</li>
+<li><code>PROCESSING_STATE</code>: The thread is actively processing an item.</li>
+<li><code>BLOCKED_STATE</code>: The thread has finished processing but is waiting for an available output edge to transfer the item.</li>
+</ul>
+<p>The machine reports the following statistics for the various states a machine transitions through during simulation based on the collective status of the states of its threads. </p>
+<ol>
+<li>
+<p>total_time_setup (S): Time spent in the initialization or warming up phase before item processing starts. Denoted as (-1,-1) in state_rep.</p>
+</li>
+<li>
+<p>total_time_idle (I): Time duration for which the machine doesnot have any worker thread that is currently getting processed or is blocked.</p>
+</li>
+<li>
+<p>total_time_atleast_one_processing (1P): Time duration for which the machine is actively processing items. There will be atleast one thread in processing state in the machine. </p>
+</li>
+<li>
+<p>total_time_all_blocked (AB): Time duration for which all the worker_threads that are currently active are in "BOCKED_STATE" as they are waiting for the out edge to be available to accept the processed item.  The number of active threads can be equal to less than work_capacity. ie, there will &gt;=1 threads in blocked state, &gt;=0 threads in idle state and no threads in processing state.</p>
+</li>
+<li>
+<p>total_time_all_active_processing (AP): Time duration for which all the active threads are in processing state. The number of active threads can be equal to less than work_capacity. ie, there will &gt;=1 threads in processing state, &gt;=0 threads in idle state and no threads in blocked state.</p>
+</li>
+<li>
+<p>total_time_atleast_one_blocked (1B): Time duration for which atleast one of the worker_threads is in "BOCKED_STATE" as it is waiting for the out edge to be available to accept the processed item.</p>
+</li>
+</ol>
+<p>Some of the reported statistics are not mutually exclusive and may occur simultaneously. However, the following groupings are mutually exclusive and collectively exhaustive, meaning they cover all possible scenarios without overlap within each group:</p>
+<p>Group A: {S + I + 1P + AB} = total simulation time</p>
+<p>Group B: {S + I + AP + 1B} = total simulation time</p>
+<p>Each group individually spans 100% of the simulation time.</p>
+<p><strong>State Diagram</strong></p>
+<p>State_rep - (N_P, N_B); (Number of threads in processing state, number of threads in blocked state)
+Number of threads in idle state, N_I = work_capacity - (N_P + N_B)</p>
+<div class="mermaid">stateDiagram
+  direction TB
+  [*] --&gt; Idle : No jobs and all threads idle
+  Idle --&gt; Processing:Input job
+  Processing --&gt; Blocked:Output blocked
+  Processing --&gt; Idle:Job finished
+  Blocked --&gt; Idle:Output succeeded
+</div>
+<p><strong>Usage</strong></p>
+<p>A machine can be initialised as below.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">factorysimpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.machine</span><span class="w"> </span><span class="kn">import</span> <span class="n">Machine</span>
+
+<span class="n">MACHINE1</span> <span class="o">=</span> <span class="n">Machine</span><span class="p">(</span>
+    <span class="n">env</span><span class="p">,</span>                        <span class="c1"># Simulation environment</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">"MACHINE1"</span><span class="p">,</span>                    <span class="c1"># Unique identifier for the machine node</span>
+    <span class="n">work_capacity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>            <span class="c1"># Max number of items that can be processed simultaneously</span>
+    <span class="n">processing_delay</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span>       <span class="c1"># Processing delay (constant or generator/function)</span>
+    <span class="n">blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>             <span class="c1"># If True, waits for output edge to accept item; if False, discards item if the output edge is full</span>
+    <span class="n">in_edge_selection</span><span class="o">=</span><span class="s2">"RANDOM"</span><span class="p">,</span>  <span class="c1"># Policy or function to select input edge</span>
+    <span class="n">out_edge_selection</span><span class="o">=</span><span class="s2">"RANDOM"</span>  <span class="c1"># Policy or function to select output edge</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><strong>Statistics collected</strong></p>
+<p>The machine component reports the following key metrics. </p>
+<ol>
+<li>Total number of items processed</li>
+<li>total time in PROCESSING_STATE (per thread)</li>
+<li>Total time spent in BLOCKED_STATE (per thread)</li>
+<li>Occupancy of the worker threads</li>
+<li>Total time spent in each of the machine level states</li>
+<li>Total number if items discarded (when <code>blocking</code>= False)</li>
+</ol>
+<p>Consider a machine with <code>work_capacity</code>=<code>2</code>, <code>blocking</code>= <code>False</code> and and instance name as MACHINE1. Metrics of a component MACHINE1 can be accessed after completion of the simulation run as</p>
+<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total number of items processed by  </span><span class="si">{</span><span class="n">MACHINE1</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">MACHINE1</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="s2">"num_items_processed"</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total number of items discarded by </span><span class="si">{</span><span class="n">MACHINE1</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">MACHINE1</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="s2">"num_items_discarded"</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Machine </span><span class="si">{</span><span class="n">MACHINE1</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">,total time in BLOCKED_STATE (per thread) : </span><span class="si">{</span><span class="n">MACHINE1</span><span class="o">.</span><span class="n">per_thread_total_time_in_blocked_state</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Machine </span><span class="si">{</span><span class="n">MACHINE1</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">,total time in PROCESSING_STATE (per thread) : </span><span class="si">{</span><span class="n">MACHINE1</span><span class="o">.</span><span class="n">per_thread_total_time_in_processing_state</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Worker occupancy: (Indices represent the number of active threads, and values represent the total time during which that many threads were active simultaneously)</span><span class="se">\n</span><span class="si">{</span><span class="n">MACHINE1</span><span class="o">.</span><span class="n">time_per_work_occupancy</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+
+<span class="c1"># Compute mutually exclusive sums</span>
+<span class="n">groupA_states</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"total_time_setup"</span><span class="p">,</span><span class="s2">"total_time_idle"</span> <span class="p">,</span> <span class="s2">"total_time_atleast_one_processing"</span><span class="p">,</span> <span class="s2">"total_time_all_active_blocked"</span><span class="p">]</span>
+<span class="n">groupB_states</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"total_time_setup"</span><span class="p">,</span><span class="s2">"total_time_idle"</span> <span class="p">,</span> <span class="s2">"total_time_all_active_processing"</span><span class="p">,</span> <span class="s2">"total_time_atleast_one_blocked"</span><span class="p">]</span>
+
+<span class="n">sum_groupA</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">MACHINE1</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">groupA_states</span><span class="p">)</span>
+<span class="n">sum_groupB</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">MACHINE1</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">groupB_states</span><span class="p">)</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Mutually exclusive group totals:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Group A (S+I+1P+AB): </span><span class="si">{</span><span class="n">sum_groupA</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Group B (S+I+AP+1B): </span><span class="si">{</span><span class="n">sum_groupB</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Examples</strong></p>
+<ul>
+<li>
+<p><strong><em><a href="../examples/#a-simple-example">A simple example with all parameters passed as constants</a></em></strong></p>
+</li>
+<li>
+<p><strong><em><a href="../examples/#delay-as-python-function">Example with <code>processing_delay</code> passed as function  that generates random variates from a chosen distribution</a></em></strong></p>
+</li>
+<li>
+<p><strong><em><a href="../examples/#delay-as-generator-function">Example with <code>processing_delay</code> passed as a generator function instance</a></em></strong></p>
+</li>
+<li>
+<p><strong><em><a href="../examples/#example-with-a-custom-edge-selection-policy-as-a-function">An example with <code>out_edge_selection</code> and <code>in_edge_selection</code> parameter is passed as custom function that yields edge indices</a></em></strong></p>
+</li>
+</ul>
+<hr style="height:2px;border:none;color:blue; background-color:grey;"/>
+<h3 id="combiner">Combiner<a class="headerlink" href="#combiner" title="Permanent link">¶</a></h3>
+<hr style="height:2px;border:none;color:blue; background-color:grey;"/>
+<p><strong>About</strong></p>
+<p>The <code>Combiner</code> component represents a node that combines or packs items from multiple input edges into a single pallet or box, and then pushes the packed pallet to an output edge. It is useful for modeling operations such as packing, assembly, or combining items from different sources. The number of items to be taken from each input edge can be specified, and the first input edge is expected to provide the pallet or container. A Combiner can process only one pallet at a time. The API documentation can be found in <a href="../combiner/">Combiner</a>.</p>
+<p><strong>Basic attributes</strong></p>
+<ul>
+<li><code>state</code> - current state of the component. This is a dictionary where each key is a worker thread's ID (assigned in order of initialization), and the value is the current state of that worker.</li>
+<li><code>processing_delay</code> - time taken to process and pack the items</li>
+<li><code>blocking</code> - if True, waits for output edge to accept the packed pallet; if False, discards the pallet if the output edge is full</li>
+<li><code>target_quantity_of_each_item</code> - list specifying how many items to take from each input edge (first entry is always 1 for the pallet)</li>
+<li><code>out_edge_selection</code> - edge selection policy as a function to select output edge</li>
+</ul>
+<p><strong>Behavior</strong>
+ At the start of the simulation, the Combiner waits for <code>node_setup_time</code>. This is an initial, one-time wait time for setting up the node and should be provided as a constant (an <code>int</code> or <code>float</code>). Then it spawns <code>work_capacity</code> number of threads.
+ The process then repeatedly:</p>
+<ol>
+<li>Pulls a pallet from the first input edge.</li>
+<li>Pulls the specified number of items from each of the other input edges and adds them to the pallet.</li>
+<li>Waits for <code>processing_delay</code> to simulate packing/combining.</li>
+<li>Pushes the packed pallet to the output edge, either waiting if <code>blocking</code> is True or discarding if the edge is full and <code>blocking</code> is False.</li>
+</ol>
+<p>To select an output edge, to push the item to, worker thread uses the method specified in <code>out_edge_selection</code> parameter. User can also provide a custom python function or a generator function instance to these parameters. User-provided function should return or yield an edge index. If the function depends on any of the node attributes, users can pass <code>None</code> to these parameters at the time of node creation and later initialise the parameter with the reference to the function. This is illustrated in the examples shown below. 
+Various options available in the package for <code>out_edge_selection</code> include:</p>
+<ul>
+<li>"RANDOM": Selects a random out edge.</li>
+<li>"ROUND_ROBIN": Selects out edges in a round-robin manner.</li>
+<li>"FIRST_AVAILABLE": Selects the first out edge that can accept an item.</li>
+</ul>
+<p><strong>States</strong></p>
+<p>During its operation, the Combiner transitions through the following states:</p>
+<ol>
+<li>"SETUP_STATE": Initialization or warm-up phase before packing starts.</li>
+<li>"IDLE_STATE": Waiting to receive a pallet and items.</li>
+<li>"PROCESSING_STATE": Actively packing items into the pallet.</li>
+<li>"BLOCKED_STATE": Blocked, waiting for the output edge to accept the packed pallet.</li>
+</ol>
+<p><strong>Usage</strong></p>
+<p>A Combiner can be initialized as below:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">factorysimpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.combiner</span><span class="w"> </span><span class="kn">import</span> <span class="n">Combiner</span>
+
+<span class="n">COMBINER1</span> <span class="o">=</span> <span class="n">Combiner</span><span class="p">(</span>
+    <span class="n">env</span><span class="p">,</span>                              <span class="c1"># Simulation environment</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">"COMBINER1"</span><span class="p">,</span>                      <span class="c1"># Unique identifier for the Combiner node</span>
+    <span class="n">target_quantity_of_each_item</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>  <span class="c1"># 1 pallet from in_edges[0], 2 items from in_edges[1]</span>
+    <span class="n">processing_delay</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>             <span class="c1"># Packing delay (constant or generator/function)</span>
+    <span class="n">blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>                    <span class="c1"># Wait for output edge to accept pallet</span>
+    <span class="n">out_edge_selection</span><span class="o">=</span><span class="s2">"RANDOM"</span>        <span class="c1"># Policy or function to select output edge</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><strong>Statistics collected</strong></p>
+<p>The Combiner component reports the following key metrics:</p>
+<ol>
+<li>Total number of pallets packed and pushed</li>
+<li>Number of pallets/items discarded (non-blocking mode)</li>
+<li>Time spent in each state</li>
+</ol>
+<p>After the simulation run, metrics can be accessed as:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total number of pallets processed by worker 1 of </span><span class="si">{</span><span class="n">COMBINER1</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">COMBINER1</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">'num_item_processed'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total number of pallets discarded by worker 1 of </span><span class="si">{</span><span class="n">COMBINER1</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">COMBINER1</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">'num_item_discarded'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Combiner </span><span class="si">{</span><span class="n">COMBINER1</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, worker1 state times: </span><span class="si">{</span><span class="n">COMBINER1</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">'total_time_spent_in_states'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Examples</strong></p>
+<ul>
+<li><strong><em><a href="../examples/#example-to-illustrate-the-use-of-the-components-splitter-and-combiner">An example of a Combiner node combining items from two sources</a></em></strong></li>
+</ul>
+<hr style="height:2px;border:none;color:blue; background-color:grey;"/>
+<h3 id="splitter">Splitter<a class="headerlink" href="#splitter" title="Permanent link">¶</a></h3>
+<hr style="height:2px;border:none;color:blue; background-color:grey;"/>
+<p><strong>About</strong></p>
+<p>The <code>Splitter</code> component represents a node that unpacks or splits an input item (such as a pallet or batch) and sends its contents to multiple output edges. It is useful for modeling operations such as unpacking.  A Splitter can process more only one pallet at a time. The input edge is selected according to the <code>in_edge_selection</code> policy, and the output edge for each unpacked item is selected according to the <code>out_edge_selection</code> policy. The API documentation can be found in <a href="../splitter/">Splitter</a>.</p>
+<p><strong>Basic attributes</strong></p>
+<ul>
+<li><code>state</code> - current state of the component. This is a dictionary where each key is a worker thread's ID (assigned in order of initialization), and the value is the current state of that worker.</li>
+<li><code>processing_delay</code> - time taken to process and unpack the items</li>
+<li><code>blocking</code> - if True, waits for output edge to accept the item; if False, discards the items if the output edge is full</li>
+<li><code>mode</code> - mode of operation of the splitter. Either "UNPACK" or "SPLIT".</li>
+<li><code>split_quantity</code> -  Target quantity of items to split the input flow item into.</li>
+<li><code>in_edge_selection</code> - edge selection policy as a function to select input edge</li>
+<li><code>out_edge_selection</code> - edge selection policy as a function to select output edge</li>
+</ul>
+<p><strong>Behavior</strong></p>
+<p>At the start of the simulation, the splitter waits for <code>node_setup_time</code>. </p>
+<p>it repeatedly:</p>
+<ol>
+<li>Pulls a packed item (e.g., pallet) from the selected input edge.</li>
+<li>
+<p>Waits for <code>processing_delay</code> to simulate unpacking or splitting.</p>
+</li>
+<li>
+<p>If the Splitter <code>mode</code> is "UNPACK", then it unpacks the items from the pallet and pushes each item to an output edge, one by one, using the <code>out_edge_selection</code> policy. After all items are pushed, the empty container itself is pushed to an output edge.</p>
+</li>
+</ol>
+<p>If the Splitter <code>mode</code> is "SPLIT", then it splits the items into a target quanitity of items, specified by <code>split_quantity</code> and  pushes each item to an output edge, one by one, using the <code>out_edge_selection</code> policy.</p>
+<ol>
+<li>If <code>blocking</code> is True, the splitter waits for the output edge to accept each item; if <code>blocking</code> is False, items are discarded if the output edge is full.</li>
+</ol>
+<p>To select an output edge and input edge, worker thread uses the method specified in <code>out_edge_selection</code> and <code>in_edge_selection</code> parameters. User can also provide a custom python function or a generator function instance to these parameters. User-provided function should return or yield an edge index. If the function depends on any of the node attributes, users can pass <code>None</code> to these parameters at the time of node creation and later initialise the parameter with the reference to the function. This is illustrated in the examples shown below. 
+Various options available in the package for <code>in_edge_selection</code> and <code>out_edge_selection</code> include:</p>
+<ul>
+<li>"RANDOM": Selects a random out edge.</li>
+<li>"ROUND_ROBIN": Selects out edges in a round-robin manner.</li>
+<li>"FIRST_AVAILABLE": Selects the first out edge that can accept an item.</li>
+</ul>
+<p><strong>States</strong></p>
+<p>During its operation, the splitter transitions through the following states:</p>
+<ol>
+<li>"SETUP_STATE": Initialization or warm-up phase before unpacking starts.</li>
+<li>"IDLE_STATE": Waiting to receive a container/item.</li>
+<li>"PROCESSING_STATE": Actively unpacking or splitting items.</li>
+<li>"BLOCKED_STATE": Blocked, waiting for the output edge to accept the item.</li>
+</ol>
+<p><strong>Usage</strong></p>
+<p>A splitter can be initialized as below:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">factorysimpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.splitter</span><span class="w"> </span><span class="kn">import</span> <span class="n">Splitter</span>
+
+<span class="n">SPLITTER11</span> <span class="o">=</span> <span class="n">Split</span><span class="p">(</span>
+    <span class="n">env</span><span class="p">,</span>                        <span class="c1"># Simulation environment</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">"SPLITTER11"</span><span class="p">,</span>                <span class="c1"># Unique identifier for the splitternode</span>
+    <span class="n">processing_delay</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>       <span class="c1"># Unpacking delay (constant or generator/function)</span>
+    <span class="n">blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>              <span class="c1"># Wait for output edge to accept item</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="s2">"UNPACK"</span><span class="p">,</span>            <span class="c1"># mode can be UNPACK or SPLIT</span>
+    <span class="n">split_quantity</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>      <span class="c1"># To be used is mode is SPLIT</span>
+    <span class="n">in_edge_selection</span><span class="o">=</span><span class="s2">"RANDOM"</span><span class="p">,</span>  <span class="c1"># Policy or function to select input edge</span>
+    <span class="n">out_edge_selection</span><span class="o">=</span><span class="s2">"ROUND_ROBIN"</span>  <span class="c1"># Policy or function to select output edge</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><strong>Statistics collected</strong></p>
+<p>The splittercomponent reports the following key metrics:</p>
+<ol>
+<li>Total number of items unpacked and pushed</li>
+<li>Number of items discarded (non-blocking mode)</li>
+<li>Time spent in each state</li>
+</ol>
+<p>After the simulation run, metrics can be accessed as:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total number of items processed by worker 1 of </span><span class="si">{</span><span class="n">SPLITTER11</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">SPLITTER11</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">'num_item_processed'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total number of items discarded by worker 1 of </span><span class="si">{</span><span class="n">SPLITTER11</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">SPLITTER11</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">'num_item_discarded'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"splitter</span><span class="si">{</span><span class="n">SPLITTER11</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, worker1 state times: </span><span class="si">{</span><span class="n">SPLITTER11</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">'total_time_spent_in_states'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Examples</strong></p>
+<ul>
+<li><strong><em><a href="../examples/#example-to-illustrate-the-use-of-the-components-splitter-and-combiner">An example of a splitternode unpacking a pallet and distributing items to multiple destinations</a></em></strong></li>
+</ul>
+<hr style="height:2px;border:none;color:blue; background-color:grey;"/>
+<h3 id="sink">Sink<a class="headerlink" href="#sink" title="Permanent link">¶</a></h3>
+<hr style="height:2px;border:none;color:blue; background-color:grey;"/>
+<p>A Sink is a terminal node that collects flow items at the end. Once an item enters the sink, it is considered to have exited the system and cannot be retrieved or processed further. The sink can have multiple input edges but no output edges. <a href="../configuring_parameters/">More details on how to configure the parameter <code>out_edge_selection</code> can be found here</a>. It only has a single state "COLLECTING_STATE". The API documentation can be found in <a href="../sink/">Sink</a>.</p>
+<p><strong>Behavior</strong>
+ During a simulation run, sink waits for an item to be available at one of its input edges and accepts that item, records the statistics and destructs that item.</p>
+<p><strong>Usage</strong></p>
+<p>A splittercan be initialized as below:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">factorysimpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.nodes.sink</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sink</span>
+
+<span class="n">SINK</span> <span class="o">=</span> <span class="n">SINK</span><span class="p">(</span>
+    <span class="n">env</span><span class="p">,</span>                        <span class="c1"># Simulation environment</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">"SINK"</span><span class="p">,</span>                <span class="c1"># Unique identifier for the  node    </span>
+<span class="p">)</span>
+</code></pre></div>
+<p><strong>Statistics collected</strong></p>
+<p>The sink component reports the following key metrics. </p>
+<ol>
+<li>Total number of items received</li>
+<li>sum of cycle times of all items received by the sink</li>
+</ol>
+<p>Consider a sink with instance name as SINK. Its metrics can be accessed after completion of the simulation run as</p>
+<div class="highlight"><pre><span></span><code><span class="n">total</span><span class="o">=</span> <span class="n">SINK</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="s2">"num_item_received"</span><span class="p">]</span>
+<span class="n">cycle_time</span> <span class="o">=</span> <span class="n">SINK</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="s2">"total_cycle_time"</span><span class="p">]</span><span class="o">/</span><span class="mi">60</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Average cycle time per item: </span><span class="si">{</span><span class="n">cycle_time</span><span class="o">/</span><span class="n">total</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="mi">0</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> minutes"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total number of items received: </span><span class="si">{</span><span class="n">sink</span><span class="o">.</span><span class="n">stats</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+<hr style="height:3px;border:none;color: grey; background-color:grey; "/>
+<h2 id="edges">Edges<a class="headerlink" href="#edges" title="Permanent link">¶</a></h2>
+<hr style="height:3px;border:none;color: grey;background-color:grey; "/>
+<p>Edges represent passive elements in the system. This is the basis for the components like Buffer, Conveyor, Fleet, etc. Every edge has a unique identifier named <code>id</code> and maintains references to a source node <code>src_node</code> and a destination node <code>dest_node</code>. There can only be one source node and one destination node for an edge. Edge acts as a conntction between these two nodes and facilitates the movement of items between the nodes. </p>
+<hr style="height:2px;border:none;color:blue; background-color:grey;"/>
+<h3 id="buffer">Buffer<a class="headerlink" href="#buffer" title="Permanent link">¶</a></h3>
+<hr style="height:2px;border:none;color:blue; background-color:grey;"/>
+<p><strong>About</strong></p>
+<p>The <code>Buffer</code> component represents a queue (FIFO or LIFO) that temporarily holds items between nodes in the system. It acts as an edge with internal storage, allowing items to be stored until the destination node is ready to accept them. Items placed in the buffer become available for retrieval after a specified <code>delay</code>. The buffer can operate in two modes:<br/>
+- <strong>FIFO (First In First Out):</strong> Oldest items are released first.<br/>
+- <strong>LIFO (Last In First Out):</strong> Newest items are released first.</p>
+<p>The API documentation can be found in <a href="../buffer/">Buffer</a>.</p>
+<p><strong>Basic attributes</strong></p>
+<ul>
+<li><code>state</code> - current state of the buffer </li>
+<li><code>capacity</code> - maximum number of items the buffer can hold</li>
+<li><code>mode</code> - mode of operation of the buffer. Either "FIFO" or "LIFO".</li>
+<li><code>delay</code> - time after which an item becomes available for retrieval (can be a constant, generator, or callable)</li>
+</ul>
+<p><strong>Behavior</strong></p>
+<ul>
+<li>When an item is put into the buffer, it is stored internally and becomes available for retrieval after the specified <code>delay</code>.</li>
+<li>The buffer has methods to check if it can accept new items using can_put method and if it can provide items to the next node using 
+  can_get method.</li>
+<li>In FIFO mode, items are released in the order they were added; in LIFO mode, the most recently added items are released first.</li>
+<li>Incoming edges can use reserve_get and reserve_put calls on the store in the buffer to reserve an item or space and after yielding the requests, an item can be put and obtained by using put and get methods. </li>
+<li>Buffer has methods to list all the items in the buffer(<code>items()</code>), to list only the ready items in the buffer( <code>ready_items()</code>) and to return the number of items in the buffer (<code>occupancy()</code>).</li>
+</ul>
+<p><strong>States</strong></p>
+<ul>
+<li>
+<p>The buffer transitions between states such as "IDLE_STATE" (waiting for items), "RELEASING_STATE" (releasing items), and "BLOCKED_STATE" (cannot accept or release items due to capacity or downstream constraints).</p>
+</li>
+<li>
+<p>"EMPTY_STATE"  - when there is no items in the buffer</p>
+</li>
+<li>"RELEASING_STATE"- When there is items in the buffer that are ready to be taken out.</li>
+</ul>
+<p><strong>Usage</strong></p>
+<p>A buffer can be initialized as below:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">factorysimpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.edges.buffer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buffer</span>
+
+<span class="n">BUF1</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span>
+    <span class="n">env</span><span class="p">,</span>                 <span class="c1"># Simulation environment</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">"BUF1"</span><span class="p">,</span>           <span class="c1"># Unique identifier for the buffer</span>
+    <span class="n">capacity</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>   <span class="c1"># Maximum number of items in the buffer</span>
+    <span class="n">delay</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>           <span class="c1"># Delay before items become available (can be int, float, generator, or callable)</span>
+    <span class="n">mode</span><span class="o">=</span><span class="s2">"FIFO"</span>          <span class="c1"># "FIFO" or "LIFO"</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><strong>Statistics collected</strong></p>
+<p>The buffer component reports the following key metrics:</p>
+<ol>
+<li>Time when the state was last changed (<code>last_state_change_time</code>)</li>
+<li>Time-averaged number of items in the buffer (<code>time_averaged_num_of_items_in_buffer</code>)</li>
+<li>Total time spent in each state (<code>total_time_spent_in_states</code>)</li>
+</ol>
+<p>After the simulation run, metrics can be accessed as:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Buffer </span><span class="si">{</span><span class="n">BUF1</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> last state change: </span><span class="si">{</span><span class="n">BUF1</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="s1">'last_state_change_time'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Buffer </span><span class="si">{</span><span class="n">BUF1</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> time-averaged number of items: </span><span class="si">{</span><span class="n">BUF1</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="s1">'time_averaged_num_of_items_in_buffer'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Buffer </span><span class="si">{</span><span class="n">BUF1</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> state times: </span><span class="si">{</span><span class="n">BUF1</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="s1">'total_time_spent_in_states'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Examples</strong></p>
+<ul>
+<li><strong><em><a href="../examples/#a-simple-example">A simple example with a FIFO buffer between a source and a machine</a></em></strong></li>
+</ul>
+<hr style="height:2px;border:none;color:blue; background-color:grey;"/>
+<h3 id="fleet">Fleet<a class="headerlink" href="#fleet" title="Permanent link">¶</a></h3>
+<hr style="height:2px;border:none;color:blue; background-color:grey;"/>
+<p><strong>About</strong></p>
+<p>The <code>fleet</code> component represents an AGV that moves multiple items simultaneously between nodes in the system. It acts as an edge. The fleet is activated when either of two conditions is met:</p>
+<ul>
+<li>
+<p>Capacity condition – the number of stored items reaches capacity.</p>
+</li>
+<li>
+<p>Delay condition – the specified delay time elapses after the first item arrives, even if capacity is not met.</p>
+</li>
+</ul>
+<p>When activated, the fleet incurs <code>transit_delay</code> amount of time and makes its stored items available to the destination node.</p>
+<p>The API documentation can be found in <a href="../fleet/">Fleet</a>.</p>
+<p><strong>Basic attributes</strong></p>
+<ul>
+<li><code>state</code> - current state of the fleet </li>
+<li><code>capacity</code> - target quantity of items after which the fleet will be activated</li>
+<li><code>delay</code> - Maximum waiting time before the fleet is triggered. (can be a constant, generator, or callable)</li>
+<li><code>transit_delay</code> - transit_delay (int, float): It is the time taken by the fleet to transport the item from src node to destination node. (can be a constant, generator, or callable)</li>
+</ul>
+<p><strong>Behavior</strong></p>
+<ul>
+<li>When an item is put into the fleet, it is stored internally and becomes available for retrieval after the specified <code>delay</code> or after a target quantity (<code>capacity</code>) of items is available in fleet.</li>
+<li>Once triggered the items will be available for the destination node. Fleet will incur <code>transit_delay</code> amount of time to travel to the src_node from dest_node and takes the object and incurs <code>transit_delay</code> time again and transfer the item to the dest_node from src_node.</li>
+<li>The fleet has methods to check if it can accept new items using can_put method and if it can provide items to the next node using 
+  can_get method.</li>
+<li>Incoming edges can use reserve_get and reserve_put calls on the store in the fleet to reserve an item or space and after yielding 
+ the requests, an item can be put and obtained by using put and get methods. </li>
+</ul>
+<p><strong>States</strong></p>
+<ul>
+<li>
+<p>The fleet transitions between states such as "IDLE_STATE" (waiting for items), "RELEASING_STATE" (releasing items), and "BLOCKED_STATE" (cannot accept or release items due to capacity or downstream constraints).</p>
+</li>
+<li>
+<p>"EMPTY_STATE"  - when there is no items in the fleet</p>
+</li>
+<li>"RELEASING_STATE"- When there is items in the fleet</li>
+</ul>
+<p><strong>Usage</strong></p>
+<p>A fleet can be initialized as below:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">factorysimpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.edges.fleet</span><span class="w"> </span><span class="kn">import</span> <span class="n">Fleet</span>
+
+<span class="n">FLEET1</span> <span class="o">=</span> <span class="n">Fleet</span><span class="p">(</span>
+    <span class="n">env</span><span class="p">,</span>                 <span class="c1"># Simulation environment</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">"FLEET1"</span><span class="p">,</span>           <span class="c1"># Unique identifier for the fleet</span>
+    <span class="n">capacity</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>   <span class="c1"># target capacity of items required to activate the fleet</span>
+    <span class="n">delay</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>           <span class="c1"># Delay after which fleet activates the movement of items incase the target capacity is not reached. (can be int, float, generator, or callable)</span>
+    <span class="n">transit_delay</span><span class="o">=</span><span class="mi">0</span> <span class="c1"># time to move the items from one node to another </span>
+
+<span class="p">)</span>
+</code></pre></div>
+<p><strong>Statistics collected</strong></p>
+<p>The fleet component reports the following key metrics:</p>
+<ol>
+<li>Time when the state was last changed (<code>last_state_change_time</code>)</li>
+<li>Time-averaged number of items in the fleet (<code>time_averaged_num_of_items_in_fleet</code>)</li>
+<li>Total time spent in each state (<code>total_time_spent_in_states</code>)</li>
+</ol>
+<p>After the simulation run, metrics can be accessed as:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"fleet </span><span class="si">{</span><span class="n">FLEET1</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> last state change: </span><span class="si">{</span><span class="n">FLEET1</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="s1">'last_state_change_time'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"fleet </span><span class="si">{</span><span class="n">FLEET1</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> time-averaged number of items: </span><span class="si">{</span><span class="n">FLEET1</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="s1">'time_averaged_num_of_items_in_fleet'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Fleet </span><span class="si">{</span><span class="n">FLEET1</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> state times: </span><span class="si">{</span><span class="n">FLEET1</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="s1">'total_time_spent_in_states'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Examples</strong></p>
+<ul>
+<li><strong><em><a href="../examples/#a-simple-example-with-fleet">A simple example with a fleet between a source and a machine</a></em></strong></li>
+</ul>
+<hr style="height:2px;border:none;color:blue; background-color:grey;"/>
+<h3 id="conveyor">Conveyor<a class="headerlink" href="#conveyor" title="Permanent link">¶</a></h3>
+<hr style="height:2px;border:none;color:blue; background-color:grey;"/>
+<p>Conveyor connects two nodes and facilitates the movement of items between them. It introduces a transport delay between nodes and acts as a passive element. 
+There are two variants of conveyor available in this package:</p>
+<h4 id="continuous-type-conveyor">Continuous-type Conveyor<a class="headerlink" href="#continuous-type-conveyor" title="Permanent link">¶</a></h4>
+<p>This variant models a conveyor belt where items can be placed onto the belt at any time. Each item requires a fixed transport time to reach its destination. The conveyor is designed for discrete items only and has a limited carrying capacity, i.e., it can hold only a fixed number of items simultaneously.</p>
+<p><strong>Basic attributes</strong></p>
+<ul>
+<li><code>state</code> - current state of the conveyor</li>
+<li><code>conveyor_length</code> - Length of the belt</li>
+<li><code>item_length</code> - Length of the item.</li>
+<li><code>speed</code> - speed of the conveyor belt (can be a constant)</li>
+<li><code>accumulating</code> - Whether the belt supports accumulation (1 for yes, 0 for no)</li>
+</ul>
+<p><strong>Behavior</strong></p>
+<p>During a simulation run, a Conveyor that is initially empty begins operation as soon as it receives its first item. Each item requires a fixed transport time to reach the opposite end of the belt. The time delay to transport an item on the conveyor is calculated as conveyor_length / conveyor_speed. A new item can be added only after item_length/ conveyor_speed amount of time is incurred after the last item is put on the belt. The conveyor continues moving until the leading item reaches the destination node (dest_node). If the destination node does not accept the item, the conveyor enters a STALLED state.</p>
+<ul>
+<li>
+<p>An accumulating conveyor can continue to accept new items while stalled, provided there is remaining capacity.</p>
+</li>
+<li>
+<p>A non-accumulating conveyor cannot accept new items while stalled.</p>
+</li>
+</ul>
+<p>During its operation, the conveyor transitions through the following states:</p>
+<ol>
+<li>
+<p>"SETUP_STATE": Initialization or warm-up phase.</p>
+</li>
+<li>
+<p>"MOVING_STATE": state when the belt is moving.</p>
+</li>
+<li>
+<p>"STALLED_ACCUMULATING_STATE": a belt (configured to be accumulating) becomes stalled when it has an item that is ready to be taken by the destination node.</p>
+</li>
+<li>
+<p>"STALLED_NONACCUMULATING_STATE: a belt (configured to be non-accumulating) becomes stalled when it has an item that is ready to be taken by the destination node.</p>
+</li>
+</ol>
+<p>Conveyors can be either <code>accumulating</code> or <code>non-accumulating</code>:</p>
+<ol>
+<li>
+<p>A <code>non-accumulating</code> type conveyor will not allow <code>src_node</code> to push items into the conveyor if it is in a stalled state</p>
+</li>
+<li>
+<p>A <code>accumulating</code> conveyor allows src_node to push items until its capacity is reached when when it is in stalled state.</p>
+</li>
+</ol>
+<p><strong>Usage</strong></p>
+<p>A continuous-type can be initialized as below:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">factorysimpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.edges.continuous_conveyor</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConveyorBelt</span>
+
+<span class="n">CONVEYORBELT1</span> <span class="o">=</span> <span class="n">ConveyorBelt</span><span class="p">(</span>
+    <span class="n">env</span><span class="p">,</span>                     <span class="c1"># Simulation environment</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">"CONVEYORBELT1"</span><span class="p">,</span>      <span class="c1"># Unique identifier for the fleet</span>
+    <span class="n">conveyor_length</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>              <span class="c1"># Capacity of the conveyor</span>
+    <span class="n">speed</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>                 <span class="c1"># Speed of the conveyor</span>
+    <span class="n">item_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>                <span class="c1"># Length of the item</span>
+    <span class="n">accumulating</span><span class="o">=</span><span class="kc">True</span>        <span class="c1"># If the conveyor is in Accumulating mode or not</span>
+
+<span class="p">)</span>
+</code></pre></div>
+<p><strong>Monitoring and Reporting</strong>
+The component reports the following key metrics:</p>
+<ol>
+<li>Time averaged number of items </li>
+</ol>
+<p><strong>Examples</strong></p>
+<ul>
+<li><strong><em><a href="../examples/#a-simple-example-with-continuous-type-conveyor">A simple example with a continuous-type conveyor belt</a></em></strong></li>
+</ul>
+<hr style="height:4px;border:none;color:blue; background-color:grey;"/>
+<h4 id="slotted-type-conveyor">Slotted-type Conveyor<a class="headerlink" href="#slotted-type-conveyor" title="Permanent link">¶</a></h4>
+<p>This variant moves items from one end to the other at fixed time intervals, simulating a belt with predefined slots. Its behavior is governed by teo key parameters- a constant <code>delay</code> between two successive movements and <code>capacity</code> that defines the number of slots available on the conveyor. It can hold only up to <code>capacity</code> number of items at a time.</p>
+<p><strong>Basic attributes</strong></p>
+<ul>
+<li><code>state</code> - current state of the conveyor</li>
+<li><code>capacity</code> - Maximum number of items that can be carried simultaneously</li>
+<li><code>delay</code> - time interval between two successive movements on the belt (can be a constant, generator, or callable)</li>
+<li><code>accumulating</code> - Whether the belt supports accumulation (1 for yes, 0 for no)</li>
+</ul>
+<p><strong>Behavior</strong></p>
+<p>During a simulation run, the conveyor remains idle until it receives the first item. At that point, it transitions into MOVING_STATE and begins advancing items at fixed intervals defined by delay. Each advancement shifts all items one slot closer to the destination end. The conveyor continues moving until the leading item reaches the destination node. The conveyor continues moving until the leading item reaches the destination node (dest_node). If the destination node does not accept the item, the conveyor enters a STALLED state.</p>
+<ul>
+<li>
+<p>An accumulating conveyor can continue to accept new items while stalled, provided there is remaining capacity.</p>
+</li>
+<li>
+<p>A non-accumulating conveyor cannot accept new items while stalled.</p>
+</li>
+</ul>
+<p>During its operation, the conveyor transitions through the following states:</p>
+<ol>
+<li>
+<p>"SETUP_STATE": Initialization or warm-up phase.</p>
+</li>
+<li>
+<p>"MOVING_STATE": state when the belt is moving.</p>
+</li>
+<li>
+<p>"STALLED_ACCUMULATING_STATE": a belt (configured to be accumulating) becomes stalled when it has an item that is ready to be taken by the destination node.</p>
+</li>
+<li>
+<p>"STALLED_NONACCUMULATING_STATE: a belt (configured to be non-accumulating) becomes stalled when it has an item that is ready to be taken by the destination node. It will not allow any item to be pushed onto belt while in this state.</p>
+</li>
+</ol>
+<p><strong>Usage</strong></p>
+<p>A continuous-type can be initialized as below:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">factorysimpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">factorysimpy.edges.slotted_conveyor</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConveyorBelt</span>
+
+<span class="n">CONVEYORBELT1</span> <span class="o">=</span> <span class="n">ConveyorBelt</span><span class="p">(</span>
+    <span class="n">env</span><span class="p">,</span>                     <span class="c1"># Simulation environment</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">"CONVEYORBELT1"</span><span class="p">,</span>      <span class="c1"># Unique identifier for the fleet</span>
+    <span class="n">capacity</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>              <span class="c1"># Capacity of the conveyor</span>
+    <span class="n">delay</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>                 <span class="c1"># Time interval between two successive movements of the belt</span>
+    <span class="n">accumulating</span><span class="o">=</span><span class="kc">True</span>        <span class="c1"># If the conveyor is in Accumulating mode or not</span>
+
+<span class="p">)</span>
+</code></pre></div>
+<p><strong>Monitoring and Reporting</strong>
+The component reports the following key metrics:</p>
+<ol>
+<li>Time averaged number of items </li>
+</ol>
+<p><strong>Examples</strong></p>
+<ul>
+<li><strong><em><a href="../examples/#a-simple-example-with-slotted-type-conveyor">A simple example with a slotted-type conveyor belt</a></em></strong></li>
+</ul>
+<h2 id="baseflowitem">BaseFlowItem<a class="headerlink" href="#baseflowitem" title="Permanent link">¶</a></h2>
+<hr style="height:4px;border:none;color:blue; background-color:grey;"/>
+<p>This is base class for the items that flow in the system. </p>
+<p><strong>Basic attributes</strong></p>
+<ul>
+<li><code>id</code> - Unique identifier for the pallet.</li>
+<li><code>timestamp_creation</code> - Time when the pallet was created.</li>
+<li><code>timestamp_destruction</code> - Time when the pallet was destroyed (e.g., collected by a sink).</li>
+<li><code>timestamp_node_entry</code> - Time when the pallet entered the current node.</li>
+<li><code>timestamp_node_exit</code> - Time when the pallet exited the current node.</li>
+<li><code>current_node_id</code> - The ID of the node the pallet is currently in.</li>
+<li><code>source_id</code> - The ID of the source node that created the pallet.</li>
+<li><code>payload</code> - Optional data carried by the pallet.</li>
+<li><code>destructed_in_node</code> - The node where the pallet was destroyed.</li>
+</ul>
+<hr style="height:4px;border:none;color:blue; background-color:grey;"/>
+<h3 id="item">Item<a class="headerlink" href="#item" title="Permanent link">¶</a></h3>
+<hr style="height:4px;border:none;color:blue; background-color:grey;"/>
+<p><strong>About</strong></p>
+<p>The <code>Item</code> class represents the discrete entities that flow through the system. Each item is created by a source node and is then processed, transferred, or collected by various nodes and edges as it moves through the simulation. The <code>Item</code> object tracks its movement, including timestamps for creation, entry and exit at each node, and destruction, as well as the time spent at each node.</p>
+<p><strong>Basic attributes</strong></p>
+<ul>
+<li><code>flow_item_type</code> - <code>"item"</code> type of the base flow item</li>
+</ul>
+<p><strong>Behavior</strong></p>
+<p>When an item is created, its creation time and source node are recorded. As the item enters and exits nodes, the <code>update_node_event</code> method updates entry/exit times and accumulates the time spent at each node in the <code>stats</code> dictionary. When the item is destroyed (e.g., collected by a sink), the destruction time and node are recorded.</p>
+<p><strong>Statistics collected</strong></p>
+<p>The <code>Item</code> class tracks:</p>
+<ol>
+<li>Creation and destruction times.</li>
+<li>The node where the item was created and destroyed.</li>
+<li>Time spent at each node (accessible via the <code>stats</code> dictionary).</li>
+</ol>
+<p>Consider that an item is created inside a source and it has finished its flow in the system. The statistics can be collected as f0llows</p>
+<div class="highlight"><pre><span></span><code><span class="n">item1</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span> <span class="s2">"item1"</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">item1</span><span class="o">.</span><span class="n">stats</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Time spent in node</span><span class="si">{key.id}</span><span class="s2"> is </span><span class="si">{value}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+<hr style="height:4px;border:none;color:blue; background-color:grey;"/>
+<h3 id="pallet">Pallet<a class="headerlink" href="#pallet" title="Permanent link">¶</a></h3>
+<hr style="height:2px;border:none;color:blue; background-color:grey;"/>
+<p><strong>About</strong></p>
+<p>The <code>Pallet</code> class represents a special type of item that can hold multiple other items. It is used to model containers, pallets, or boxes that group several items together for combined processing, transport, or packing/unpacking operations in the system. The <code>Pallet</code> object tracks its own journey through the system, just like a regular <code>Item</code>, and also maintains a list of the items it contains.</p>
+<p><strong>Basic attributes</strong></p>
+<ul>
+<li><code>flow_item_type</code> -  <code>"Pallet"</code> type of the base flow item</li>
+<li><code>items</code> - List of items currently held in the pallet.</li>
+</ul>
+<p><strong>Behavior</strong></p>
+<ul>
+<li>When a pallet is created, its creation time and source node are recorded.</li>
+<li>Items can be added to the pallet using the <code>add_item(item)</code> method.</li>
+<li>Items can be removed from the pallet using the <code>remove_item()</code> method, which returns an item or <code>None</code> if the pallet is empty.</li>
+<li>As the pallet enters and exits nodes, the <code>update_node_event</code> method updates entry/exit times and accumulates the time spent at each node in the <code>stats</code> dictionary.</li>
+<li>When the pallet is destroyed (e.g., collected by a sink), the destruction time and node are recorded.</li>
+</ul>
+<p><strong>Statistics collected</strong></p>
+<p>The <code>Pallet</code> class tracks:</p>
+<ol>
+<li>Creation and destruction times.</li>
+<li>The node where the pallet was created and destroyed.</li>
+<li>Time spent at each node (accessible via the <code>stats</code> dictionary).</li>
+<li>The number of items currently held in the pallet.</li>
+</ol>
+<p>Consider that an pallet is created inside a source and it has finished its flow in the system. The statistics can be collected as f0llows</p>
+<div class="highlight"><pre><span></span><code><span class="n">pallet1</span> <span class="o">=</span> <span class="n">Pallet</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span> <span class="s2">"pallet1"</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">pallet1</span><span class="o">.</span><span class="n">stats</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Time spent in node </span><span class="si">{key.id}</span><span class="s2"> is </span><span class="si">{value}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+<hr style="height:4px;border:none;color:blue; background-color:grey;"/>
+</div>
+</div><footer>
+<div aria-label="Footer Navigation" class="rst-footer-buttons" role="navigation">
+<a class="btn btn-neutral float-left" href="../getting_started/" title="Getting Started"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+<a class="btn btn-neutral float-right" href="../examples/" title="Examples">Next <span class="icon icon-circle-arrow-right"></span></a>
+</div>
+<hr/>
+<div role="contentinfo">
+<!-- Copyright etc -->
+</div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+</div>
+</div>
+</section>
+</div>
+<div aria-label="Versions" class="rst-versions" role="note">
+<span class="rst-current-version" data-toggle="rst-current-version">
+<span>
+<a class="fa fa-github" href="https://github.com/FactorySimPy/FactorySimPy" style="color: #fcfcfc"> GitHub</a>
+</span>
+<span><a href="../getting_started/" style="color: #fcfcfc">« Previous</a></span>
+<span><a href="../examples/" style="color: #fcfcfc">Next »</a></span>
+</span>
+</div>
+<script src="../js/jquery-3.6.0.min.js"></script>
+<script>var base_url = "..";</script>
+<script src="../js/theme_extra.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../search/main.js"></script>
+<script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+mermaid.initialize({});</script></body>
+</html>

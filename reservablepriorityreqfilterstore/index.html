@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://factorysimpy.github.io/FactorySimPy/reservablepriorityreqfilterstore/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Reservablepriorityreqfilterstore - FactorySimPy</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Reservablepriorityreqfilterstore";
+        var mkdocs_page_input_path = "reservablepriorityreqfilterstore.md";
+        var mkdocs_page_url = "/FactorySimPy/reservablepriorityreqfilterstore/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> FactorySimPy
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Overview</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../getting_started/">Getting Started</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">SYSTEM DESCRIPTION</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../basic_components/">Basic Components</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Other features</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../monitoring/">Monitoring and Measurement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../constructs/">Constructs for Modeling</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../extending_components/">Extending Components</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../interrupts/">Modeling interrupts</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RTsimulation/">Enabling real-time simulation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">REFERENCE</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../extendedresources/">Supporting classes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../api_ref_main_page_2/">API Reference</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">About</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../authors/">Authors</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../changelog/">Changelog</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../license/">License</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">FactorySimPy</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Reservablepriorityreqfilterstore</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/FactorySimPy/FactorySimPy/edit/master/docs/reservablepriorityreqfilterstore.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="factorysimpy.base.reservable_priority_req_filter_store"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="factorysimpy.base.reservable_priority_req_filter_store.ReservablePriorityReqFilterStore" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">ReservablePriorityReqFilterStore</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">),</span> <span class="n">trigger_delay</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></code>
+
+<a href="#factorysimpy.base.reservable_priority_req_filter_store.ReservablePriorityReqFilterStore" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="simpy.resources.store.FilterStore">FilterStore</span></code></p>
+
+
+        <p>This is a class that is derived from SimPy's Store class and has extra capabilities
+that makes it a priority-based reservable store for processes to reserve space
+for storing and retrieving items with priority-based access. It supports user tp only get items that
+match a user criteria</p>
+<p>Processes can use reserve_put() and reserve_get() methods to get notified when a space becomes
+available in the store or when an item gets available in the ReservablePriorityReqStore.
+These methods returns a unique event (SimPy.Event) to the process for every reserve requests it makes.
+Processes can also pass a priority as argument in the request. Lower values indicate higher priority.
+Filter to be used while using "get" can be passed in the reserve_get request.</p>
+<p>get and put are two methods that can be used for item storing and retrieval from ReservablePriorityReqStore.
+Process has to make a prior reservation and pass the associated reservation event as argument in the get and
+put requests. ReservablePriorityReqStore maintains separate queues for <code>reserve_put</code> and <code>reserve_get</code> operations
+to ensures that only processes with valid reservations can store or retrieve items.</p>
+<p>ReservablePriorityReqStore preserves item order by associating an unreserved item in the store with a reservation event
+by index when a reserve_get() request is made. As a result, it maintains a list of reserved events to preserve item order.</p>
+<p>It also allows users to cancel an already placed reserve_get or reserve_put request even if it is yielded.
+It also handles the dissociation of the event and item done at the time of reservation when an already yielded
+event is canceled.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Attributes:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>reserved_events</code></b>
+                  (<code><span title="list">list</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Maintains events corresponding to reserved items to preserve item order by index</p>
+              </div>
+            </li>
+            <li>
+              <b><code>reserve_put_queue</code></b>
+                  (<code><span title="list">list</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Queue for managing reserve_put reservations</p>
+              </div>
+            </li>
+            <li>
+              <b><code>reservations_put</code></b>
+                  (<code><span title="list">list</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>List of successful put reservations</p>
+              </div>
+            </li>
+            <li>
+              <b><code>reserve_get_queue</code></b>
+                  (<code><span title="list">list</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Queue for managing reserve_get reservations</p>
+              </div>
+            </li>
+            <li>
+              <b><code>reservations_get</code></b>
+                  (<code><span title="list">list</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>List of successful get reservations </p>
+              </div>
+            </li>
+            <li>
+              <b><code>trigger_delay</code></b>
+                  (<code><span title="int">int</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Delay time after which a trigger_reserve_get is called to allow waiting get calls to succeed.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+        <p>Initializes a reservable store with priority-based reservations.</p>
+<p>Args:</p>
+<div class="codehilite"><pre><span></span><code>capacity (int, optional): The maximum number of items the store can hold.
+                          Defaults to infinity.
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.base.reservable_priority_req_filter_store.ReservablePriorityReqFilterStore.reserve_put" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">reserve_put</span><span class="p">(</span><span class="n">priority</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></code>
+
+<a href="#factorysimpy.base.reservable_priority_req_filter_store.ReservablePriorityReqFilterStore.reserve_put" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Create a reservation request to put an item into the store.</p>
+<p>This function generates a SimPy event representing a reservation request. The event is
+assigned attributes such as priority, resource name, and the process making the request.
+The event is then added to <code>reserve_put_queue</code>, which is maintained in priority order.</p>
+<p>After adding the event to the queue, <code>_trigger_reserve_put</code> is called to process
+any pending reservations.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>priority</code></b>
+                  (<code><span title="int">int</span></code>, default:
+                      <code>0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The priority level of the reservation request.
+                      Lower values indicate higher priority. Defaults to 0.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>event</code></b>(                  <code><span title="simpy.Event">Event</span></code>
+)              –
+              <div class="doc-md-description">
+                <p>A reservation event that will succeed when space is available.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.base.reservable_priority_req_filter_store.ReservablePriorityReqFilterStore.reserve_put_cancel" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">reserve_put_cancel</span><span class="p">(</span><span class="n">put_event_to_cancel</span><span class="p">)</span></code>
+
+<a href="#factorysimpy.base.reservable_priority_req_filter_store.ReservablePriorityReqFilterStore.reserve_put_cancel" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Cancel a previously made <code>reserve_put</code> request.</p>
+<p>This method allows a process to cancel its reservation for putting an item
+into the store. If the reservation exists in the <code>reserve_put_queue</code>, it is
+removed before triggering <code>_trigger_reserve_put</code> to process any pending reservations.
+If the reservation is already in <code>reservations_put</code>, it is also removed and
+<code>_trigger_reserve_put</code> is triggered.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>put_event_to_cancel</code></b>
+                  (<code><span title="simpy.Event">Event</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The reservation event that needs to be canceled.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>proceed</code></b>(                  <code><span title="bool">bool</span></code>
+)              –
+              <div class="doc-md-description">
+                <p>True if the reservation was successfully canceled.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="RuntimeError">RuntimeError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If the specified event does not exist in <code>reserve_put_queue</code>
+          or <code>reservations_put</code>.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.base.reservable_priority_req_filter_store.ReservablePriorityReqFilterStore.reserve_get_cancel" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">reserve_get_cancel</span><span class="p">(</span><span class="n">get_event_to_cancel</span><span class="p">)</span></code>
+
+<a href="#factorysimpy.base.reservable_priority_req_filter_store.ReservablePriorityReqFilterStore.reserve_get_cancel" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Cancel a previously made <code>reserve_get</code> request.</p>
+<p>This method allows a process to cancel its reservation for retrieving an item
+from the store. If the reservation exists in the <code>reserve_get_queue</code>, it is removed,
+and <code>_trigger_reserve_get()</code> is called to process any remaining reservations.</p>
+<p>If the reservation is already in <code>reservations_get</code>, it is removed, and the corresponding
+item is repositioned in the store to maintain order. <code>_trigger_reserve_get()</code> is then
+triggered to handle pending reservations.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>get_event_to_cancel</code></b>
+                  (<code><span title="simpy.Event">Event</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The reservation event that needs to be canceled.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>proceed</code></b>(                  <code><span title="bool">bool</span></code>
+)              –
+              <div class="doc-md-description">
+                <p>True if the reservation was successfully canceled.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="RuntimeError">RuntimeError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If the specified event does not exist in <code>reserve_get_queue</code>
+          or <code>reservations_get</code>.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.base.reservable_priority_req_filter_store.ReservablePriorityReqFilterStore.reserve_get" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">reserve_get</span><span class="p">(</span><span class="n">priority</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#factorysimpy.base.reservable_priority_req_filter_store.ReservablePriorityReqFilterStore.reserve_get" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Create a reservation request to retrieve an item from the store.</p>
+<p>This method generates a SimPy event representing a request to reserve an item
+for retrieval (<code>get</code>). The event is assigned attributes such as priority,
+the resource it belongs to, and the process making the request.</p>
+<p>The event is then added to <code>reserve_get_queue</code>, which is maintained in
+priority order, and <code>_trigger_reserve_get()</code> is called to process pending
+reservations if items are available.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>priority</code></b>
+                  (<code><span title="int">int</span></code>, default:
+                      <code>0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The priority level of the reservation request.
+                      Lower values indicate higher priority. Defaults to 0.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>filter</code></b>
+                  (<code>filter=lambdaitem=True</code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Filter to be used while using "reserve_get</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>event</code></b>(                  <code><span title="simpy.Event">Event</span></code>
+)              –
+              <div class="doc-md-description">
+                <p>A reservation event that will succeed when an item becomes available.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.base.reservable_priority_req_filter_store.ReservablePriorityReqFilterStore.get" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get</span><span class="p">(</span><span class="n">get_event</span><span class="p">)</span></code>
+
+<a href="#factorysimpy.base.reservable_priority_req_filter_store.ReservablePriorityReqFilterStore.get" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Retrieve an item from the store after a successful reservation.</p>
+<p>This method attempts to retrieve an item associated with a <code>reserve_get</code>
+event. If the reservation exists, it triggers <code>_trigger_get</code> to retrieve
+the item. If successful, <code>_trigger_reserve_put</code> is called to process any
+pending <code>reserve_put</code> requests. If the item retrieval fails, an error
+message is raised.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>get_event</code></b>
+                  (<code><span title="simpy.Event">Event</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The reservation event associated with the request.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>item</code></b>(                  <code><span title="Object">Object</span></code>
+)              –
+              <div class="doc-md-description">
+                <p>The retrieved item if successful, otherwise raises an error</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="RuntimeError">RuntimeError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If no reservations are available in the reservations_get</p>
+              </div>
+            </li>
+            <li>
+                  <code><span title="RuntimeError">RuntimeError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If item returned is None</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="factorysimpy.base.reservable_priority_req_filter_store.ReservablePriorityReqFilterStore.put" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">put</span><span class="p">(</span><span class="n">put_event</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span></code>
+
+<a href="#factorysimpy.base.reservable_priority_req_filter_store.ReservablePriorityReqFilterStore.put" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Perform a <code>put</code> operation on the store and trigger any pending <code>reserve_get</code> requests.</p>
+<p>Ensures that only processes with a valid reservation can put items into the store.
+If the put operation succeeds, it triggers <code>_trigger_reserve_get</code> to process pending get requests.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>put_event</code></b>
+                  (<code><span title="simpy.Event">Event</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The event corresponding to the reservation.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>item</code></b>
+                  (<code><span title="object">object</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The item to be added to the store.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>proceed</code></b>(                  <code><span title="bool">bool</span></code>
+)              –
+              <div class="doc-md-description">
+                <p>True if the put operation succeeded, False otherwise.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="RuntimeError">RuntimeError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If no reservations are available in the reservations_put</p>
+              </div>
+            </li>
+            <li>
+                  <code><span title="RuntimeError">RuntimeError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If proceed is False after put operation</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/FactorySimPy/FactorySimPy" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
