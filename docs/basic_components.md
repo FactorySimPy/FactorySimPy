@@ -51,7 +51,7 @@ Pallets represents enitities that can hold multiple base items that belong to `f
 
 
 
-Nodes represent active elements in the system. This is a basic type and is the basis for the active components like Machine, Split, Sink, Source, Combiner, etc. Every node has a unique identifier named `id` and maintains two lists named `in_edges` and `out_edges`. Every node has a `node_setup_time` that can be specified as a constant delay (integer of float). Activities that takesplace in a node create state changes in the system. The API documentation can be found in [Node](nodes.md)
+Nodes represent active elements in the system. This is a basic type and is the basis for the active components like Machine, Split, Sink, Source, Combiner, etc. Every node has a unique identifier named `id` and maintains two lists named `in_edges` and `out_edges`. Every node has a `node_setup_time` that can be specified as a constant delay (integer of float). Activities that takesplace in a node create state changes in the system. The API documentation can be found in [Node](nodes.md).
 
 **Basic attributes**
 
@@ -323,7 +323,7 @@ print(f"  Group B (S+I+AP+1B): {sum_groupB:.2f}")
 
 **About**
 
-The `Combiner` component represents a node that combines or packs items from multiple input edges into a single pallet or box, and then pushes the packed pallet to an output edge. It is useful for modeling operations such as packing, assembly, or combining flows from different sources. The number of items to be taken from each input edge can be specified, and the first input edge is expected to provide the pallet or container. A Combiner can process only one pallet at a time. The API documentation can be found in [Combiner](combiner.md)
+The `Combiner` component represents a node that combines or packs items from multiple input edges into a single pallet or box, and then pushes the packed pallet to an output edge. It is useful for modeling operations such as packing, assembly, or combining flows from different sources. The number of items to be taken from each input edge can be specified, and the first input edge is expected to provide the pallet or container. A Combiner can process only one pallet at a time. The API documentation can be found in [Combiner](combiner.md).
 
 **Basic attributes**
 
@@ -405,7 +405,7 @@ print(f"Combiner {COMBINER1.id}, worker1 state times: {COMBINER1.stats[1]['total
 
 **About**
 
-The `Splitter` component represents a node that unpacks or splits an input item (such as a pallet or batch) and sends its contents to multiple output edges. It is useful for modeling operations such as unpacking, sorting, etc.  A Splitter can process more only one pallet at a time. The input edge is selected according to the `in_edge_selection` policy, and the output edge for each unpacked item is selected according to the `out_edge_selection` policy. The API documentation can be found in [Splitter](splitter.md)
+The `Splitter` component represents a node that unpacks or splits an input item (such as a pallet or batch) and sends its contents to multiple output edges. It is useful for modeling operations such as unpacking, sorting, etc.  A Splitter can process more only one pallet at a time. The input edge is selected according to the `in_edge_selection` policy, and the output edge for each unpacked item is selected according to the `out_edge_selection` policy. The API documentation can be found in [Splitter](splitter.md).
 
 **Basic attributes**
 
@@ -486,7 +486,7 @@ print(f"splitter{SPLITTER11.id}, worker1 state times: {SPLITTER11.stats[1]['tota
 <hr style="height:2px;border:none;color:blue; background-color:grey;" />
 
 
- A Sink is a terminal node that collects flow items at the end. Once an item enters the sink, it is considered to have exited the system and cannot be retrieved or processed further. The sink can have multiple input edges but no output edges. [More details on how to configure the parameter `out_edge_selection` can be found here](configuring_parameters.md). It only has a single state "COLLECTING_STATE". The API documentation can be found in [Sink](sink.md)
+ A Sink is a terminal node that collects flow items at the end. Once an item enters the sink, it is considered to have exited the system and cannot be retrieved or processed further. The sink can have multiple input edges but no output edges. [More details on how to configure the parameter `out_edge_selection` can be found here](configuring_parameters.md). It only has a single state "COLLECTING_STATE". The API documentation can be found in [Sink](sink.md).
  
 
  **Behavior**
@@ -551,7 +551,7 @@ The `Buffer` component represents a queue (FIFO or LIFO) that temporarily holds 
 - **FIFO (First In First Out):** Oldest items are released first.  
 - **LIFO (Last In First Out):** Newest items are released first.
 
-The API documentation can be found in [Buffer](buffer.md)
+The API documentation can be found in [Buffer](buffer.md).
 
 **Basic attributes**
 
@@ -566,8 +566,8 @@ The API documentation can be found in [Buffer](buffer.md)
 - The buffer has methods to check if it can accept new items using can_put method and if it can provide items to the next node using 
   can_get method.
 - In FIFO mode, items are released in the order they were added; in LIFO mode, the most recently added items are released first.
-- Incoming edges can use reserve_get and reserve_put calls on the store in the buffer to reserve an item or space and after yielding 
- the requests, an item can be put and obtained by using put and get methods. 
+- Incoming edges can use reserve_get and reserve_put calls on the store in the buffer to reserve an item or space and after yielding the requests, an item can be put and obtained by using put and get methods. 
+- Buffer has methods to list all the items in the buffer(`items()`), to list only the ready items in the buffer( `ready_items()`) and to return the number of items in the buffer (`occupancy()`).
 
 **States**
 
@@ -645,7 +645,7 @@ The `fleet` component represents an AGV that moves multiple items simultaneously
 
 When activated, the fleet incurs `transit_delay` amount of time and makes its stored items available to the destination node.
 
-The API documentation can be found in [Fleet](fleet.md)
+The API documentation can be found in [Fleet](fleet.md).
 
 **Basic attributes**
 
