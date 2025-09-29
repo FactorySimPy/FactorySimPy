@@ -323,7 +323,7 @@ print(f"  Group B (S+I+AP+1B): {sum_groupB:.2f}")
 
 **About**
 
-The `Combiner` component represents a node that combines or packs items from multiple input edges into a single pallet or box, and then pushes the packed pallet to an output edge. It is useful for modeling operations such as packing, assembly, or combining flows from different sources. The number of items to be taken from each input edge can be specified, and the first input edge is expected to provide the pallet or container. A Combiner can process only one pallet at a time. The API documentation can be found in [Combiner](combiner.md).
+The `Combiner` component represents a node that combines or packs items from multiple input edges into a single pallet or box, and then pushes the packed pallet to an output edge. It is useful for modeling operations such as packing, assembly, or combining items from different sources. The number of items to be taken from each input edge can be specified, and the first input edge is expected to provide the pallet or container. A Combiner can process only one pallet at a time. The API documentation can be found in [Combiner](combiner.md).
 
 **Basic attributes**
 
@@ -405,25 +405,31 @@ print(f"Combiner {COMBINER1.id}, worker1 state times: {COMBINER1.stats[1]['total
 
 **About**
 
-The `Splitter` component represents a node that unpacks or splits an input item (such as a pallet or batch) and sends its contents to multiple output edges. It is useful for modeling operations such as unpacking, sorting, etc.  A Splitter can process more only one pallet at a time. The input edge is selected according to the `in_edge_selection` policy, and the output edge for each unpacked item is selected according to the `out_edge_selection` policy. The API documentation can be found in [Splitter](splitter.md).
+The `Splitter` component represents a node that unpacks or splits an input item (such as a pallet or batch) and sends its contents to multiple output edges. It is useful for modeling operations such as unpacking.  A Splitter can process more only one pallet at a time. The input edge is selected according to the `in_edge_selection` policy, and the output edge for each unpacked item is selected according to the `out_edge_selection` policy. The API documentation can be found in [Splitter](splitter.md).
 
 **Basic attributes**
 
 - `state` - current state of the component. This is a dictionary where each key is a worker thread's ID (assigned in order of initialization), and the value is the current state of that worker.
 - `processing_delay` - time taken to process and unpack the items
 - `blocking` - if True, waits for output edge to accept the item; if False, discards the items if the output edge is full
+- `mode` - mode of operation of the splitter. Either "UNPACK" or "SPLIT".
 - `in_edge_selection` - edge selection policy as a function to select input edge
 - `out_edge_selection` - edge selection policy as a function to select output edge
 
 **Behavior**
 
-At the start of the simulation, the splitter waits for `node_setup_time`. Process then repeatedly:
+At the start of the simulation, the splitter waits for `node_setup_time`. 
+
+ it repeatedly:
 
 1. Pulls a packed item (e.g., pallet) from the selected input edge.
 2. Waits for `processing_delay` to simulate unpacking or splitting.
-3. Unpacks the items from the pallet and pushes each item to an output edge, one by one, using the `out_edge_selection` policy.
-4. After all items are pushed, the empty container itself is pushed to an output edge.
-5. If `blocking` is True, the splitter waits for the output edge to accept each item; if `blocking` is False, items are discarded if the output edge is full.
+
+3. If the Splitter `mode` is "UNPACK", then it unpacks the items from the pallet and pushes each item to an output edge, one by one, using the `out_edge_selection` policy. After all items are pushed, the empty container itself is pushed to an output edge.
+
+If the Splitter `mode` is "SPLIT", then it splits the items into a target quanitity of items, specified by `split_quantity` and  pushes each item to an output edge, one by one, using the `out_edge_selection` policy.
+
+4.  If `blocking` is True, the splitter waits for the output edge to accept each item; if `blocking` is False, items are discarded if the output edge is full.
 
 To select an output edge and input edge, worker thread uses the method specified in `out_edge_selection` and `in_edge_selection` parameters. User can also provide a custom python function or a generator function instance to these parameters. User-provided function should return or yield an edge index. If the function depends on any of the node attributes, users can pass `None` to these parameters at the time of node creation and later initialise the parameter with the reference to the function. This is illustrated in the examples shown below. 
 Various options available in the package for `in_edge_selection` and `out_edge_selection` include:
@@ -455,6 +461,7 @@ SPLITTER11 = Split(
     id="SPLITTER11",                # Unique identifier for the splitternode
     processing_delay=1.0,       # Unpacking delay (constant or generator/function)
     blocking=True,              # Wait for output edge to accept item
+    mode = "UNPACK",            # mode can be UNPACK or SPLIT
     in_edge_selection="RANDOM",  # Policy or function to select input edge
     out_edge_selection="ROUND_ROBIN"  # Policy or function to select output edge
 )
