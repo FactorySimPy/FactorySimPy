@@ -91,6 +91,13 @@ class Machine(Node):
         self.time_per_work_occupancy = [0.0 for _ in range(work_capacity+1)]  # Time spent by each worker thread
         #self.stats={"total_time_spent_in_states": {"SETUP_STATE": 0.0, "IDLE_STATE":0.0, "PROCESSING_STATE": 0.0,"BLOCKED_STATE":0.0 },
          #           "last_state_change_time": None, "num_item_processed": 0, "num_item_discarded": 0,"processing_delay":[], "in_edge_selection":[],"out_edge_selection":[]}
+        self.total_time_all_blocked = 0.0
+        self.total_time_all_processing = 0.0
+        self.total_time_atleast_one_blocked = 0.0
+        self.total_time_atleast_one_processing = 0.0
+
+        self.total_time_idle = 0.0
+        self.total_time_setup = 0.0
         
         self.stats={"total_time_spent_in_states": {"SETUP_STATE": 0.0, "IDLE_STATE":0.0, "ATLEAST_ONE_PROCESSING_STATE": 0.0,  "ALL_ACTIVE_BLOCKED_STATE":0.0, "ALL_ACTIVE_PROCESSING_STATE":0.0 ,"ATLEAST_ONE_BLOCKED_STATE":0.0 },
                     "last_state_change_time": None, "num_item_processed": 0, "num_item_discarded": 0,"processing_delay":[], "in_edge_selection":[],"out_edge_selection":[]}
@@ -131,26 +138,26 @@ class Machine(Node):
             # all idle
             if previous_state_rep == (0, 0):
                 self.stats["total_time_spent_in_states"]["IDLE_STATE"] += elapsed
-            
-            
-            
-            #all active are blocked and none processing
-            if previous_state_rep[1]>0 and previous_state_rep[0]==0:
+                self.total_time_idle += elapsed
+
+            # all active are blocked and none processing
+            if previous_state_rep[1] > 0 and previous_state_rep[0] == 0:
                 self.stats["total_time_spent_in_states"]["ALL_ACTIVE_BLOCKED_STATE"] += elapsed
+                self.total_time_all_blocked += elapsed
             # at least one processing 
             if previous_state_rep[0]>0  :
                 self.stats["total_time_spent_in_states"]["ATLEAST_ONE_PROCESSING_STATE"] += elapsed
-
+                self.total_time_atleast_one_processing += elapsed
             # all active are processing and none blocked
             if previous_state_rep[0]>0  and previous_state_rep[1]==0:
                 self.stats["total_time_spent_in_states"]["ALL_ACTIVE_PROCESSING_STATE"] += elapsed
+                self.total_time_all_processing += elapsed
             #at least one blocked
-            if previous_state_rep[1]>0 :
+            if previous_state_rep[1] > 0:
                 self.stats["total_time_spent_in_states"]["ATLEAST_ONE_BLOCKED_STATE"] += elapsed
-            
-        
-    
-            num_processing , num_blocked = self._count_worker_state()
+                self.total_time_atleast_one_blocked += elapsed
+
+            num_processing, num_blocked = self._count_worker_state()
             self.state_rep = (num_processing, num_blocked)
 
 
@@ -654,6 +661,7 @@ class Machine(Node):
                 print(f"T={self.env.now:.2f}: {self.id} is in SETUP_STATE")
                 yield self.env.timeout(self.node_setup_time)# always an int or float
                 self.stats["total_time_spent_in_states"]["SETUP_STATE"] += self.node_setup_time
+                self.total_time_setup += self.node_setup_time
                 self.state_rep = (0, 0) # changing the state_rep to (0,0) to indicate that the machine is ready for processing
                 print(f"T={self.env.now:.2f}: {self.id} completed setup")
                 self.update_state_rep(self.env.now)
